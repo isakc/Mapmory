@@ -31,7 +31,7 @@
 	</insert>
 	
 	<!-- 댓글 목록 조회 -->
-	<select id="getReplyList" parameterType="map" resultMap="CommunitySelectMap">
+	<select id="getReplyList" parameterType="map" resultMap="communitySelectMap">
 	</select>
 	
 	<!-- 댓글 수정 -->
