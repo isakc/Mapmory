@@ -39,6 +39,7 @@ public class NoticeServiceTest {
 	 	System.out.println(totalCount);
 		
 	 	System.out.println("=======================================");
+	 	System.out.println("=======================================");
 		
 	}
 
