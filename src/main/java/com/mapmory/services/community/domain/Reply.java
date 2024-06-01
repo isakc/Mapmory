@@ -1,5 +1,34 @@
 package com.mapmory.services.community.domain;
 
-public class Reply {
+import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+
+public class Reply {
+	
+	//Field
+	private int replyNo;
+	private int recordNo;
+	private String userId;
+	private String replyText;
+	private String replyImageName;
+	private LocalDateTime replyDate;
+	private LocalDateTime replyUpdateDate;
+	
+	//Constructor
+	
+	//Method
+	
 }
