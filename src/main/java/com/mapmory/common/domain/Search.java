@@ -18,5 +18,4 @@ public class Search {
 	private String searchKeyword;
 	private String userId;
 	private int categoryNo;
-	private int currentPage;
 }
