@@ -15,7 +15,7 @@ public interface UserDao {
 	
 	public User selectUser(String userId);
 	
-	// 0: updateUserInfo, 1: updateProfile :: µ¿Àû query »ı¼ºÀÌ ¸ñÇ¥
+	// 0: updateUserInfo, 1: updateProfile :: ë™ì  queryë¡œ ì²˜ë¦¬í•  ì˜ˆì •
 	public int updateUser(User user, int type);
 	
 	public List<User> selectUserList(Search search);

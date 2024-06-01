@@ -20,7 +20,7 @@ public class User {
     private String phoneNumber;          // phone_number VARCHAR(13) NOT NULL
     private Integer sex = 0;             // sex INT DEFAULT 0
     private LocalDateTime regDate; // reg_date DATETIME DEFAULT CURRENT_TIMESTAMP
-    										//¥Ÿ¿Ω∞˙ ∞∞¿Ã º±æ«ÿµµ µ»¥Ÿ. private LocalDateTime regDate = LocalDateTime.now();
+    										// Ïù¥Î†áÍ≤å ÏûëÏÑ±Ìï¥ÎèÑ ÎêúÎã§. :: private LocalDateTime regDate = LocalDateTime.now();
     private LocalDateTime updatePasswordDate; // update_password_date DATETIME DEFAULT CURRENT_TIMESTAMP
     private Byte setSecondaryAuth;       // set_secondary_auth TINYINT NOT NULL
     private String profileImageName;     // profile_image_name VARCHAR(254) NOT NULL
