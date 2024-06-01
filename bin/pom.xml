@@ -110,6 +110,13 @@
   			<version>0.2.14</version>
 		</dependency>
 		
+		<!--타임라인 통계 lib-->
+		<dependency>
+			<groupId>com.github.shin285</groupId>
+			<artifactId>KOMORAN</artifactId>
+			<version>3.3.9</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

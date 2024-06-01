@@ -1,5 +1,7 @@
 package com.mapmory.unit.notice;
 
-public class NoticeDaoTest {
 
+
+public class NoticeDaoTest {
+	
 }
