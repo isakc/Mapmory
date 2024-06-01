@@ -7,7 +7,7 @@ import com.mapmory.services.user.domain.User;
 public interface UserService {
 	
 	/*
-	 * ListÀÇ °æ¿ì, MapÀ¸·Î ¿ä¼Ò ¸®½ºÆ®¿Í ÃÑ °³¼ö¸¦ ´ã¾Æ¼­ ³Ñ±ä´Ù.
+	 * Listì™€ countë¥¼ Mapìœ¼ë¡œ ê°™ì´ ë¬¶ì–´ì„œ controllerì—ê²Œ ì „ë‹¬í•  ê²ƒ
 	 */
 	public int addUser(User user);
 
@@ -34,6 +34,6 @@ public interface UserService {
 	
 	public Map<String, Object> getTermsAndConditionsList();
 	
-	// file io Ã³¸®ÇÏ´Â °´Ã¼´Â ¾î¶»°Ô Á¤ÀÇÇÒ±î
+	// file io ë¡œ ì²˜ë¦¬í•  ì˜ˆì •
 	public Object getDetailTermsAndConditions();
 }
