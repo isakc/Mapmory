@@ -24,6 +24,7 @@
 		<typeAlias alias="suspensionLog" type="com.mapmory.services.user.domain.SuspensionLog" />
 		<typeAlias alias="user" type="com.mapmory.services.user.domain.User" />
 		<typeAlias alias="search" type="com.mapmory.common.domain.Search" />
+		<typeAlias alias="productImage" type="com.mapmory.services.product.domain.ProductImage"/>
 	</typeAliases>
 	
 	 <!-- SQL Definition :: file include -->
@@ -31,6 +32,7 @@
 		<mapper resource="sql/CommunityMapper.xml"/>
 		<mapper resource="sql/NoticeMapper.xml"/>
 		<mapper resource="sql/ProductMapper.xml"/>
+		<mapper resource="sql/ProductImageMapper.xml"/>
 		<mapper resource="sql/PurchaseMapper.xml"/>
 		<mapper resource="sql/RecommendMapper.xml"/>
 		<mapper resource="sql/TimelineMapper.xml"/>
