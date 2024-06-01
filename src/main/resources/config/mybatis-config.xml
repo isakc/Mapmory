@@ -24,6 +24,7 @@
 		<typeAlias alias="socialLoginInfo" type="com.mapmory.services.user.domain.SocialLoginInfo" />
 		<typeAlias alias="suspensionLog" type="com.mapmory.services.user.domain.SuspensionLog" />
 		<typeAlias alias="user" type="com.mapmory.services.user.domain.User" />
+		<typeAlias alias="search" type="com.mapmory.common.domain.Search" />
 	</typeAliases>
 	
 	 <!-- SQL Definition :: file include -->
