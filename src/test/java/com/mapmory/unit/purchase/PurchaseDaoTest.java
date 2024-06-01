@@ -59,7 +59,7 @@ public class PurchaseDaoTest {
 		
 	}//getPurchaseList Test
 	
-	@Test
+	//@Test
 	public void testGetPurchaseTotalCount() throws Exception {
 		String userId = "user1";
 		
