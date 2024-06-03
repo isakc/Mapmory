@@ -28,6 +28,7 @@ public class Product {
     private LocalDateTime productRegDate;   // 상품 등록 일자
     private int period;                     // 구분자
     private String userId;                  // 상품 등록한 사용자 아이디
+    private List<String> uuid;
 
     public String getFormattedProductRegDate() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
