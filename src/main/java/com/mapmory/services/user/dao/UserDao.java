@@ -13,18 +13,16 @@ public interface UserDao {
 
 	public int insertUser(User user);
 	
-	public User selectUser(String userId);
-	
-	// 0: updateUserInfo, 1: updateProfile :: 동적 query로 처리할 예정
-	public int updateUser(User user, int type);
+	public User selectUser(User user);
 	
 	public List<User> selectUserList(Search search);
 	
 	public int getUserListTotalCount(Search search);
 	
-	public int updateLeaveAccount(String userId);
+	// 0: updateUserInfo, 1: updateProfile :: 동적 query로 처리할 예정
+	public int updateUser(User user);
 	
 	public int updateRecoverAccount(String userId);
 	
-	public String selectId(String userName, String email);
+	
 }

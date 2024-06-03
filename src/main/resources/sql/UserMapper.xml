@@ -4,6 +4,107 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.mapmory.services.user.dao">
+<mapper namespace="com.mapmory.services.user.dao.UserDao">
+	
+	<resultMap id="userSelectMap" type="user">
+	    <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+	    <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
+	    <result property="role" column="role" jdbcType="TINYINT"/>
+	    <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+	    <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+	    <result property="birthday" column="birthday" jdbcType="DATE"/>
+	    <result property="email" column="email" jdbcType="VARCHAR"/>
+	    <result property="phoneNumber" column="phone_number" jdbcType="VARCHAR"/>
+	    <result property="sex" column="sex" jdbcType="INTEGER"/>
+	    <result property="regDate" column="reg_date" jdbcType="TIMESTAMP"/>
+	    <result property="updatePasswordDate" column="update_password_date" jdbcType="TIMESTAMP"/>
+	    <result property="setSecondaryAuth" column="set_secondary_auth" jdbcType="TINYINT"/>
+	    <result property="profileImageName" column="profile_image_name" jdbcType="VARCHAR"/>
+	    <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+	    <result property="hideProfile" column="hide_profile" jdbcType="TINYINT"/>
+	    <result property="leaveAccountDate" column="leave_account_date" jdbcType="TIMESTAMP"/>
+	    <result property="endSuspensionDate" column="end_suspension_date" jdbcType="DATE"/>
+	</resultMap>
+	
+	
+	<insert id="insertUser" parameterType="user">
+		INSERT INTO
+		users (user_id, user_password, user_name, nickname, birthday, email, phone_number, sex)
+		VALUES (#{userId}, #{userPassword}, #{userName}, #{nickname}, #{birthday}, #{email}, #{phoneNumber}, #{sex})
+	</insert>
+	
+	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
+		SELECT
+		*
+		FROM users
+		<where> 
+		 	<if test="userId != null">user_id = #{userId}</if>
+		 	<if test="userName != null">user_name = #{userName} AND </if>
+		 	<if test="email != null">email = #{email}</if>
+		</where>
+	</select>
+	
+	<select id="selectUserList" parameterType="search" resultMap="userSelectMap">
+		SELECT *
+		FROM (
+			SELECT 
+				origin.*,
+				(@rownum := @rownum + 1) AS n
+			FROM (
+				SELECT
+				*
+				FROM users
+				WHERE 
+				<if test="searchCondition == 0">user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition == 1">nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				ORDER BY reg_date DESC
+				) origin, 
+				(SELECT @rownum :=0) AS r
+			ORDER BY n DESC
+		) temp
+		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum};
+	</select>
+	
+	<select id="getUserListTotalCount" parameterType="search" resultType="integer">
+		SELECT COUNT(*)
+		FROM (
+			SELECT 
+				(@rownum := @rownum + 1) AS n,
+				origin.*
+			FROM (
+				SELECT
+				*
+				FROM users
+			WHERE 
+			<if test="searchCondition == 0">user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+			<if test="searchCondition == 1">nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+			ORDER BY reg_date DESC
+			) origin,
+			(SELECT @rownum :=0) AS r
+			ORDER BY n DESC
+		) temp
+		WHERE temp.n BETWEEN 1 AND 5;
+	</select>
+	
+	<update id="updateUser" parameterType="user">
+	    UPDATE users
+	    <set>
+	        <if test="userPassword != null">user_password=#{userPassword}, </if>
+	        <if test="userName != null">user_name=#{userName}, </if>
+	        <if test="nickname != null">nickname=#{nickname}, </if>
+	        <if test="birthday != null">birthday=#{birthday}, </if>
+	        <if test="email != null">email=#{email}, </if>
+	        <if test="phoneNumber != null">phone_number=#{phoneNumber}, </if>
+	        <if test="sex != null">sex=#{sex}, </if>
+	        <if test="updatePasswordDate != null">update_password_date=#{updatePasswordDate}, </if>
+	        <if test="setSecondaryAuth != null">set_secondary_auth=#{setSecondaryAuth}, </if>
+	        <if test="profileImageName != null">profile_image_name=#{profileImageName}, </if>
+	        <if test="introduction != null">introduction=#{introduction}, </if>
+	        <if test="hideProfile != null">hide_profile=#{hideProfile}, </if>
+	        <if test="leaveAccountDate != null">leave_account_date=#{leaveAccountDate}, </if>
+	        <if test="endSuspensionDate != null">end_suspension_date=#{endSuspensionDate}, </if>
+	    </set>
+	    WHERE user_id=#{userId}
+	</update>
 
 </mapper>
