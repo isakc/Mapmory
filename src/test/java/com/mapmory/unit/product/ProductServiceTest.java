@@ -105,6 +105,6 @@ public class ProductServiceTest {
     	
     	product = productService.getDetailProduct(26);
     	
-    	System.out.println(product);
+    	System.out.println("여길 보시오 ~~ :::: " + product);
     }
 }

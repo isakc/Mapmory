@@ -6,7 +6,7 @@
 <mapper namespace="com.mapmory.services.product.dao.ProductDao">
 
 	<resultMap type="product" id="productSelectMap">
-	    <result property="productNo" column="product_no" jdbcType="VARCHAR"/>
+	    <result property="productNo" column="product_no" jdbcType="INTEGER"/>
 	    <result property="productTitle" column="product_title" jdbcType="VARCHAR"/>
 	    <result property="price" column="price" jdbcType="INTEGER"/>
 	    <result property="productRegDate" column="product_regdate" jdbcType="DATE"/>
@@ -35,16 +35,18 @@
     </insert>
     
     <!-- 상품 상세 정보 조회 -->
-    <select id="getDetailProduct" parameterType="int" resultType="productSelectMap">
+    <select id="getDetailProduct" parameterType="int" resultMap="productSelectMap">
         SELECT 
-        	p.PRODUCT_TITLE,
+        	p.PRODUCT_NO,
+			p.PRODUCT_TITLE,
         	p.PRICE,
-        	i.UUID
+        	GROUP_CONCAT(i.UUID) AS UUID
         FROM 
         	PRODUCT p
         LEFT JOIN 
         	IMAGE_FILE i ON p.product_no = i.product_no
         WHERE p.PRODUCT_NO = #{productNo}
+        GROUP BY p.PRODUCT_NO
     </select>
     
     <!-- 상품 리스트 조회 -->
@@ -77,8 +79,20 @@
     </select>
     
     <!-- 상품 총 개수 조회 -->
-    <select id="getProductTotalCount" parameterType="com.mapmory.common.domain.Search" resultType="int">
-        SELECT COUNT(*) FROM PRODUCT WHERE PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+    <select id="getProductTotalCount" parameterType="search" resultType="int">
+	  	SELECT COUNT(*)
+	  	FROM(	SELECT product_no , product_title , price
+						FROM product
+						<if test="searchCondition != null">
+							<where>
+								<if test="searchCondition == 0 and searchKeyword !='' ">
+						 			product_title = #{searchKeyword}
+								</if>
+								<if test="searchCondition == 1 and searchKeyword !='' ">
+						 			price = #{searchKeyword}
+								</if>
+							</where>
+						</if> ) countTable						
     </select>
 
 </mapper>

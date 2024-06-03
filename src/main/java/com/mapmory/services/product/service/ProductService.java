@@ -21,8 +21,6 @@ public interface ProductService {
 
     public Product getProductByName(String productTitle) throws Exception;
 
-    public int getProductTotalCount(Search search) throws Exception;
-
     public Map<String,Object> getProductImages(int productNo) throws Exception;
     
     public void deleteImage(String uuid) throws Exception;
