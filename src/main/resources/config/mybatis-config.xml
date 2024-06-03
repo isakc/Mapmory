@@ -31,7 +31,7 @@
 	
 	 <!-- SQL Definition :: file include -->
 	<mappers>
-		<mapper resource="sql/CommunityMapper.xml"/>
+		<!-- <mapper resource="sql/CommunityMapper.xml"/> -->
 		<mapper resource="sql/NoticeMapper.xml"/>
 		<mapper resource="sql/ProductMapper.xml"/>
 		<mapper resource="sql/ProductImageMapper.xml"/>

@@ -122,6 +122,29 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+		
+		<!-- JSON -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20240303</version>
+		</dependency>
+		
+		<!-- COOL SMS -->
+		<dependency>
+			<groupId>net.nurigo</groupId>
+			<artifactId>sdk</artifactId>
+			<version>4.3.0</version>
+		</dependency>
+		
+		<!-- JAVA MAIL -->
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
+		
+		
 	</dependencies>
 
 	<build>

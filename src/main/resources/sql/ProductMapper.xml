@@ -39,8 +39,7 @@
         SELECT 
         	p.PRODUCT_NO,
 			p.PRODUCT_TITLE,
-        	p.PRICE,
-        	GROUP_CONCAT(i.UUID) AS UUID
+        	p.PRICE
         FROM 
         	PRODUCT p
         LEFT JOIN 
