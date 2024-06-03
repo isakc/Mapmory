@@ -25,9 +25,9 @@ public class Search {
 	private int limit;
 	private int offset;
 	
-	private int sharedType;
-	private int tempType;
-	private int timecapsulType;
+	private String sharedType;
+	private String tempType;
+	private String timecapsuleType;
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();

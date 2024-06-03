@@ -182,8 +182,24 @@ FROM
     record
 <trim prefix="where" prefixOverrides="AND||OR">
 	<if test="!(sharedType==null)">
-		<if test="sharedType==0">
-			
+		<if test="sharedType==1">
+			shared_date is not null
+		</if>
+	</if>
+	<if test="!(tempType==null)">
+		<if test="tempType==0">
+			AND temp_type=0
+		</if>
+		<if test="tempType==1">
+			AND temp_type=1
+		</if>
+	</if>
+	<if test="!(timecapsuleType==null)">
+		<if test="timecapsuleType==0">
+			AND timecapsule_type=0
+		</if>
+		<if test="timecapsuleType==1">
+			AND timecapsule_type=1
 		</if>
 	</if>
 </trim>

@@ -28,10 +28,58 @@ public class TimelineController {
 	@GetMapping({"getDetailTimeline2"})
 	public void getTimelineList(Model model) throws Exception,IOException {
 		Search search=Search.builder()
-				.currentPage(3)
+				.currentPage(1)
 				.limit(3)
 				.build();
 		model.addAttribute("list",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("1")
+				.tempType("1")
+				.timecapsuleType("0")
+				.build();
+		model.addAttribute("list2",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("0")
+				.tempType("0")
+				.timecapsuleType("0")
+				.build();
+		model.addAttribute("list3",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("0")
+				.tempType("1")
+				.timecapsuleType("0")
+				.build();
+		model.addAttribute("list4",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("1")
+				.tempType("1")
+				.timecapsuleType("0")
+				.build();
+		model.addAttribute("list5",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("0")
+				.tempType("0")
+				.timecapsuleType("1")
+				.build();
+		model.addAttribute("list6",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(3)
+				.sharedType("0")
+				.tempType("1")
+				.timecapsuleType("1")
+				.build();
+		model.addAttribute("list7",timelineService.getTimelineList(search));
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{
