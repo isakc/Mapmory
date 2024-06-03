@@ -6,19 +6,31 @@
 
 <mapper namespace="com.mapmory.services.community.dao.CommunityDao">
 
-	<resultMap id="communitySelectMap" type="communityLogs">
-			<result property="communityLogsNo"	column="community_logs_no"	jdbcType="INTEGER"/>
-			<result property="userId"			column="user_id"			jdbcType="VARCHAR"/>
-			<result property="targetUserId"		column="target_user_id"		jdbcType="VARCHAR"/>
-			<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
+	<resultMap id="replySelectMap" type="reply">
 			<result property="replyNo"			column="reply_no"			jdbcType="INTEGER"/>
-			<result property="reportNo"			column="report_no"			jdbcType="INTEGER"/>
-			<result property="chatRoomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
-			<result property="logsType"			column="logs_type"			jdbcType="INTEGER"/>
+			<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
+			<result property="userId"			column="user_id"			jdbcType="VARCHAR"/>
 			<result property="replyText"		column="reply_text"			jdbcType="VARCHAR"/>
 			<result property="replyImageName"	column="reply_image_name"	jdbcType="VARCHAR"/>
 			<result property="replyDate"		column="reply_date"			jdbcType="TIMESTAMP"/>
 			<result property="replyUpdateDate"	column="reply_update_Date"	jdbcType="TIMESTAMP"/>
+	</resultMap>
+	
+		<resultMap id="communityLogsSelectMap" type="communityLogs">
+			<result property="communityLogsNo"	column="community_logs_no"	jdbcType="INTEGER"/>
+			<result property="userId"			column="user_id"			jdbcType="VARCHAR"/>
+			<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
+			<result property="replyNo"			column="reply_no"			jdbcType="INTEGER"/>
+			<result property="logsType"			column="logs_type"			jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<resultMap id="reportSelectMap" type="communityLogs">
+			<result property="reportNo"			column="report_no"			jdbcType="INTEGER"/>
+			<result property="userId"			column="user_id"			jdbcType="VARCHAR"/>
+			<result property="targetUserId"		column="target_user_id"		jdbcType="VARCHAR"/>
+			<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
+			<result property="replyNo"			column="reply_no"			jdbcType="INTEGER"/>
+			<result property="chatRoomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
 			<result property="reportTitle"		column="report_title"		jdbcType="VARCHAR"/>
 			<result property="reportText"		column="report_text"		jdbcType="VARCHAR"/>
 			<result property="reportDate"		column="report_date"		jdbcType="TIMESTAMP"/>
@@ -26,18 +38,40 @@
 			<result property="reportResult"		column="report_result"		jdbcType="INTEGER"/>
 	</resultMap>
 
+	<!-- 댓글 목록 조회 -->
+	<select id="getReplyList" parameterType="map" resultMap="replySelectMap">
+	
+	</select>
+
+	<!-- 내가 쓴 댓글 목록 조회 -->
+	<select id="getReplyList" parameterType="map" resultMap="replySelectMap">
+	
+	</select>
+
 	<!-- 댓글 작성 -->
 	<insert id="addReply" parameterType="reply">
+		INSERT INTO REPLY (record_no, user_id, reply_text, reply_image_name)
+		VALUES(#{recordNo}, #{userId}, #{replyText}, #{replyImageName});
 	</insert>
 	
-	<!-- 댓글 목록 조회 -->
-	<select id="getReplyList" parameterType="map" resultMap="communitySelectMap">
+	<!-- 댓글 선택 -->
+	<select id="getReply" parameterType="int" resultMap="replySelectMap">
+		SELECT reply_no, record_no, user_id, reply_text, reply_image_name, reply_date, reply_update_date
+		FROM REPLY
+		WHERE reply_no = #{replyNo}
 	</select>
 	
 	<!-- 댓글 수정 -->
 	<update id="updateReply" parameterType="reply">
+		UPDATE REPLY 
+			<set> 
+				<if test = "replyText != null"> reply_text = #{replyText}, </if>
+				reply_image_name = #{replyImageName},
+				reply_update_date = current_timestamp
+			</set>   
+		WHERE reply_no = #{replyNo}
 	</update>
-	
+
 	<!-- 댓글 삭제 -->	
 	<delete id="deltetReply" parameterType="reply">
 	</delete>	
