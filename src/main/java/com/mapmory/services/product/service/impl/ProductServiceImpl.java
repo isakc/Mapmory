@@ -1,106 +1,79 @@
 package com.mapmory.services.product.service.impl;
 
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
-import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.services.product.dao.ProductDao;
 import com.mapmory.services.product.dao.ProductImageDao;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.domain.ProductImage;
 import com.mapmory.services.product.service.ProductService;
+import com.mapmory.common.util.ImageFileUtil;
 
-@Service("productServiceImpl")
+@Service
 public class ProductServiceImpl implements ProductService {
 
-	@Autowired
-	@Qualifier("productDao")
-	ProductDao productDao;
+    @Autowired
+    private ProductDao productDao;
 
-	@Autowired
-	@Qualifier("productImageDao")
-	ProductImageDao productImageDao;
-	
-	public void addProduct(Product product, List<String> imageNames) throws Exception {
-		productDao.addProduct(product);
-		
-		for(String originalImageFilename : imageNames) {
-			ProductImage productImage = new ProductImage();
-			String uuidFilename = ImageFileUtil.getProductImageUUIDFileName(originalImageFilename);
-			productImage.setUuid(uuidFilename); // UUID로 변경된 파일 이름 설정
-			productImage.setProductNo(product.getProductNo());
-			productImage.setImageFile(originalImageFilename); // 원본 파일 이름 설정
-			productImageDao.addProductImage(productImage);
-		}
-	}
-	
-	public Product getDetailProduct(int productNo) throws Exception {
-		return productDao.getDetailProduct(productNo);
-	}
-	
-	public Map<String, Object> getProductList(Search search) throws Exception {
+    @Autowired
+    private ProductImageDao productImageDao;
 
-        List<Product> productList = productDao.getProductList(search);
+    @Override
+    @Transactional
+    public void addProduct(Product product, List<String> imageFiles) throws Exception {
+        productDao.addProduct(product); // 상품 정보를 먼저 추가
 
-        for (Product product : productList) {
-            List<ProductImage> productImageList = productImageDao.getProductImageList(product.getProductNo());
-            List<String> uuidList = new ArrayList<>();
-
-            for (ProductImage productImage : productImageList) {
-                uuidList.add(productImage.getUuid());
-            }
-
-            product.setProductImage(uuidList);
-        }
-
-        int totalCount = productDao.getProductTotalCount(search);
-
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("list", productList);
-        resultMap.put("totalCount", totalCount);
-
-        return resultMap;
-    }
-
-    public void updateProduct(Product product, List<String> imageNames) throws Exception {
-        productDao.updateProduct(product);
-
-        for (String originalImageFilename : imageNames) {
+        // 이미지 파일의 UUID 값을 생성하고 ProductImage 객체에 설정하여 데이터베이스에 삽입
+        for (String imageFile : imageFiles) {
+            String uuid = ImageFileUtil.getProductImageUUIDFileName(imageFile);
             ProductImage productImage = new ProductImage();
-            String uuidFilename = ImageFileUtil.getProductImageUUIDFileName(originalImageFilename);
-            productImage.setUuid(uuidFilename); // UUID로 변경된 파일 이름 설정
             productImage.setProductNo(product.getProductNo());
-            productImage.setImageFile(originalImageFilename); // 원본 파일 이름 설정
+            productImage.setImageFile(uuid);
+            productImage.setUuid(uuid); // UUID 설정
             productImageDao.addProductImage(productImage);
         }
     }
 
+    @Override
+    public Product getDetailProduct(int productNo) throws Exception {
+        return productDao.getDetailProduct(productNo);
+    }
+
+    @Override
+    public List<Product> getProductList(Search search) throws Exception {
+        
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public void updateProduct(Product product, List<String> imageFiles) throws Exception {
+        
+    }
+
+    @Override
     public void deleteProduct(int productNo) throws Exception {
-        productImageDao.deleteProductImage(productNo);
-        productDao.deleteProduct(productNo);
+        
     }
 
+    @Override
     public Product getProductByName(String productTitle) throws Exception {
-        Product product = productDao.getProductByName(productTitle);
-
-        List<ProductImage> productImageList = productImageDao.getProductImageList(product.getProductNo());
-        List<String> uuidList = new ArrayList<>();
-
-        for (ProductImage productImage : productImageList) {
-            uuidList.add(productImage.getUuid());
-        }
-
-        product.setProductImage(uuidList);
-
-        return product;
+        return productDao.getProductByName(productTitle);
     }
-	
+
+    @Override
+    public int getProductTotalCount(Search search) throws Exception {
+        // getProductTotalCount 메서드 구현
+        return 0;
+    }
+
+    @Override
+    public List<ProductImage> getProductImages(int productNo) throws Exception {
+        return productImageDao.getProductImageList(productNo);
+    }
 }

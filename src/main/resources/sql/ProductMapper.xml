@@ -1,9 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE mapper
-		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapmory.services.product.dao.ProductDao">
+
+    <!-- 상품 추가 -->
+    <insert id="addProduct" parameterType="com.mapmory.services.product.domain.Product" useGeneratedKeys="true" keyProperty="productNo">
+        INSERT INTO PRODUCT (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
+        VALUES (#{productTitle}, #{price}, SYSDATE(), #{period}, #{userId})
+    </insert>
+    
+    <!-- 상품 상세 정보 조회 -->
+    <select id="getDetailProduct" parameterType="int" resultType="com.mapmory.services.product.domain.Product">
+        SELECT * FROM PRODUCT WHERE PRODUCT_NO = #{productNo}
+    </select>
+    
+    <!-- 상품 리스트 조회 -->
+    <select id="getProductList" parameterType="com.mapmory.common.domain.Search" resultType="com.mapmory.services.product.domain.Product">
+        SELECT * FROM PRODUCT WHERE PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%') ORDER BY PRODUCT_NO DESC LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 상품 정보 수정 -->
+    <update id="updateProduct" parameterType="com.mapmory.services.product.domain.Product">
+        UPDATE PRODUCT
+        SET PRODUCT_TITLE = #{productTitle}, PRICE = #{price}, PRODUCT_REG_DATE = #{productRegDate}, PERIOD = #{period}, USER_ID = #{userId}
+        WHERE PRODUCT_NO = #{productNo}
+    </update>
+    
+    <!-- 상품 삭제 -->
+    <delete id="deleteProduct" parameterType="int">
+        DELETE FROM PRODUCT WHERE PRODUCT_NO = #{productNo}
+    </delete>
+    
+    <!-- 상품 이름으로 조회 -->
+    <select id="getProductByName" parameterType="string" resultType="com.mapmory.services.product.domain.Product">
+        SELECT * FROM PRODUCT WHERE PRODUCT_TITLE = #{productTitle}
+    </select>
+    
+    <!-- 상품 총 개수 조회 -->
+    <select id="getProductTotalCount" parameterType="com.mapmory.common.domain.Search" resultType="int">
+        SELECT COUNT(*) FROM PRODUCT WHERE PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+    </select>
 
 </mapper>

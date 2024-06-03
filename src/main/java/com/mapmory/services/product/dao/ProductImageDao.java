@@ -9,9 +9,10 @@ import com.mapmory.services.product.domain.ProductImage;
 @Mapper
 public interface ProductImageDao {
 
-	public void addProductImage(ProductImage productImage) throws Exception;
-	
-	public List<ProductImage> getProductImageList(int productNo) throws Exception;
-	
-	public void deleteProductImage(int productNo) throws Exception;
+    // 이미지 추가 메서드 변경
+    public void addProductImage(ProductImage productImage) throws Exception;
+    
+    public List<ProductImage> getProductImageList(int productNo) throws Exception;
+    
+    public void deleteProductImage(int productNo) throws Exception;
 }
