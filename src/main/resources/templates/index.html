@@ -1,11 +1,71 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8">
-	<title>인덱스</title>
+    <meta charset="UTF-8">
+    <title>인덱스</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-	<h1 th:text="${'Hello World'}"></h1>
-	<a href="/timeline/getDetailTimeline" th:text="${'getDetailTimeline'}"></a><br/>
-</body>	
+    <h1 th:text="${'Hello World'}"></h1>
+    <a href="/timeline/getDetailTimeline" th:text="${'getDetailTimeline'}"></a><br/>
+    <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
+   <div id="captchaImageContainer">
+    <!-- 캡차 이미지가 표시될 곳 -->
+</div>
+        <input type="text" id="captcha-input" placeholder="Enter Captcha">
+        <button id="verify-button">확인</button>
+    </div>
+
+
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // script.js
+
+$(document).ready(function() {
+  var captchaKey;
+
+  function loadCaptcha() {
+    $.get("/api/captcha/nkey?code=0", function(response) {
+      captchaKey = JSON.parse(response).key;
+      var captchaImageUrl = "/api/captcha/image?key=" + captchaKey;
+      $("#captchaImageContainer").html($("<img>").attr("src", captchaImageUrl));
+    });
+  }
+
+  $("#verify-button").click(function() {
+    var captchaValue = $("#captcha-input").val();
+
+    $.ajax({
+      url: "/api/captcha/verify",
+      method: "GET",
+      data: {
+        key: captchaKey,
+        value: captchaValue
+      },
+      success: function(response) {
+        var result = JSON.parse(response);
+        if (result.result) {
+          alert("캡차 확인 성공!");
+        } else {
+          alert("캡차를 다시 확인해주세요.");
+          loadCaptcha(); // 새로운 캡차 이미지 로드
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("캡차 검증 실패:", error);
+        alert("캡차를 다시 확인해주세요.");
+        loadCaptcha(); // 새로운 캡차 이미지 로드
+      }
+    });
+  });
+
+  loadCaptcha(); // 페이지 로드 시 캡차 로드
+});
+</script>
+
+
+
+</body>
 </html>
