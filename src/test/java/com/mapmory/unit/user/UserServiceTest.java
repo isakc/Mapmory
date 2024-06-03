@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
 
@@ -20,14 +21,24 @@ public class UserServiceTest {
 	@Qualifier("userServiceImpl")
 	private UserService userService;
 	
-
-	// 아직 작업 안함
+	
+	// @Test
+	public void testGetDetialUser() {
+				
+		User resultUser = userService.getDetailUser("user_123");
+		
+		Assertions.assertThat(resultUser.getUserId()).isEqualTo("user_123");
+	}
+	
 	// @Test
 	public void testAddUser() {
 		
+		String userId = "hong";
+		String password = "qwer1234";
+		
 		User user = User.builder()
-				.userId("hong")
-				.userPassword("1234")
+				.userId(userId)
+				.userPassword(password)
 				.role((byte) 1)
 				.userName("홍길동")
 				.nickname("나는 홍길동")
@@ -37,16 +48,70 @@ public class UserServiceTest {
 				.sex(1)
 				.build();
 		
-		int result = userService.addUser(user);
+		boolean result = userService.addUser(user);
 		
-		Assertions.assertThat(result).isEqualTo(1);
+		Assertions.assertThat(result).isEqualTo(true);
+		
+		User resultUser = userService.getDetailUser(userId);
+		
+		Assertions.assertThat(resultUser.getUserPassword()).isEqualTo(password);
+	}
+	
+	public void testAddSuspendUser() {
+		
 	}
 	
 	@Test
-	public void testGetUser() {
-				
-		User resultUser = userService.getUser("user_123");
+	public void testAddSocialLoginLink() {
 		
-		Assertions.assertThat(resultUser.getUserId()).isEqualTo("user_123");
+		String userId = "simple_7890";
+		String socialId = "103984541210666630525";
+		int socialLoginInfoType = 0;
+		
+		SocialLoginInfo info = SocialLoginInfo.builder()
+								.userId(userId)
+								.socialLoginInfoType(socialLoginInfoType)
+								.socialId(socialId)
+								.build();
+		
+		boolean result = userService.addSocialLoginLink(info);
+		
+		Assertions.assertThat(result).isEqualTo(true);
+		
+		
 	}
+	
+	// @Test
+	public void testGetId() {
+		
+		String userName = "Tom Lee";
+		String email = "tom.lee@example.com";
+		
+		User user = User.builder()
+					.userName(userName)
+					.email(email)
+					.build();
+		
+		String userId = userService.getId(user);
+		
+		Assertions.assertThat(userId).isEqualTo("test_user789");
+	}
+	
+	@Test
+	public void testGetSocialId() {
+		
+		String userId = "simple_7890";
+		int type=1;
+		
+		String socialId = userService.getSocialId(userId, type);
+		
+		Assertions.assertThat(socialId).isEqualTo("Bb3H7Y5_2l38r-f7hNlrjLKbHcPmmwsDwp57dFIjZNo");
+	}
+	
+	public void testGetUserList() {
+		
+	}
+	
+	
+	
 }

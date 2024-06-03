@@ -26,11 +26,26 @@
 	    <result property="endSuspensionDate" column="end_suspension_date" jdbcType="DATE"/>
 	</resultMap>
 	
+	<resultMap id="socialLoginInfoSelectMap" type="socialLoginInfo">
+	    <result property="socialLoginInfoNo" column="social_login_info_no" jdbcType="INTEGER"/>
+	    <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+	    <result property="socialLoginInfoType" column="social_login_info_type" jdbcType="INTEGER"/>
+	    <result property="socialId" column="social_id" jdbcType="VARCHAR"/>
+	    <result property="linkRegDate" column="link_reg_date" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	
 	
 	<insert id="insertUser" parameterType="user">
 		INSERT INTO
 		users (user_id, user_password, user_name, nickname, birthday, email, phone_number, sex)
 		VALUES (#{userId}, #{userPassword}, #{userName}, #{nickname}, #{birthday}, #{email}, #{phoneNumber}, #{sex})
+	</insert>
+	
+	<insert id="insertSocialLoginLink" parameterType="socialLoginInfo">
+		INSERT INTO
+		social_login_info (USER_ID, SOCIAL_LOGIN_INFO_TYPE, SOCIAL_ID)
+		VALUES (#{userId}, #{socialLoginInfoType}, #{socialId})
 	</insert>
 	
 	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
@@ -39,8 +54,7 @@
 		FROM users
 		<where> 
 		 	<if test="userId != null">user_id = #{userId}</if>
-		 	<if test="userName != null">user_name = #{userName} AND </if>
-		 	<if test="email != null">email = #{email}</if>
+		 	<if test="userName != null and email != null">user_name = #{userName} AND email = #{email}</if>
 		</where>
 	</select>
 	
@@ -86,6 +100,13 @@
 		WHERE temp.n BETWEEN 1 AND 5;
 	</select>
 	
+	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">
+		SELECT
+		*
+		FROM social_login_info
+		WHERE user_id = #{value}
+	</select>
+	
 	<update id="updateUser" parameterType="user">
 	    UPDATE users
 	    <set>
@@ -101,10 +122,16 @@
 	        <if test="profileImageName != null">profile_image_name=#{profileImageName}, </if>
 	        <if test="introduction != null">introduction=#{introduction}, </if>
 	        <if test="hideProfile != null">hide_profile=#{hideProfile}, </if>
-	        <if test="leaveAccountDate != null">leave_account_date=#{leaveAccountDate}, </if>
+	        <if test="leaveAccountDate != null">leave_account_date = #{leaveAccountDate},</if>
 	        <if test="endSuspensionDate != null">end_suspension_date=#{endSuspensionDate}, </if>
 	    </set>
 	    WHERE user_id=#{userId}
+	</update>
+	
+	<update id="recoverAccount" parameterType="string">
+		UPDATE users
+		SET leave_account_date = null
+		WHERE user_id = #{value}
 	</update>
 
 </mapper>
