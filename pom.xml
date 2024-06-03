@@ -132,9 +132,9 @@
 		
 		<!-- COOL SMS -->
 		<dependency>
-			<groupId>net.nurigo</groupId>
-			<artifactId>sdk</artifactId>
-			<version>4.3.0</version>
+  			<groupId>net.nurigo</groupId>
+  			<artifactId>sdk</artifactId>
+  			<version>4.2.7</version>
 		</dependency>
 		
 		<!-- JAVA MAIL -->
@@ -144,7 +144,10 @@
 			<version>1.4.7</version>
 		</dependency>
 		
-		
+		<dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-mail</artifactId>
+    	</dependency>
 	</dependencies>
 
 	<build>
