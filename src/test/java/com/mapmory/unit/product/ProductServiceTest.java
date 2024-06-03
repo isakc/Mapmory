@@ -89,7 +89,7 @@ public class ProductServiceTest {
     public void testDeleteImage() throws Exception {
     	
     	productService.deleteImage("c2e31b5692784d50ba294a81fb535b51.jpg");
-    	
+    	System.out.println("=======================================");
     	
     }
     
