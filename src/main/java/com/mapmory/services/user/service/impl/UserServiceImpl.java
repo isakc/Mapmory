@@ -67,6 +67,15 @@ public class UserServiceImpl implements UserService {
 		 * 1. 동일한 업체의 소셜 계정을 overriding하는 경우 -> 기존 것을 제거 후 새 것으로 교체
 		 */
 		
+		int socialIdLength = socialLoginInfo.getSocialId().length();
+		
+		if(socialIdLength == 10)
+			socialLoginInfo.setSocialLoginInfoType(2);
+		else if (socialIdLength == 21)
+			socialLoginInfo.setSocialLoginInfoType(0);
+		else
+			socialLoginInfo.setSocialLoginInfoType(1);
+		
 		int result = userDao.insertSocialLoginLink(socialLoginInfo);
 
 		if (result == 1)
@@ -137,6 +146,20 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public boolean checkSocialId(SocialLoginInfo socialLoginInfo) {
+		// TODO Auto-generated method stub
+		
+		List<SocialLoginInfo> resultList = userDao.selectSocialIdList(socialLoginInfo.getUserId());
+		
+		for (SocialLoginInfo info : resultList) {
+			
+			if(info.getSocialId().equals(socialLoginInfo.getSocialId()))
+				return true;
+		}
+		return false;
+	}
 
 	@Override
 	public Map<String, Object> getTermsAndConditionsList() {
@@ -149,6 +172,8 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 	
 	
 }

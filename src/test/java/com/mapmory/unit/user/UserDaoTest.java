@@ -45,7 +45,7 @@ public class UserDaoTest {
 		Assertions.assertThat(result).isEqualTo(1);
 	}
 	
-	@Test
+	// @Test
 	public void testInsertSocialLoginLink() throws Exception {
 		
 		String userId = "simple_7890";

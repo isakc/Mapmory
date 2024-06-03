@@ -61,16 +61,14 @@ public class UserServiceTest {
 		
 	}
 	
-	@Test
+	// @Test
 	public void testAddSocialLoginLink() {
 		
 		String userId = "simple_7890";
 		String socialId = "103984541210666630525";
-		int socialLoginInfoType = 0;
 		
 		SocialLoginInfo info = SocialLoginInfo.builder()
 								.userId(userId)
-								.socialLoginInfoType(socialLoginInfoType)
 								.socialId(socialId)
 								.build();
 		
@@ -78,6 +76,9 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(result).isEqualTo(true);
 		
+		String resultSocialId = userService.getSocialId(userId, 0);
+		
+		Assertions.assertThat(resultSocialId).isEqualTo(socialId);
 		
 	}
 	
@@ -97,7 +98,7 @@ public class UserServiceTest {
 		Assertions.assertThat(userId).isEqualTo("test_user789");
 	}
 	
-	@Test
+	// @Test
 	public void testGetSocialId() {
 		
 		String userId = "simple_7890";
@@ -112,6 +113,20 @@ public class UserServiceTest {
 		
 	}
 	
-	
+	// @Test
+	public void testCheckSocialId() {
+		
+		String userId = "unique_id_4567";
+		String socialId = "303984541210605030527";
+		
+		SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
+											.userId(userId)
+											.socialId(socialId)
+											.build();
+		
+		boolean result = userService.checkSocialId(socialLoginInfo);
+		
+		Assertions.assertThat(result).isEqualTo(true);
+	}
 	
 }

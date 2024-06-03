@@ -44,6 +44,8 @@ public interface UserService {
 	public boolean checkSecondaryAuth(String userId);
 	
 	public boolean checkDuplication(User user);
+	
+	public boolean checkSocialId(SocialLoginInfo socialLoginInfo);
 
 	// 이용약관은 file io 로 처리할 예정
 	public Map<String, Object> getTermsAndConditionsList();
