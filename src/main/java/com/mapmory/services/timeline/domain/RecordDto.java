@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Builder(toBuilder = true)
-public class Record {
+public class RecordDto {
 	private int recordNo;
 	private String recordUserId;
 	private String recordTitle;
@@ -19,6 +19,8 @@ public class Record {
 	private String checkpointAddress;
 	private LocalDateTime checkpointDate;
 	private String mediaName;
+	private List<String> imageName;
+	private List<String> Hashtag;
 	private int sharedType;
 	private int categoryNo;
 	private String recordText;
