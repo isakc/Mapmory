@@ -1,5 +1,6 @@
 package com.mapmory.services.user.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,15 +85,16 @@ public class UserServiceImpl implements UserService {
 			return false;
 	}
 
+	// deprecated
 	@Override
-	public String getSocialId(String userId, int type) {
+	public String getSocialId(SocialLoginInfo socialLoginInfo) {
 		// TODO Auto-generated method stub
 		
-		List<SocialLoginInfo> resultList = userDao.selectSocialIdList(userId);
+		List<SocialLoginInfo> resultList = userDao.selectSocialIdList(socialLoginInfo.getUserId());
 		
 		for(SocialLoginInfo info : resultList) {
 			
-			if(info.getSocialLoginInfoType() == type)
+			if(info.getSocialLoginInfoType() == socialLoginInfo.getSocialLoginInfoType())
 				return info.getSocialId();
 		}
 		
@@ -102,7 +104,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Map<String, Object> getUserList(Search search) {
 		// TODO Auto-generated method stub
-		return null;
+		
+		List<User> userList = userDao.selectUserList(search);
+		int count = userDao.getUserListTotalCount(search);
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("userList", userList);
+		result.put("count", count);
+		
+		return result;
 	}
 
 	@Override
@@ -118,21 +128,32 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public int updateUser(User user) {
+	public boolean updateUser(User user) {
 		// TODO Auto-generated method stub
-		return 0;
+		
+		int result = userDao.updateUser(user);
+		
+		if (result == 1)
+			return true;
+		else
+			return false;
 	}
 
 	@Override
-	public int updateSuspendUser(String userId) {
+	public boolean updateSuspendUser(String userId) {
 		// TODO Auto-generated method stub
-		return 0;
+		return false;
 	}
 
 	@Override
-	public int updateRecoverAccount(String userId) {
+	public boolean updateRecoverAccount(String userId) {
 		// TODO Auto-generated method stub
-		return 0;
+		int result = userDao.updateRecoverAccount(userId);
+		
+		if (result == 1)
+			return true;
+		else
+			return false;
 	}
 
 	@Override
@@ -171,9 +192,5 @@ public class UserServiceImpl implements UserService {
 	public Object getDetailTermsAndConditions() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	
-	
-	
+	}	
 }
