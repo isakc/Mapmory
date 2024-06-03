@@ -23,7 +23,7 @@ public interface UserService {
 	public String getId(User user);
 	
 	// 0: google, 1: naver, 2: kakao
-	public String getSocialId(String userId, int type);
+	public String getSocialId(SocialLoginInfo socialLoginInfo);
 	
 	/*
 	 * List와 count를 Map으로 같이 묶어서 controller에게 전달할 것
@@ -35,11 +35,11 @@ public interface UserService {
 	public List<LoginLog> getUserStatistics();
 	
 	// updateUserInfo, updateProfile, updatePassword, updateSecondaryAuth 모두 이거로 처리
-	public int updateUser(User user);
+	public boolean updateUser(User user);
 	
-	public int updateSuspendUser(String userId);
+	public boolean updateSuspendUser(String userId);
 	
-	public int updateRecoverAccount(String userId);
+	public boolean updateRecoverAccount(String userId);
 	
 	public boolean checkSecondaryAuth(String userId);
 	
