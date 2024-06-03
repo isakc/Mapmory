@@ -22,6 +22,16 @@ public class Search {
 	private int pageSize;
 	private int endRowNum;
 	private int startRowNum;	
+	private int limit;
+	private int offset;
+	
+	private int sharedType;
+	private int tempType;
+	private int timecapsulType;
+
+	public int getOffset() {
+		return (getCurrentPage() - 1) * getLimit();
+	}
 	
 	public int getEndRowNum() {
 		return getCurrentPage() * getPageSize();
