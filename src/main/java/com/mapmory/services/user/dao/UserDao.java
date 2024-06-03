@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.User;
 

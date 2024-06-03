@@ -18,51 +18,22 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	@Qualifier("userDao")
 	private UserDao userDao;
-	
-	@Override
-	public String getId(String userName, String email) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSocialId(int type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int updateRecoverAccount(String userId) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	
-	
-	
-	
-	@Override
-	public Map<String, Object> getTermsAndConditionsList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object getDetailTermsAndConditions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public int addUser(User user) {
 		// TODO Auto-generated method stub
-		return 0;
+		int result = userDao.insertUser(user);
+		return result;
 	}
 
 	@Override
 	public User getUser(String userId) {
 		// TODO Auto-generated method stub
-		return null;
+		User user = User.builder()
+					.userId(userId)
+					.build();
+		
+		return userDao.selectUser(user);
 	}
 
 	@Override
@@ -76,4 +47,35 @@ public class UserServiceImpl implements UserService {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public int updateRecoverAccount(String userId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getId(String userName, String email) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSocialId(int type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Object> getTermsAndConditionsList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object getDetailTermsAndConditions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

@@ -130,7 +130,7 @@ public class UserDaoTest {
 		Assertions.assertThat(email).isEqualTo(resultUser.getEmail());
 	}
 	
-	// @Test
+	@Test
 	public void testUpdateUserPassword() throws Exception {
 		
 		String userId = "john_doe_90";
