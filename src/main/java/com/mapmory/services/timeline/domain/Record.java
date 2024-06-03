@@ -2,8 +2,11 @@ package com.mapmory.services.timeline.domain;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.print.DocFlavor.STRING;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +22,8 @@ public class Record {
 	private String checkpointAddress;
 	private LocalDateTime checkpointDate;
 	private String mediaName;
-	private int sharedType;
+	private List<String> imageName;
+	private List<String> hashtag;
 	private int categoryNo;
 	private String recordText;
 	private int tempType;

@@ -2,11 +2,6 @@ package com.mapmory.services.timeline.domain;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.print.DocFlavor.STRING;
 
 import lombok.Builder;
 import lombok.Data;
@@ -31,5 +26,4 @@ public class Record2 {
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;
-	private String imageTagList;
 }
