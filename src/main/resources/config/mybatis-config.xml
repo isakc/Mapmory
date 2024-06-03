@@ -14,17 +14,19 @@
 		<typeAlias alias="report" type="com.mapmory.services.community.domain.Report" />
 		<typeAlias alias="notice" type="com.mapmory.services.notice.domain.Notice" />
 		<typeAlias alias="product" type="com.mapmory.services.product.domain.Product" />
-		<typeAlias alias="productImage" type="com.mapmory.services.product.domain.ProductImage" />
 		<typeAlias alias="purchase" type="com.mapmory.services.purchase.domain.Purchase" />
 		<typeAlias alias="subscription" type="com.mapmory.services.purchase.domain.Subscription" />
 		<typeAlias alias="category" type="com.mapmory.services.timeline.domain.Category" />
 		<typeAlias alias="record" type="com.mapmory.services.timeline.domain.Record" />
+		<typeAlias alias="record2" type="com.mapmory.services.timeline.domain.Record2" />
+		<typeAlias alias="imageTag" type="com.mapmory.services.timeline.domain.ImageTag" />
 		<typeAlias alias="follow" type="com.mapmory.services.user.domain.Follow" />
 		<typeAlias alias="loginLog" type="com.mapmory.services.user.domain.LoginLog" />
 		<typeAlias alias="socialLoginInfo" type="com.mapmory.services.user.domain.SocialLoginInfo" />
 		<typeAlias alias="suspensionLog" type="com.mapmory.services.user.domain.SuspensionLog" />
 		<typeAlias alias="user" type="com.mapmory.services.user.domain.User" />
 		<typeAlias alias="search" type="com.mapmory.common.domain.Search" />
+		<typeAlias alias="productImage" type="com.mapmory.services.product.domain.ProductImage"/>
 	</typeAliases>
 	
 	 <!-- SQL Definition :: file include -->
@@ -32,10 +34,12 @@
 		<mapper resource="sql/CommunityMapper.xml"/>
 		<mapper resource="sql/NoticeMapper.xml"/>
 		<mapper resource="sql/ProductMapper.xml"/>
+		<mapper resource="sql/ProductImageMapper.xml"/>
 		<mapper resource="sql/PurchaseMapper.xml"/>
 		<mapper resource="sql/RecommendMapper.xml"/>
 		<mapper resource="sql/TimelineMapper.xml"/>
 		<mapper resource="sql/UserMapper.xml"/>
+		<mapper resource="sql/SubscriptionMapper.xml"/>
 	</mappers>
 
 </configuration>

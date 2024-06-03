@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mapmory.services.purchase.dao.SubscriptionDao">
+	<resultMap id="subscriptionSelectMap" type="subscription">
+		<result property="subscriptionNo"					column="subscription_no"							jdbcType="INTEGER"/>
+		<result property="userId"							column="user_id"									jdbcType="VARCHAR"/>
+		<result property="nextPaymentMethod"				column="next_subscription_payment_method" 			jdbcType="INTEGER" />
+		<result property="nextSubscriptionCardType"			column="next_subscription_card_type"				jdbcType="VARCHAR" />
+		<result property="nextSubscriptionLastFourDigits"	column="next_subscription_last_four_digits"			jdbcType="VARCHAR" />
+		<result property="nextSubscriptionPaymentDate"		column="next_subscription_payment_date"				jdbcType="TIMESTAMP"  />
+		<result property="subscriptionStartDate"			column="subscription_start_date"					jdbcType="TIMESTAMP" />
+		<result property="subscriptionEndDate"				column="subscription_end_date"						jdbcType="TIMESTAMP"  />
+		<result property="customerUid"						column="customer_uid"								jdbcType="VARCHAR"  />
+		<result property="merchantUid"						column="merchant_uid"								jdbcType="VARCHAR"  />
+	</resultMap>
+	
+	<insert id="addSubscription" parameterType="subscription">
+		INSERT INTO subscription (user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
+							  		next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid)
+		VALUES (#{userId}, #{nextPaymentMethod}, #{nextSubscriptionCardType}, #{nextSubscriptionLastFourDigits},
+				#{nextSubscriptionPaymentDate}, #{subscriptionStartDate}, #{subscriptionEndDate}, #{customerUid}, #{merchantUid})
+	</insert>
+	
+	<select id="getDetailSubscription" parameterType="string" resultMap="subscriptionSelectMap">
+		SELECT user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
+				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
+		FROM subscription
+		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+	</select>
+	
+	<update id="updatePaymentMethod" parameterType='subscription'>
+		UPDATE subscription 
+		SET next_subscription_payment_method = #{nextPaymentMethod},
+			next_subscription_card_type = #{nextSubscriptionCardType},
+			next_subscription_last_four_digits= #{nextSubscriptionLastFourDigits},
+			customer_uid = #{customerUid},
+			merchant_uid = #{merchantUid}
+		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+	</update>
+	
+	<update id="deleteSubscription" parameterType="string">
+		UPDATE subscription
+		SET next_subscription_payment_date = null
+		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+	</update>
+</mapper>
