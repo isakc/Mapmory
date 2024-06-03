@@ -2,9 +2,109 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>결제하기</title>
+	
+	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script>
+      var IMP = window.IMP;
+      IMP.init("imp75480634");
+
+      function nomralRequestPay(pg, pay_method) {
+        console.log(getCurrentDate());
+        
+          IMP.request_pay({
+              pg: pg,
+              pay_method: pay_method,
+              merchant_uid: "ORD_"+getCurrentDate(),   // 주문번호
+              name: "테스트 상품01",
+              amount: 1000,                         // 숫자 타입
+              buyer_email: "alice@example.com",
+              buyer_name: "user1",
+              buyer_tel: "010-1234-5678"
+          },
+          function (rsp) { // callback
+            console.log(rsp);
+          
+              $.ajax({
+                 url: 'http://localhost:8000/purchase/rest/verifyPurchase/' + rsp.imp_uid,
+                 method: 'POST'
+              }).done(function(data) {
+                console.log(data);
+                
+                  if(rsp.paid_amount === data.response.amount){
+                	  
+                	  const purchase = {
+                			  userId: 'user2',
+                			  productNo: '2',
+                			  paymentMehotd: '2',
+                			  purchaseDate: getCurrentDate(),
+                			  price: 1000
+                	  }
+                      
+                	  $.ajax({
+                		  url: 'http://localhost:8000/purchase/addPurchase',
+                		  method: 'POST',
+                		  headers: {
+                			    'Content-Type': 'application/json'
+                				},
+                		  data: JSON.stringify(purchase)
+                	  })//성공 시 local database로 값 입력
+                	  
+                  } else {
+                      alert("결제 실패");
+                  }//if~else
+              });//done
+              
+          });//ajax
+      } //nomralRequestPay
+      
+      
+      function monthlyRequestPay(pg) {
+    	  
+          // IMP.request_pay(param, callback) 호출
+          IMP.request_pay(
+            {
+              pg: pg,
+              merchant_uid: "order_user1_"+getCurrentDate(), // 빌링키 발급용 주문번호
+              customer_uid: "user1-0001", // 카드(빌링키)와 1:1로 대응하는 값
+              name: "구독 결제",
+              amount: 1000 // 0 으로 설정하여 할 시 빌링키만 발급
+            },
+
+            function (rsp) {
+            	console.log(rsp);
+            	
+            	if(rsp.success){ //빌링키 발급 성공
+            		alert("결제 수단 등록 성공!!");
+            	}else{ //빌링키 발급 실패
+            		alert("결제 수단 등록 실패!!");
+            	}//if~else
+            	
+              }); // callback
+          } //정기결제 로직
+      
+      function addZero(n){
+          return n< 10 ? '0' + n : n;
+      }//10 미만일 경우 0을 붙여주기
+
+      function getCurrentDate() {
+    	  var date = new Date();
+    	  
+    	  return date.getFullYear().toString() +"-" + addZero( date.getMonth()+1 ) +"-"+ addZero( date.getDate() ) +"T"
+    	  + addZero( date.getHours() ) +":" + addZero( date.getMinutes() )+":" + addZero( date.getSeconds() );
+        }//현재 날짜 구하기
+        
+      </script>
 </head>
 <body>
+	<button onclick="nomralRequestPay('html5_inicis', 'card')">카드 일반 결제</button>
+    <button onclick="nomralRequestPay('kakaopay', 'kakaopay')">카카오 일반 결제</button>
+    <button onclick="nomralRequestPay('tosspay', 'tosspay')">토스페이 일반 결제</button>
+    <button onclick="nomralRequestPay('payco', 'payco')">페이코 일반 결제</button>
 
+    <button onclick="monthlyRequestPay('html5_inicis')">카드 정기 결제</button>
+    <button onclick="monthlyRequestPay('kakaopay')">카카오 정기 결제</button>
+    <button onclick="monthlyRequestPay('payco')">페이코 정기 결제</button>
 </body>	
 </html>

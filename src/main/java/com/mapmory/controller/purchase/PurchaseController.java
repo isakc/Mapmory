@@ -1,5 +1,39 @@
 package com.mapmory.controller.purchase;
 
-public class PurchaseController {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.view.RedirectView;
 
+import com.mapmory.services.purchase.domain.Purchase;
+import com.mapmory.services.purchase.service.PurchaseService;
+
+@Controller
+@RequestMapping("/purchase/*")
+public class PurchaseController {
+	
+	/// Field
+	
+	@Autowired
+	@Qualifier("purchaseServiceImpl")
+	private PurchaseService purchaseService;
+	
+	@GetMapping(value="/addPurchaseView")
+	//public String addPurchaseView(int proudctNo) throws Exception {
+	public String addPurchaseView() throws Exception {
+		
+		return "purchase/addPurchase";
+	}
+	
+	@PostMapping(value="/addPurchase")
+	public RedirectView addPurchase(@RequestBody Purchase purchase) throws Exception {
+		
+		purchaseService.addPurchase(purchase);
+		return new RedirectView("/index");
+	}
 }
