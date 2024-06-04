@@ -133,7 +133,7 @@
 			fb.user_id = #{userId}
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
-
+		LIMIT #{limit} OFFSET #{offset}
 	</select>
 	
 	<select id="getFollowListTotalCount" parameterType="search" resultType="integer">
@@ -145,7 +145,7 @@
 			fb.user_id = #{userId}
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
-
+		LIMIT #{limit} OFFSET #{offset}
 	</select>
 	
 	<select id="checkDuplication" parameterType="user" resultType="integer">

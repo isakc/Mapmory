@@ -168,8 +168,10 @@ public class UserServiceTest {
 		
 		String userId = "user1";
 		String searchKeyword = "a";
+		int currentPage = 1;
+		int limit = 5;
 		
-		List<FollowMap> list = userService.getFollowList(userId, searchKeyword);
+		List<FollowMap> list = userService.getFollowList(userId, searchKeyword, currentPage, limit);		
 		String nickname = list.get(0).getNickname();
 		String userName = list.get(0).getUserName();
 		boolean result = nickname.contains(searchKeyword) || userName.contains(searchKeyword);
@@ -264,7 +266,10 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(result).isTrue();
 		
-		List<FollowMap> list = userService.getFollowList(userId, null);
+		int currentPage = 1;
+		int limit = 5;
+		
+		List<FollowMap> list = userService.getFollowList(userId, targetId, currentPage, limit);
 		
 		boolean flag = true;
 		for(FollowMap fm : list) {

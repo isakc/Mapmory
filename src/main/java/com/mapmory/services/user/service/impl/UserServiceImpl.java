@@ -17,6 +17,7 @@ import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
 
@@ -168,12 +169,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<FollowMap> getFollowList(String userId, String searchKeyword) {
+	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit) {
 		// TODO Auto-generated method stub
 		
 		Search search = Search.builder()
 						.userId(userId)
 						.searchKeyword(searchKeyword)
+						.currentPage(currentPage)
+						.limit(limit)
 						.build();
 		
 		return userDao.selectFollowList(search);
@@ -182,6 +185,16 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<LoginLog> getUserLoginList(Search search) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+
+	@Override
+	public List<SuspensionLog> getSuspensionLog(String userId) {
+		// TODO Auto-generated method stub
+		
+		
+		
 		return null;
 	}
 
@@ -400,5 +413,6 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
+
 
 }

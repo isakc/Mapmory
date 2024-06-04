@@ -190,14 +190,14 @@ public class UserDaoTest {
 		
 		String userId = "user1";
 		String searchKeyword = "a";
+		int currentPage = 1;
 		int limit = 3;
-		int offset = 0;
 		
 		Search search = Search.builder()
 						.userId(userId)
 						.searchKeyword(searchKeyword)
+						.currentPage(currentPage)
 						.limit(limit)
-						.offset(offset)
 						.build();
 		
 		List<FollowMap> followList = userDao.selectFollowList(search);
@@ -342,8 +342,13 @@ public class UserDaoTest {
 		Assertions.assertThat(result).isEqualTo(1);
 
 		
+		int currentPage = 1;
+		int limit = 5;
+		
 		Search search = Search.builder()
 						.userId(userId)
+						.currentPage(currentPage)
+						.limit(limit)
 						.build();
 		
 		List<FollowMap> list = userDao.selectFollowList(search);

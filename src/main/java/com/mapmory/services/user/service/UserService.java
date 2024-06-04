@@ -8,6 +8,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.User;
 
 public interface UserService {
@@ -43,7 +44,9 @@ public interface UserService {
 
 	public Map<String, Object> getUserList(Search search);
 	
-	public List<FollowMap> getFollowList(String userId, String searchKeyword);
+	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit);
+	
+	public List<SuspensionLog> getSuspensionLog(String userId);
 	
 	/**
 	 * 사용자 전체 로그인 통계를 조회한다.
