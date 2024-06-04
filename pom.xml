@@ -145,6 +145,19 @@
 		</dependency>
 		
 		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-s3</artifactId>
+		    <version>1.11.1000</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.opencsv</groupId>
+		    <artifactId>opencsv</artifactId>
+		    <version>5.5.2</version>
+		</dependency>
+		
+
+		<dependency>
         	<groupId>org.springframework.boot</groupId>
         	<artifactId>spring-boot-starter-mail</artifactId>
     	</dependency>
@@ -161,12 +174,14 @@
 		    <artifactId>okhttp</artifactId>
 		    <version>4.9.1</version> <!-- 적절한 버전을 선택해 주세요 -->
 		</dependency>
+
 		
 		<dependency>
 		    <groupId>com.squareup.retrofit2</groupId>
 		    <artifactId>converter-gson</artifactId>
 		    <version>2.9.0</version> <!-- 적절한 버전을 선택해 주세요 -->
 		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -179,6 +194,8 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<source>11</source>
+                	<target>11</target>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>

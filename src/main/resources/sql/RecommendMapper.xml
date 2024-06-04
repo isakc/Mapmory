@@ -4,6 +4,32 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.mapmory.services.recommend.dao">
+<mapper namespace="com.mapmory.services.recommend.dao.RecommendDao">
+
+	<resultMap id="recommendSelectMap" type="recommend">
+		<!-- <result property="buyer"	column="buyer_id" jdbcType="VARCHAR" /> -->
+		<result property="userId" column="record_user_id" jdbcType="VARCHAR" />
+		<result property="recordNo" column="record_no" jdbcType="INTEGER" />
+		<result property="recordTitle" column="record_title" jdbcType="VARCHAR" />
+		<result property="category" column="category_name" jdbcType="VARCHAR" />
+		<result property="hashTag" column="image_tag_text" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getCategoryName" parameterType="int" resultType="String">
+		SELECT category_name c 
+		FROM record r, category c
+		where r.category_no = c.category_no
+		and record_no = #{recordNo}
+	</select>
+	
+	<select id="getHashTagNames" parameterType="int" resultType="String">
+		SELECT image_tag_text i
+			FROM record r, image_tag i
+    		WHERE r.record_no = #{recordNo}
+    		AND i.image_tag_type = 0
+    		AND r.record_no = i.record_no;
+	</select>
+	
+	
 
 </mapper>

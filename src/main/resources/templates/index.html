@@ -7,6 +7,7 @@
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 </head>
 <body>
+ <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <h1 th:text="${'Hello World'}"></h1>
     <a href="/timeline/getDetailTimeline" th:text="${'getDetailTimeline'}"></a><br/>
     <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
@@ -32,7 +33,7 @@
 		
 
 
-    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+   
 
 <script th:inline="javascript">
     /*<![CDATA[*/

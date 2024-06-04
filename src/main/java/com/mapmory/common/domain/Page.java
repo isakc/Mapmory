@@ -21,4 +21,24 @@ public class Page {
 	private int maxPage;
 	private int beginUnitPage;
 	private int endUnitPage;
+	
+	public Page( int currentPage, int totalCount,	int pageUnit, int pageSize ) {
+		this.totalCount = totalCount;
+		this.pageUnit = pageUnit;
+		this.pageSize = pageSize;
+
+		this.maxPage = (pageSize == 0) ? totalCount :  (totalCount-1)/pageSize +1;
+		this.currentPage = ( currentPage > maxPage) ? maxPage : currentPage;
+
+		this.beginUnitPage = ( (currentPage-1) / pageUnit ) * pageUnit +1 ;
+
+		if( maxPage <= pageUnit ){
+			this.endUnitPage = maxPage;
+		}else{
+			this.endUnitPage = beginUnitPage + (pageUnit -1);
+			if( maxPage <= endUnitPage){
+				this.endUnitPage = maxPage;
+			}
+		}
+	}
 }
