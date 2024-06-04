@@ -21,12 +21,12 @@ public class CommunityServiceTest {
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
 	
-	//@Test
+	@Test
 	public void TestAddReply() throws Exception {
 
 		Reply reply = Reply.builder()
-				.recordNo(4)
-				.userId("user4")
+				.recordNo(6)
+				.userId("user8")
 				.replyText("재밌다고해라")
 				.build();
 		
@@ -40,9 +40,9 @@ public class CommunityServiceTest {
 		
 		Reply reply = new Reply();
 		
-		reply = communityService.getReply(13);
+		reply = communityService.getReply(8);
 		
-		System.out.println("get 테스트 : "+reply);
+		System.out.println("get Reply 테스트 : "+reply);
 	}	
 	
 	//@Test
@@ -139,14 +139,14 @@ public class CommunityServiceTest {
 		System.out.println("delete 테스트 : ");	
 	}	
 	
-	@Test
+	//@Test
 	public void TestGetCommunityLogsList() throws Exception {
 		Search search = new Search();
 		search.setCurrentPage(1);
 		search.setPageSize(10);
 		Map<String, Object> map = communityService.getCommunityLogsList(search, "user2", 1);
 		
-		List<Reply> list = (List<Reply>)map.get("list");
+		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
 		
 		System.out.println("커뮤니티 활동 list 테스트 : "+list);	
 	}
@@ -182,8 +182,57 @@ public class CommunityServiceTest {
 		communityService.doReport(report);
 	}	
 	
+	//@Test
+	public void TestGetUserReportList() throws Exception {
+		
+		Search search = new Search();
+		search.setCurrentPage(0);
+		search.setPageSize(5);
 
-	
-	
+		Map<String, Object> map = communityService.getUSerReportList(search, "user1");
+		List<Report> list = (List<Report>)map.get("list");
+		
+		System.out.println("유저 신고 list 테스트 : "+list);	
+		
+		Integer totalCount = (Integer)map.get("totalCount");
+		System.out.println("사용자 신고 총 건수 : "+totalCount);
+	}
 
+	//@Test
+	public void TestGetAdminReportList() throws Exception {
+		
+		Search search = new Search();
+		search.setCurrentPage(0);
+		search.setPageSize(5);
+
+		Map<String, Object> map = communityService.getAdminReportList(search, 1);
+		List<Report> list = (List<Report>)map.get("list");
+		
+		System.out.println("총 신고 list 테스트 : "+list);	
+		
+		Integer totalCount = (Integer)map.get("totalCount");
+		System.out.println("시스템 신고 총 건수 : "+totalCount);
+	}	
+	
+	//@Test
+	public void TestGetReport() throws Exception {
+		
+		Report report = new Report();
+		report = communityService.getReport(3);
+		
+		System.out.println("get Report 테스트 : "+report);
+	}
+	
+	@Test
+	public void TestConfirmReport() throws Exception {
+		
+		Report report = new Report();
+		report = communityService.getReport(3);
+
+		report.setReportStatus(2);
+		report.setReportResult(1);
+		
+		System.out.println("신고 처리 테스트 : "+report);
+	}	
+	
 }

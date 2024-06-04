@@ -30,7 +30,7 @@
 		<result property="targetUserId"		column="target_user_id"		jdbcType="VARCHAR"/>
 		<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
 		<result property="replyNo"			column="reply_no"			jdbcType="INTEGER"/>
-		<result property="chatRoomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
+		<result property="chatroomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
 		<result property="reportTitle"		column="report_title"		jdbcType="VARCHAR"/>
 		<result property="reportText"		column="report_text"		jdbcType="VARCHAR"/>
 		<result property="reportDate"		column="report_date"		jdbcType="TIMESTAMP"/>
@@ -38,8 +38,15 @@
 		<result property="reportResult"		column="report_result"		jdbcType="INTEGER"/>
 	</resultMap>
 
+	<resultMap id="followSelectMap" type="follow">
+		<result property="reportNo"			column="report_no"			jdbcType="INTEGER"/>
+
+	</resultMap>
+
+
+
 	<!-- 댓글 목록 조회 -->
-	<select id="getReplyList" parameterType="map" resultMap="replySelectMap">
+	<select id="getReplyList" parameterType="search" resultMap="replySelectMap">
 		SELECT *,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID),
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID),
@@ -48,11 +55,11 @@
 		FROM REPLY r2
 		WHERE r2.record_no = #{recordNo}
 		ORDER BY reply_date ASC
-		LIMIT #{limit} OFFSET #{offset}
+<!-- 		LIMIT #{limit} OFFSET #{offset} -->
 	</select>
 
 	<!-- 내가 쓴 댓글 목록 조회 -->
-	<select id="getUserReplyList" parameterType="map" resultMap="replySelectMap">
+	<select id="getUserReplyList" parameterType="search" resultMap="replySelectMap">
 		SELECT *,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID),
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID),
@@ -61,7 +68,7 @@
 		FROM REPLY r2
 		WHERE r2.user_id = #{userId}
 		ORDER BY reply_date
-		LIMIT #{limit} OFFSET #{offset}
+<!-- 		LIMIT #{limit} OFFSET #{offset} -->
 	</select>
 
 	<!-- 댓글 작성 -->
@@ -105,7 +112,7 @@
 		SELECT COUNT(*) FROM REPLY
 		WHERE user_id = #{userId}
 	</select>	
-	
+
 	<!-- 커뮤니티 활동 추가 -->
 	<insert id="addCommunityLogs" parameterType="CommunityLogs">
 		INSERT INTO COMMUNITY_LOGS (user_id, record_no, reply_no, logs_type)
@@ -135,10 +142,11 @@
 	</delete>
 
 	<!-- 커뮤니티 활동 목록 조회 -->
-	<select id="getCommunityLogsList" parameterType="map" resultMap="communityLogsSelectMap">
+	<select id="getCommunityLogsList" parameterType="search" resultMap="communityLogsSelectMap">
 		SELECT *
 		FROM COMMUNITY_LOGS
 		WHERE user_id = #{userId} AND logs_type = #{logsType}
+<!-- 		LIMIT #{limit} OFFSET #{offset} -->
 	</select>
 	
 	<!-- 신고 정보 가져오기 -->
@@ -156,12 +164,69 @@
 		VALUES (#{userId}, #{targetUserId}, #{recordNo}, #{replyNo}, #{chatroomNo}, #{reportTitle}, #{reportText})
 	</insert>	
 
-	<select id="getUSerReportList" parameterType="map" resultMap="reportSelectMap">
+	<!--  사용자 신고 리스트 조회 -->
+	<select id="getUSerReportList" parameterType="search" resultMap="reportSelectMap">
 		SELECT *
 		FROM REPORT
 		WHERE user_id = #{userId}
+		<!-- 		LIMIT #{limit} OFFSET #{offset} -->
 	</select>
 
+	<!--  전체 신고 리스트 조회 -->
+	<select id="getAdminReportList" parameterType="search" resultMap="reportSelectMap">
+		SELECT *
+		FROM REPORT
+		<!-- 		LIMIT #{limit} OFFSET #{offset} -->
+	</select>
+
+	<!-- 사용자의 신고 Count -->
+	<select id="getUserReportTotalCount" parameterType="search" resultType="int">
+		SELECT COUNT(*) FROM REPORT
+		WHERE user_id = #{userId}
+	</select>
+	
+	<!-- 신고 총 Count -->
+	<select id="getAdminReportTotalCount" parameterType="search" resultType="int">
+		SELECT COUNT(*) FROM REPORT
+	</select>
+
+	<!-- 신고 조회 -->			
+	<select id="getReport" parameterType="int" resultMap="reportSelectMap">
+		SELECT *
+		FROM REPORT
+		WHERE report_no = #{reportNo}
+	</select>
+
+	<!-- 관리자의 신고 처리 -->			
+	<update id="confirmReport" parameterType="report">
+		UPDATE REPORT
+		<set>
+			report_status = #{reportStatus}
+			report_result = #{reportResult}
+		</set>
+		WHERE report_no = #{reportNo}
+	</update>
+	
+	<!-- 사용자 차단 -->			
+	<insert id="addBlockUser" parameterType="follow">
+		INSERT INTO follow_block ()
+		VALUES()
+	</insert>	
+
+	<!-- 차단 목록 조회 -->			
+	<select id="getBlockedList" parameterType="search" resultMap="followSelectMap">
+		SELECT * FROM follow_block
+	</select>
+	
+	<!-- 차단 상세 조회 -->			
+	<select id="getBlockedUser" parameterType="int" resultMap="followSelectMap">
+		SELECT * FROM follow_block
+	</select>
+	
+	<!-- 차단 해제 -->			
+	<delete id="deleteBlockedUser" parameterType="follow">
+		DELETE FROM follow_block	
+	</delete>
 
 	
 </mapper>

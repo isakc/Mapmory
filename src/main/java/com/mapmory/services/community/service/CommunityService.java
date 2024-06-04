@@ -1,13 +1,13 @@
 package com.mapmory.services.community.service;
 
 
-import java.util.List;
 import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
+import com.mapmory.services.user.domain.FollowBlock;
 
 public interface CommunityService {
 	
@@ -53,22 +53,28 @@ public interface CommunityService {
 	//신고 목록 조회 
 	public Map<String, Object> getUSerReportList(Search search, String userId) throws Exception;
 	
-	
-	
-	
 	//전체 신고 목록 조회(관리자)
-	public Map<String, Object> getAdminReportList(Search search, String userId) throws Exception;
+	public Map<String, Object> getAdminReportList(Search search, int role) throws Exception;
+	
+	//신고 내용 상세 조회
+	public Report getReport(int reportNo) throws Exception;
 	
 	//신고 처리(관리자)
-	public void confirmReport(Search search, String userId) throws Exception;
-		
+	public void confirmReport(int reportNo) throws Exception;
+	
+	
+	
 	//사용자 차단
 	public void addBlockUser(String userId) throws Exception;
+	
 	
 	//차단한 사용자 목록 조회
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception;
 	
+	//차단 사용자 선택
+	public FollowBlock getBlockedUser() throws Exception;
+	
 	//사용자 차단해제
-	public void deleteBlockUser(String userId) throws Exception;
+	public void deleteBlockedUser(String userId) throws Exception;
 		
 }

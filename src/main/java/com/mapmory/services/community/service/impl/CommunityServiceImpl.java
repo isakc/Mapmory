@@ -14,6 +14,7 @@ import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.user.domain.FollowBlock;
 
 @Service("communityServiceImpl")
 public class CommunityServiceImpl implements CommunityService {
@@ -125,32 +126,59 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public Map<String, Object> getAdminReportList(Search search, String userId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Object> getAdminReportList(Search search, int role) throws Exception {
+		List<Object> list = communityDao.getAdminReportList(search, role);
+		int totalCount = communityDao.getAdminReportTotalCount(search);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		map.put("totalCount", Integer.valueOf(totalCount));
+		return map;
 	}
 
 	@Override
-	public void confirmReport(Search search, String userId) throws Exception {
-		communityDao.confirmReport(search, userId);
+	public Report getReport(int reportNo) throws Exception {
+		return communityDao.getReport(reportNo);
+	}
+	
+	@Override
+	public void confirmReport(int reportNo) throws Exception {
+		communityDao.confirmReport(reportNo);
 	}
 
+	
+	
+	
+	
 	@Override
 	public void addBlockUser(String userId) throws Exception {
 		communityDao.addBlockUser(userId);
 	}
 
+	
+	
+	
+	
 	@Override
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception {
 		return null;
 	}
 
 	@Override
-	public void deleteBlockUser(String userId) throws Exception {
-		communityDao.deleteBlockUser(userId);
+	public FollowBlock getBlockedUser() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}	
+	
+	
+	@Override
+	public void deleteBlockedUser(String userId) throws Exception {
+		communityDao.deleteBlockedUser(userId);
 		
 		
 	}
+
+
 
 
 
