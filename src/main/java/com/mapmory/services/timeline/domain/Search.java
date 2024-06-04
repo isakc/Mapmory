@@ -10,9 +10,9 @@ public class Search {
 	private int limit;
 	private int offset;
 	
-	private String sharedType;
-	private String tempType;
-	private String timecapsuleType;
+	private Integer sharedType;
+	private Integer tempType;
+	private Integer timecapsuleType;
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();
