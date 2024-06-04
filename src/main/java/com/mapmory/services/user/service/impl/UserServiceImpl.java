@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.dao.UserDao;
-import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
@@ -253,7 +253,7 @@ public class UserServiceImpl implements UserService {
 	public boolean deleteFollow(String userId, String targetId) {
 		// TODO Auto-generated method stub
 		
-		Follow follow = Follow.builder()
+		FollowBlock follow = FollowBlock.builder()
 						.userId(userId)
 						.targetId(targetId)
 						.build();

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.mapmory.common.domain.Search;
-import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
@@ -19,7 +19,7 @@ public interface UserDao {
 	
 	public int insertLoginLog(LoginLog log);
 	
-	public int insertFollow(Follow follow);
+	public int insertFollow(FollowBlock follow);
 	
 	public int insertSocialLoginLink(SocialLoginInfo socialLoginInfo);
 	
@@ -52,7 +52,7 @@ public interface UserDao {
 	 */
 	public int updateRecoverAccount(String userId);
 	
-	public int deleteFollow(Follow follow);
+	public int deleteFollow(FollowBlock follow);
 	
 	// id, nickname 모두 지원
 	public int checkDuplication(User user);
