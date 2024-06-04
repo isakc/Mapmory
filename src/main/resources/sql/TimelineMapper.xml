@@ -6,7 +6,7 @@
 <mapper namespace="com.mapmory.services.timeline.dao.TimelineDao">
     
     <!-- Result Map -->
-    <resultMap id="recordResultMap" type="java.util.HashMap">
+<resultMap id="recordResultMap" type="java.util.HashMap">
     <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
@@ -223,11 +223,37 @@ LIMIT #{limit} OFFSET #{offset}
 	) countTable
 </select>
 
+	<!-- Create -->
+    <insert id="insertCategory" parameterType="category">
+        INSERT INTO category (CATEGORY_NAME, CATEGORY_IMOJI)
+        VALUES (#{categoryName:VARCHAR}, #{categoryImoji:VARCHAR})
+    </insert>
+
+    <!-- Read -->
+    <select id="selectCategory" resultType="category" parameterType="Integer">
+        SELECT * FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </select>
+
+    <select id="selectCategoryList" resultType="category">
+        SELECT * FROM category
+    </select>
+
+    <!-- Update -->
+    <update id="updateCategory" parameterType="category">
+        UPDATE category SET CATEGORY_NAME = #{categoryName:VARCHAR}, CATEGORY_IMOJI = #{categoryImoji:VARCHAR}
+        WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteCategory" parameterType="int">
+        DELETE FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </delete>
+
 
 
 
 <!-- 미사용 -->
-<select id="selectDetailTimeline2" resultType="record2" parameterType="integer">
+<!-- <select id="selectDetailTimeline2" resultType="record2" parameterType="integer">
   SELECT 
     record_no,
     record_user_id,
@@ -278,6 +304,6 @@ AND
 ORDER BY 
     image_tag_order IS NULL ASC, 
     image_tag_order ASC;
-</select>
+</select> -->
     
 </mapper>
