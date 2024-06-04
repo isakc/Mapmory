@@ -1,23 +1,67 @@
 package com.mapmory.services.recommend.service.impl;
 
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3Object;
+import com.mapmory.services.recommend.dao.RecommendDao;
+import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
 
 @Service("recommendServiceImpl")
 public class RecommendServiceImpl implements RecommendService {
 
+	@Autowired
+	private RecommendDao recommendDao;
 	
-	private final String clientId = "ls4tulf8dd";
-    private final String clientSecret = "Smk4fHJycgdRjHgjffJG59UWd0A3vbV57SODGqIN";
-    private final String apiUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
+	@Value("${clova.Client_ID}")
+	private String clientId;
+	
+	@Value("${clova.Client_Secret}")
+    private String clientSecret;
+    
+    @Value("${sentiment.url}")
+    private String apiUrl;
+    
+    @Value("${aitems.url}")
+    private String aitemsUrl; 
+    
+    @Value("${aitems.Access_Key}")
+    private String aitems_Access_Key;
+    
+    @Value("${aitems.Secret_Key}")
+    private String aitems_Secret_Key;
 	
 	@Override
 	public void addSearchData() throws Exception {
@@ -32,20 +76,30 @@ public class RecommendServiceImpl implements RecommendService {
 	}
 
 	@Override
-	public int getPositive(Map<String, String> requestPayload) throws Exception {
-		// TODO Auto-generated method stub
+	public int getPositive(String recordText) throws Exception {
+	//public int getPositive(Map<String, String> requestPayload) throws Exception {
+
 		RestTemplate restTemplate = new RestTemplate();
     	
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
         headers.set("X-NCP-APIGW-API-KEY", clientSecret);
-
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestPayload, headers);
         
-//        System.out.println(entity);
-//        System.out.println(restTemplate.postForObject(apiUrl, entity, String.class).getClass());
-//        System.out.println(restTemplate.postForObject(apiUrl, entity, String.class));
+        
+        Map<String,String> content = new HashMap<String,String>();
+        
+        content.put("content", recordText);
+        
+        System.out.println(content);
+        System.out.println("================");
+//        System.out.println(requestPayload);
+        System.out.println("================");
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(content, headers);
+        
+        System.out.println("entity : "+entity);
+        System.out.println(restTemplate.postForObject(apiUrl, entity, String.class).getClass());
+        System.out.println(restTemplate.postForObject(apiUrl, entity, String.class));
         
         String text = restTemplate.postForObject(apiUrl, entity, String.class);
                 
@@ -58,4 +112,174 @@ public class RecommendServiceImpl implements RecommendService {
         return positive;
 	}
 
+	@Override
+	public Recommend getRecordData(int recordNo) throws Exception {
+		
+		System.out.println("RecommendServiceImpl getRecordData()");
+
+		Recommend recommend = new Recommend();
+		
+		//카테고리 이름받기
+		recommend.setCategory(recommendDao.getCategoryName(recordNo));
+		
+		//해시태그 받아오기 시작
+		List<String> hash = recommendDao.getHashTagNames(recordNo);
+		System.out.println("hash : "+hash);
+		String hashTags = "";
+		for(String i : hash) {
+			String hashTag = i.substring(1).trim();
+			if( hashTags == "") {
+				hashTags += hashTag;
+			} else {
+				hashTags += "|"+hashTag;
+			}
+		}
+		recommend.setHashTag(hashTags);
+		System.out.println("hashTags : " + hashTags);
+		//해시태그 받아오기 끝
+		
+		//타임스탬프 epoch 시간으로 받아오기
+		long timestamp = Instant.now().getEpochSecond();
+		recommend.setTimeStamp(timestamp);
+//		System.out.println(timestamp.getEpochSecond());
+		
+		
+		System.out.println("RecommendServiceImpl getRecordData end");
+		return recommend;
+		
+		
+	}
+	
+	@Override
+	public void updateDataset() throws Exception {
+		
+		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{serviceId}/datasets/{datasetId}";
+		// TODO Auto-generated method stub
+		String timestamp = String.valueOf(System.currentTimeMillis());
+		String signatureKey = makeSignature(timestamp);
+		System.out.println(timestamp);
+		System.out.println("signatureKey : "+signatureKey);
+		
+	
+		RestTemplate restTemplate = new RestTemplate();	    
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accept", "application/json");
+        headers.add("x-ncp-iam-access-key", aitems_Access_Key);
+        headers.add("x-ncp-apigw-signature-v2", signatureKey);
+        headers.add("x-ncp-apigw-timestamp", String.valueOf(System.currentTimeMillis()));
+        
+        Map<String,Object> content = new HashMap<String,Object>();
+        
+        content.put("type","item");
+        
+        Map<String,String>[] value = new LinkedHashMap[1];
+        
+        value[0] = new LinkedHashMap<String,String>();
+        value[0].put("ITEM_ID", "201");
+        value[0].put("TITLE", "테스트 기록 제목201");
+        value[0].put("CATEGORY", "여행");      
+        System.out.println(value[0]);        
+        content.put("value", value);      
+        System.out.println(content);
+        
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(content, headers);
+        
+        System.out.println("entity : "+entity);
+        
+        String response = restTemplate.postForObject(url, entity, String.class);
+        System.out.println(response);
+	}
+
+	@Override
+	public void getRecommendData() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
+	public String makeSignature(String time) throws Exception {
+		
+		
+	
+		String space = " ";					// one space
+		String newLine = "\n";					// new line
+		String method = "POST";					// method
+		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
+		String timestamp = time;			// current timestamp (epoch)
+		String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
+		String secretKey = aitems_Secret_Key;
+		
+		System.out.println(accessKey);
+		System.out.println(secretKey);
+		System.out.println(time);
+
+		String message = new StringBuilder()
+			.append(method)
+			.append(space)
+			.append(url)
+			.append(newLine)
+			.append(timestamp)
+			.append(newLine)
+			.append(accessKey)
+			.toString();
+
+		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+		Mac mac = Mac.getInstance("HmacSHA256");
+		mac.init(signingKey);
+
+		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
+
+	  return encodeBase64String;
+	}
+
+	@Override
+	public void saveDatasetToCSV(Recommend recommend) throws Exception {
+		System.out.println("saveDatasetToCSV : "+recommend.toString());
+		
+	}
+	
+	
+	public void modifyCsvFile(String bucketName, String fileName) throws Exception {
+		
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(aitems_Access_Key, aitems_Secret_Key);
+        
+		String REGION = "kr-standard";
+	    String ENDPOINT = "https://kr.object.ncloudstorage.com";
+		
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withPathStyleAccessEnabled(true)
+                .build();
+
+        // Step 1: CSV 파일 다운로드
+        S3Object s3Object = s3Client.getObject(bucketName, fileName);
+        InputStream inputStream = s3Object.getObjectContent();
+        CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+
+        // Step 2: CSV 파일 읽기
+        List<String[]> allData = csvReader.readAll();
+        csvReader.close();
+
+        // Step 3: CSV 파일 수정 (예: 첫 번째 행 수정)
+        allData.get(1)[2] = "Updated Value"; // 예시로 두 번째 열 값을 업데이트
+
+        // Step 4: 수정된 CSV 파일을 로컬에 저장
+        String tempFileName = "temp_" + fileName;
+        FileWriter outputFile = new FileWriter(tempFileName);
+        CSVWriter writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        // Step 5: 수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, fileName, new File(tempFileName));
+
+        // Step 6: 로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+    }
 }
+
+	
+
+
