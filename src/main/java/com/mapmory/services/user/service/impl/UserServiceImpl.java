@@ -29,16 +29,39 @@ public class UserServiceImpl implements UserService {
 	private UserDao userDao;
 
 	@Override
-	public boolean addUser(User user) {
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) {
 		// TODO Auto-generated method stub
+		User user = User.builder()
+						.userId(userId)
+						.userPassword(userPassword)
+						.userName(userName)
+						.nickname(nickname)
+						.birthday(birthday)
+						.sex(sex)
+						.email(email)
+						.phoneNumber(phoneNumber)
+						.build();
+		
 		int result = userDao.insertUser(user);
 		
 		return intToBool(result);
 	}
 
+	// 먼저 조회 로직을 구상한 후에, count 로직을 만들어서 정책에 따라 처리해야 한다.
 	@Override
-	public boolean addSuspendUser(User user) {
+	public boolean addSuspendUser(String userId) {
 		// TODO Auto-generated method stub
+		
+		/*
+		User user = User.builder()
+					.userId(userId)
+					.endSuspensionDate();
+					.build();
+		
+		int result = userDao.updateUser(user);
+		
+		return intToBool(result);
+		*/
 		
 		return false;
 	}
@@ -84,6 +107,12 @@ public class UserServiceImpl implements UserService {
 		int result = userDao.updateUser(user);
 		
 		return intToBool(result);
+	}
+	
+	@Override
+	public boolean addLoginLog(String userId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	@Override
@@ -371,4 +400,5 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
+
 }

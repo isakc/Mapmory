@@ -22,7 +22,7 @@
 		<typeAlias alias="imageTag" type="com.mapmory.services.timeline.domain.ImageTag" />
 		<typeAlias alias="imageTagDto" type="com.mapmory.services.timeline.domain.ImageTagDto" />
 		<typeAlias alias="sharedRecord" type="com.mapmory.services.timeline.domain.SharedRecord" />
-		<typeAlias alias="follow" type="com.mapmory.services.user.domain.Follow" />
+		<typeAlias alias="followBlock" type="com.mapmory.services.user.domain.FollowBlock" />
 		<typeAlias alias="loginLog" type="com.mapmory.services.user.domain.LoginLog" />
 		<typeAlias alias="socialLoginInfo" type="com.mapmory.services.user.domain.SocialLoginInfo" />
 		<typeAlias alias="suspensionLog" type="com.mapmory.services.user.domain.SuspensionLog" />

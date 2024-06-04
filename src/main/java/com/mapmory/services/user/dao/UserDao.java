@@ -23,7 +23,7 @@ public interface UserDao {
 	
 	public int insertSocialLoginLink(SocialLoginInfo socialLoginInfo);
 	
-	public int insertSuspendLog(SuspensionLog log);
+	public int insertSuspendLog(String userId);
 	
 	public User selectUser(User user);
 	
@@ -42,7 +42,7 @@ public interface UserDao {
 	
 	public List<SuspensionLog> selectSuspensionList(Search search);
 	
-	// 내 정보 수정, 프로필 수정, 비밀번호 변경, 2단계 인증 설정, 회원 탈퇴 처리 모두 지원
+	// 내 정보 수정, 프로필 수정, 비밀번호 변경, 2단계 인증 설정, 회원 탈퇴 처리, 회원 정지 모두 지원
 	public int updateUser(User user);
 	
 	/**
