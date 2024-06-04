@@ -12,22 +12,26 @@
     <li th:each="item : ${list}" th:text="${item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list2}" th:text="${item}"></li>
+    <li th:each="item : ${list2}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list3}" th:text="${item}"></li>
+   <li th:each="item : ${list3}" th:text="${item.recordUserId == null ? null : item.recordUserId}
+    +',  '+${item.recordTitle == null ? null : item.recordTitle}
+    +',  '+${item.sharedDate == null ? '' : item.sharedDate}
+    +',  '+${item.tempType == null ? null : item.tempType}
+    +',  '+${item.timecapsuleType == null ? null : item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list4}" th:text="${item}"></li>
+    <li th:each="item : ${list4}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list5}" th:text="${item}"></li>
+    <li th:each="item : ${list5}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list6}" th:text="${item}"></li>
+    <li th:each="item : ${list6}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list7}" th:text="${item}"></li>
+    <li th:each="item : ${list7}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 </body>
 </html>
