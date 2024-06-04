@@ -4,12 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.mapmory.services.timeline.domain.Category;
-import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.ImageTagDto;
-import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.RecordDto;
 import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SharedRecord;
 
 public interface TimelineService {
 	//Record CRUD
@@ -41,6 +39,10 @@ public interface TimelineService {
 	public void updateCategory(Category category) throws Exception;
 	
 	public void deleteCategory(int categoryNo) throws Exception;
+	
+	public List<SharedRecord> getSharedRecordList(Search search) throws Exception;
+	
+	
 	
 	
 	//아래 미사용

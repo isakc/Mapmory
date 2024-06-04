@@ -11,6 +11,7 @@ import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SharedRecord;
 
 @Mapper
 public interface TimelineDao {
@@ -52,6 +53,8 @@ public interface TimelineDao {
 	public void updateCategory(Category category) throws Exception;
 	
 	public void deleteCategory(int categoryNo) throws Exception;
+	
+	public List<SharedRecord> selectSharedRecordList(Search search) throws Exception;
 
 	//아래 미사용
 //	public Record2 selectDetailTimeline2(int recordNo) throws Exception;

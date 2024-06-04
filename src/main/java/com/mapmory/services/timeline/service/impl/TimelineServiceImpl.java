@@ -20,6 +20,7 @@ import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.RecordDto;
 import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
 
@@ -141,6 +142,11 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public void deleteCategory(int categoryNo) throws Exception {
 		timelineDao.deleteCategory(categoryNo);
+	}
+	
+	@Override
+	public List<SharedRecord> getSharedRecordList(Search search) throws Exception{
+		return timelineDao.selectSharedRecordList(search);
 	}
 
 	//아래 미사용
