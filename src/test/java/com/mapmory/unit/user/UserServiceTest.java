@@ -1,6 +1,7 @@
 package com.mapmory.unit.user;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +25,6 @@ public class UserServiceTest {
 	@Qualifier("userServiceImpl")
 	private UserService userService;
 	
-	
-	// @Test
-	public void testGetDetialUser() {
-				
-		User resultUser = userService.getDetailUser("user_123");
-		
-		Assertions.assertThat(resultUser.getUserId()).isEqualTo("user_123");
-	}
 	
 	// @Test
 	public void testAddUser() {
@@ -65,21 +58,34 @@ public class UserServiceTest {
 	}
 	
 	// @Test
+	public void testAddLeaveUser() {
+		
+		String userId = "user_123";
+		boolean result = userService.addLeaveAccount(userId);
+		Assertions.assertThat(result).isTrue();
+		
+		LocalDateTime resultTime = userService.getDetailUser(userId).getLeaveAccountDate();
+		Assertions.assertThat(resultTime).isNotNull();
+	}
+	
+	// @Test
 	public void testAddSocialLoginLink() {
 		
 		String userId = "simple_7890";
 		String socialId = "103984541210666630525";
 		
-		SocialLoginInfo info = SocialLoginInfo.builder()
-								.userId(userId)
-								.socialId(socialId)
-								.build();
-		
-		boolean result = userService.addSocialLoginLink(info);
+		boolean result = userService.addSocialLoginLink(userId, socialId);
 		
 		Assertions.assertThat(result).isEqualTo(true);
 		
-		info.setSocialLoginInfoType(0);
+		int type = 0;
+		
+		SocialLoginInfo info = SocialLoginInfo.builder()
+								.userId(userId)
+								.socialId(socialId)
+								.socialLoginInfoType(type)
+								.build();
+		
 		String resultSocialId = userService.getSocialId(info);
 		
 		Assertions.assertThat(resultSocialId).isEqualTo(socialId);
@@ -87,17 +93,20 @@ public class UserServiceTest {
 	}
 	
 	// @Test
+	public void testGetDetialUser() {
+					
+			User resultUser = userService.getDetailUser("user_123");
+			
+			Assertions.assertThat(resultUser.getUserId()).isEqualTo("user_123");
+		}
+	
+	// @Test
 	public void testGetId() {
 		
 		String userName = "Tom Lee";
 		String email = "tom.lee@example.com";
 		
-		User user = User.builder()
-					.userName(userName)
-					.email(email)
-					.build();
-		
-		String userId = userService.getId(user);
+		String userId = userService.getId(userName, email);
 		
 		Assertions.assertThat(userId).isEqualTo("test_user789");
 	}
@@ -118,8 +127,8 @@ public class UserServiceTest {
 		Assertions.assertThat(socialId).isEqualTo("Bb3H7Y5_2l38r-f7hNlrjLKbHcPmmwsDwp57dFIjZNo");
 	}
 	
-	@SuppressWarnings("unchecked")
 	// @Test
+	@SuppressWarnings("unchecked")
 	public void testGetUserList() {
 		
 		Search search = Search.builder()
@@ -158,7 +167,6 @@ public class UserServiceTest {
 		Assertions.assertThat(listUser.size()).isEqualTo(count);
 	}
 	
-	
 	// @Test
 	public void testUpdateUserPassword() {
 		
@@ -170,7 +178,7 @@ public class UserServiceTest {
 				.userPassword(userPassword)
 				.build();
 		
-		boolean result = userService.updateUser(user);
+		boolean result = userService.updatePassword(userId, userPassword);
 		
 		Assertions.assertThat(result).isEqualTo(true);
 		
@@ -180,7 +188,7 @@ public class UserServiceTest {
 	}
 	
 	// @Test
-	public void testUpdateRecoverAccount() {
+	public void testUpdateUserInfo() {
 		
 		String userId = "my_id-is_456";
 		String userName = "홍길동";
@@ -189,22 +197,11 @@ public class UserServiceTest {
 		Integer sex = 0;
 		String email = "test@test.com";
 		String phoneNumber = "010-6666-3333";
-		
-		User user = User.builder()
-				.userId(userId)
-				.userName(userName)
-				.nickname(nickname)
-				.birthday(birthday)
-				.sex(sex)
-				.email(email)
-				.phoneNumber(phoneNumber)
-				.build();
 	
-		boolean result = userService.updateUser(user);
+		boolean result = userService.updateUserInfo(userId, userName, nickname, birthday, sex, email, phoneNumber);
 		
 		Assertions.assertThat(result).isEqualTo(true);
-		
-		user.setUserId(null);  // UserMappper 동적 query를 참고
+
 		User resultUser = userService.getDetailUser(userId);
 		
 		Assertions.assertThat(resultUser.getNickname()).isEqualTo(nickname);
@@ -215,20 +212,108 @@ public class UserServiceTest {
 	}
 	
 	// @Test
+	public void testUpdateRecoverAccount() {
+		
+		/// 1개월이 지난 사용자
+		String userId = "leave_user";
+		int result = userService.updateRecoverAccount(userId);
+		Assertions.assertThat(result).isEqualTo(2);
+		
+		/// 아직 1개월이 지나지 않은 사용자
+		userId = "want_to_recover_user";
+		result =  userService.updateRecoverAccount(userId);
+		Assertions.assertThat(result).isEqualTo(1);
+		
+		LocalDateTime resultDate = userService.getDetailUser(userId).getLeaveAccountDate();
+		Assertions.assertThat(resultDate).isNull();
+	}
+	
+	// @Test
+	public void testUpdateProfile() {
+		
+		String userId = "john_doe_90";
+		String profileFileName = "apwoskd123.jpg";
+		String introduction = "안녕하세요. 반갑습니다.";
+		
+		boolean result = userService.updateProfile(userId, profileFileName, introduction);
+		
+		Assertions.assertThat(result).isTrue();
+		
+		User user = userService.getDetailUser(userId);
+		Assertions.assertThat(user.getProfileImageName()).isEqualTo(profileFileName);
+		Assertions.assertThat(user.getIntroduction()).isEqualTo(introduction);
+	}
+	
+	// @Test
 	public void testCheckSocialId() {
 		
 		String userId = "unique_id_4567";
 		String socialId = "303984541210605030527";
 		
-		SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
-											.userId(userId)
-											.socialId(socialId)
-											.build();
-		
-		boolean result = userService.checkSocialId(socialLoginInfo);
+		boolean result = userService.checkSocialId(userId, socialId);
 		
 		Assertions.assertThat(result).isEqualTo(true);
 	}
 
+	// @Test
+	public void testCheckDuplicationById() {
+		
+		// 중복되는 경우
+		String userId = "user1";
+		
+		boolean result = userService.checkDuplicationById(userId);
+		
+		Assertions.assertThat(result).isEqualTo(false);
+		
+		// 중복되지 않는 경우
+		userId = "user9999";
+		result = userService.checkDuplicationById(userId);
+		Assertions.assertThat(result).isEqualTo(true);
+	}
 	
+	// @Test
+	public void testCheckDuplicationByNickname() {
+		
+		// 중복되는 경우
+		String nickname = "tomlee";
+		
+		boolean result = userService.checkDuplicationByNickname(nickname);
+		
+		Assertions.assertThat(result).isEqualTo(false);
+		
+		// 중복되지 않는 경우
+		nickname = "tomlee9999";
+		result = userService.checkDuplicationByNickname(nickname);
+		Assertions.assertThat(result).isEqualTo(true);
+	}
+
+	// @Test
+	public void testCheckPasswordChangeDeadlineExceeded() {
+		
+		// 비밀번호 권고 기한이 지난 경우
+		String userId = "password_user";
+		boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
+		Assertions.assertThat(result).isEqualTo(false);
+		
+		// 아직 권고 기한이 지나지 않은 경우
+		userId = "simple_7890";
+		result = userService.checkPasswordChangeDeadlineExceeded(userId);
+		Assertions.assertThat(result).isEqualTo(true);
+	}
+
+	@Test
+	public void testCheckSecondaryAuth() {
+		
+		// 2단계 인증을 설정하지 않은 경우
+		String userId = "sample_user1";
+		boolean result = userService.checkSecondaryAuth(userId);
+		Assertions.assertThat(result).isFalse();
+		
+		// 2단계 인증을 설정한 경우
+		userId = "admin";
+		result = userService.checkSecondaryAuth(userId);
+		Assertions.assertThat(result).isTrue();
+		
+		
+	}
 }

@@ -18,6 +18,8 @@ public interface UserDao {
 	
 	public int insertLoginLog(LoginLog log);
 	
+	public int insertFollow(Follow follow);
+	
 	public int insertSocialLoginLink(SocialLoginInfo socialLoginInfo);
 	
 	public int insertSuspendLog(SuspensionLog log);
@@ -26,21 +28,30 @@ public interface UserDao {
 	
 	public List<User> selectUserList(Search search);
 	
-	public List<Follow> selectFollowList(Search search);
+	public List<User> selectFollowList(Search search);
 	
 	public List<SocialLoginInfo> selectSocialIdList(String userId);
 	
+	/**
+	 * 사용자 전체 로그인 통계를 조회한다.
+	 * @param search
+	 * @return
+	 */
 	public List<LoginLog> selectUserLoginList(Search search);
 	
 	public List<SuspensionLog> selectSuspensionList(Search search);
 	
-	// updateUserInfo, updateProfile는 모두 이것으로 동적 query로 처리할 예정
+	// 내 정보 수정, 프로필 수정, 비밀번호 변경, 2단계 인증 설정, 회원 탈퇴 처리 모두 지원
 	public int updateUser(User user);
 	
+	/**
+	 * null 처리 때문에 따로 분리
+	 * @param userId
+	 * @return
+	 */
 	public int updateRecoverAccount(String userId);
 	
-	
-	// id와 nickname 중복 검사는 모두 이것으로 처리.
+	// id, nickname 모두 지원
 	public int checkDuplication(User user);
 	
 	public int getUserListTotalCount(Search search);

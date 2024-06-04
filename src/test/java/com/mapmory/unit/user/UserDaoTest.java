@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.dao.UserDao;
+import com.mapmory.services.user.domain.Follow;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 
@@ -67,6 +68,22 @@ public class UserDaoTest {
 		Assertions.assertThat(resultList.get(0).getUserId()).isEqualTo(userId);
 	}
 	
+	// @Test
+	public void testInsertFollow() throws Exception {
+		
+		String userId = "user_123";
+		String targetId = "john_doe_90";
+		
+		Follow follow = Follow.builder()
+						.userId(userId)
+						.targetId(targetId)
+						.build();
+		
+		int result = userDao.insertFollow(follow);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+	}
+ 	
 	// @Test
 	public void testSelectUserById() throws Exception {
 		
@@ -140,8 +157,8 @@ public class UserDaoTest {
 	// 정지 사용자만 조회
 	// categoryNo를 사용해보자.
 	
-	@Test
-	public void testSocialIdList() throws Exception {
+	// @Test
+	public void testSelectSocialIdList() throws Exception {
 		
 		String userId = "simple_7890";
 		
@@ -165,6 +182,29 @@ public class UserDaoTest {
 		
 		Assertions.assertThat(userName).isEqualTo(resultUser.getUserName());
 		Assertions.assertThat(email).isEqualTo(resultUser.getEmail());
+	}
+	
+	@Test
+	public void testSelectFollowList() throws Exception {
+		
+		String userId = "user1";
+		String searchKeyword = "a";
+		int limit = 3;
+		int offset = 0;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchKeyword(searchKeyword)
+						.limit(limit)
+						.offset(offset)
+						.build();
+		
+		List<User> followList = userDao.selectFollowList(search);
+		int count = userDao.getFollowListTotalCount(search);
+		
+		Assertions.assertThat(followList.size()).isEqualTo(count);
+		
+		Assertions.assertThat(followList.get(0).getUserId()).isEqualTo("user3");
 	}
 	
 	// @Test
@@ -283,5 +323,45 @@ public class UserDaoTest {
 		User resultUser = userDao.selectUser(user);
 		
 		Assertions.assertThat(resultUser.getLeaveAccountDate()).isNull();
+	}
+
+	// @Test
+	public void testCheckDuplicationById() throws Exception {
+		
+		// 중복되는 경우
+		String userId = "user1";
+		User user = User.builder()
+						.userId(userId)
+						.build();
+		
+		int result = userDao.checkDuplication(user);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+		
+		// 중복되지 않는 경우
+		userId = "user9999";
+		user.setUserId(userId);
+		result = userDao.checkDuplication(user);
+		Assertions.assertThat(result).isEqualTo(0);
+	}
+	
+	// @Test
+	public void testCheckDuplicationByNickname() throws Exception {
+		
+		// 중복되는 경우
+		String nickname = "tomlee";
+		User user = User.builder()
+						.nickname(nickname)
+						.build();
+		
+		int result = userDao.checkDuplication(user);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+		
+		// 중복되지 않는 경우
+		nickname = "tomlee9999";
+		user.setNickname(nickname);
+		result = userDao.checkDuplication(user);
+		Assertions.assertThat(result).isEqualTo(0);
 	}
 }
