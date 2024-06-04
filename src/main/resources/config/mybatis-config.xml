@@ -30,6 +30,7 @@
 		<typeAlias alias="search" type="com.mapmory.common.domain.Search" />
 		<typeAlias alias="productImage" type="com.mapmory.services.product.domain.ProductImage"/>
 		<typeAlias alias="recommend" type="com.mapmory.services.recommend.domain.Recommend" />
+		<typeAlias alias="followMap" type="com.mapmory.services.user.domain.FollowMap" />
 	</typeAliases>
 	
 	 <!-- SQL Definition :: file include -->
