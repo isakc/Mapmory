@@ -1,16 +1,18 @@
 package com.mapmory.services.recommend.service.impl;
 
+import org.apache.commons.codec.binary.Base64;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,15 +21,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
@@ -37,7 +40,7 @@ import com.mapmory.services.recommend.service.RecommendService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
+
 
 @Service("recommendServiceImpl")
 public class RecommendServiceImpl implements RecommendService {
@@ -153,12 +156,14 @@ public class RecommendServiceImpl implements RecommendService {
 	@Override
 	public void updateDataset() throws Exception {
 		
-		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{serviceId}/datasets/{datasetId}";
-		// TODO Auto-generated method stub
+		String uri= "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";
+//		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
+		String url = "https://aitems.apigw.ntruss.com"+uri;
 		String timestamp = String.valueOf(System.currentTimeMillis());
-		String signatureKey = makeSignature(timestamp);
+		String signatureKey = makeSignature(timestamp, uri,"POST");
 		System.out.println(timestamp);
 		System.out.println("signatureKey : "+signatureKey);
+		
 		
 	
 		RestTemplate restTemplate = new RestTemplate();	    
@@ -166,52 +171,109 @@ public class RecommendServiceImpl implements RecommendService {
         headers.add("accept", "application/json");
         headers.add("x-ncp-iam-access-key", aitems_Access_Key);
         headers.add("x-ncp-apigw-signature-v2", signatureKey);
-        headers.add("x-ncp-apigw-timestamp", String.valueOf(System.currentTimeMillis()));
+        headers.add("x-ncp-apigw-timestamp", timestamp);
         
-        Map<String,Object> content = new HashMap<String,Object>();
+//        JSONObject content = new JSONObject();
+//        content.put("type","item");
+//        
+//        JSONArray value = new JSONArray();
+//        JSONObject item = new JSONObject();
+//        item.put("ITEM_ID", "201");
+//        item.put("TITLE", "테스트 기록 제목201");
+//        item.put("CATEGORY", "여행");
+//        
+//        value.put(item);
+//        content.put("value", value);
+//        
+//        System.out.println(content);
         
-        content.put("type","item");
+        JSONObject content = new JSONObject();
+        content.put("type", "item"); // "user", "item", "interaction" 중 하나
+
+        JSONArray valueArray = new JSONArray();
+        JSONObject item1 = new JSONObject();
+        item1.put("ITEM_ID", "201");
+        item1.put("TITLE", "테스트 기록 제목201");
+        item1.put("CATEGORY", "여행");
+
+        JSONObject item2 = new JSONObject();
+        item2.put("ITEM_ID", "202");
+        item2.put("TITLE", "테스트 기록 제목202");
+        item2.put("CATEGORY", "여행");
+
+        JSONObject item3 = new JSONObject();
+        item3.put("ITEM_ID", "203");
+        item3.put("TITLE", "테스트 기록 제목203");
+        item3.put("CATEGORY", "여행");
+
+        valueArray.add(item1);
+        valueArray.add(item2);
+        valueArray.add(item3);
+
+        content.put("value", valueArray);
         
-        Map<String,String>[] value = new LinkedHashMap[1];
-        
-        value[0] = new LinkedHashMap<String,String>();
-        value[0].put("ITEM_ID", "201");
-        value[0].put("TITLE", "테스트 기록 제목201");
-        value[0].put("CATEGORY", "여행");      
-        System.out.println(value[0]);        
-        content.put("value", value);      
+
+
         System.out.println(content);
         
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(content, headers);
+        HttpEntity<JSONObject> entity = new HttpEntity<JSONObject>(content, headers);
         
         System.out.println("entity : "+entity);
         
-        String response = restTemplate.postForObject(url, entity, String.class);
-        System.out.println(response);
+//        String response = restTemplate.postForObject(url, entity, String.class);
+//        System.out.println(response);
+        
+        try {
+            String response = restTemplate.postForObject(url, entity, String.class);
+            System.out.println(response);
+        } catch (HttpClientErrorException e) {
+            System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
+        }
+        
 	}
 
 	@Override
 	public void getRecommendData() throws Exception {
-		// TODO Auto-generated method stub
+		String uri= "/api/v1/services/r0g5crs583y/infers/lookup?type=personalRecommend&targetId=user1";
+//		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
+		String url = "https://aitems.apigw.ntruss.com"+uri;
+		String timestamp = String.valueOf(System.currentTimeMillis());
+		String signatureKey = makeSignature(timestamp, uri, "GET");
+		System.out.println(timestamp);
+		System.out.println("signatureKey : "+signatureKey);
 		
+		
+	
+		RestTemplate restTemplate = new RestTemplate();	    
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accept", "application/json");
+        headers.add("x-ncp-iam-access-key", aitems_Access_Key);
+        headers.add("x-ncp-apigw-signature-v2", signatureKey);
+        headers.add("x-ncp-apigw-timestamp", timestamp);
+        
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+		System.out.println(response);
 	}
 	
 	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
-	public String makeSignature(String time) throws Exception {
+	public String makeSignature(String timestamp, String url, String method) throws Exception {
 		
 		
 	
 		String space = " ";					// one space
 		String newLine = "\n";					// new line
-		String method = "POST";					// method
-		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
-		String timestamp = time;			// current timestamp (epoch)
+//		String method = "GET";					// method
+//		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
+//		String timestamp = time;			// current timestamp (epoch)
 		String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
 		String secretKey = aitems_Secret_Key;
 		
+		System.out.println(url);
 		System.out.println(accessKey);
 		System.out.println(secretKey);
-		System.out.println(time);
+		System.out.println(timestamp);
 
 		String message = new StringBuilder()
 			.append(method)
@@ -222,15 +284,17 @@ public class RecommendServiceImpl implements RecommendService {
 			.append(newLine)
 			.append(accessKey)
 			.toString();
-
+		
 		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
 		Mac mac = Mac.getInstance("HmacSHA256");
 		mac.init(signingKey);
 
 		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
+		String encodeBase64String = Base64.encodeBase64String(rawHmac);
 
 	  return encodeBase64String;
+
+	
 	}
 
 	@Override
