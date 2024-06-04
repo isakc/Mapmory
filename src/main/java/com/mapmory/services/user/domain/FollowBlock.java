@@ -1,8 +1,5 @@
 package com.mapmory.services.user.domain;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +9,9 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class SuspensionLog {
+public class FollowBlock {
 
 	private String userId;
-	private List<LocalDateTime> startSuspensionDate;
-	private List<String> reason;
+	private String targetId;  // follow 할 때 사용
+	private int fb_type; // (0 : follow, 1 : block)
 }

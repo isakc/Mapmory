@@ -25,18 +25,35 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductImageDao productImageDao;
 
+//    @Override
+//    @Transactional
+//    public void addProduct(Product product, List<String> imageFiles) throws Exception {
+//        productDao.addProduct(product); // 상품 정보를 먼저 추가
+//
+//        // 이미지 파일의 UUID 값을 생성하고 ProductImage 객체에 설정하여 데이터베이스에 삽입
+//        for (String originalImageFile : imageFiles) {
+//            String uuid = ImageFileUtil.getProductImageUUIDFileName(originalImageFile);
+//            ProductImage productImage = new ProductImage();
+//            productImage.setProductNo(product.getProductNo());
+//            productImage.setImageFile(originalImageFile);
+//            productImage.setUuid(uuid); // UUID 설정
+//            productImageDao.addProductImage(productImage);
+//        }
+//    }
+    
     @Override
     @Transactional
-    public void addProduct(Product product, List<String> imageFiles) throws Exception {
-        productDao.addProduct(product); // 상품 정보를 먼저 추가
+    public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception {
+        productDao.addProduct(product);
 
-        // 이미지 파일의 UUID 값을 생성하고 ProductImage 객체에 설정하여 데이터베이스에 삽입
-        for (String imageFile : imageFiles) {
-            String uuid = ImageFileUtil.getProductImageUUIDFileName(imageFile);
+        for (int i = 0; i < uuidFileNames.size(); i++) {
+            String uuid = uuidFileNames.get(i);
+            String originalFilename = originalFileNames.get(i);
+
             ProductImage productImage = new ProductImage();
             productImage.setProductNo(product.getProductNo());
-            productImage.setImageFile(imageFile);
-            productImage.setUuid(uuid); // UUID 설정
+            productImage.setImageFile(originalFilename); // 원본 파일명 설정
+            productImage.setUuid(uuid);
             productImageDao.addProductImage(productImage);
         }
     }

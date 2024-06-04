@@ -29,7 +29,10 @@
 		SELECT user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
 				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
 		FROM subscription
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+		<!-- WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date -->
+		WHERE user_id = #{userId}
+		ORDER BY subscription_end_date DESC
+		LIMIT 1;
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>
