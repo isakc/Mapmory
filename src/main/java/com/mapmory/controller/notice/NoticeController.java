@@ -55,10 +55,10 @@ public class NoticeController {
 			
 			System.out.println(resultPage);
 			
-			model.addAttribute("list",map.get("list"));
+			model.addAttribute("noticeList",map.get("list"));
 			model.addAttribute("resultPage",resultPage);
 			model.addAttribute("search",search);
-			return "forward:/notice/noticeList.jsp";
+			return "forward:/notice/getNoticeList.html";
 		}
 		
 		@PostMapping(value = "addNotice")
@@ -71,13 +71,13 @@ public class NoticeController {
 					
 					noticeService.addNotice(notice);
 
-					return "redirect:/notice/list";
+					return "redirect:/notice/getNoticelist";
 		}
 		
 		@GetMapping(value = "addNotice")
 		public String addNotice() throws Exception{
 			System.out.println("addNotice Start...... ( GET )");
-			return "forward:/notice/addNotice.jsp";
+			return "forward:/notice/addNotice.html";
 		}
 		
 		@GetMapping(value = "getDetailNotice/{noticeNo}")
@@ -89,7 +89,7 @@ public class NoticeController {
 			model.addAttribute("noti", notice);
 			System.out.println("notice 테스트용 == " + notice);
 
-			return "forward:/notice/getNotice.jsp";
+			return "forward:/notice/getDetailNotice.html";
 		}
 		
 		@PostMapping(value = "updateNotice")
@@ -98,7 +98,7 @@ public class NoticeController {
 			System.out.println("updateProduct Start......");
 			noticeService.updateNoticeAndFaq(notice);
 			
-			return "forward:/notice/updateReadNotice.jsp";
+			return "forward:/notice/updateReadNotice.html";
 		}
 		
 		@GetMapping(value = "updateNotice/{noticeNo}")
@@ -109,7 +109,7 @@ public class NoticeController {
 			Notice notice = noticeService.getDetailNotice(noticeNo);
 			model.addAttribute("UpdateNotice", notice);
 			
-			return "forward:/notice/updateNotice.jsp";
+			return "forward:/notice/updateNotice.html";
 		}
 		
 		@GetMapping(value = "delete/{noticeNo}")
