@@ -33,16 +33,8 @@
 	    <result property="socialId" column="social_id" jdbcType="VARCHAR"/>
 	    <result property="linkRegDate" column="link_reg_date" jdbcType="TIMESTAMP"/>
 	</resultMap>
-
-	<!--  
-	<resultMap id="selectFollowMap" type="follow">
-		<collection property="followList" ofType="user">
-			
-		</collection>
-	</resultMap>
-	 -->
 	 
-	 <resultMap id="selectFollowMap" type="user">
+	 <resultMap id="selectFollowMap" type="followMap">
 	 	<result property="userId" column="user_id" jdbcType="VARCHAR"/>
 	 	<result property="userName" column="user_name" jdbcType="VARCHAR"/>
 	 	<result property="nickname" column="nickname" jdbcType="VARCHAR"/>
@@ -135,7 +127,7 @@
 			JOIN users u ON fb.target_id = u.user_id
 		WHERE
 			fb.user_id = #{userId}
-			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
+			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
 
 	</select>
@@ -190,5 +182,8 @@
 	</update>
 	
 	
-
+	<delete id="deleteFollow" parameterType="follow">
+		DELETE FROM follow_block
+		WHERE user_id=#{userId} AND target_id=#{targetId}
+	</delete>
 </mapper>

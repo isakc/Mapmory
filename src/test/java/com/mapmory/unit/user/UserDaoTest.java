@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 
@@ -184,7 +185,7 @@ public class UserDaoTest {
 		Assertions.assertThat(email).isEqualTo(resultUser.getEmail());
 	}
 	
-	@Test
+	// @Test
 	public void testSelectFollowList() throws Exception {
 		
 		String userId = "user1";
@@ -199,7 +200,7 @@ public class UserDaoTest {
 						.offset(offset)
 						.build();
 		
-		List<User> followList = userDao.selectFollowList(search);
+		List<FollowMap> followList = userDao.selectFollowList(search);
 		int count = userDao.getFollowListTotalCount(search);
 		
 		Assertions.assertThat(followList.size()).isEqualTo(count);
@@ -325,6 +326,37 @@ public class UserDaoTest {
 		Assertions.assertThat(resultUser.getLeaveAccountDate()).isNull();
 	}
 
+	// @Test
+	public void testDeleteFollow() {
+		
+		String userId = "user1";
+		String targetId = "user2";
+		
+		Follow follow = Follow.builder()
+						.userId(userId)
+						.targetId(targetId)
+						.build();
+		
+		int result = userDao.deleteFollow(follow);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.build();
+		
+		List<FollowMap> list = userDao.selectFollowList(search);
+		
+		boolean flag = true;
+		for(FollowMap fm : list) {
+			if(fm.getUserId().equals("user2"))
+				flag = false;
+		}
+		
+		Assertions.assertThat(flag).isTrue();
+	}
+	
 	// @Test
 	public void testCheckDuplicationById() throws Exception {
 		

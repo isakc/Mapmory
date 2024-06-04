@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
@@ -40,7 +41,7 @@ public interface UserService {
 
 	public Map<String, Object> getUserList(Search search);
 	
-	public Map<String, Object> getFollowList(Search search);
+	public List<FollowMap> getFollowList(String userId, String searchKeyword);
 	
 	/**
 	 * 사용자 전체 로그인 통계를 조회한다.
@@ -67,6 +68,8 @@ public interface UserService {
 	public int updateRecoverAccount(String userId);
 	
 	public boolean updateHideProfile(String userId);
+	
+	public boolean deleteFollow(String userId, String targetId);
 	
 	/**
 	 * true: 설정됨, false : 설정안함

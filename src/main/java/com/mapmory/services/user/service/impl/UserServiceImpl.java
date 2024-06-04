@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.dao.UserDao;
+import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
@@ -137,9 +139,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Map<String, Object> getFollowList(Search search) {
+	public List<FollowMap> getFollowList(String userId, String searchKeyword) {
 		// TODO Auto-generated method stub
-		return null;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchKeyword(searchKeyword)
+						.build();
+		
+		return userDao.selectFollowList(search);
 	}
 
 	@Override
@@ -241,6 +249,20 @@ public class UserServiceImpl implements UserService {
 		return false;
 	}
 
+	@Override
+	public boolean deleteFollow(String userId, String targetId) {
+		// TODO Auto-generated method stub
+		
+		Follow follow = Follow.builder()
+						.userId(userId)
+						.targetId(targetId)
+						.build();
+		
+		int result = userDao.deleteFollow(follow);
+		
+		return intToBool(result);
+	}
+	
 	@Override
 	public boolean checkSecondaryAuth(String userId) {
 		// TODO Auto-generated method stub
@@ -349,6 +371,4 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
-
-
 }

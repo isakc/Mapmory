@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
@@ -168,6 +170,20 @@ public class UserServiceTest {
 	}
 	
 	// @Test
+	public void testGetFollowList() {
+		
+		String userId = "user1";
+		String searchKeyword = "a";
+		
+		List<FollowMap> list = userService.getFollowList(userId, searchKeyword);
+		String nickname = list.get(0).getNickname();
+		String userName = list.get(0).getUserName();
+		boolean result = nickname.contains(searchKeyword) || userName.contains(searchKeyword);
+		Assertions.assertThat(result).isTrue();
+	}
+	
+	
+	// @Test
 	public void testUpdateUserPassword() {
 		
 		String userId = "john_doe_90";
@@ -242,6 +258,27 @@ public class UserServiceTest {
 		User user = userService.getDetailUser(userId);
 		Assertions.assertThat(user.getProfileImageName()).isEqualTo(profileFileName);
 		Assertions.assertThat(user.getIntroduction()).isEqualTo(introduction);
+	}
+	
+	// @Test
+	public void testDeleteFollow() {
+		
+		String userId = "user1";
+		String targetId = "user2";
+
+		boolean result = userService.deleteFollow(userId, targetId);
+		
+		Assertions.assertThat(result).isTrue();
+		
+		List<FollowMap> list = userService.getFollowList(userId, null);
+		
+		boolean flag = true;
+		for(FollowMap fm : list) {
+			if(fm.getUserId().equals("user2"))
+				flag = false;
+		}
+		
+		Assertions.assertThat(flag).isTrue();
 	}
 	
 	// @Test
