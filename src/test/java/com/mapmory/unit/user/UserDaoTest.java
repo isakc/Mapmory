@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.dao.UserDao;
-import com.mapmory.services.user.domain.Follow;
+import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
@@ -75,7 +75,7 @@ public class UserDaoTest {
 		String userId = "user_123";
 		String targetId = "john_doe_90";
 		
-		Follow follow = Follow.builder()
+		FollowBlock follow = FollowBlock.builder()
 						.userId(userId)
 						.targetId(targetId)
 						.build();
@@ -332,7 +332,7 @@ public class UserDaoTest {
 		String userId = "user1";
 		String targetId = "user2";
 		
-		Follow follow = Follow.builder()
+		FollowBlock follow = FollowBlock.builder()
 						.userId(userId)
 						.targetId(targetId)
 						.build();
