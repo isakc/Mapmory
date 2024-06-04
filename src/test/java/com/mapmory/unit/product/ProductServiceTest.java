@@ -38,7 +38,7 @@ public class ProductServiceTest {
         imageFiles.add("test_image13.jpg");
 
         // When
-        productService.addProduct(product, imageFiles);
+        productService.addProduct(product, imageFiles, imageFiles);
 
         // Then
     }

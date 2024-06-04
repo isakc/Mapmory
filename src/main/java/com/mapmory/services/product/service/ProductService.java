@@ -9,7 +9,8 @@ import com.mapmory.services.product.domain.ProductImage;
 
 public interface ProductService {
 
-    public void addProduct(Product product, List<String> imageFiles) throws Exception;
+//    public void addProduct(Product product, List<String> imageFiles) throws Exception;
+	public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception;
 
     public Product getDetailProduct(int productNo) throws Exception;
 

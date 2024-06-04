@@ -47,14 +47,14 @@ public class ObjectStorageUtil {
 		return s3Client;
 	}
     
-    public void uploadFileToS3(MultipartFile file) throws Exception {
-        File localFile = convertMultiPartToFile(file);
-        String fileName = file.getOriginalFilename();
-        String key = folderName + "/" + fileName; // 버킷 내 경로 설정
-        AmazonS3 s3Client = getS3Client();
-        PutObjectResult result = s3Client.putObject(new PutObjectRequest(bucketName, key, localFile));
+	public void uploadFileToS3(MultipartFile file, String uuidFileName) throws Exception {
+	    File localFile = convertMultiPartToFile(file);
+	    String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
+	    AmazonS3 s3Client = getS3Client();
+	    PutObjectResult result = s3Client.putObject(new PutObjectRequest(bucketName, key, localFile));
+	    // 업로드 성공 후 처리할 로직 추가
+	}
         // 업로드 성공 후 처리할 로직 추가
-    }
     
     private File convertMultiPartToFile(MultipartFile file) throws Exception {
         String tempDir = System.getProperty("java.io.tmpdir");
