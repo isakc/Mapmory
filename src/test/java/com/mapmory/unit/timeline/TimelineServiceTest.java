@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.domain.Search;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @SpringBootTest
@@ -22,7 +24,7 @@ public class TimelineServiceTest {
 	private TimelineService timelineService;
 	
 //	@Test
-//	@Transactional
+	@Transactional
 	public void testAddTimeline() throws Exception{
 		System.out.println("\n===================================");
 		List<String> image= new ArrayList<String>();
@@ -50,7 +52,6 @@ public class TimelineServiceTest {
 				.timecapsuleType(0)
 				.build();
 		timelineService.addTimeline(record);
-
 	}
 	
 //	@Test
@@ -83,33 +84,62 @@ public class TimelineServiceTest {
 				.timecapsuleType(0)
 				.build();
 		timelineService.updateTimeline(record);
-
 	}
 	
 //	@Test
-//	@Transactional
+	@Transactional
 	public void testDeleteTimeline() throws Exception{
 		System.out.println("\n===================================");
-		
 		timelineService.deleteTimeline(6);
-
+	}
+	
+//	@Test
+	@Transactional
+	public void testSelectImageForDelete() throws Exception{
+		System.out.println("\n===================================");
+		System.out.println(timelineService.getImageForDelete(1));
+	}
+	
+//	@Test
+	@Transactional
+	public void testDeleteImageNo() throws Exception{
+		System.out.println("\n===================================");
+		timelineService.deleteImage(1);
+	}
+	
+//	@Test
+	@Transactional
+	public void testCategory() throws Exception{
+		System.out.println("\n===================================");
+		Category category=Category.builder()
+				.categoryName("테스트")
+				.categoryImoji("테스트.jpg")
+				.build();
+		timelineService.addCategory(category);
+		System.out.println("timelineService.getCategory(15) : "+timelineService.getCategory(15));
+		System.out.println("timelineService.getCategoryList() :"+timelineService.getCategoryList()); 
+		
+		category=Category.builder()
+				.categoryNo(15)
+				.categoryName("업데이트")
+				.categoryImoji("업데이트.jpg")
+				.build();
+		timelineService.updateCategory(category);
+		timelineService.deleteCategory(15);
 	}
 	
 	@Test
-//	@Transactional
-	public void testSelectImageForDelete() throws Exception{
+	@Transactional
+	public void testRecordToUserId() throws Exception{
 		System.out.println("\n===================================");
-		
-		System.out.println(timelineService.getImageForDelete(1));
-
-	}
-	
-//	@Test
-//	@Transactional
-	public void testDeleteImageNo() throws Exception{
-		System.out.println("\n===================================");
-		
-		timelineService.deleteImage(1);
-
+		Search search=Search.builder()
+				.userId("user1").
+				currentPage(1)
+				.limit(5)
+				.sharedType(1)
+				.tempType(1)
+				.timecapsuleType(0)
+				.build();
+		System.out.println(timelineService.getTimelineList(search).size());
 	}
 }

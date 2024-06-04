@@ -1,5 +1,8 @@
 package com.mapmory.common.domain;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +31,8 @@ public class Search {
 	private Integer sharedType;
 	private Integer tempType;
 	private Integer timecapsuleType;
+	private LocalDateTime selectDay1;
+	private LocalDateTime selectDay2;
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();

@@ -17,10 +17,10 @@ public class Recommend {
 
 	private String userId;
 	private int recordNo;
-	private long timeStamp;
-	private int categoryNo;
+	private String recordTitle;
+	private String category;
 	private String hashTag;
 	private int positive;
-	
+	private long timeStamp;
 
 }

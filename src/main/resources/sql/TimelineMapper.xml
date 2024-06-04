@@ -6,7 +6,7 @@
 <mapper namespace="com.mapmory.services.timeline.dao.TimelineDao">
     
     <!-- Result Map -->
-    <resultMap id="recordResultMap" type="java.util.HashMap">
+<resultMap id="recordResultMap" type="java.util.HashMap">
     <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
@@ -202,6 +202,20 @@ FROM
 			AND timecapsule_type=1
 		</if>
 	</if>
+	<if test="!(tempType==null or timecapsuleType==null)">
+		<if test="tempType==1 and timecapsuleType==1">
+			AND <![CDATA[d_day_date < "2024-06-30T00:00:00"]]>
+		</if>
+	</if>
+	<if test="!(userId==null)">
+		<bind name="userId" value="_parameter.getUserId().trim()"/>
+		<if test="!(userId=='')">
+			AND user_id = TRIM(BOTH ' ' FROM #{userId})
+		</if>
+	</if>
+	<if test="!(selectDay1==null and selectDay2==null )">
+		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
+	</if>
 </trim>
 	
 </sql>
@@ -213,8 +227,61 @@ FROM
 	(
 	<include refid="selectTimelineListUnit" />
 	) inner_table
+<if test="!(limit==0)">
 LIMIT #{limit} OFFSET #{offset}
+</if>
 </select>
+
+<!-- <select id="selectTimelineListToday" parameterType="timelineSearch" resultMap="recordResultMap">
+SELECT 
+    record_no,
+    record_user_id,
+    record_title,
+    latitude,
+    longitude,
+    checkpoint_address,
+    checkpoint_date,
+    media_name,
+    category_no,
+    record_text,
+    temp_type,
+    record_add_date,
+    shared_date,
+    update_count,
+    d_day_date,
+    timecapsule_type
+FROM 
+    record
+<trim prefix="where" prefixOverrides="AND||OR">
+	<if test="!(sharedType==null)">
+		<if test="sharedType==1">
+			shared_date is not null
+		</if>
+	</if>
+	<if test="!(tempType==null)">
+		<if test="tempType==0">
+			AND temp_type=0
+		</if>
+		<if test="tempType==1">
+			AND temp_type=1
+		</if>
+	</if>
+	<if test="!(timecapsuleType==null)">
+		<if test="timecapsuleType==0">
+			AND timecapsule_type=0
+		</if>
+		<if test="timecapsuleType==1">
+			AND timecapsule_type=1
+		</if>
+	</if>
+	<if test="!(userId==null)">
+		<bind name="userId" value="_parameter.getUserId().trim()"/>
+		<if test="!(userId=='')">
+			AND user_id = TRIM(BOTH ' ' FROM #{userId})
+		</if>
+	</if>
+</trim>
+</select> -->
 	
 <select id="selectTimelineCount" parameterType="timelineSearch" resultType="Integer">
 	SELECT COUNT(*)
@@ -223,11 +290,72 @@ LIMIT #{limit} OFFSET #{offset}
 	) countTable
 </select>
 
+	<!-- Create -->
+    <insert id="insertCategory" parameterType="category">
+        INSERT INTO category (CATEGORY_NAME, CATEGORY_IMOJI)
+        VALUES (#{categoryName:VARCHAR}, #{categoryImoji:VARCHAR})
+    </insert>
+
+    <!-- Read -->
+    <select id="selectCategory" resultType="category" parameterType="Integer">
+        SELECT * FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </select>
+
+    <select id="selectCategoryList" resultType="category">
+        SELECT * FROM category
+    </select>
+
+    <!-- Update -->
+    <update id="updateCategory" parameterType="category">
+        UPDATE category SET CATEGORY_NAME = #{categoryName:VARCHAR}, CATEGORY_IMOJI = #{categoryImoji:VARCHAR}
+        WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteCategory" parameterType="int">
+        DELETE FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    </delete>
+    
+<sql id="selectSharedRecordListUnit">
+SELECT
+	RECORD_NO,
+	RECORD_TITLE,
+	SHARED_DATE,
+	UPDATE_COUNT,
+    (SELECT nickname FROM USERS u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
+    (SELECT profile_image_name FROM USERS u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
+    CASE WHEN (SELECT subscription_end_date FROM SUBSCRIPTION s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+    (SELECT IMAGE_TAG_TYPE FROM IMAGE_TAG i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
+    (SELECT IMAGE_TAG_TEXT FROM IMAGE_TAG i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
+    (SELECT category_name FROM CATEGORY c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
+    (SELECT category_imoji FROM CATEGORY c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
+    (SELECT COUNT(*) FROM REPLY p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
+    (SELECT COUNT(*) FROM COMMUNITY_LOGS l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) logs_count
+FROM 
+    RECORD r
+<trim prefix="where" prefixOverrides="AND||OR">
+    shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
+</trim>
+ORDER BY
+	shared_date DESC,
+	shared_date IS NULL DESC
+</sql>
+
+<select id="selectSharedRecordList" parameterType="timelineSearch" resultType="sharedRecord">
+SELECT
+inner_table.*
+FROM
+	(
+	<include refid="selectSharedRecordListUnit" />
+	) inner_table
+LIMIT #{limit} OFFSET #{offset}
+</select>
+
 
 
 
 <!-- 미사용 -->
-<select id="selectDetailTimeline2" resultType="record2" parameterType="integer">
+<!-- <select id="selectDetailTimeline2" resultType="record2" parameterType="integer">
   SELECT 
     record_no,
     record_user_id,
@@ -278,6 +406,6 @@ AND
 ORDER BY 
     image_tag_order IS NULL ASC, 
     image_tag_order ASC;
-</select>
+</select> -->
     
 </mapper>

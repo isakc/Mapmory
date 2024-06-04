@@ -12,22 +12,40 @@
     <li th:each="item : ${list}" th:text="${item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list2}" th:text="${item}"></li>
+    <li th:each="item : ${list2}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list3}" th:text="${item}"></li>
+   <li th:each="item : ${list3}" th:text="${item.recordUserId == null ? null : item.recordUserId}
+    +',  '+${item.recordTitle == null ? null : item.recordTitle}
+    +',  '+${item.sharedDate == null ? '' : item.sharedDate}
+    +',  '+${item.tempType == null ? null : item.tempType}
+    +',  '+${item.timecapsuleType == null ? null : item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list4}" th:text="${item}"></li>
+    <li th:each="item : ${list4}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list5}" th:text="${item}"></li>
+    <li th:each="item : ${list5}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list6}" th:text="${item}"></li>
+    <li th:each="item : ${list6}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
+</ul>
+	
+<!-- <h3 th:text="${' 기록된 타임캡슐 기록 '}"></h3> -->
+<ul>
+    <li th:each="item : ${list7}" th:text="${' 기록된 타임캡슐 기록 : '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.d_DayDate}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list7}" th:text="${item}"></li>
+    <li th:each="item : ${list8}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list9}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list10}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list11}" th:text="${item}"></li>
 </ul>
 </body>
 </html>
