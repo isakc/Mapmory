@@ -181,6 +181,11 @@
 		    <artifactId>converter-gson</artifactId>
 		    <version>2.9.0</version> <!-- 적절한 버전을 선택해 주세요 -->
 		</dependency>
+		<dependency>
+			<groupId>com</groupId>
+			<artifactId>SpringBoot</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -193,6 +198,8 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<source>11</source>
+                	<target>11</target>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>

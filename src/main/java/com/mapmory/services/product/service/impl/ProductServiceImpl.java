@@ -16,7 +16,7 @@ import com.mapmory.services.product.domain.ProductImage;
 import com.mapmory.services.product.service.ProductService;
 import com.mapmory.common.util.ImageFileUtil;
 
-@Service
+@Service("productServiceImpl")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
