@@ -54,7 +54,7 @@ public interface CommunityService {
 //	public void deleteReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception;
 	
 	//즐겨찾기 목록 조회
-	public Map<String, Object> getBookMarkSharedRecordList(Search search, String userId) throws Exception;
+	public Map<String, Object> getBookmarkSharedRecordList(Search search, String userId) throws Exception;
 	
 	//감정표현 목록 조회
 	public Map<String, Object> getReactionList(Search search, String userId) throws Exception;

@@ -107,19 +107,42 @@
 	</select>	
 	
 	<!-- 기록 즐겨찾기 추가 -->		
-	<insert id="addBookmarkSharedRecord" parameterType="CommunityLogs">
-		INSERT INTO COMMUNITY_LOGS (USER_ID, RECORD_NO, REPLY_NO, LOGS_TYPE)
+	<insert id="addBookmarkSharedRecord" parameterType="communityLogs">
+		INSERT INTO COMMUNITY_LOGS (user_id, record_no, reply_no, logs_type)
 		VALUES(#{userId}, #{recordNo}, NULL, #{logsType}); 
 	</insert>
 	
 	<!-- 기록 즐겨찾기 해제 -->	
-	<delete id="deleteBookmarkSharedRecord" parameterType="CommunityLogs">
+	<delete id="deleteBookmarkSharedRecord" parameterType="communityLogs">
 		DELETE FROM COMMUNITY_LOGS
 		WHERE user_id = #{userId} AND record_no = #{recordNo}
 	</delete>
-		 
 
+	<!-- 즐겨찾기 목록 조회 -->
+	<select id="getBookmarkSharedRecordList" parameterType="map" resultMap="communityLogs">
+		SELECT user_id, record_no, reply_no, logs_type
+		FROM COMMUNITY_LOGS
+		WHERE user_id = #{userId) AND logs_type = #{logsType}
+	</select>
+
+
+	<!-- 기록 및 댓글 감정표현 추가 -->		 
+	<insert id="addReaction" parameterType="CommunityLogs">
+		INSERT INTO COMMUNITY_LOGS (user_id, record_no, reply_no, logs_type)
+		VALUES(#{userId}, #{recordNo}, #{replyNo}, #{logsType})
+	</insert>
 	
+	<!-- 기록 및 댓글 감정표현 수정 -->		 
+	<update id="updateReaction" parameterType="CommunityLogs">
+		UPDATE COMMUNITY_LOGS
+			<set>
+				logsType = #{logsType}
+			</set> 
+		WHERE		
+	</update>	
 	
+	<!-- 기록 및 댓글 감정표현 삭제 -->		 
+	<delete id="deleteReaction" parameterType="CommunityLogs">
+	</delete>	
 	
 </mapper>

@@ -37,7 +37,7 @@ public interface CommunityDao {
 	public void deleteBookmarkSharedRecord(String userId, int recordNo) throws Exception;
 
 	//즐겨찾기 목록 조회
-	public List<Object> getBookMarkSharedRecordList(Search search, String userId) throws Exception;	
+	public List<Object> getBookmarkSharedRecordList(Search search, String userId) throws Exception;	
 	
 	// 기록에 대한 감정 표현 추가
 	public void addReaction(CommunityLogs communityLogs) throws Exception;    

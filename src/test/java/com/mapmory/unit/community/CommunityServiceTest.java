@@ -116,8 +116,24 @@ public class CommunityServiceTest {
 
 		communityService.deleteBookmarkSharedRecord("user7", 4);
 		
-		System.out.println("delete 테스트 : ");	
+		System.out.println("즐겨찾기 delete 테스트 : ");	
 	}	
+	
+	@Test
+	public void TestaddReaction() throws Exception {
+		
+		CommunityLogs communityLogs = CommunityLogs.builder()
+				.userId("user6")
+				.recordNo(2)
+				.replyNo(0)
+				.logsType(3)
+				.build();
+
+		communityService.addReaction(communityLogs);
+		
+		System.out.println("Reaction 추가 테스트 : "+communityLogs);	
+	}	
+	
 	
 	
 

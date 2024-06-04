@@ -83,7 +83,7 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public Map<String, Object> getBookMarkSharedRecordList(Search search, String userId) throws Exception {
+	public Map<String, Object> getBookmarkSharedRecordList(Search search, String userId) throws Exception {
 		return null;
 	}	
 	
