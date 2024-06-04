@@ -60,41 +60,120 @@
       } //nomralRequestPay
       
       
-      function monthlyRequestPay(pg) {
-    	  
+      function monthlyRequestPay(pg, user) {
           // IMP.request_pay(param, callback) 호출
           IMP.request_pay(
             {
               pg: pg,
-              merchant_uid: "order_user1_"+getCurrentDate(), // 빌링키 발급용 주문번호
-              customer_uid: "user1-0001", // 카드(빌링키)와 1:1로 대응하는 값
-              name: "구독 결제",
-              amount: 1000 // 0 으로 설정하여 할 시 빌링키만 발급
-            },
+              merchant_uid: "AddPaymentMethod_"+user+"_"+getCurrentDate(), // 빌링키 발급용 주문번호
+              customer_uid: user, // 카드(빌링키)와 1:1로 대응하는 값
+              name: "정기 구독 결제",
+              amount: 0 // 0 으로 설정하여 할 시 빌링키만 발급
+            },//빌링키 요청
 
             function (rsp) {
             	console.log(rsp);
             	
             	if(rsp.success){ //빌링키 발급 성공
-            		alert("결제 수단 등록 성공!!");
-            	}else{ //빌링키 발급 실패
-            		alert("결제 수단 등록 실패!!");
-            	}//if~else
+            		const subscription = {
+            			customerUid: rsp.customer_uid,
+    					//userId: 'user5',
+    					userId: user,
+    					nextPaymentMethod: getPaymentMethod(rsp.pg_provider),
+    					nextSubscriptionCardType: rsp.card_name,
+    					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
+    					nextSubscriptionPaymentDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at),
+    					subscriptionStartDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at),
+    					subscriptionEndDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at, 1),
+    					customerUid: rsp.customer_uid,
+    					merchantUid: "subscription_"+user+"_"+getCurrentDate()
+    				}
             	
-              }); // callback
+            		$.ajax({
+    					url:'/purchase/rest/addSubscription', //DB에 구독정보 등록하는 부분
+    					method: 'POST',
+    					headers: {
+            			    'Content-Type': 'application/json'
+            			},
+    					data: JSON.stringify(subscription),
+    					
+    					success:function(result) {
+    						
+    						if(result){
+
+        						alert('구독 결제 성공!!');
+        						
+        						$.ajax({
+        	    					url:'/purchase/rest/startScheduler', //결제 상태를 확인하고 스케줄러를 호출하는 부분
+        	    					type : 'POST',
+        	    					headers: {
+        	            			    'Content-Type': 'application/json'
+        	            			},
+        	    					data: JSON.stringify(subscription),
+        	    					
+        	    					success:function() {
+        	    						alert('다음 결제 예약완료');
+        	    					}//success
+        	    				});//ajax 
+        	    				
+    						}else{
+    							alert('결제 실패!!');
+    						}
+    					}
+    				});
+    				
+    			} else { //빌링키 발급 실패한 경우
+    				alert('빌링키 발급 실패');
+    			}//
+    		});//rsp
+            	
           } //정기결제 로직
       
       function addZero(n){
-          return n< 10 ? '0' + n : n;
+          return n < 10 ? '0' + n : n;
       }//10 미만일 경우 0을 붙여주기
 
       function getCurrentDate() {
-    	  var date = new Date();
-    	  
+    	  let date = new Date();
+    		  
     	  return date.getFullYear().toString() +"-" + addZero( date.getMonth()+1 ) +"-"+ addZero( date.getDate() ) +"T"
     	  + addZero( date.getHours() ) +":" + addZero( date.getMinutes() )+":" + addZero( date.getSeconds() );
         }//현재 날짜 구하기
         
+       function convertUnixTimestamptoLocalDateTime(unixTimestamp, period) {
+    	   const milliseconds = unixTimestamp * 1000; // 밀리초 단위로 변환
+
+    	   // Date 객체 생성
+    	   const date = new Date(milliseconds);
+    	   let addMonth = period ? 2 : 1
+
+    	   // 각 부분 추출
+    	   const year = date.getFullYear();
+    	   /* const month = String(date.getMonth() + addMonth).padStart(2, '0'); // 월은 0부터 시작하므로 +1 */
+    	   const month = String(date.getMonth()+1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+    	   const day = String(date.getDate()).padStart(2, '0');
+    	   const hours = String(date.getHours()).padStart(2, '0');
+    	   /* const minutes = String(date.getMinutes()).padStart(2, '0'); */
+    	   const minutes = String(date.getMinutes() + addMonth).padStart(2, '0');
+    	   const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    	   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+		}//Unix 타임스탬프를 LocalDatetime으로 변환
+		
+		function getPaymentMethod(paymentMethod) {
+		    const paymentMethods = {
+		    	'card': 0,
+		    	'kakaopay': 1,
+		    	'payco': 2,
+		    	'tosspay': 3
+		    };
+
+		    return paymentMethods[paymentMethod];
+		}//결제
+		
+		function getLastFourDigits(cardNumber) {
+		    return cardNumber.slice(-4); // 마지막 4자리 반환
+		}
       </script>
 </head>
 <body>
@@ -105,6 +184,7 @@
 
     <button onclick="monthlyRequestPay('html5_inicis')">카드 정기 결제</button>
     <button onclick="monthlyRequestPay('kakaopay')">카카오 정기 결제</button>
-    <button onclick="monthlyRequestPay('payco')">페이코 정기 결제</button>
+    <button onclick="monthlyRequestPay('payco', 'user5')">페이코 정기 결제5</button>
+    <button onclick="monthlyRequestPay('payco', 'user7')">페이코 정기 결제7</button>
 </body>	
 </html>
