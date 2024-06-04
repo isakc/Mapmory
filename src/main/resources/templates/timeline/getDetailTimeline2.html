@@ -9,25 +9,25 @@
 <body>
 	<h1 th:text="${'getDetailTimeline2'}"></h1>
 	<ul>
-		<li th:text="${list}"></li>
-	</ul>
-	<ul th:text="${list2}" >
-		<li th:text="${item}"><br/></li>
-	</ul>
-	<ul th:text="${list3}">
-		<li th:text="${item}"><br/></li>
-	</ul>
-	<ul th:text="${list4}">
-		<li th:text="${item}"><br/></li>
-	</ul>
-	<ul th:text="${list5}">
-		<li th:text="${item}"><br/></li>
-	</ul>
-	<ul th:text="${list6}">
-		<li th:text="${item}"><br/></li>
-	</ul>
-	<ul th:text="${list7}">
-		<li th:text="${item}"><br/></li>
-	</ul>
+    <li th:each="item : ${list}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list2}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list3}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list4}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list5}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list6}" th:text="${item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list7}" th:text="${item}"></li>
+</ul>
 </body>
 </html>
