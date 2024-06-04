@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,12 +51,33 @@ public class RecommendRestController {
 //	    	recommend.setCategory(category);
 //	    	System.out.println(category);
 	    	
-	    	recommendService.updateDataset();
+//	    	recommendService.updateDataset();
+//	    	recommendService.saveDatasetToCSV(recommend);
 	    	
-	    	System.out.println(recommend.toString());
+//	    	System.out.println(recommend.toString());
 	    	
 	    	return null;
 	    	
 	    }
+	    
+	    @GetMapping("/modifyCsv")
+	    public String modifyCsv(@RequestParam String bucketName, @RequestParam String fileName) throws Exception {
+	        try {
+	            recommendService.modifyCsvFile("aitems-8982956307867", "test.csv");
+	            return "CSV file modified successfully!";
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return "Error modifying CSV file.";
+	        }
+	    }
+	
+
+
+
+
+
+
+
+
 
 }

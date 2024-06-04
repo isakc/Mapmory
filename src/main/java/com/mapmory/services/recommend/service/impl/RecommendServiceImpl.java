@@ -1,12 +1,13 @@
 package com.mapmory.services.recommend.service.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,17 +16,28 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
-import com.mapmory.services.timeline.domain.Record;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
 
 @Service("recommendServiceImpl")
 public class RecommendServiceImpl implements RecommendService {
@@ -33,10 +45,23 @@ public class RecommendServiceImpl implements RecommendService {
 	@Autowired
 	private RecommendDao recommendDao;
 	
-	private final String clientId = "ls4tulf8dd";
-    private final String clientSecret = "Smk4fHJycgdRjHgjffJG59UWd0A3vbV57SODGqIN";
-    private final String apiUrl = "https://naveropenapi.apigw.ntruss.com/sentiment-analysis/v1/analyze";
-    private final String aitemsUrl = "https://aitems.apigw.ntruss.com/api/v1/services/r0g5crs583y/datasets/92ivcomdz3w";
+	@Value("${clova.Client_ID}")
+	private String clientId;
+	
+	@Value("${clova.Client_Secret}")
+    private String clientSecret;
+    
+    @Value("${sentiment.url}")
+    private String apiUrl;
+    
+    @Value("${aitems.url}")
+    private String aitemsUrl; 
+    
+    @Value("${aitems.Access_Key}")
+    private String aitems_Access_Key;
+    
+    @Value("${aitems.Secret_Key}")
+    private String aitems_Secret_Key;
 	
 	@Override
 	public void addSearchData() throws Exception {
@@ -122,30 +147,26 @@ public class RecommendServiceImpl implements RecommendService {
 		System.out.println("RecommendServiceImpl getRecordData end");
 		return recommend;
 		
+		
 	}
 	
 	@Override
 	public void updateDataset() throws Exception {
 		
-		String url = "https://aitems.apigw.ntruss.com/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";
+		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{serviceId}/datasets/{datasetId}";
 		// TODO Auto-generated method stub
-		String xncpapigwsignaturev2 = makeSignature();
-		System.out.println(xncpapigwsignaturev2);
-		
-		//String timestamp 만들기
-		long timestamplong = Instant.now().getEpochSecond();
-		String timestamp = "";
-		timestamp += timestamplong;
-		
+		String timestamp = String.valueOf(System.currentTimeMillis());
+		String signatureKey = makeSignature(timestamp);
 		System.out.println(timestamp);
+		System.out.println("signatureKey : "+signatureKey);
 		
-		RestTemplate restTemplate = new RestTemplate();
-    	
+	
+		RestTemplate restTemplate = new RestTemplate();	    
         HttpHeaders headers = new HttpHeaders();
         headers.add("accept", "application/json");
-        headers.add("x-ncp-iam-access-key", "9A1E4C7B9C2973E90333");
-        headers.add("x-ncp-apigw-signature-v2", xncpapigwsignaturev2);
-        headers.add("x-ncp-apigw-timestamp", timestamp);
+        headers.add("x-ncp-iam-access-key", aitems_Access_Key);
+        headers.add("x-ncp-apigw-signature-v2", signatureKey);
+        headers.add("x-ncp-apigw-timestamp", String.valueOf(System.currentTimeMillis()));
         
         Map<String,Object> content = new HashMap<String,Object>();
         
@@ -156,18 +177,14 @@ public class RecommendServiceImpl implements RecommendService {
         value[0] = new LinkedHashMap<String,String>();
         value[0].put("ITEM_ID", "201");
         value[0].put("TITLE", "테스트 기록 제목201");
-        value[0].put("CATEGORY", "여행");
-        
-        
-        System.out.println(value[0]);
-        
-        content.put("value", value);
-        
+        value[0].put("CATEGORY", "여행");      
+        System.out.println(value[0]);        
+        content.put("value", value);      
         System.out.println(content);
         
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(content, headers);
         
-        System.out.println(entity);
+        System.out.println("entity : "+entity);
         
         String response = restTemplate.postForObject(url, entity, String.class);
         System.out.println(response);
@@ -180,20 +197,21 @@ public class RecommendServiceImpl implements RecommendService {
 	}
 	
 	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
-	public String makeSignature() throws IllegalStateException, UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
+	public String makeSignature(String time) throws Exception {
 		
-		long timestamplong = Instant.now().getEpochSecond();
-		String timestamp = "";
-		timestamp += timestamplong;
-		System.out.println(timestamp);
 		
+	
 		String space = " ";					// one space
 		String newLine = "\n";					// new line
 		String method = "POST";					// method
 		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
-//		String timestamp = "{timestamp}";			// current timestamp (epoch)
-		String accessKey = "9A1E4C7B9C2973E90333";			// access key id (from portal or Sub Account)
-		String secretKey = "C28BA9C4E17B6311B2F8CA1553CD7E21B0EF90D8";
+		String timestamp = time;			// current timestamp (epoch)
+		String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
+		String secretKey = aitems_Secret_Key;
+		
+		System.out.println(accessKey);
+		System.out.println(secretKey);
+		System.out.println(time);
 
 		String message = new StringBuilder()
 			.append(method)
@@ -215,6 +233,53 @@ public class RecommendServiceImpl implements RecommendService {
 	  return encodeBase64String;
 	}
 
+	@Override
+	public void saveDatasetToCSV(Recommend recommend) throws Exception {
+		System.out.println("saveDatasetToCSV : "+recommend.toString());
+		
+	}
+	
+	
+	public void modifyCsvFile(String bucketName, String fileName) throws Exception {
+		
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(aitems_Access_Key, aitems_Secret_Key);
+        
+		String REGION = "kr-standard";
+	    String ENDPOINT = "https://kr.object.ncloudstorage.com";
+		
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withPathStyleAccessEnabled(true)
+                .build();
+
+        // Step 1: CSV 파일 다운로드
+        S3Object s3Object = s3Client.getObject(bucketName, fileName);
+        InputStream inputStream = s3Object.getObjectContent();
+        CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+
+        // Step 2: CSV 파일 읽기
+        List<String[]> allData = csvReader.readAll();
+        csvReader.close();
+
+        // Step 3: CSV 파일 수정 (예: 첫 번째 행 수정)
+        allData.get(1)[2] = "Updated Value"; // 예시로 두 번째 열 값을 업데이트
+
+        // Step 4: 수정된 CSV 파일을 로컬에 저장
+        String tempFileName = "temp_" + fileName;
+        FileWriter outputFile = new FileWriter(tempFileName);
+        CSVWriter writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        // Step 5: 수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, fileName, new File(tempFileName));
+
+        // Step 6: 로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+    }
+}
+
 	
 
-}
+
