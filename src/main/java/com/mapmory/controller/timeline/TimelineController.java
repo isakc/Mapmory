@@ -1,6 +1,8 @@
 package com.mapmory.controller.timeline;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,7 @@ public class TimelineController {
 				.timecapsuleType(1)
 				.build();
 		model.addAttribute("list6",timelineService.getTimelineList(search));
+		//d_day보다 현재 날짜가 위에 있으면 갖고오는 조건식
 		search=Search.builder()
 				.currentPage(1)
 				.limit(3)
@@ -90,6 +93,33 @@ public class TimelineController {
 				.timecapsuleType(1)
 				.build();
 		model.addAttribute("list7",timelineService.getTimelineList(search));
+		//대민 지원
+		search=Search.builder()
+				.userId(" ").
+				currentPage(1)
+				.limit(5)
+				.sharedType(1)
+				.tempType(1)
+				.timecapsuleType(0)
+				.build();
+		model.addAttribute("list8",timelineService.getTimelineList(search));
+		//재용 지원
+		search=Search.builder()
+				.currentPage(1)
+				.limit(5)
+				.build();
+		model.addAttribute("list9",timelineService.getSharedRecordList(search));
+		search=Search.builder()
+				.currentPage(2)
+				.limit(5)
+				.build();
+		model.addAttribute("list10",timelineService.getSharedRecordList(search));
+		search=Search.builder()
+				.timecapsuleType(0)
+				.selectDay1(LocalDateTime.parse("2024-06-04T00:00:00"))
+				.selectDay2(LocalDateTime.parse("2024-06-05T00:00:00"))
+				.build();
+		model.addAttribute("list11",timelineService.getTimelineList(search));
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{

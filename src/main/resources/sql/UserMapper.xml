@@ -33,7 +33,14 @@
 	    <result property="socialId" column="social_id" jdbcType="VARCHAR"/>
 	    <result property="linkRegDate" column="link_reg_date" jdbcType="TIMESTAMP"/>
 	</resultMap>
-
+	 
+	 <resultMap id="selectFollowMap" type="followMap">
+	 	<result property="userId" column="user_id" jdbcType="VARCHAR"/>
+	 	<result property="userName" column="user_name" jdbcType="VARCHAR"/>
+	 	<result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+	 	<result property="profileImageName" column="profile_image_name" jdbcType="VARCHAR"/>
+	 	<result property="hideProfile" column="hide_profile" jdbcType="TINYINT"/>
+	 </resultMap>
 	
 	
 	<insert id="insertUser" parameterType="user">
@@ -46,6 +53,16 @@
 		INSERT INTO
 		social_login_info (USER_ID, SOCIAL_LOGIN_INFO_TYPE, SOCIAL_ID)
 		VALUES (#{userId}, #{socialLoginInfoType}, #{socialId})
+	</insert>
+	
+	<insert id="insertFollow" parameterType="followBlock">
+		INSERT INTO
+		follow_block (user_id, target_id, fb_type)
+		VALUES (#{userId}, #{targetId}, 0)
+	</insert>
+	
+	<insert id="insertSuspendLog" parameterType="suspensionLog">
+		
 	</insert>
 	
 	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
@@ -107,6 +124,40 @@
 		WHERE user_id = #{value}
 	</select>
 	
+	<select id="selectFollowList" parameterType="search" resultMap="selectFollowMap">
+		SELECT
+		fb.target_id as user_id, u.user_name, u.nickname, u.profile_image_name, u.hide_profile 
+		FROM follow_block fb
+			JOIN users u ON fb.target_id = u.user_id
+		WHERE
+			fb.user_id = #{userId}
+			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
+		ORDER BY fb.FB_NO DESC
+
+	</select>
+	
+	<select id="getFollowListTotalCount" parameterType="search" resultType="integer">
+		SELECT
+		COUNT(*) 
+		FROM follow_block fb
+			JOIN users u ON fb.target_id = u.user_id
+		WHERE
+			fb.user_id = #{userId}
+			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
+		ORDER BY fb.FB_NO DESC
+
+	</select>
+	
+	<select id="checkDuplication" parameterType="user" resultType="integer">
+		SELECT
+		COUNT(*)
+		FROM users
+		<where>
+			<if test="userId != null">user_id = #{userId}</if>
+			<if test="nickname != null">nickname = #{nickname}</if>
+		</where>
+	</select>
+	
 	<update id="updateUser" parameterType="user">
 	    UPDATE users
 	    <set>
@@ -128,10 +179,15 @@
 	    WHERE user_id=#{userId}
 	</update>
 	
-	<update id="recoverAccount" parameterType="string">
+	<update id="updateRecoverAccount" parameterType="string">
 		UPDATE users
 		SET leave_account_date = null
 		WHERE user_id = #{value}
 	</update>
-
+	
+	
+	<delete id="deleteFollow" parameterType="followBlock">
+		DELETE FROM follow_block
+		WHERE user_id=#{userId} AND target_id=#{targetId}
+	</delete>
 </mapper>

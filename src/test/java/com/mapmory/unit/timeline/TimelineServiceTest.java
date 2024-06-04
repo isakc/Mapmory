@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.domain.Search;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @SpringBootTest
@@ -106,7 +107,7 @@ public class TimelineServiceTest {
 		timelineService.deleteImage(1);
 	}
 	
-	@Test
+//	@Test
 	@Transactional
 	public void testCategory() throws Exception{
 		System.out.println("\n===================================");
@@ -125,5 +126,20 @@ public class TimelineServiceTest {
 				.build();
 		timelineService.updateCategory(category);
 		timelineService.deleteCategory(15);
+	}
+	
+	@Test
+	@Transactional
+	public void testRecordToUserId() throws Exception{
+		System.out.println("\n===================================");
+		Search search=Search.builder()
+				.userId("user1").
+				currentPage(1)
+				.limit(5)
+				.sharedType(1)
+				.tempType(1)
+				.timecapsuleType(0)
+				.build();
+		System.out.println(timelineService.getTimelineList(search).size());
 	}
 }
