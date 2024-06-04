@@ -92,35 +92,45 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    var checkNum;
+    var checkNum; // 인증번호 저장 변수
 
-    $('#memberPhoneCheck').click(function () {
-        var phone = $('#phone').val();
+    // 휴대폰 번호 인증 요청
+    $('#memberPhoneCheck').click(function() {
+        var phone = $('#phone').val(); // 입력된 휴대폰 번호 가져오기
 
+        // 서버로 POST 요청 보내기
         $.ajax({
-            url: "/user/memberPhoneCheck",
-            type: "POST",
-            data: { to: phone },
-            dataType: "json",
-            success: function (data) {
-                checkNum = data;
-                alert('checkNum:' + checkNum);
+            url: "/user/memberPhoneCheck", // 요청할 URL
+            type: "POST", // POST 요청
+            data: { to: phone }, // 전송할 데이터
+            dataType: "json", // 응답 데이터 형식은 JSON으로 설정
+            success: function(data) {
+                if (data) { // 요청이 성공하면
+                    checkNum = data; // 전송된 인증번호 저장
+                    alert('인증번호를 전송했습니다.');
+                } else {
+                    alert('인증번호 전송에 실패했습니다. 다시 시도해주세요.');
+                }
             },
-            error: function () {
-                alert("에러");
+            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
+                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
+                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
             }
         });
     });
 
-    $('#certifyCheck').click(function () {
-        var userNum = $('input[name="memberPhoneCertify"]').val();
-        if (checkNum == userNum) {
+    // 인증번호 확인 버튼 클릭 시
+    $('#certifyCheck').click(function() {
+        var userNum = $('input[name="memberPhoneCertify"]').val(); // 입력된 인증번호 가져오기
+        if (checkNum == userNum) { // 입력된 인증번호와 서버에서 받은 인증번호가 일치하는지 확인
             alert('인증 성공하였습니다.');
         } else {
             alert('인증 실패하였습니다. 다시 입력해주세요.');
         }
     });
 });
+</script>
+
 </script>
 
 

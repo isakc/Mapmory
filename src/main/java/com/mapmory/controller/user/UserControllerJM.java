@@ -45,8 +45,12 @@ public class UserControllerJM {
             if (kakaoId == null) {
                 return "error"; // 카카오 사용자 정보가 없으면 에러 처리
             }
-
-            String tempSocialId = userService.getSocialId(kakaoId, 2);
+            
+            SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
+                    .socialId(kakaoId)
+                    .build();
+            
+            String tempSocialId = userService.getSocialId(socialLoginInfo);
 
             if (tempSocialId == null) {
                 // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트

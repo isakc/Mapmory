@@ -35,6 +35,12 @@ public class UserServiceImplJM implements UserServiceJM {
 	@Value("${coolsms.apisecret}")
 	private String coolsmsSecret;
 	
+	@Value("${coolsms.fromnumber}")
+	private String phoneNum;
+	
+	@Value("${kakao.client}")
+	private String kakaoCilent;
+	
 	@Override
     public String getKakaoAccessToken (String authorize_code) {
         String access_Token = "";
@@ -55,7 +61,7 @@ public class UserServiceImplJM implements UserServiceJM {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
-            sb.append("&client_id=cec50764919801119a69066d40036533");  //본인이 발급받은 key
+            sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
             sb.append("&redirect_uri=http://localhost:8000/user/kakaoLogin&response_type=code");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorize_code);
             System.out.println("authorize_code : " + authorize_code);
@@ -152,7 +158,7 @@ public class UserServiceImplJM implements UserServiceJM {
 		}
 
 		Message message = new Message();
-		message.setFrom("01047528002");    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
+		message.setFrom(phoneNum);    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
 		message.setTo(to);    				// 수신전화번호 (ajax로 view 화면에서 받아온 값으로 넘김)
 		message.setText("인증번호는 ?? [" + numStr + "] 입니다.");
 
