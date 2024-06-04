@@ -12,7 +12,7 @@ public interface PurchaseDao {
 	//insert
 	public void addPurchase(Purchase purchase) throws Exception;
 	
-	//selectList
+	//selectOne
 	public Purchase getPurchase(int purchaseNo) throws Exception;
 	
 	//selectList

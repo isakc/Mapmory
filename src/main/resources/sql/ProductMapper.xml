@@ -1,9 +1,97 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE mapper
-		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapmory.services.product.dao.ProductDao">
+
+	<resultMap type="product" id="productSelectMap">
+	    <result property="productNo" column="product_no" jdbcType="INTEGER"/>
+	    <result property="productTitle" column="product_title" jdbcType="VARCHAR"/>
+	    <result property="price" column="price" jdbcType="INTEGER"/>
+	    <result property="productRegDate" column="product_regdate" jdbcType="DATE"/>
+	    <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+	    <result property="period" column="PERIOD" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<sql id="select-product-list">
+    	SELECT
+    		p.PRODUCT_NO,
+        	p.PRODUCT_TITLE,
+        	p.PRICE,
+        	p.PRODUCT_REGDATE,
+        	p.USER_ID,
+        	p.PERIOD,
+        	ROW_NUMBER() OVER (ORDER BY p.product_no) AS row_seq,
+        	i.UUID
+    	FROM PRODUCT p
+    	LEFT JOIN IMAGE_FILE i ON p.product_no = i.product_no
+	</sql>
+    
+    <!-- 상품 추가 -->
+    <insert id="addProduct" parameterType="product" useGeneratedKeys="true" keyProperty="productNo">
+        INSERT INTO PRODUCT (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
+        VALUES (#{productTitle}, #{price}, SYSDATE(), #{period}, #{userId})
+    </insert>
+    
+    <!-- 상품 상세 정보 조회 -->
+    <select id="getDetailProduct" parameterType="int" resultMap="productSelectMap">
+        SELECT 
+        	p.PRODUCT_NO,
+			p.PRODUCT_TITLE,
+        	p.PRICE
+        FROM 
+        	PRODUCT p
+        LEFT JOIN 
+        	IMAGE_FILE i ON p.product_no = i.product_no
+        WHERE p.PRODUCT_NO = #{productNo}
+        GROUP BY p.PRODUCT_NO
+    </select>
+    
+    <!-- 상품 리스트 조회 -->
+    <select id="getProductList" parameterType="search" resultMap="productSelectMap">
+        SELECT *
+        FROM (
+        SELECT inner_table.*
+        FROM (
+        <include refid="select-product-list"/>
+        ) inner_table
+        ) in_table
+        WHERE in_table.row_seq BETWEEN #{startRowNum} AND #{endRowNum}
+    </select>
+    
+    <!-- 상품 정보 수정 -->
+    <update id="updateProduct" parameterType="product">
+        UPDATE PRODUCT
+        SET PRODUCT_TITLE = #{productTitle}, PRICE = #{price}, PRODUCT_REGDATE = #{productRegDate}, PERIOD = #{period}, USER_ID = #{userId}
+        WHERE PRODUCT_NO = #{productNo}
+    </update>
+    
+    <!-- 상품 삭제 -->
+    <delete id="deleteProduct" parameterType="int">
+        DELETE FROM PRODUCT WHERE PRODUCT_NO = #{productNo}
+    </delete>
+    
+    <!-- 상품 이름으로 조회 -->
+    <select id="getProductByName" parameterType="string" resultType="product">
+        SELECT * FROM PRODUCT WHERE PRODUCT_TITLE = #{productTitle}
+    </select>
+    
+    <!-- 상품 총 개수 조회 -->
+    <select id="getProductTotalCount" parameterType="search" resultType="int">
+	  	SELECT COUNT(*)
+	  	FROM(	SELECT product_no , product_title , price
+						FROM product
+						<if test="searchCondition != null">
+							<where>
+								<if test="searchCondition == 0 and searchKeyword !='' ">
+						 			product_title = #{searchKeyword}
+								</if>
+								<if test="searchCondition == 1 and searchKeyword !='' ">
+						 			price = #{searchKeyword}
+								</if>
+							</where>
+						</if> ) countTable						
+    </select>
 
 </mapper>
