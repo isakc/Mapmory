@@ -38,24 +38,41 @@ public class ProductController {
 		System.out.println(this.getClass());
 	}
 
-    @GetMapping("addProduct")
+    @GetMapping("/addProduct")
     public String addProduct() {
-        return "forward:/product/addProduct";
+        return "product/admin/addProduct";
     }
 
+//    @PostMapping("/addProduct")
+//    public String addProduct(@ModelAttribute("product") Product product,
+//                             @RequestParam("uploadFile") List<MultipartFile> files) throws Exception{
+//            // 각 이미지 파일에 대해 UUID 생성하여 처리
+//            List<String> uuidFileName = new ArrayList<>();
+//            for (MultipartFile file : files) {
+//                String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
+//                objectStorageUtil.uploadFileToS3(file); // 파일 업로드
+//                uuidFileName.add(uuid);
+//            }
+//            productService.addProduct(product, uuidFileName); // UUID 목록과 함께 상품 정보 전달
+//            return "redirect:/product/getProductList";
+//
+//    }
+    
     @PostMapping("/addProduct")
     public String addProduct(@ModelAttribute("product") Product product,
-                             @RequestParam("uploadFile") List<MultipartFile> files) throws Exception{
-            // 각 이미지 파일에 대해 UUID 생성하여 처리
-            List<String> uuidFileName = new ArrayList<>();
-            for (MultipartFile file : files) {
-                String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
-                objectStorageUtil.uploadFileToS3(file); // 파일 업로드
-                uuidFileName.add(uuid);
-            }
-            productService.addProduct(product, uuidFileName); // UUID 목록과 함께 상품 정보 전달
-            return "redirect:/product/getProductList";
-
+                             @RequestParam("uploadFile") List<MultipartFile> files) throws Exception {
+        // 각 이미지 파일에 대해 UUID 생성하여 처리
+        List<String> uuidFileNames = new ArrayList<>();
+        List<String> originalFileNames = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            objectStorageUtil.uploadFileToS3(file, uuid); // 파일 업로드 시 UUID 값 전달
+            uuidFileNames.add(uuid);
+            originalFileNames.add(originalFilename);
+        }
+        productService.addProduct(product, uuidFileNames, originalFileNames);
+        return "redirect:/product/getProductList";
     }
     
     @GetMapping("/getProductList")
@@ -89,7 +106,7 @@ public class ProductController {
         List<String> uuidFileName = new ArrayList<>();
         for (MultipartFile file : files) {
             String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
-            objectStorageUtil.uploadFileToS3(file); // 파일 업로드
+            objectStorageUtil.uploadFileToS3(file, uuid); // 파일 업로드
             uuidFileName.add(uuid);
         }
 
