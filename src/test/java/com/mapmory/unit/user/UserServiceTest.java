@@ -33,20 +33,14 @@ public class UserServiceTest {
 		
 		String userId = "hong";
 		String password = "qwer1234";
+		String userName = "홍길동";
+		String nickname="나는 홍길동";
+		LocalDate birthday = LocalDate.parse("2010-02-22");
+		String email = "test@test.com";
+		String phoneNumber = "010-1234-1234";
+		int sex = 1;
 		
-		User user = User.builder()
-				.userId(userId)
-				.userPassword(password)
-				.role((byte) 1)
-				.userName("홍길동")
-				.nickname("나는 홍길동")
-				.birthday(LocalDate.parse("2010-02-22"))
-				.email("test@test.com")
-				.phoneNumber("010-1234-1234")
-				.sex(1)
-				.build();
-		
-		boolean result = userService.addUser(user);
+		boolean result = userService.addUser(userId, password, userName, nickname, birthday, sex, email, phoneNumber);
 		
 		Assertions.assertThat(result).isEqualTo(true);
 		
