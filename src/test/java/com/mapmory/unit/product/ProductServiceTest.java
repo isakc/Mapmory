@@ -1,5 +1,6 @@
 package com.mapmory.unit.product;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,10 +27,14 @@ public class ProductServiceTest {
     //@Test
     public void testAddProduct() throws Exception {
         // Given
+    	
+    	LocalDateTime now = LocalDateTime.now();
+    	Date sqlDate = Date.valueOf(now.toLocalDate());
+    	
         Product product = new Product();
         product.setProductTitle("Test Product");
         product.setPrice(10000);
-        product.setProductRegDate(LocalDateTime.now());
+        product.setProductRegDate(sqlDate);
         product.setPeriod(1);
         product.setUserId("admin");
 
@@ -43,7 +48,7 @@ public class ProductServiceTest {
         // Then
     }
     
-    //@Test
+    @Test
     public void testGetProductList() throws Exception {
     	
     	Search search = new Search();
@@ -68,11 +73,15 @@ public class ProductServiceTest {
     //@Test
     public void testUpdateProduct() throws Exception {
         // Given
+    	
+    	LocalDateTime now = LocalDateTime.now();
+    	Date sqlDate = Date.valueOf(now.toLocalDate());
+    	
         Product product = new Product();
         product.setProductNo(17); // 업데이트할 제품 번호 설정
         product.setProductTitle("Updated Test Product");
         product.setPrice(15000);
-        product.setProductRegDate(LocalDateTime.now());
+        product.setProductRegDate(sqlDate);
         product.setPeriod(2);
         product.setUserId("admin");
 
@@ -98,7 +107,7 @@ public class ProductServiceTest {
     	productService.deleteProduct(25);
     }
     
-    @Test
+    //@Test
     public void testGetDetailProduct() throws Exception {
     	
     	Product product = new Product();

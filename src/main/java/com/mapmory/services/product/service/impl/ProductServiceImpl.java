@@ -75,9 +75,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String,Object> getProductList(Search search) throws Exception {
     	
+    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
+        search.setPageSize(search.getPageSize());
+        
     	List<Product> productList = productDao.getProductList(search);
     	int totalCount = productDao.getProductTotalCount(search);
     	
+    	System.out.println("프로덕트 리스트입니다. " + productList);
     	
     	for (Product product : productList) {
             List<String> imageUuidList = productImageDao.getProductImageList(product.getProductNo());
