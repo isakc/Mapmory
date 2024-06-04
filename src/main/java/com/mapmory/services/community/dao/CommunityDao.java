@@ -1,6 +1,7 @@
 package com.mapmory.services.community.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,7 +12,7 @@ import com.mapmory.services.community.domain.Report;
 
 @Mapper
 public interface CommunityDao {
-
+	
 	//댓글 목록 조회
 	public List<Object> getReplyList(Search search, int recordNo) throws Exception;
 	
@@ -29,42 +30,29 @@ public interface CommunityDao {
 	
 	//댓글 삭제
 	public void deleteReply(String userId, int replyNo) throws Exception;
-	
-	//기록 즐겨찾기 추가
-	public void addBookmarkSharedRecord(CommunityLogs communityLogs) throws Exception;	
-	
-	//기록 즐겨찾기 해제
-	public void deleteBookmarkSharedRecord(String userId, int recordNo) throws Exception;
 
-	//즐겨찾기 목록 조회
-	public List<Object> getBookmarkSharedRecordList(Search search, String userId) throws Exception;	
+	//커뮤니티 활동 추가
+	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
-	// 기록에 대한 감정 표현 추가
-	public void addReaction(CommunityLogs communityLogs) throws Exception;    
-	    
-	// 기록에 대한 감정 표현 수정
-	public void updateReaction(CommunityLogs communityLogs) throws Exception;
+	//커뮤니티 활동 로그 선택
+	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
 	
-	// 기록에 대한 감정 표현 삭제
-	public void deleteReaction(CommunityLogs communityLogs) throws Exception;	
+	//커뮤니티 활동 수정
+	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
-//	// 댓글에 대한 감정 표현 추가
-//	public void addReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception;    
-//
-//	// 댓글에 대한 감정 표현 수정
-//	public void updateReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception;
-//
-//	// 댓글에 대한 감정 표현 삭제
-//	public void deleteReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception;
-		
-	//감정표현 목록 조회
-	public List<Object> getReactionList(Search search, String userId) throws Exception;
+	//커뮤니티 활동 삭제
+	public void deleteCommunityLogs(int communityLogsNo, String userId) throws Exception;	
 	
-	//신고하기 이동
+	//커뮤니티 로그 목록 조회
+	public List<Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception;		
+	
+	//신고 정보 가져오기
 	public void addReport(Report report) throws Exception;
 	
 	//신고하기 제출
 	public void doReport(Report report) throws Exception;
+	
+	
 	
 	//신고 목록 조회 
 	public List<Object> getUSerReportList(Search search, String userId) throws Exception;
@@ -91,18 +79,21 @@ public interface CommunityDao {
 	public int getReplyUserTotalCount(Search search, String userId) throws Exception;
 	
 	//기록에 대한 감정표현 개수
-	public int getReactionRecordTotalCount(Search search) throws Exception;
+	public int getReactionRecordTotalCount(Search search, int logsType) throws Exception;
 	
 	//댓글에 대한 감정표현 개수
-	public int getReactionReplyTotalCount(Search search) throws Exception;
+	public int getReactionReplyTotalCount(Search search, int logsType) throws Exception;
 	
 	//신고 총 개수
-	public int getReportTotalCount(Search search) throws Exception;
+	public int getUserReportTotalCount(Search search, String userId) throws Exception;
+	
+	//신고 총 개수
+	public int getAdminReportTotalCount(Search search) throws Exception;
 	
 	//신고 미처리 총 개수
 	public int getUnConfirmReportTotalCount(Search search) throws Exception;
 	
 	//차단 총 개수
-	public int getBlockTotalCount(Search search) throws Exception;
+	public int getBlockTotalCount(Search search, String userId) throws Exception;
 	
 }

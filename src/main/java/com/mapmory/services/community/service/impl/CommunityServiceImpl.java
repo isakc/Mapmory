@@ -51,7 +51,7 @@ public class CommunityServiceImpl implements CommunityService {
 		map.put("totalCount", Integer.valueOf(totalCount));
 		return map;
 	}
-	
+		
 	@Override
 	public void addReply(Reply reply) throws Exception {
 		communityDao.addReply(reply);
@@ -71,58 +71,35 @@ public class CommunityServiceImpl implements CommunityService {
 	public void deleteReply(String userId, int replyNo) throws Exception {
 		communityDao.deleteReply(userId, replyNo);
 	}
-
+	
 	@Override
-	public void addBookmarkSharedRecord(CommunityLogs communityLogs) throws Exception {
-		communityDao.addBookmarkSharedRecord(communityLogs);
-	}	
-
-	@Override
-	public void deleteBookmarkSharedRecord(String userId, int recordNo) throws Exception {
-		communityDao.deleteBookmarkSharedRecord(userId, recordNo);
-	}
-
-	@Override
-	public Map<String, Object> getBookmarkSharedRecordList(Search search, String userId) throws Exception {
-		return null;
+	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception {
+		communityDao.addCommunityLogs(communityLogs);
+		
 	}	
 	
 	@Override
-	public void addReaction(CommunityLogs communityLogs) throws Exception {
-		communityDao.addReaction(communityLogs);
+	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception {
+		return communityDao.getCommunityLogs(commmunityLogsNo);
+	}	
+	
+	@Override
+	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception {
+		communityDao.updateCommunityLogs(communityLogs);
+	}	
+	
+	@Override
+	public void deleteCommunityLogs(int communityLogsNo, String userId) throws Exception {
+		communityDao.deleteCommunityLogs(communityLogsNo, userId);
 	}
 
 	@Override
-	public void updateReaction(CommunityLogs communityLogs) throws Exception {
-		communityDao.updateReaction(communityLogs);
-	}
-
-	@Override
-	public void deleteReaction(CommunityLogs communityLogs) throws Exception {
-		communityDao.deleteReaction(communityLogs);
-	}
-
-//	@Override
-//	public void addReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception {
-//		communityDao.addReactionReply(communityLogs, userId, recordNo, replyNo, logsType);
-//	}
-//
-//	@Override
-//	public void updateReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception {
-//		communityDao.updateReactionReply(communityLogs, userId, recordNo, replyNo, logsType);
-//		
-//	}
-//
-//	@Override
-//	public void deleteReactionReply(CommunityLogs communityLogs, String userId, int recordNo, int replyNo, int logsType) throws Exception {
-//		communityDao.deleteReactionSharedRecord(communityLogs, userId, recordNo, logsType);
-//		
-//	}	
-
-	@Override
-	public Map<String, Object> getReactionList(Search search, String userId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception {
+		List<Object> list = communityDao.getCommunityLogsList(search, userId, logsType);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		return map;
 	}
 
 	@Override
@@ -137,8 +114,14 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Map<String, Object> getUSerReportList(Search search, String userId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<Object> list = communityDao.getUSerReportList(search, userId);
+		int totalCount = communityDao.getUserReportTotalCount(search, userId);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		map.put("totalCount", Integer.valueOf(totalCount));
+
+		return map;
 	}
 
 	@Override
@@ -166,6 +149,9 @@ public class CommunityServiceImpl implements CommunityService {
 	public void deleteBlockUser(String userId) throws Exception {
 		communityDao.deleteBlockUser(userId);
 		
+		
 	}
+
+
 
 }

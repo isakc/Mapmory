@@ -21,9 +21,9 @@ public class Report {
 	private int reportNo;
 	private String userId;
 	private String targetUserId;
-	private int recordNo;
-	private int replyNo;
-	private int chatRoomNo;
+	private Integer recordNo;
+	private Integer replyNo;
+	private Integer chatroomNo;
 	private String reportTitle;
 	private String reportText;
 	private LocalDateTime reportDate;

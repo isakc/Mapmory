@@ -19,7 +19,7 @@ public class CommunityLogs {
 	private int communityLogsNo;
 	private String userId;
 	private int recordNo;
-	private int replyNo;
+	private Integer replyNo;
 	private int logsType;
 	
 	//Constructor
