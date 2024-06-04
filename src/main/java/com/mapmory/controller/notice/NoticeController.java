@@ -30,11 +30,11 @@ public class NoticeController {
 		System.out.println(this.getClass());
 	}
 
-	@Value("${pageUnit}")
-	int pageUnit;
+	@Value("${page.Unit}")
+	private int pageUnit;
 
-	@Value("${pageSize}")
-	int pageSize;
+	@Value("${page.Size}")
+	private int pageSize;
 
 		@RequestMapping("/getNoticelist")
 		public String getnoticeList(@ModelAttribute("Search") Search search,
