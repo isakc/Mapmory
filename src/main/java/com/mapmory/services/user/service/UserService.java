@@ -17,13 +17,15 @@ public interface UserService {
 	 *  그 외 controller에서 사용해야 할 각종 business logic (REST 포함) 추가 예정
 	 */
 	
-	public boolean addUser(User user);
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber);
 	
-	public boolean addSuspendUser(User user);
+	public boolean addSuspendUser(String userId);
 	
 	public boolean addSocialLoginLink(String userId, String socialId);
 	
 	public boolean addLeaveAccount(String userId);
+	
+	public boolean addLoginLog(String userId);
 
 	// getProfile, getUserInfo 모두 이거로 처리
 	public User getDetailUser(String userId);

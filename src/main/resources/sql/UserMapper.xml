@@ -55,10 +55,14 @@
 		VALUES (#{userId}, #{socialLoginInfoType}, #{socialId})
 	</insert>
 	
-	<insert id="insertFollow" parameterType="follow">
+	<insert id="insertFollow" parameterType="followBlock">
 		INSERT INTO
 		follow_block (user_id, target_id, fb_type)
 		VALUES (#{userId}, #{targetId}, 0)
+	</insert>
+	
+	<insert id="insertSuspendLog" parameterType="suspensionLog">
+		
 	</insert>
 	
 	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
@@ -182,7 +186,7 @@
 	</update>
 	
 	
-	<delete id="deleteFollow" parameterType="follow">
+	<delete id="deleteFollow" parameterType="followBlock">
 		DELETE FROM follow_block
 		WHERE user_id=#{userId} AND target_id=#{targetId}
 	</delete>

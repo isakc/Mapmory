@@ -69,7 +69,7 @@ public class UserDaoTest {
 		Assertions.assertThat(resultList.get(0).getUserId()).isEqualTo(userId);
 	}
 	
-	// @Test
+	@Test
 	public void testInsertFollow() throws Exception {
 		
 		String userId = "user_123";
