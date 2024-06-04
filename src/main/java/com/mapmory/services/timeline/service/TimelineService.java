@@ -3,6 +3,7 @@ package com.mapmory.services.timeline.service;
 import java.util.List;
 import java.util.Map;
 
+import com.mapmory.services.map.domain.SearchMarker;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
@@ -42,6 +43,7 @@ public interface TimelineService {
 	
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception;
 	
+	public List<Record> getMapRecordList(com.mapmory.common.domain.Search searchMarker) throws Exception;
 	
 	
 	

@@ -110,6 +110,77 @@ ORDER BY
     image_tag_order ASC;
 </select>
 
+<sql id="selectTimelineListUnit">
+SELECT 
+    record_no,
+    record_user_id,
+    record_title,
+    latitude,
+    longitude,
+    checkpoint_address,
+    checkpoint_date,
+    media_name,
+    category_no,
+    record_text,
+    temp_type,
+    record_add_date,
+    shared_date,
+    update_count,
+    d_day_date,
+    timecapsule_type
+FROM 
+    record
+<trim prefix="where" prefixOverrides="AND||OR">
+	<if test="!(sharedType==null)">
+		<if test="sharedType==1">
+			shared_date is not null
+		</if>
+	</if>
+	<if test="!(tempType==null)">
+		<if test="tempType==0">
+			AND temp_type=0
+		</if>
+		<if test="tempType==1">
+			AND temp_type=1
+		</if>
+	</if>
+	<if test="!(timecapsuleType==null)">
+		<if test="timecapsuleType==0">
+			AND timecapsule_type=0
+		</if>
+		<if test="timecapsuleType==1">
+			AND timecapsule_type=1
+		</if>
+	</if>
+	<if test="!(tempType==null or timecapsuleType==null)">
+		<if test="tempType==1 and timecapsuleType==1">
+			AND <![CDATA[d_day_date < CURRENT_TIMESTAMP]]>
+		</if>
+	</if>
+	<if test="!(userId==null)">
+		<bind name="userId" value="_parameter.getUserId().trim()"/>
+		<if test="!(userId=='')">
+			AND user_id = TRIM(BOTH ' ' FROM #{userId})
+		</if>
+	</if>
+	<if test="!(selectDay1==null and selectDay2==null )">
+		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
+	</if>
+</trim>
+</sql>
+
+<select id="selectTimelineList" parameterType="timelineSearch" resultMap="recordResultMap">
+SELECT
+inner_table.*
+FROM
+	(
+	<include refid="selectTimelineListUnit" />
+	) inner_table
+<if test="!(limit==0)">
+LIMIT #{limit} OFFSET #{offset}
+</if>
+</select>
+
 <update id="updateTimeline" parameterType="record">
     UPDATE record
     SET record_user_id = #{recordUserId:VARCHAR},
@@ -159,136 +230,6 @@ ORDER BY
 <delete id="deleteHashtag" parameterType="Integer">
     DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=0
 </delete>
-
-<sql id="selectTimelineListUnit">
-SELECT 
-    record_no,
-    record_user_id,
-    record_title,
-    latitude,
-    longitude,
-    checkpoint_address,
-    checkpoint_date,
-    media_name,
-    category_no,
-    record_text,
-    temp_type,
-    record_add_date,
-    shared_date,
-    update_count,
-    d_day_date,
-    timecapsule_type
-FROM 
-    record
-<trim prefix="where" prefixOverrides="AND||OR">
-	<if test="!(sharedType==null)">
-		<if test="sharedType==1">
-			shared_date is not null
-		</if>
-	</if>
-	<if test="!(tempType==null)">
-		<if test="tempType==0">
-			AND temp_type=0
-		</if>
-		<if test="tempType==1">
-			AND temp_type=1
-		</if>
-	</if>
-	<if test="!(timecapsuleType==null)">
-		<if test="timecapsuleType==0">
-			AND timecapsule_type=0
-		</if>
-		<if test="timecapsuleType==1">
-			AND timecapsule_type=1
-		</if>
-	</if>
-	<if test="!(tempType==null or timecapsuleType==null)">
-		<if test="tempType==1 and timecapsuleType==1">
-			AND <![CDATA[d_day_date < "2024-06-30T00:00:00"]]>
-		</if>
-	</if>
-	<if test="!(userId==null)">
-		<bind name="userId" value="_parameter.getUserId().trim()"/>
-		<if test="!(userId=='')">
-			AND user_id = TRIM(BOTH ' ' FROM #{userId})
-		</if>
-	</if>
-	<if test="!(selectDay1==null and selectDay2==null )">
-		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
-	</if>
-</trim>
-	
-</sql>
-
-<select id="selectTimelineList" parameterType="timelineSearch" resultMap="recordResultMap">
-SELECT
-inner_table.*
-FROM
-	(
-	<include refid="selectTimelineListUnit" />
-	) inner_table
-<if test="!(limit==0)">
-LIMIT #{limit} OFFSET #{offset}
-</if>
-</select>
-
-<!-- <select id="selectTimelineListToday" parameterType="timelineSearch" resultMap="recordResultMap">
-SELECT 
-    record_no,
-    record_user_id,
-    record_title,
-    latitude,
-    longitude,
-    checkpoint_address,
-    checkpoint_date,
-    media_name,
-    category_no,
-    record_text,
-    temp_type,
-    record_add_date,
-    shared_date,
-    update_count,
-    d_day_date,
-    timecapsule_type
-FROM 
-    record
-<trim prefix="where" prefixOverrides="AND||OR">
-	<if test="!(sharedType==null)">
-		<if test="sharedType==1">
-			shared_date is not null
-		</if>
-	</if>
-	<if test="!(tempType==null)">
-		<if test="tempType==0">
-			AND temp_type=0
-		</if>
-		<if test="tempType==1">
-			AND temp_type=1
-		</if>
-	</if>
-	<if test="!(timecapsuleType==null)">
-		<if test="timecapsuleType==0">
-			AND timecapsule_type=0
-		</if>
-		<if test="timecapsuleType==1">
-			AND timecapsule_type=1
-		</if>
-	</if>
-	<if test="!(userId==null)">
-		<bind name="userId" value="_parameter.getUserId().trim()"/>
-		<if test="!(userId=='')">
-			AND user_id = TRIM(BOTH ' ' FROM #{userId})
-		</if>
-	</if>
-</trim>
-</select> -->
-	
-<select id="selectTimelineCount" parameterType="timelineSearch" resultType="Integer">
-	SELECT COUNT(*)
-	FROM(
-	<include refid="selectTimelineListUnit" />
-	) countTable
-</select>
 
 	<!-- Create -->
     <insert id="insertCategory" parameterType="category">
@@ -347,6 +288,64 @@ inner_table.*
 FROM
 	(
 	<include refid="selectSharedRecordListUnit" />
+	) inner_table
+LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<sql id="selectMapRecordListUnit" >
+SELECT 
+    record_no,
+    record_user_id,
+    record_title,
+    latitude,
+    longitude,
+    checkpoint_address,
+    checkpoint_date,
+    media_name,
+    category_no,
+    record_text,
+    temp_type,
+    record_add_date,
+    shared_date,
+    update_count,
+    d_day_date,
+    timecapsule_type
+FROM 
+    record
+<trim prefix="where" prefixOverrides="AND||OR">
+	<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+	AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
+	<if test="!(fallowType==null)">
+		<if test="fallowType==1">
+			AND record_user_id IN 
+			(
+			SELECT 
+			target_id
+			FROM follow_block
+			WHERE user_id=#{userId}
+			)
+		</if>
+	</if>
+	<if test="!(sharedType==null)">
+		<if test="sharedType==1">
+			AND shared_date IS NOT NULL
+			AND record_user_id=#{userId}
+		</if>
+	</if>
+	<if test="sharedType==null and fallowType==null">
+	AND record_user_id=#{userId}
+	</if>
+	AND temp_type=1
+	AND timecapsule_type=0
+</trim>
+</sql>
+	
+<select id="selectMapRecordList" parameterType="Map" resultMap="recordResultMap">
+SELECT
+inner_table.*
+FROM
+	(
+	<include refid="selectMapRecordListUnit" />
 	) inner_table
 LIMIT #{limit} OFFSET #{offset}
 </select>

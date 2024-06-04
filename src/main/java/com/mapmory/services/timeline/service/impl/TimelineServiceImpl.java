@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.util.GeoUtil;
+import com.mapmory.services.map.domain.SearchMarker;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -148,6 +150,22 @@ public class TimelineServiceImpl implements TimelineService {
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception{
 		return timelineDao.selectSharedRecordList(search);
 	}
+
+	@Override
+	public List<Record> getMapRecordList(com.mapmory.common.domain.Search searchMarker) throws Exception {
+		Map<String, Object> map=GeoUtil.calculateRadius(searchMarker.getLatitude(), searchMarker.getLongitude(), searchMarker.getRadius());
+		map.put("fallowType", searchMarker.getFollowType());
+		map.put("userId", searchMarker.getUserId());
+		map.put("limit", searchMarker.getLimit());
+		map.put("sharedType", searchMarker.getSharedType());
+		map.put("offset", searchMarker.getOffset());
+		List<Record> recordList=new ArrayList<Record>();
+		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(map)) {
+			recordList.add(recordToMap(tempMap));
+		}
+		return recordList;
+	}
+	
 
 	//아래 미사용
 //	@Override
