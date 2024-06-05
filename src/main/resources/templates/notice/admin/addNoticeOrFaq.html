@@ -1,0 +1,40 @@
+<section class="md">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 mx-auto">
+                <div class="common-block border-0">
+                    <div class="mb-5">
+                        <h4 class="mb-0 text-center">자주하는 질문 등록</h4>
+                    </div>
+                    <div class="container">
+                        <form th:action="@{/notice/addNoticeOrFaq}" method="post" enctype="multipart/form-data" class="mx-auto col-sm-9 my-5">
+                            <div class="mb-3">
+                                <label class="font-12" for="pname">자주하는 질문 제목</label>
+                                <input type="text" class="form-control input-style" id="noticeTitle" placeholder="자주하는 질문 제목 입력" name="noticeTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="font-12" for="noticeText">자주하는 질문 내용</label>
+                                <input type="text" class="form-control input-style" id="noticeText" placeholder="자주하는 질문 텍스트입력" name="noticeText" required>
+                            </div>
+                            <input type="hidden" class="form-control input-style" id="writer" placeholder="" name="userId" value="admin">
+                            <div class="mb-3">
+                                <label class="font-12" for="noticeType">유형</label>
+                                <select class="form-control input-style" id="noticeType" name="noticeType" required>
+                                    <option value="0">공지사항</option>
+                                    <option value="1">자주하는 질문</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div style="text-align: center" class="font-13">
+                                        <button type="submit" class="col-sm-12 btn btn-dark mt-2 mb-0 display-30 py-3" id="regBtn">등록</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

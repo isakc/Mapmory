@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.GeoUtil;
-import com.mapmory.services.map.domain.SearchMarker;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -21,7 +21,7 @@ import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.RecordDto;
-import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SearchDto;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -152,17 +152,22 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 
 	@Override
-	public List<Record> getMapRecordList(com.mapmory.common.domain.Search searchMarker) throws Exception {
-		Map<String, Object> map=GeoUtil.calculateRadius(searchMarker.getLatitude(), searchMarker.getLongitude(), searchMarker.getRadius());
-		map.put("fallowType", searchMarker.getFollowType());
-		map.put("userId", searchMarker.getUserId());
-		map.put("limit", searchMarker.getLimit());
-		map.put("sharedType", searchMarker.getSharedType());
-		map.put("offset", searchMarker.getOffset());
+	public List<Record> getMapRecordList(Search search) throws Exception {
+		SearchDto searchDto=GeoUtil.calculateRadius(search.getLatitude(), search.getLongitude(), search.getRadius());
+		searchDto.setUserId(search.getUserId() );
+		searchDto.setFollowType(search.getFollowType() );
+//		searchDto.setUserIdList(timelineDao.selectFollowUserId(search.getUserId()) );
+//		System.out.println("searchDto.getUserIdList() : "+searchDto.getUserIdList());
+		searchDto.setLimit(search.getLimit() );
+		searchDto.setSharedType(search.getSharedType() );
+		searchDto.setOffset(search.getOffset() );
 		List<Record> recordList=new ArrayList<Record>();
-		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(map)) {
-			recordList.add(recordToMap(tempMap));
+		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
+			Record record =recordToMap(tempMap);
+			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
+			recordList.add(record);
 		}
+		GeoUtil.sortByDistance(recordList);
 		return recordList;
 	}
 	

@@ -169,7 +169,7 @@ FROM
 </trim>
 </sql>
 
-<select id="selectTimelineList" parameterType="timelineSearch" resultMap="recordResultMap">
+<select id="selectTimelineList" parameterType="search" resultMap="recordResultMap">
 SELECT
 inner_table.*
 FROM
@@ -282,7 +282,7 @@ ORDER BY
 	shared_date IS NULL DESC
 </sql>
 
-<select id="selectSharedRecordList" parameterType="timelineSearch" resultType="sharedRecord">
+<select id="selectSharedRecordList" parameterType="search" resultType="sharedRecord">
 SELECT
 inner_table.*
 FROM
@@ -315,32 +315,37 @@ FROM
 <trim prefix="where" prefixOverrides="AND||OR">
 	<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
 	AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
-	<if test="!(fallowType==null)">
-		<if test="fallowType==1">
+	<if test="!(followType==null)">
+		<if test="followType==1">
 			AND record_user_id IN 
 			(
 			SELECT 
-			target_id
-			FROM follow_block
-			WHERE user_id=#{userId}
+				target_id
+				FROM follow_block
+				WHERE user_id=#{userId}
+				AND FB_TYPE=0
 			)
+			AND shared_date IS NOT NULL
 		</if>
 	</if>
 	<if test="!(sharedType==null)">
 		<if test="sharedType==1">
 			AND shared_date IS NOT NULL
-			AND record_user_id=#{userId}
+			AND NOT record_user_id=#{userId}
 		</if>
 	</if>
-	<if test="sharedType==null and fallowType==null">
-	AND record_user_id=#{userId}
+	<if test="!(userId==null)">
+		<if test="sharedType==null and followType==null">
+		AND record_user_id=#{userId}
+		</if>
 	</if>
 	AND temp_type=1
 	AND timecapsule_type=0
 </trim>
+ORDER BY rand() limit 30
 </sql>
 	
-<select id="selectMapRecordList" parameterType="Map" resultMap="recordResultMap">
+<select id="selectMapRecordList" parameterType="searchDto" resultMap="recordResultMap">
 SELECT
 inner_table.*
 FROM
@@ -349,6 +354,14 @@ FROM
 	) inner_table
 LIMIT #{limit} OFFSET #{offset}
 </select>
+
+<!-- <select id="selectFollowUserId" parameterType="String" resultType="String">
+SELECT 
+target_id
+FROM follow_block
+WHERE user_id=#{userId}
+AND FB_TYPE=0
+</select> -->
 
 
 

@@ -32,4 +32,6 @@ public class Record {
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;
+	
+	private Double distance;
 }
