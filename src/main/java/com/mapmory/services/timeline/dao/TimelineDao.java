@@ -55,7 +55,8 @@ public interface TimelineDao {
 	public void deleteCategory(int categoryNo) throws Exception;
 	
 	public List<SharedRecord> selectSharedRecordList(Search search) throws Exception;
-
+	
+	public List<Map<String, Object>> selectMapRecordList(Map<String,Object> map) throws Exception;
 	//아래 미사용
 //	public Record2 selectDetailTimeline2(int recordNo) throws Exception;
 //
