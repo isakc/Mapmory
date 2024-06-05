@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.amazonaws.arn.Arn.Builder;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.user.domain.FollowBlock;
+import com.vane.badwordfiltering.BadWordFiltering;
 
 @SpringBootTest
 public class CommunityServiceTest {
@@ -30,14 +32,18 @@ public class CommunityServiceTest {
 
 		Reply reply = Reply.builder()
 				.recordNo(7)
-				.userId("user5")
-				.replyText("재밌어요")
+				.userId("user4")
+				.replyText("즐거운 모습이 보기 좋습니다.")
 				.build();
 		
-		communityService.addReply(reply);
+		BadWordFiltering badWordFiltering = new BadWordFiltering();
 		
-		
-		//System.out.println("add 테스트 : " +reply);
+		boolean test = badWordFiltering.blankCheck(reply.getReplyText());
+		if(test == true) {
+			System.out.println("비속어 등록 불가능");	
+		} else  {
+			communityService.addReply(reply);	
+		}
 	}	
 	
 	//@Test
@@ -50,18 +56,42 @@ public class CommunityServiceTest {
 		System.out.println("get Reply 테스트 : "+reply);
 	}	
 	
-	//@Test
+	@Test
 	public void TestUpdateReply() throws Exception {
 		
-		Reply reply = communityService.getReply(14);
+		Reply reply = communityService.getReply(41);
 		
-		reply.setReplyText("반가워유우우123.");
+		reply.setReplyText("* 씨 %  @  $  발 안녕하세요 ^^");
 		reply.setReplyImageName("HiHi.jpg");
 		
-		communityService.updateReply(reply);
+		BadWordFiltering badWordFiltering = new BadWordFiltering();	
+		String replaceText = badWordFiltering.change(reply.getReplyText().replaceAll(" |\\* ", ""), 
+					new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-"});
 		
+		if(replaceText.contains("*") == true) {
+			System.out.println("비속어 등록 불가");
+		} else {
+			communityService.updateReply(reply);
+		}
 		System.out.println("update 테스트 : "+reply);	
 	}
+		
+//		boolean test = badWordFiltering.blankCheck(reply.getReplyText());
+//		if(test == true) {
+//			System.out.println("비속어 등록 불가능");	
+//		} else  {
+//			communityService.updateReply(reply);	
+//		}
+//		String replaceText = reply.getReplyText().replaceAll(" |\\* ", "");
+//		System.out.println("1. 공백 및 * 제거 : "+replaceText);
+//		String replaceText = reply.getReplyText().replace(" ","");
+//		System.out.println("1. 공백제거 : "+replaceText);
+//		String replaceText2 = replaceText.replace("*","");
+//		System.out.println("2. 아스타 제거 대체문자 : "+replaceText2);
+//		String replaceText3 = badWordFiltering.change(replaceText2, new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-"});
+//		System.out.println("3. 욕설 제거 결과 :"+replaceText3);			
+		
+
 
 	//@Test
 	public void TestDeleteReply() throws Exception {
@@ -210,7 +240,7 @@ public class CommunityServiceTest {
 		System.out.println("사용자 신고 총 건수 : "+totalCount);
 	}
 
-	@Test
+	//@Test
 	public void TestGetAdminReportList() throws Exception {
 		
 		Search search = new Search();
