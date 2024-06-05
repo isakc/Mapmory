@@ -58,7 +58,8 @@ public class PurchaseController {
 	public String requestSubscription(@RequestBody Subscription subscription) throws Exception {
 		
 		if(subscriptionService.requestSubscription(subscription)) {
-			subscriptionService.schedulePay(subscription);
+			
+			subscriptionService.addSubscription(subscriptionService.schedulePay(subscription));
 		}
 
 		return "index";

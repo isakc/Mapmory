@@ -150,11 +150,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		String requestJson = new Gson().toJson(map);
 		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/again", entity, String.class);
+		System.out.println("resultJson: " + resultJson);
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 		String status = rootNode.get("response").get("status").asText();
 		
-		System.out.println("requestSub: " + resultJson);
 		
 		if(status.equals("paid")) {
 			return true;
@@ -187,7 +188,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		long timestamp = 0;
 		LocalDateTime localDateTime = subscription.getNextSubscriptionPaymentDate();
 		Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
-		timestamp = instant.toEpochMilli();
+		timestamp = instant.getEpochSecond();
 		 
 		 String accessToken = getPortOneToken();
 		 

@@ -28,6 +28,7 @@ public class SubscriptionScheduler {
 	            	subscription.setSubscriptionEndDate(subscription.getNextSubscriptionPaymentDate().plusMinutes(1));
 	            		
 	                subscriptionService.schedulePay(subscription);
+	                subscriptionService.addSubscription(subscription);
 	            } catch (Exception e) {
 	                // 결제 실패 처리 로직
 	                e.printStackTrace();
