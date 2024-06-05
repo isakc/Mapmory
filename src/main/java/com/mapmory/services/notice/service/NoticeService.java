@@ -9,18 +9,14 @@ public interface NoticeService {
 	
 	public Map<String, Object> getNoticeList(Search search) throws Exception;
 	
+	public void addNoticeOrFaq(Notice notice) throws Exception;
+	
 	public Notice getDetailNotice(int noticeNo) throws Exception;
 	
 	public void updateNoticeAndFaq(Notice notice) throws Exception;
 	
-	public void addNotice(Notice notice) throws Exception;
-	
 	public void deleteNoticeAndFaq(int noticeNo) throws Exception;
 	
-	public Map<String, Object> getFaqList(Search search) throws Exception;
-	
-	public Notice getDetailFaq(int noticeNo) throws Exception;
-	
-	public void addFaq(Notice notice) throws Exception;
+	public Map<String,Object> getFaqList(Search search) throws Exception;
 	
 }

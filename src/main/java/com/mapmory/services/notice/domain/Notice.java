@@ -1,5 +1,6 @@
 package com.mapmory.services.notice.domain;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -12,12 +13,7 @@ public class Notice {
     private String noticeTitle;
     private String noticeText;
     private String userId;
-    private LocalDateTime noticeRegDate;
-    private int noticeType;
+    private Date noticeRegDate;
+    private Integer noticeType;
 
-    public String getnoticeRegDate() {
-    	DateTimeFormatter notice = DateTimeFormatter.ofPattern("yyyy-mm-dd");
-    	return notice.format(noticeRegDate);
-    	
-    }
 }
