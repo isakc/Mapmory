@@ -146,40 +146,30 @@ public class CommunityServiceImpl implements CommunityService {
 		communityDao.confirmReport(reportNo);
 	}
 
-	
-	
-	
-	
 	@Override
-	public void addBlockUser(String userId) throws Exception {
-		communityDao.addBlockUser(userId);
+	public void addBlockUser(FollowBlock followBlock) throws Exception {
+		communityDao.addBlockUser(followBlock);
 	}
 
-	
-	
-	
-	
 	@Override
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception {
-		return null;
+		List<Object> list = communityDao.getBlockedList(search, userId);
+		int totalCount = communityDao.getBlockedTotalCount(search, userId);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		map.put("totalCount", Integer.valueOf(totalCount));
+		return map;
 	}
 
 	@Override
-	public FollowBlock getBlockedUser() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception {
+		return communityDao.getBlockedUser(userId, targetId);
 	}	
 	
-	
 	@Override
-	public void deleteBlockedUser(String userId) throws Exception {
-		communityDao.deleteBlockedUser(userId);
-		
+	public void deleteBlockedUser(String userId, String targetId) throws Exception {
+		communityDao.deleteBlockedUser(userId, targetId);
 		
 	}
-
-
-
-
-
 }

@@ -64,30 +64,18 @@ public interface CommunityDao {
 	//신고 처리(관리자)
 	public void confirmReport(int reportNo) throws Exception;
 		
-	
-	
-	
-	
-	
 	//사용자 차단
-	public void addBlockUser(String userId) throws Exception;
-	
-	
+	public void addBlockUser(FollowBlock followBlock) throws Exception;
 	
 	//차단한 사용자 목록 조회
 	public List<Object> getBlockedList(Search search, String userId) throws Exception;
 	
 	//차단 사용자 선택
-	public FollowBlock getBlockedUser() throws Exception;
-	
+	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception;
 	
 	//사용자 차단해제
-	public void deleteBlockedUser(String userId) throws Exception;
-	
-	
-	
-	
-	
+	public void deleteBlockedUser(String userId, String targetId) throws Exception;
+		
 	//기록에 대한 댓글 개수
 	public int getReplyTotalCount(Search search, int recordNo) throws Exception;
 	
@@ -102,7 +90,6 @@ public interface CommunityDao {
 	
 	//감정표현 개수
 	public int getReactionTotalCount(Search search, int logsType) throws Exception;
-	
 	
 	//사용자 신고 총 개수
 	public int getUserReportTotalCount(Search search, String userId) throws Exception;

@@ -62,19 +62,16 @@ public interface CommunityService {
 	//신고 처리(관리자)
 	public void confirmReport(int reportNo) throws Exception;
 	
-	
-	
 	//사용자 차단
-	public void addBlockUser(String userId) throws Exception;
-	
+	public void addBlockUser(FollowBlock followBlock) throws Exception;
 	
 	//차단한 사용자 목록 조회
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception;
 	
 	//차단 사용자 선택
-	public FollowBlock getBlockedUser() throws Exception;
+	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception;
 	
 	//사용자 차단해제
-	public void deleteBlockedUser(String userId) throws Exception;
+	public void deleteBlockedUser(String userId, String targetId) throws Exception;
 		
 }

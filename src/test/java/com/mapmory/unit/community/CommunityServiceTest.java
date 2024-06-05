@@ -13,6 +13,7 @@ import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.user.domain.FollowBlock;
 
 @SpringBootTest
 public class CommunityServiceTest {
@@ -21,7 +22,7 @@ public class CommunityServiceTest {
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
 	
-	@Test
+	//@Test
 	public void TestAddReply() throws Exception {
 
 		Reply reply = Reply.builder()
@@ -223,7 +224,7 @@ public class CommunityServiceTest {
 		System.out.println("get Report 테스트 : "+report);
 	}
 	
-	@Test
+	//@Test
 	public void TestConfirmReport() throws Exception {
 		
 		Report report = new Report();
@@ -233,6 +234,56 @@ public class CommunityServiceTest {
 		report.setReportResult(1);
 		
 		System.out.println("신고 처리 테스트 : "+report);
+	}	
+	
+	//@Test
+	public void TestaddBlockUser() throws Exception {
+		
+		FollowBlock followBlock = FollowBlock.builder()
+				.userId("user3")
+				.targetId("user6")
+				.fb_type(1)
+				.build();
+		
+		communityService.addBlockUser(followBlock);
+
+		System.out.println("신고 처리 테스트 : "+followBlock);
+	}
+	
+	//@Test
+	public void TestGetBlockedList() throws Exception {
+		
+		Search search = new Search();
+		search.setCurrentPage(1);
+		search.setPageSize(10);
+		Map<String, Object> map = communityService.getBlockedList(search, "user4");		
+		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
+		
+		System.out.println("차단 유저 list 테스트 : "+list);	
+	}
+	
+	//@Test
+	public void TestGetBlockedUser() throws Exception {
+		
+		FollowBlock followBlock = communityService.getBlockedUser("user4", "user7");
+		
+		System.out.println("차단 유저 조회 테스트 : "+followBlock);	
+	}
+	
+	@Test
+	public void TestDeleteBlockedUser() throws Exception {
+		
+		Search search = new Search();
+		search.setCurrentPage(1);
+		search.setPageSize(10);
+		Map<String, Object> map = communityService.getBlockedList(search, "user4");		
+		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
+		
+		communityService.getBlockedList(search, "user4");
+		
+		communityService.deleteBlockedUser("user4", "user7");
+
+		System.out.println("차단 유저 삭제 확인 : "+list);	
 	}	
 	
 }
