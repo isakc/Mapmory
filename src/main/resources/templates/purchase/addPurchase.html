@@ -84,12 +84,15 @@
     					nextPaymentMethod: getPaymentMethod(rsp.pg_provider),
     					nextSubscriptionCardType: rsp.card_name,
     					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
+    					nextSubscriptionPaymentDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at),
+    					subscriptionStartDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at),
+    					subscriptionEndDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at, 1),
     					customerUid: rsp.customer_uid,
     					merchantUid: "subscription_"+user+"_"+currentDate
     				}
             	
             		$.ajax({
-    					url:'/purchase/rest/addSubscription', //DB에 구독정보 등록하는 부분
+    					url:'/purchase/addSubscription', //DB에 구독정보 등록하는 부분
     					method: 'POST',
     					headers: {
             			    'Content-Type': 'application/json'
@@ -99,22 +102,7 @@
     					success:function(result) {
     						
     						if(result){
-
         						alert('구독 결제 성공!!');
-        						
-        						/* $.ajax({
-        	    					url:'/purchase/rest/startScheduler', //결제 상태를 확인하고 스케줄러를 호출하는 부분
-        	    					type : 'POST',
-        	    					headers: {
-        	            			    'Content-Type': 'application/json'
-        	            			},
-        	    					data: JSON.stringify(subscription),
-        	    					
-        	    					success:function() {
-        	    						alert('다음 결제 예약완료');
-        	    					}//success
-        	    				});//ajax  */
-        	    				
     						}else{
     							alert('결제 실패!!');
     						}//if~else
@@ -157,7 +145,7 @@
         				}
                 	
                 		$.ajax({
-	    					url:'/purchase/rest/startScheduler', //결제 상태를 확인하고 스케줄러를 호출하는 부분
+	    					url:'/purchase/updatePaymentMethod', //결제 상태를 확인하고 스케줄러를 호출하는 부분
 	    					type : 'POST',
 	    					headers: {
 	            			    'Content-Type': 'application/json'

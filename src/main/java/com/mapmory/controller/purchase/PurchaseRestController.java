@@ -38,32 +38,11 @@ public class PurchaseRestController {
 	///// Constructor /////
 	
 	///// Method /////
+	
 	@ResponseBody
 	@RequestMapping(value="rest/verifyPurchase/{impUid}")
 	public IamportResponse<Payment> verifyPurchase(@PathVariable String impUid) throws Exception  {
 		
 		return purchaseService.validatePurchase(impUid);
 	}
-	
-	@PostMapping(value="rest/addSubscription")
-	public boolean requestSubscription(@RequestBody Subscription subscription) throws Exception {
-		
-		if(subscriptionService.requestSubscription(subscription)) {
-			subscriptionService.schedulePay(subscription);
-		}
-		
-		return subscriptionService.requestSubscription(subscription);
-	}//requestSubscription: 여기에 구독 시작한 날 결제 추가
-	
-	@PostMapping(value="rest/updatePaymentMethod")
-	public void updatePaymentMethod(@RequestBody Subscription subscription) throws Exception {
-		
-		subscriptionService.updatePaymentMethod(subscription);
-	}//updatePaymentMethod: 구독해지
-	
-	@PostMapping(value="rest/startScheduler")
-	public void startScheduler(@RequestBody Subscription subscription) throws Exception {
-		
-		//subscriptionScheduler.startScheduler(subscription);
-	}//startScheduler: 한달마다 정기결제 등록
 }

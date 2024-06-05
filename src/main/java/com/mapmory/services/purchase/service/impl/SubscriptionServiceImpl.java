@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -162,16 +163,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}//구독 결제 요청
 	
 	public Subscription schedulePay(Subscription subscription) throws Exception {
-//		Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
-//		
-//		if(currentSubscription == null) {
-//			currentSubscription = subscription;
-//		}else {
-//			currentSubscription.setSubscribed(true);
-//			currentSubscription.setNextPaymentMethod(subscription.getNextPaymentMethod());
-//			currentSubscription.setNextSubscriptionLastFourDigits(subscription.getNextSubscriptionLastFourDigits());
-//			currentSubscription.setNextSubscriptionCardType(subscription.getNextSubscriptionCardType());
-//		}
 		
 		LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -186,7 +177,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		String date = sdf.format(cal.getTime());
 		
 		try {
-			Date stp = sdf.parse(date);
+			Date stp = new Date();
+			
+			if(subscription.getNextSubscriptionPaymentDate() == null) {
+				stp = sdf.parse(date);
+			}else {
+				LocalDateTime localDateTime = subscription.getNextSubscriptionPaymentDate();
+				ZoneId zoneId = ZoneId.systemDefault();
+		        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+		        stp = Date.from(zonedDateTime.toInstant());
+			}
+			
 			timestamp = stp.getTime()/1000;
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -226,11 +227,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	     // Unix 시간을 LocalDateTime으로 변환
 	     LocalDateTime nextSubscriptionPaymentDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(scheduleAtUnixTime), ZoneId.systemDefault());
 		 
-//	     currentSubscription.setMerchantUid(merchantUid);
-//	     currentSubscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
-//	     currentSubscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
-//	     currentSubscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
+	     subscription.setMerchantUid(merchantUid);
+	     subscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
+	     subscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
+	     subscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
 		 
+	     addSubscription(subscription);
+	     
 		 return subscription;
 	}//schedulePay: 정기결제 예약 등록하는 곳
 

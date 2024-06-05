@@ -26,7 +26,7 @@
 	</insert>
 	
 	<select id="getDetailSubscription" parameterType="string" resultMap="subscriptionSelectMap">
-		SELECT user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
+		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
 				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
 		FROM subscription
 		<!-- WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date -->
@@ -65,7 +65,8 @@
 	<!-- 추가 메소드 -->
 	
 	<select id="getTodaySubscriptionList" resultMap="subscriptionSelectMap">
-		SELECT *
+		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
+				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
 		FROM subscription
 		where DATE(next_subscription_payment_date) = CURDATE();
 	</select>
