@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -17,7 +18,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +35,7 @@ import com.mapmory.services.purchase.domain.IamportToken;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.PurchaseService;
+import com.mapmory.services.purchase.service.SubscriptionScheduler;
 import com.mapmory.services.purchase.service.SubscriptionService;
 
 @Service("subscriptionServiceImpl")
@@ -80,24 +84,55 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	@Override
 	public void updatePaymentMethod(Subscription subscription) throws Exception {
+		
+		deleteSubscription(subscription.getUserId());
+		
 		subscriptionDao.updatePaymentMethod(subscription);
+		
 	}//updatePaymentMethod
 
 	@Override
 	public void deleteSubscription(String userId) throws Exception {
+		String accessToken = getPortOneToken();
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(accessToken);
+		
+		Subscription subscription = getDetailSubscription(userId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("customer_uid", subscription.getCustomerUid());
+		map.put("merchant_uid", subscription.getMerchantUid());
+
+		String requestJson = new Gson().toJson(map);
+		
+		HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, headers);
+		
+		ResponseEntity<String> unscheduleResponseEntity = restTemplate.exchange(
+			    "https://api.iamport.kr/subscribe/payments/unschedule",
+			    HttpMethod.POST,
+			    requestEntity,
+			    String.class
+			);
+		
+//		ResponseEntity<String> deleteResponseEntity = restTemplate.exchange(
+//			    "https://api.iamport.kr/subscribe/customers/{customer_uid}",
+//			    HttpMethod.DELETE,
+//			    requestEntity,
+//			    String.class,
+//			    subscription.getCustomerUid()
+//			);
+		
 		subscriptionDao.deleteSubscription(userId);
 	}//deleteSubscription
+	
 	
 	@Override
 	public boolean requestSubscription(Subscription subscription) throws Exception {
 
-		String token = getPortOneToken();
-		Gson str = new Gson();
-		token = token.substring(token.indexOf("response") + 10);
-		token = token.substring(0, token.length() - 1);
-
-		IamportToken iamportToken = str.fromJson(token, IamportToken.class);
-		String accessToken = iamportToken.getAccess_token();
+		String accessToken = getPortOneToken();
+		
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -109,12 +144,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		map.put("amount", "1000");
 		map.put("name", "정기 구독 결제");
 
-		Gson var = new Gson();
-		String requestJson = var.toJson(map);
+		String requestJson = new Gson().toJson(map);
 		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 		
 		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/again", entity, String.class);
-
+		System.out.println(resultJson);
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 		String status = rootNode.get("response").get("status").asText();
@@ -127,11 +162,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}//구독 결제 요청
 	
 	public Subscription schedulePay(Subscription subscription) throws Exception {
-		Subscription nextSubscription = getDetailSubscription(subscription.getUserId()) != null
-			    ? getDetailSubscription(subscription.getUserId())
-			    : subscription;
-		
-		String getAccessToken = getPortOneToken();
+//		Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
+//		
+//		if(currentSubscription == null) {
+//			currentSubscription = subscription;
+//		}else {
+//			currentSubscription.setSubscribed(true);
+//			currentSubscription.setNextPaymentMethod(subscription.getNextPaymentMethod());
+//			currentSubscription.setNextSubscriptionLastFourDigits(subscription.getNextSubscriptionLastFourDigits());
+//			currentSubscription.setNextSubscriptionCardType(subscription.getNextSubscriptionCardType());
+//		}
 		
 		LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -151,12 +191,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} 
-		
-		 Gson str = new Gson(); 
-		 getAccessToken = getAccessToken.substring(getAccessToken.indexOf("response") +10); 
-		 getAccessToken = getAccessToken.substring(0, getAccessToken.length() - 1);
-		 IamportToken iamportToken = str.fromJson(getAccessToken, IamportToken.class);
-		 String accessToken = iamportToken.getAccess_token();
+		 
+		 String accessToken = getPortOneToken();
 		 
 		 RestTemplate restTemplate = new RestTemplate();
 		 HttpHeaders headers = new HttpHeaders();
@@ -175,16 +211,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		 JsonObject requestSubscriptionJson = new JsonObject();
 		 requestSubscriptionJson.addProperty("customer_uid", subscription.getCustomerUid()); 
 		 requestSubscriptionJson.add("schedules", jsonArr);
-		 
-		 String json = str.toJson(requestSubscriptionJson); 
-		 
+
+		 String json = new Gson().toJson(requestSubscriptionJson);
 		 HttpEntity<String> entity = new HttpEntity<>(json, headers);
 		 
-		 String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/schedule", entity, String.class);
-		 
 		 ObjectMapper objectMapper = new ObjectMapper();
-	     JsonNode rootNode = objectMapper.readTree(resultJson);
-
+	     JsonNode rootNode = objectMapper.readTree(restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/schedule", entity, String.class));
+	     System.out.println(rootNode);
+	     
 	     // response 배열에서 merchant_uid와 schedule_at 추출
 	     String merchantUid = rootNode.get("response").get(0).get("merchant_uid").asText();
 	     long scheduleAtUnixTime = rootNode.get("response").get(0).get("schedule_at").asLong()+3;
@@ -192,13 +226,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	     // Unix 시간을 LocalDateTime으로 변환
 	     LocalDateTime nextSubscriptionPaymentDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(scheduleAtUnixTime), ZoneId.systemDefault());
 		 
-	     nextSubscription.setSubscribed(true);
-		 nextSubscription.setMerchantUid(merchantUid);
-		 nextSubscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
-		 nextSubscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
-		 nextSubscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
+//	     currentSubscription.setMerchantUid(merchantUid);
+//	     currentSubscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
+//	     currentSubscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
+//	     currentSubscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
 		 
-		 return nextSubscription;
+		 return subscription;
 	}//schedulePay: 정기결제 예약 등록하는 곳
 
 	@Override
@@ -219,8 +252,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	   
 	    HttpEntity<String> entity = new HttpEntity<>(json, headers);
 	    
-	    String result = restTemplate.postForObject("https://api.iamport.kr/users/getToken", entity, String.class);
-	    
-		return result;
+	    String getAccessToken = restTemplate.postForObject("https://api.iamport.kr/users/getToken", entity, String.class);
+		Gson str = new Gson();
+		getAccessToken = getAccessToken.substring(getAccessToken.indexOf("response") + 10);
+		getAccessToken = getAccessToken.substring(0, getAccessToken.length() - 1);
+
+		IamportToken iamportToken = str.fromJson(getAccessToken, IamportToken.class);
+		String accessToken = iamportToken.getAccess_token();
+		
+		return accessToken;
 	}//getPortOneToken
+
+	@Override
+	public int countSubscription(String userId) throws Exception {
+		return subscriptionDao.countSubscription(userId);
+	}
+
+	@Override
+	public List<Subscription> getTodaySubscriptionList() throws Exception {
+		return subscriptionDao.getTodaySubscriptionList();
+	}
+	
 }

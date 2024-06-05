@@ -45,4 +45,11 @@ public class PurchaseController {
 		purchaseService.addPurchase(purchase);
 		return new RedirectView("/index");
 	}//addPurchase
+	
+	@GetMapping(value="/deleteSubscription")
+	public RedirectView deleteSubscription(String userId) throws Exception {
+		
+		subscriptionService.deleteSubscription(userId);
+		return new RedirectView("/index");
+	}//deleteSubscription
 }
