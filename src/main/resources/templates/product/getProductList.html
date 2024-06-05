@@ -28,7 +28,7 @@
         <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
         <td th:text="${product.price}"></td>
         <td>
-            <img th:each="uuid : ${product.uuid}" th:src="@{'https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/' + ${uuid}}" alt="상품 이미지" width="100" height="100">
+            <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid}(uuid=${uuid})}" alt="상품 이미지" width="300" height="300">
         </td>
         <td th:text="${product.productRegDate}"></td>
         <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>

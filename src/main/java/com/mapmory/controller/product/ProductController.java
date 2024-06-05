@@ -2,21 +2,25 @@ package com.mapmory.controller.product;
 
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.service.ProductService;
-import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.awt.PageAttributes.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,15 +107,19 @@ public class ProductController {
                                 @RequestParam(value = "uploadFile", required = false) List<MultipartFile> files,
                                 @RequestParam(value = "deleteImageUuids", required = false) List<String> deleteImageUuids) throws Exception {
 
+    	product.setUserId("admin");
         List<String> uuidFileName = new ArrayList<>();
+        List<String> originalFileNames = new ArrayList<>();
 
         // 새로운 이미지 파일 업로드 및 UUID 생성
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) { // 빈 파일이 아닌 경우에만 처리
                     String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
+                    String originalFilename = file.getOriginalFilename();
                     objectStorageUtil.uploadFileToS3(file, uuid); // 파일 업로드
                     uuidFileName.add(uuid);
+                    originalFileNames.add(originalFilename);
                 }
             }
         }
@@ -124,9 +132,9 @@ public class ProductController {
         }
 
         // 상품 정보 업데이트
-        productService.updateProduct(product, uuidFileName);
+        productService.updateProduct(product, uuidFileName,originalFileNames);
 
-        return "redirect:/product/getDetailProduct/" + productNo;
+        return "redirect:/product/getProductList";
     }
     
     @GetMapping("/updateProduct/{productNo}")
@@ -151,5 +159,15 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 삭제 중 오류 발생");
         }
+    }
+    
+    //상품 이미지 주소 가리기 위한 컨트롤러
+    @GetMapping("/image/{uuid}")
+    @ResponseBody
+    public ResponseEntity<ByteArrayResource> getImage(@PathVariable String uuid) throws Exception {
+        ByteArrayResource resource = objectStorageUtil.getImageResource(uuid);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 }
