@@ -18,6 +18,7 @@ public class Search {
 	private String userId;
 	private LocalDateTime selectDay1;
 	private LocalDateTime selectDay2;
+	
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();

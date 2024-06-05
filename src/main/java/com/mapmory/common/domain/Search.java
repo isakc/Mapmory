@@ -3,14 +3,17 @@ package com.mapmory.common.domain;
 import java.sql.Date;
 import java.time.LocalDateTime;
 
+import com.mapmory.services.map.domain.SearchMarker;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@SuperBuilder
 @Setter
 @Getter
 @NoArgsConstructor
@@ -33,6 +36,11 @@ public class Search {
 	private Integer timecapsuleType;
 	private LocalDateTime selectDay1;
 	private LocalDateTime selectDay2;
+
+	private int radius;
+	private Double latitude;
+	private Double longitude;
+	private Integer followType;
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();
