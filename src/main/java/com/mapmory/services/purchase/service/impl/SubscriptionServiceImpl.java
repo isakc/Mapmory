@@ -142,19 +142,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("customer_uid", subscription.getCustomerUid());
-		map.put("merchant_uid", "subscription_"+subscription.getUserId()+"_"+LocalDateTime.now());
+		map.put("merchant_uid", subscription.getMerchantUid());
 		map.put("amount", "1000");
 		map.put("name", "정기 구독 결제");
 
+		//첫 구독 결제 요청
 		String requestJson = new Gson().toJson(map);
 		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-		
 		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/again", entity, String.class);
-		System.out.println("requestSub: " + resultJson);
-		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 		String status = rootNode.get("response").get("status").asText();
+		
+		System.out.println("requestSub: " + resultJson);
 		
 		if(status.equals("paid")) {
 			return true;
@@ -196,8 +196,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		 headers.setContentType(MediaType.APPLICATION_JSON);
 		 headers.setBearerAuth(accessToken);//헤더에 access token 추가
 		 
+		 subscription.setMerchantUid("subscription_"+subscription.getUserId()+"_"+LocalDateTime.now());
+		 
 		 JsonObject scheduleJson = new JsonObject();
-		 scheduleJson.addProperty("merchant_uid", "subscription_"+subscription.getUserId()+"_"+LocalDateTime.now() );
+		 scheduleJson.addProperty("merchant_uid", subscription.getMerchantUid() );
 		 scheduleJson.addProperty("schedule_at", timestamp);
 		 scheduleJson.addProperty("amount", 1000);
 		 scheduleJson.addProperty("name", "정기 결제 구독");
@@ -227,8 +229,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 //	     subscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
 //	     subscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
 //	     subscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
-		 
-	     addSubscription(subscription);
 	     
 		 return subscription;
 	}//schedulePay: 정기결제 예약 등록하는 곳

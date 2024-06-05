@@ -78,8 +78,6 @@
             	
             	if(rsp.success){ //빌링키 발급 성공
             		const subscription = {
-            			customerUid: rsp.customer_uid,
-    					//userId: 'user5',
     					userId: user,
     					nextPaymentMethod: getPaymentMethod(rsp.pg_provider),
     					nextSubscriptionCardType: rsp.card_name,
