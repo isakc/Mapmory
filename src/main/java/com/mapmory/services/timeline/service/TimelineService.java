@@ -20,8 +20,6 @@ public interface TimelineService {
 	public void updateTimeline(Record record) throws Exception;
 	
 	public void deleteTimeline(int recordNo) throws Exception;
-	//map을 record로 묶어주는 기능
-	public Record recordToMap(Map<String,Object> map) throws Exception;
 	//record select시 imageNo 못가져와서 가져오는 image select
 	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception;
 	//image만 삭제

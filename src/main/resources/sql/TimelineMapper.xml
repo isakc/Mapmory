@@ -23,13 +23,12 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-    <collection property="imageName" ofType="String" javaType="ArrayList" select="selectImage" column="record_no"/>
-    <collection property="hashtag" ofType="String" javaType="ArrayList" select="selectHashtag" column="record_no"/>
-</resultMap>
-
-<resultMap id="imageResultMap" type="java.util.HashMap">
-    <id property="imageOrder" column="image_tag_order" jdbcType="NUMERIC"/>
-    <result property="imageFile" column="image_tag_text" jdbcType="VARCHAR"/>
+    <!-- <collection property="imageName" ofType="String" javaType="ArrayList" select="selectImage" column="record_no"/>
+    <collection property="hashtag" ofType="String" javaType="ArrayList" select="selectHashtag" column="record_no"/> -->
+    <collection property="imageTag" ofType="java.util.HashMap" javaType="java.util.ArrayList">
+    	<result property="imageTagType" column="image_tag_type" />
+    	<result property="imageTagText" column="image_tag_text" />
+    </collection>
 </resultMap>
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
@@ -58,7 +57,7 @@
 </insert>
 
 <select id="selectDetailTimeline" resultMap="recordResultMap">
-   SELECT 
+   <!-- SELECT 
     record_no,
     record_user_id,
     record_title,
@@ -78,11 +77,35 @@
 FROM 
     record
 WHERE 
-    record_no = #{value}
+    record_no = #{value} -->
+    SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a1.record_title AS record_title,
+       a1.latitude AS latitude,
+       a1.longitude AS longitude,
+       a1.checkpoint_address AS checkpoint_address,
+       a1.checkpoint_date AS checkpoint_date,
+       a1.media_name AS media_name,
+       a1.category_no AS category_no,
+       a1.record_text AS record_text,
+       a1.temp_type AS temp_type,
+       a1.record_add_date AS record_add_date,
+       a1.shared_date AS shared_date,
+       a1.update_count AS update_count,
+       a1.d_day_date AS d_day_date,
+       a1.timecapsule_type AS timecapsule_type,
+       a2.image_tag_type AS image_tag_type,
+       a2.image_tag_text AS image_tag_text
+   FROM 
+       record a1
+   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+   WHERE 
+       a1.record_no = #{value}
 </select>
 
 
-<select id="selectImage" resultType="String" parameterType="integer">
+<select id="selectImage" resultType="String" parameterType="Integer">
   SELECT
 	image_tag_text
 FROM
@@ -263,17 +286,17 @@ SELECT
 	RECORD_TITLE,
 	SHARED_DATE,
 	UPDATE_COUNT,
-    (SELECT nickname FROM USERS u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
-    (SELECT profile_image_name FROM USERS u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
-    CASE WHEN (SELECT subscription_end_date FROM SUBSCRIPTION s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
-    (SELECT IMAGE_TAG_TYPE FROM IMAGE_TAG i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
-    (SELECT IMAGE_TAG_TEXT FROM IMAGE_TAG i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
-    (SELECT category_name FROM CATEGORY c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
-    (SELECT category_imoji FROM CATEGORY c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
-    (SELECT COUNT(*) FROM REPLY p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
-    (SELECT COUNT(*) FROM COMMUNITY_LOGS l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) logs_count
+    (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
+    (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
+    CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+    (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
+    (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
+    (SELECT category_name FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
+    (SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
+    (SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
+    (SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) logs_count
 FROM 
-    RECORD r
+    record r
 <trim prefix="where" prefixOverrides="AND||OR">
     shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
 </trim>
