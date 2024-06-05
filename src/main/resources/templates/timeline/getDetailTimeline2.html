@@ -36,25 +36,40 @@
     <li th:each="item : ${list7}" th:text="${' 기록된 타임캡슐 기록 : '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.d_DayDate}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list8}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
+    <li th:each="item : ${list8}" th:text="${' 대민 recordList: '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list9}" th:text="${item}"></li>
+    <li th:each="item : ${list9}" th:text="${' 재용 sharedRecord : '+item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list10}" th:text="${item}"></li>
+    <li th:each="item : ${list10}" th:text="${' 재용 sharedRecord : '+item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list11}" th:text="${item}"></li>
+    <li th:each="item : ${list11}" th:text="${' 타임라인 날짜 지정 : '+item}"></li>
+</ul>
+<!-- <ul>
+    <li th:each="item : ${list12}" th:text="' 성문 follow : '+${item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list12}" th:text="${item}"></li>
+    <li th:each="item : ${list13}" th:text="${' 성문 public : '+item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list13}" th:text="${item}"></li>
+    <li th:each="item : ${list14}" th:text="${' 성문 private : '+item}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list14}" th:text="${item}"></li>
+    <li th:each="item : ${list15}" th:text="${' 성문 랜덤 테스트 : '+item}"></li>
+</ul> -->
+<ul>
+    <li th:each="item : ${list12}" th:text=" '성문 follow : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list13}" th:text=" '성문 public : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list14}" th:text=" '성문 private : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list15}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
 </ul>
 </body>
 </html>
