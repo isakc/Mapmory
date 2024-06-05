@@ -1,5 +1,9 @@
 package com.mapmory.unit.product;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,10 +30,14 @@ public class ProductServiceTest {
     //@Test
     public void testAddProduct() throws Exception {
         // Given
+    	
+    	LocalDateTime now = LocalDateTime.now();
+    	Date sqlDate = Date.valueOf(now.toLocalDate());
+    	
         Product product = new Product();
         product.setProductTitle("Test Product");
         product.setPrice(10000);
-        product.setProductRegDate(LocalDateTime.now());
+        product.setProductRegDate(sqlDate);
         product.setPeriod(1);
         product.setUserId("admin");
 
@@ -43,7 +51,7 @@ public class ProductServiceTest {
         // Then
     }
     
-    //@Test
+    @Test
     public void testGetProductList() throws Exception {
     	
     	Search search = new Search();
@@ -68,21 +76,38 @@ public class ProductServiceTest {
     //@Test
     public void testUpdateProduct() throws Exception {
         // Given
+        LocalDateTime now = LocalDateTime.now();
+        Date sqlDate = Date.valueOf(now.toLocalDate());
+
         Product product = new Product();
         product.setProductNo(17); // 업데이트할 제품 번호 설정
         product.setProductTitle("Updated Test Product");
         product.setPrice(15000);
-        product.setProductRegDate(LocalDateTime.now());
+        product.setProductRegDate(sqlDate);
         product.setPeriod(2);
         product.setUserId("admin");
 
-        List<String> imageFiles = new ArrayList<>();
-        imageFiles.add("updated_test_image.jpg");
-        imageFiles.add("test_update_image.jpg");
+        List<String> uuidFileNames = new ArrayList<>();
+        uuidFileNames.add("updated_test_image_uuid.jpg");
+        uuidFileNames.add("test_update_image_uuid.jpg");
+
+        List<String> originalFileNames = new ArrayList<>();
+        originalFileNames.add("updated_test_image.jpg");
+        originalFileNames.add("test_update_image.jpg");
 
         // When
-        productService.updateProduct(product, imageFiles);
+        productService.updateProduct(product, uuidFileNames, originalFileNames);
 
+        // Then
+        Product updatedProduct = productService.getDetailProduct(17);
+        assertEquals("Updated Test Product", updatedProduct.getProductTitle());
+        assertEquals(15000, updatedProduct.getPrice());
+        assertEquals(2, updatedProduct.getPeriod());
+        assertEquals("admin", updatedProduct.getUserId());
+
+        List<String> updatedImageUuids = updatedProduct.getUuid();
+        assertTrue(updatedImageUuids.contains("updated_test_image_uuid.jpg"));
+        assertTrue(updatedImageUuids.contains("test_update_image_uuid.jpg"));
     }
     
     //@Test
@@ -98,7 +123,7 @@ public class ProductServiceTest {
     	productService.deleteProduct(25);
     }
     
-    @Test
+    //@Test
     public void testGetDetailProduct() throws Exception {
     	
     	Product product = new Product();
