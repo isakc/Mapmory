@@ -1,8 +1,11 @@
 package com.mapmory.unit.community;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,14 +29,15 @@ public class CommunityServiceTest {
 	public void TestAddReply() throws Exception {
 
 		Reply reply = Reply.builder()
-				.recordNo(6)
-				.userId("user8")
-				.replyText("재밌다고해라")
+				.recordNo(7)
+				.userId("user5")
+				.replyText("재밌어요")
 				.build();
 		
 		communityService.addReply(reply);
 		
-		System.out.println("add 테스트 : " +reply);
+		
+		//System.out.println("add 테스트 : " +reply);
 	}	
 	
 	//@Test
@@ -71,24 +75,31 @@ public class CommunityServiceTest {
 	public void TestGetReplyList() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(1);
-		search.setPageSize(10);
-		Map<String, Object> map = communityService.getReplyList(search, 1);
+		search.setLimit(1);
+		search.setOffset(0);
+		Map<String, Object> map = communityService.getReplyList(search, 1, 2);
 		
 		List<Reply> list = (List<Reply>)map.get("list");
 		
 		System.out.println("list 테스트 : "+list);
 		
 		Integer totalCount = (Integer)map.get("totalCount");
+		Integer likeCount = (Integer)map.get("likeCount");
+		Integer dislikeCount = (Integer)map.get("dislikeCount");
+		
+		//Integer totalCount2 = (Integer)map.get("totalCount2");
 		System.out.println("기록에 작성된 댓글 : "+totalCount);
+		System.out.println("좋아요 수 : "+likeCount);
+		System.out.println("싫어요 수 : "+dislikeCount);
+		
 	}	
 	
 	//@Test
 	public void TestGetUserReplyList() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(1);
-		search.setPageSize(10);
+		search.setLimit(1);
+		search.setOffset(0);
 		Map<String, Object> map = communityService.getUserReplyList(search, "user2");
 		
 		List<Reply> list = (List<Reply>)map.get("list");
@@ -143,8 +154,8 @@ public class CommunityServiceTest {
 	//@Test
 	public void TestGetCommunityLogsList() throws Exception {
 		Search search = new Search();
-		search.setCurrentPage(1);
-		search.setPageSize(10);
+		search.setLimit(1);
+		search.setOffset(0);
 		Map<String, Object> map = communityService.getCommunityLogsList(search, "user2", 1);
 		
 		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
@@ -187,8 +198,8 @@ public class CommunityServiceTest {
 	public void TestGetUserReportList() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(0);
-		search.setPageSize(5);
+		search.setLimit(3);
+		search.setOffset(0);
 
 		Map<String, Object> map = communityService.getUSerReportList(search, "user1");
 		List<Report> list = (List<Report>)map.get("list");
@@ -199,12 +210,13 @@ public class CommunityServiceTest {
 		System.out.println("사용자 신고 총 건수 : "+totalCount);
 	}
 
-	//@Test
+	@Test
 	public void TestGetAdminReportList() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(0);
-		search.setPageSize(5);
+		search.setLimit(3);
+		search.setOffset(0);
+
 
 		Map<String, Object> map = communityService.getAdminReportList(search, 1);
 		List<Report> list = (List<Report>)map.get("list");
@@ -212,7 +224,9 @@ public class CommunityServiceTest {
 		System.out.println("총 신고 list 테스트 : "+list);	
 		
 		Integer totalCount = (Integer)map.get("totalCount");
+		Integer unConfirmCount = (Integer)map.get("unConfirmCount");
 		System.out.println("시스템 신고 총 건수 : "+totalCount);
+		System.out.println("미처리 신고 건수 : "+unConfirmCount);
 	}	
 	
 	//@Test
@@ -254,12 +268,16 @@ public class CommunityServiceTest {
 	public void TestGetBlockedList() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(1);
-		search.setPageSize(10);
+		search.setLimit(3);
+		search.setOffset(0);
+
 		Map<String, Object> map = communityService.getBlockedList(search, "user4");		
 		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
 		
 		System.out.println("차단 유저 list 테스트 : "+list);	
+		
+		Integer totalCount = (Integer)map.get("totalCount");
+		System.out.println("사용자의 총 차단 수 : "+totalCount+"건");
 	}
 	
 	//@Test
@@ -270,12 +288,13 @@ public class CommunityServiceTest {
 		System.out.println("차단 유저 조회 테스트 : "+followBlock);	
 	}
 	
-	@Test
+	//@Test
 	public void TestDeleteBlockedUser() throws Exception {
 		
 		Search search = new Search();
-		search.setCurrentPage(1);
-		search.setPageSize(10);
+		search.setLimit(3);
+		search.setOffset(0);
+
 		Map<String, Object> map = communityService.getBlockedList(search, "user4");		
 		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
 		
