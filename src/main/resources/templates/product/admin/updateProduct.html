@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>상품 수정</title>
@@ -26,6 +27,7 @@
         });
     </script>
 </head>
+
 <body>
     <h1>상품 수정</h1>
     <form th:action="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}" th:object="${product}" method="post" enctype="multipart/form-data">
@@ -42,7 +44,7 @@
             <div th:each="uuid, iterStat : ${product.uuid}">
                 <img th:src="@{'https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/' + ${uuid}}" alt="상품 이미지" width="300" height="300">
                 <button type="button" class="delete-image" th:data-uuid="${uuid}">X</button>
-                
+
             </div>
         </div>
         <div>
@@ -52,4 +54,5 @@
         <button type="submit">수정</button>
     </form>
 </body>
+
 </html>

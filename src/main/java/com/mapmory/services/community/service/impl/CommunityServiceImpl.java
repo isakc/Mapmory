@@ -32,13 +32,22 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 	
 	@Override
-	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
-		List<Object> list = communityDao.getReplyList(search, recordNo);
+	public Map<String, Object> getReplyList(Search search, int recordNo, int replyNo) throws Exception {
+		List<Object> list = communityDao.getReplyList(search, recordNo, replyNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
+//		int totalCount2 = communityDao.getReactionReplyTotalCount(search, replyNo);
+		int likeCount = communityDao.getReactionLikeTotalCount(search, recordNo, replyNo);
+		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, recordNo, replyNo);
 		
+		//Map<String, Object> reactionCount = communityDao.getReactionReplyTotalCount(search, replyNo);
+		//Integer liketCount = (Integer) reactionCount.get("like_count");
+		//Integer dislikeCount = (Integer) reactionCount.get("dislike_count");		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
+		map.put("likeCount", Integer.valueOf(likeCount));
+		map.put("dislikeCount", Integer.valueOf(dislikeCount));
+		//map.put("totalCount2", Integer.valueOf(totalCount2));
 		return map;
 	}
 
@@ -129,10 +138,12 @@ public class CommunityServiceImpl implements CommunityService {
 	public Map<String, Object> getAdminReportList(Search search, int role) throws Exception {
 		List<Object> list = communityDao.getAdminReportList(search, role);
 		int totalCount = communityDao.getAdminReportTotalCount(search);
+		int unConfirmCount = communityDao.getUnConfirmReportTotalCount(search);
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
+		map.put("unConfirmCount", Integer.valueOf(unConfirmCount));
 		return map;
 	}
 

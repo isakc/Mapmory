@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,9 +96,9 @@ public class RecommendServiceImpl implements RecommendService {
         content.put("content", recordText);
         
         System.out.println(content);
-        System.out.println("================");
+//        System.out.println("================");
 //        System.out.println(requestPayload);
-        System.out.println("================");
+//        System.out.println("================");
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(content, headers);
         
         System.out.println("entity : "+entity);
@@ -153,94 +154,148 @@ public class RecommendServiceImpl implements RecommendService {
 		
 	}
 	
-	@Override
-	public void updateDataset() throws Exception {
-		
-		String uri= "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";
-//		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
-		String url = "https://aitems.apigw.ntruss.com"+uri;
-		String timestamp = String.valueOf(System.currentTimeMillis());
-		String signatureKey = makeSignature(timestamp, uri,"POST");
-		System.out.println(timestamp);
-		System.out.println("signatureKey : "+signatureKey);
-		
-		
 	
+	@Override
+	public void updateDataset(Recommend recommend) throws Exception {
+		
+		String userId = recommend.getUserId();
+		String recordNo = String.valueOf(recommend.getRecordNo());
+		String recordTitle = recommend.getRecordTitle();
+		String category = recommend.getCategory();
+		String hashTag = recommend.getHashTag();
+		String positive = String.valueOf(recommend.getPositive());
+		String timeStamp = String.valueOf(recommend.getTimeStamp());
+		
+		String userDataSetId =  "/api/v1/services/siq3vlubqhb/datasets/i2u8qte5hn6";
+		String itemDataSetId = "/api/v1/services/siq3vlubqhb/datasets/m6yz1ig2475";
+		String interactionDataSetId = "/api/v1/services/siq3vlubqhb/datasets/92ivcomdz3w";
+		String timestamp = String.valueOf(System.currentTimeMillis());
+		System.out.println(timestamp);
+//		String uri= "/api/v1/services/siq3vlubqhb/datasets/m6yz1ig2475";
+		
+//		String url = "https://aitems.apigw.ntruss.com"+uri;
+		
+		// 공통으로 사용하는 부분 /////////////
 		RestTemplate restTemplate = new RestTemplate();	    
         HttpHeaders headers = new HttpHeaders();
         headers.add("accept", "application/json");
-        headers.add("x-ncp-iam-access-key", aitems_Access_Key);
-        headers.add("x-ncp-apigw-signature-v2", signatureKey);
+        headers.add("x-ncp-iam-access-key", aitems_Access_Key);     
+        headers.add("x-ncp-apigw-signature-v2", "signatureKey");
         headers.add("x-ncp-apigw-timestamp", timestamp);
+		
+		///////////////////////////////
+		
+        ///////user 데이터 json object로 만들기 /////////
+        JSONObject contentUser = new JSONObject();
+        contentUser.put("type", "user");
+        JSONArray valueUser = new JSONArray();
+        JSONObject user = new JSONObject();
+        user.put("USER_ID", userId);
+        user.put("ITEM_ID", recordNo);
+        user.put("POSITIVE", positive);
+        user.put("TIMESTAMP", timeStamp);
         
-//        JSONObject content = new JSONObject();
-//        content.put("type","item");
-//        
-//        JSONArray value = new JSONArray();
-//        JSONObject item = new JSONObject();
-//        item.put("ITEM_ID", "201");
-//        item.put("TITLE", "테스트 기록 제목201");
-//        item.put("CATEGORY", "여행");
-//        
-//        value.put(item);
-//        content.put("value", value);
-//        
-//        System.out.println(content);
+        valueUser.add(user);
+        contentUser.put("value", valueUser);
+        System.out.println(contentUser);
+		
+        ///////item 데이터 json object로 만들기 /////////
+        JSONObject contentItem = new JSONObject();
+        contentItem.put("type", "item"); // "user", "item", "interaction" 중 하나
+        JSONArray valueItem = new JSONArray();
+        JSONObject item = new JSONObject();
+        item.put("ITEM_ID", recordNo);
+        item.put("TITLE", recordTitle);
+        item.put("CATEGORY", category);
         
-        JSONObject content = new JSONObject();
-        content.put("type", "item"); // "user", "item", "interaction" 중 하나
-
-        JSONArray valueArray = new JSONArray();
-        JSONObject item1 = new JSONObject();
-        item1.put("ITEM_ID", "201");
-        item1.put("TITLE", "테스트 기록 제목201");
-        item1.put("CATEGORY", "여행");
-
-        JSONObject item2 = new JSONObject();
-        item2.put("ITEM_ID", "202");
-        item2.put("TITLE", "테스트 기록 제목202");
-        item2.put("CATEGORY", "여행");
-
-        JSONObject item3 = new JSONObject();
-        item3.put("ITEM_ID", "203");
-        item3.put("TITLE", "테스트 기록 제목203");
-        item3.put("CATEGORY", "여행");
-
-        valueArray.add(item1);
-        valueArray.add(item2);
-        valueArray.add(item3);
-
-        content.put("value", valueArray);
+        valueItem.add(item);
+        contentItem.put("value", valueItem);
+        System.out.println(contentItem);      
         
-
-
-        System.out.println(content);
+        ///////interaction 데이터 json object로 만들기///////
+        JSONObject contentInteraction = new JSONObject();
+        contentInteraction.put("type", "interaction");
+        JSONArray valueInteraction = new JSONArray();
+        JSONObject interaction = new JSONObject();
+        interaction.put("USER_ID", userId);
+        interaction.put("ITEM_ID", recordNo);
+        interaction.put("HASHTAG", hashTag);
+        interaction.put("TIMESTAMP", timeStamp);
         
-        HttpEntity<JSONObject> entity = new HttpEntity<JSONObject>(content, headers);
+        valueInteraction.add(interaction);
+        contentInteraction.put("value", valueInteraction);
+        System.out.println(contentInteraction);
         
-        System.out.println("entity : "+entity);
+        // 공통 아닌 부분 /////////////// user post
+        String url = "https://aitems.apigw.ntruss.com"+userDataSetId;
+		String signatureKey = makeSignature(timestamp, userDataSetId,"POST");		
+		System.out.println("signatureKey : "+signatureKey);
+		headers.set("x-ncp-apigw-signature-v2", signatureKey);
+
+        HttpEntity<JSONObject> userEntity = new HttpEntity<JSONObject>(contentUser, headers);
+        System.out.println("entity : "+userEntity);
+        try {
+        	System.out.println(url);
+        	System.out.println(headers);
+            String response = restTemplate.postForObject(url, userEntity, String.class);
+            System.out.println(response+" : user");
+        } catch (HttpClientErrorException e) {
+            System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
+        }
+		/////////////////////////////
+        
+        // 공통 아닌 부분 /////////////// item post
+        url = "https://aitems.apigw.ntruss.com"+itemDataSetId;
+		signatureKey = makeSignature(timestamp, itemDataSetId,"POST");		
+		System.out.println("signatureKey : "+signatureKey);
+		headers.set("x-ncp-apigw-signature-v2", signatureKey);
+
+        HttpEntity<JSONObject> itemEntity = new HttpEntity<JSONObject>(contentItem, headers);
+        System.out.println("entity : "+itemEntity);
+        try {
+        	System.out.println(url);
+            String response = restTemplate.postForObject(url, itemEntity, String.class);
+            System.out.println(response+" : item");
+        } catch (HttpClientErrorException e) {
+            System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
+        }
+		/////////////////////////////
+		
+        // 공통 아닌 부분 /////////////// interaction post
+        url = "https://aitems.apigw.ntruss.com"+interactionDataSetId;
+		signatureKey = makeSignature(timestamp, interactionDataSetId,"POST");		
+		System.out.println("signatureKey : "+signatureKey);
+		headers.set("x-ncp-apigw-signature-v2", signatureKey);
+
+        HttpEntity<JSONObject> interactionEntity = new HttpEntity<JSONObject>(contentInteraction, headers);
+        System.out.println("entity : "+interactionEntity);
+        try {
+        	System.out.println(url);
+            String response = restTemplate.postForObject(url, interactionEntity, String.class);
+            System.out.println(response+" : interaction");
+        } catch (HttpClientErrorException e) {
+            System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
+        }
+		/////////////////////////////
+        
         
 //        String response = restTemplate.postForObject(url, entity, String.class);
 //        System.out.println(response);
         
-        try {
-            String response = restTemplate.postForObject(url, entity, String.class);
-            System.out.println(response);
-        } catch (HttpClientErrorException e) {
-            System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
-        }
+        
         
 	}
 
 	@Override
-	public void getRecommendData() throws Exception {
-		String uri= "/api/v1/services/r0g5crs583y/infers/lookup?type=personalRecommend&targetId=user1";
+	public ResponseEntity<String> getRecommendData(String userId) throws Exception {
+		String uri= "/api/v1/services/siq3vlubqhb/infers/lookup?type=personalRecommend&targetId="+userId;
 //		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
 		String url = "https://aitems.apigw.ntruss.com"+uri;
 		String timestamp = String.valueOf(System.currentTimeMillis());
 		String signatureKey = makeSignature(timestamp, uri, "GET");
 		System.out.println(timestamp);
 		System.out.println("signatureKey : "+signatureKey);
+		System.out.println(url);
 		
 		
 	
@@ -255,56 +310,24 @@ public class RecommendServiceImpl implements RecommendService {
         
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 		System.out.println(response);
+		
+		return response;
 	}
 	
-	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
-	public String makeSignature(String timestamp, String url, String method) throws Exception {
-		
-		
 	
-		String space = " ";					// one space
-		String newLine = "\n";					// new line
-//		String method = "GET";					// method
-//		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
-//		String timestamp = time;			// current timestamp (epoch)
-		String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
-		String secretKey = aitems_Secret_Key;
-		
-		System.out.println(url);
-		System.out.println(accessKey);
-		System.out.println(secretKey);
-		System.out.println(timestamp);
-
-		String message = new StringBuilder()
-			.append(method)
-			.append(space)
-			.append(url)
-			.append(newLine)
-			.append(timestamp)
-			.append(newLine)
-			.append(accessKey)
-			.toString();
-		
-		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-		Mac mac = Mac.getInstance("HmacSHA256");
-		mac.init(signingKey);
-
-		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-		String encodeBase64String = Base64.encodeBase64String(rawHmac);
-
-	  return encodeBase64String;
-
-	
-	}
 
 	@Override
-	public void saveDatasetToCSV(Recommend recommend) throws Exception {
-		System.out.println("saveDatasetToCSV : "+recommend.toString());
+	public void saveDatasetToCSV(Recommend recommend, String bucketName) throws Exception {
 		
-	}
-	
-	
-	public void modifyCsvFile(String bucketName, String fileName) throws Exception {
+//      Recommend(userId=user1, recordNo=0, recordTitle=기록 제목1, category=음식, hashTag=맛집|나가|중국집|3000원|굿, positive=96, timeStamp=1717551122)
+		String userId = recommend.getUserId();
+		String recordNo = String.valueOf(recommend.getRecordNo());
+		String recordTitle = recommend.getRecordTitle();
+		String category = recommend.getCategory();
+		String hashTag = recommend.getHashTag();
+		String positive = String.valueOf(recommend.getPositive());
+		String timeStamp = String.valueOf(recommend.getTimeStamp());
+		
 		
 		BasicAWSCredentials awsCreds = new BasicAWSCredentials(aitems_Access_Key, aitems_Secret_Key);
         
@@ -316,32 +339,142 @@ public class RecommendServiceImpl implements RecommendService {
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withPathStyleAccessEnabled(true)
                 .build();
-
-        // Step 1: CSV 파일 다운로드
-        S3Object s3Object = s3Client.getObject(bucketName, fileName);
+        
+        //user.csv 
+        //CSV 파일 다운로드
+        S3Object s3Object = s3Client.getObject(bucketName, "dataset/user.csv");
         InputStream inputStream = s3Object.getObjectContent();
         CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
-
-        // Step 2: CSV 파일 읽기
+        
+        //CSV 파일 읽어오기
         List<String[]> allData = csvReader.readAll();
         csvReader.close();
-
-        // Step 3: CSV 파일 수정 (예: 첫 번째 행 수정)
-        allData.get(1)[2] = "Updated Value"; // 예시로 두 번째 열 값을 업데이트
-
+        
+        String[] userData = { userId , recordNo, positive, timeStamp};
+        
+        allData.add(userData);
+        
         // Step 4: 수정된 CSV 파일을 로컬에 저장
-        String tempFileName = "temp_" + fileName;
+        String tempFileName = "temp_" + "user.csv";
         FileWriter outputFile = new FileWriter(tempFileName);
         CSVWriter writer = new CSVWriter(outputFile);
         writer.writeAll(allData);
         writer.close();
 
         // Step 5: 수정된 CSV 파일을 Object Storage에 업로드
-        s3Client.putObject(bucketName, fileName, new File(tempFileName));
+        s3Client.putObject(bucketName, "dataset/user.csv", new File(tempFileName));
 
         // Step 6: 로컬 임시 파일 삭제
         new File(tempFileName).delete();
-    }
+        System.out.println("user.csv 수정 완료");
+        
+        //item.csv 
+        //CSV 파일 다운로드
+        s3Object = s3Client.getObject(bucketName, "dataset/item.csv");
+        inputStream = s3Object.getObjectContent();
+        csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        //CSV 파일 읽어오기
+        allData = csvReader.readAll();
+        csvReader.close();
+        
+        String[] itemData = { recordNo, recordTitle, category};
+        
+        allData.add(itemData);
+        
+        // 수정된 CSV 파일을 로컬에 저장
+        tempFileName = "temp_" + "item.csv";
+        outputFile = new FileWriter(tempFileName);
+        writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        // 수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, "dataset/item.csv", new File(tempFileName));
+
+        // 로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+        System.out.println("itme.csv 수정 완료");
+        
+        //interaction.csv 
+        //CSV 파일 다운로드
+        s3Object = s3Client.getObject(bucketName, "dataset/interaction.csv");
+        inputStream = s3Object.getObjectContent();
+        csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        //CSV 파일 읽어오기
+        allData = csvReader.readAll();
+        csvReader.close();
+        
+        String[] interactionData = { userId, recordNo, hashTag, timeStamp};
+        
+        allData.add(interactionData);
+        
+        //수정된 CSV 파일을 로컬에 저장
+        tempFileName = "temp_" + "interaction.csv";
+        outputFile = new FileWriter(tempFileName);
+        writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        //수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, "dataset/interaction.csv", new File(tempFileName));
+
+        //로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+        System.out.println("interaction.csv 수정 완료");
+	}
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
+		public String makeSignature(String timestamp, String url, String method) throws Exception {
+			
+			
+		
+			String space = " ";					// one space
+			String newLine = "\n";					// new line
+//			String method = "GET";					// method
+//			String url = "/api/v1/services/siq3vlubqhb/datasets/"+datasets;	// url (include query string)
+//			String timestamp = time;			// current timestamp (epoch)
+			String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
+			String secretKey = aitems_Secret_Key;
+			System.out.println("===============makeSignature=============");
+			System.out.println("timestamp : "+timestamp+", url : "+url+", method : "+method);
+			System.out.println(url);
+			System.out.println(accessKey);
+			System.out.println(secretKey);
+			System.out.println(timestamp);
+			System.out.println("=========================================");
+
+			String message = new StringBuilder()
+				.append(method)
+				.append(space)
+				.append(url)
+				.append(newLine)
+				.append(timestamp)
+				.append(newLine)
+				.append(accessKey)
+				.toString();
+			
+			SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(signingKey);
+
+			byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+			String encodeBase64String = Base64.encodeBase64String(rawHmac);
+
+		  return encodeBase64String;
+
+		
+		}
 }
 
 	

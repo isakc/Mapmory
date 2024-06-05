@@ -7,6 +7,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,9 @@ public class UserControllerJM {
     
     @Autowired
 	JavaMailSenderImpl mailSender;
+    
+    @Value("${spring.mail.username}")
+    private String emailId;
 
 	@GetMapping(value = "kakaoLogin")
     public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -61,7 +65,7 @@ public class UserControllerJM {
 
             // 로그인 성공 처리
             session.setAttribute("tempSocialId", tempSocialId);
-            return "redirect:/index.html";
+            return "index";
         } catch (Exception e) {
             e.printStackTrace();
             return "error";
@@ -84,7 +88,7 @@ public class UserControllerJM {
 		int checkNum = random.nextInt(888888)+111111;
 
 		//이메일 보낼 양식
-		String setFrom = "botom12@naver.com"; //2단계 인증 x, 메일 설정에서 POP/IMAP 사용 설정에서 POP/SMTP 사용함으로 설정o
+		String setFrom = emailId; //2단계 인증 x, 메일 설정에서 POP/IMAP 사용 설정에서 POP/SMTP 사용함으로 설정o
 		String toMail = email;
 		String title = "회원가입 인증 이메일";
 		String content = "인증 코드는 : " + checkNum + "이거야" +

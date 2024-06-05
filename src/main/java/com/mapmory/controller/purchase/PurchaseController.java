@@ -45,4 +45,33 @@ public class PurchaseController {
 		purchaseService.addPurchase(purchase);
 		return new RedirectView("/index");
 	}//addPurchase
+	
+	@GetMapping(value="/deleteSubscription")
+	public RedirectView deleteSubscription(String userId) throws Exception {
+		
+		subscriptionService.deleteSubscription(userId);
+		return new RedirectView("/index");
+	}//deleteSubscription
+	
+	/*추가*/
+	@PostMapping(value="/addSubscription")
+	public String requestSubscription(@RequestBody Subscription subscription) throws Exception {
+		
+		if(subscriptionService.requestSubscription(subscription)) {
+			
+			subscriptionService.addSubscription(subscriptionService.schedulePay(subscription));
+		}
+
+		return "index";
+	}//requestSubscription: 여기에 구독 시작한 날 결제 추가
+	
+	@PostMapping(value="updatePaymentMethod")
+	public String updatePaymentMethod(@RequestBody Subscription subscription) throws Exception {
+		
+		subscriptionService.updatePaymentMethod(subscription);
+		subscriptionService.schedulePay(subscription);
+		
+		return "index";
+	}//updatePaymentMethod: 구독해지
+	
 }
