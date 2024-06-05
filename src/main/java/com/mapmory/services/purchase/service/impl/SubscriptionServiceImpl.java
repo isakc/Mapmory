@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -141,7 +142,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("customer_uid", subscription.getCustomerUid());
-		map.put("merchant_uid", subscription.getMerchantUid());
+		map.put("merchant_uid", "subscription_"+subscription.getUserId()+"_"+LocalDateTime.now());
 		map.put("amount", "1000");
 		map.put("name", "정기 구독 결제");
 
@@ -149,7 +150,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 		
 		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/again", entity, String.class);
-		System.out.println(resultJson);
+		System.out.println("requestSub: " + resultJson);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
@@ -163,35 +164,30 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}//구독 결제 요청
 	
 	public Subscription schedulePay(Subscription subscription) throws Exception {
-		
-		LocalDateTime currentDateTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = currentDateTime.format(formatter);
+
+//		LocalDateTime currentDateTime = LocalDateTime.now();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        String formattedDateTime = currentDateTime.format(formatter);
+//		Calendar cal = Calendar.getInstance();
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+//		
+//		//cal.add(Calendar.DATE, +31);
+//		cal.add(Calendar.MINUTE, +1);
+//		String date = sdf.format(cal.getTime());
+//		
+//		try {
+//			Date stp = new Date();
+//			stp = sdf.parse(date);
+//			
+//			timestamp = stp.getTime()/1000;
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		} 
 		
 		long timestamp = 0;
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
-		
-		//cal.add(Calendar.DATE, +31);
-		cal.add(Calendar.MINUTE, +1);
-		String date = sdf.format(cal.getTime());
-		
-		try {
-			Date stp = new Date();
-			
-			if(subscription.getNextSubscriptionPaymentDate() == null) {
-				stp = sdf.parse(date);
-			}else {
-				LocalDateTime localDateTime = subscription.getNextSubscriptionPaymentDate();
-				ZoneId zoneId = ZoneId.systemDefault();
-		        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-		        stp = Date.from(zonedDateTime.toInstant());
-			}
-			
-			timestamp = stp.getTime()/1000;
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} 
+		LocalDateTime localDateTime = subscription.getNextSubscriptionPaymentDate();
+		Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
+		timestamp = instant.toEpochMilli();
 		 
 		 String accessToken = getPortOneToken();
 		 
@@ -201,7 +197,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		 headers.setBearerAuth(accessToken);//헤더에 access token 추가
 		 
 		 JsonObject scheduleJson = new JsonObject();
-		 scheduleJson.addProperty("merchant_uid", "subscription_"+subscription.getUserId() +"_"+ formattedDateTime);
+		 scheduleJson.addProperty("merchant_uid", "subscription_"+subscription.getUserId()+"_"+LocalDateTime.now() );
 		 scheduleJson.addProperty("schedule_at", timestamp);
 		 scheduleJson.addProperty("amount", 1000);
 		 scheduleJson.addProperty("name", "정기 결제 구독");
@@ -221,16 +217,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	     System.out.println(rootNode);
 	     
 	     // response 배열에서 merchant_uid와 schedule_at 추출
-	     String merchantUid = rootNode.get("response").get(0).get("merchant_uid").asText();
-	     long scheduleAtUnixTime = rootNode.get("response").get(0).get("schedule_at").asLong()+3;
+//	     String merchantUid = rootNode.get("response").get(0).get("merchant_uid").asText();
+//	     long scheduleAtUnixTime = rootNode.get("response").get(0).get("schedule_at").asLong()+3;
 	     
 	     // Unix 시간을 LocalDateTime으로 변환
-	     LocalDateTime nextSubscriptionPaymentDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(scheduleAtUnixTime), ZoneId.systemDefault());
-		 
-	     subscription.setMerchantUid(merchantUid);
-	     subscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
-	     subscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
-	     subscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
+//	     LocalDateTime nextSubscriptionPaymentDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(scheduleAtUnixTime), ZoneId.systemDefault());
+//		 
+//	     subscription.setMerchantUid(merchantUid);
+//	     subscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
+//	     subscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
+//	     subscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
 		 
 	     addSubscription(subscription);
 	     

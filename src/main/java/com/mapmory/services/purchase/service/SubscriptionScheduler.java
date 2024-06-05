@@ -23,6 +23,10 @@ public class SubscriptionScheduler {
 	        List<Subscription> subscriptions = subscriptionService.getTodaySubscriptionList();
 	        for (Subscription subscription : subscriptions) {
 	            try {
+	            	subscription.setNextSubscriptionPaymentDate(subscription.getNextSubscriptionPaymentDate().plusMinutes(1));
+	            	subscription.setSubscriptionStartDate(subscription.getNextSubscriptionPaymentDate());
+	            	subscription.setSubscriptionEndDate(subscription.getNextSubscriptionPaymentDate().plusMinutes(1));
+	            		
 	                subscriptionService.schedulePay(subscription);
 	            } catch (Exception e) {
 	                // 결제 실패 처리 로직
