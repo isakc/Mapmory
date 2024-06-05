@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Insert title here</title>
+    <title>상품 등록</title>
 </head>
-<body>
-<section class="page-title-section bg-img cover-background" data-background="/resources/bootstrap/img/bg/page-title.png">
-    <div class="container">
-        <div class="title-info text-center">
-            <h1>New Items</h1>
-        </div>
-        <div class="breadcrumbs-info text-center">
-            <ul class="ps-0">
-            </ul>
-        </div>
-    </div>
-</section>
 
-<section class="md">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-7 mx-auto">
-                <div class="common-block border-0">
-                    <div class="mb-5">
-                        <h4 class="mb-0 text-center">상품등록</h4>
-                    </div>
-                    <div class="container">
-                        <form th:action="@{/product/addProduct}" method="post" enctype="multipart/form-data" class="mx-auto col-sm-9 my-5">
-                            <div class="mb-3">
-                                <label class="font-12" for="pname">상품 이름</label>
-                                <input type="text" class="form-control input-style" id="productTitle" placeholder="상품이름 입력" name="productTitle" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="font-12" for="price">가격</label>
-                                <input type="text" class="form-control input-style" id="price" placeholder="시작금액 입력" name="price" required>
-                            </div>
-                            <input type="hidden" class="form-control input-style" id="writer" placeholder="" name="userId" value="admin">
-                            <label class="font-12" for="mainFileAttached">상품이미지</label>
-                            <input type="file" class="form-control input-style" name="uploadFile" accept=".gif, .jpg, .png, .jpeg, .gif" multiple required>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div style="text-align: center" class="font-13">
-                                        <button type="submit" class="col-sm-12 btn btn-dark mt-2 mb-0 display-30 py-3" id="regBtn">등록</button>
-                                        <img src = "https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/%ED%88%B4%EB%B0%94.png"/>
+<body>
+    <section class="page-title-section bg-img cover-background" data-background="/resources/bootstrap/img/bg/page-title.png">
+        <div class="container">
+            <div class="title-info text-center">
+                <h1>New Items</h1>
+            </div>
+            <div class="breadcrumbs-info text-center">
+                <ul class="ps-0">
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="md">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 mx-auto">
+                    <div class="common-block border-0">
+                        <div class="mb-5">
+                            <h4 class="mb-0 text-center">상품등록</h4>
+                        </div>
+                        <div class="container">
+                            <form th:action="@{/product/addProduct}" method="post" enctype="multipart/form-data" class="mx-auto col-sm-9 my-5">
+                                <div class="mb-3">
+                                    <label class="font-12" for="pname">상품 이름</label>
+                                    <input type="text" class="form-control input-style" id="productTitle" placeholder="상품이름 입력" name="productTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="font-12" for="price">가격</label>
+                                    <input type="text" class="form-control input-style" id="price" placeholder="시작금액 입력" name="price" required>
+                                </div>
+                                <input type="hidden" class="form-control input-style" id="writer" placeholder="" name="userId" value="admin">
+                                <label class="font-12" for="mainFileAttached">상품이미지</label>
+                                <input type="file" class="form-control input-style" name="uploadFile" accept=".gif, .jpg, .png, .jpeg, .gif" multiple required>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div style="text-align: center" class="font-13">
+                                            <button type="submit" class="col-sm-12 btn btn-dark mt-2 mb-0 display-30 py-3" id="regBtn">등록</button>
+                                            <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/%ED%88%B4%EB%B0%94.png" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 </body>
+
 </html>
