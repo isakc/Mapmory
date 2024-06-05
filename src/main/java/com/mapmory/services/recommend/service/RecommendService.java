@@ -2,6 +2,8 @@ package com.mapmory.services.recommend.service;
 
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
+
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.timeline.domain.Record;
 
@@ -18,11 +20,9 @@ public interface RecommendService {
 	
 	public void saveDatasetToCSV(Recommend recommend, String bucketName) throws Exception;
 	
-	public void updateDataset() throws Exception;
+	public void updateDataset(Recommend recommend) throws Exception;
 	
-	public void getRecommendData() throws Exception;
+	public ResponseEntity<String> getRecommendData(String userId) throws Exception;
 	
-	
-	
-	public void modifyCsvFile(String bucketName, String fileName) throws Exception;
+
 }
