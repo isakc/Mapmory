@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.Search;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @SpringBootTest

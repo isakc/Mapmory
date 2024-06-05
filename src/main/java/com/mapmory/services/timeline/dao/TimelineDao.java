@@ -5,12 +5,13 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.Record2;
-import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SearchDto;
 import com.mapmory.services.timeline.domain.SharedRecord;
 
 @Mapper
@@ -56,7 +57,10 @@ public interface TimelineDao {
 	
 	public List<SharedRecord> selectSharedRecordList(Search search) throws Exception;
 	
-	public List<Map<String, Object>> selectMapRecordList(Map<String,Object> map) throws Exception;
+	public List<Map<String, Object>> selectMapRecordList(SearchDto searchDto) throws Exception;
+	
+//	public List<String> selectFollowUserId(String userID) throws Exception;
+	
 	//아래 미사용
 //	public Record2 selectDetailTimeline2(int recordNo) throws Exception;
 //

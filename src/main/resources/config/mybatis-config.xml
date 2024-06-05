@@ -15,7 +15,7 @@
 		<typeAlias alias="product" type="com.mapmory.services.product.domain.Product" />
 		<typeAlias alias="purchase" type="com.mapmory.services.purchase.domain.Purchase" />
 		<typeAlias alias="subscription" type="com.mapmory.services.purchase.domain.Subscription" />
-		<typeAlias alias="timelineSearch" type="com.mapmory.services.timeline.domain.Search" />
+		<typeAlias alias="searchDto" type="com.mapmory.services.timeline.domain.SearchDto" />
 		<typeAlias alias="category" type="com.mapmory.services.timeline.domain.Category" />
 		<typeAlias alias="record" type="com.mapmory.services.timeline.domain.Record" />
 		<typeAlias alias="record2" type="com.mapmory.services.timeline.domain.Record2" />
