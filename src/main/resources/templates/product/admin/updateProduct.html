@@ -1,10 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>상품 수정</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".delete-image").click(function() {
+                var uuid = $(this).data("uuid");
+                if (confirm("정말로 이미지를 삭제하시겠습니까?")) {
+                    $(this).parent().remove();
+                    // AJAX 요청을 통해 이미지 삭제 처리
+                    $.ajax({
+                        url: "/product/deleteImage/" + uuid,
+                        type: "POST",
+                        success: function(response) {
+                            console.log("이미지 삭제 완료");
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("이미지 삭제 중 오류 발생: " + error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-
-</body>	
+    <h1>상품 수정</h1>
+    <form th:action="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}" th:object="${product}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{productNo}">
+        <div>
+            <label for="productTitle">제목:</label>
+            <input type="text" id="productTitle" th:field="*{productTitle}">
+        </div>
+        <div>
+            <label for="price">가격:</label>
+            <input type="number" id="price" th:field="*{price}">
+        </div>
+        <div>
+            <div th:each="uuid, iterStat : ${product.uuid}">
+                <img th:src="@{'https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/' + ${uuid}}" alt="상품 이미지" width="300" height="300">
+                <button type="button" class="delete-image" th:data-uuid="${uuid}">X</button>
+                
+            </div>
+        </div>
+        <div>
+            <label for="uploadFile">새로운 이미지 추가:</label>
+            <input type="file" id="uploadFile" name="uploadFile" multiple>
+        </div>
+        <button type="submit">수정</button>
+    </form>
+</body>
 </html>

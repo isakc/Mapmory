@@ -16,7 +16,7 @@ public interface ProductService {
 
     public Map<String,Object> getProductList(Search search) throws Exception;
 
-    public void updateProduct(Product product, List<String> imageFiles) throws Exception;
+    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception;
 
     public void deleteProduct(int productNo) throws Exception;
 

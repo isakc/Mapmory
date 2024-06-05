@@ -15,6 +15,7 @@ import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.domain.ProductImage;
 import com.mapmory.services.product.service.ProductService;
 import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
 
 @Service("productServiceImpl")
 public class ProductServiceImpl implements ProductService {
@@ -24,6 +25,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductImageDao productImageDao;
+    
+    @Autowired
+    private ObjectStorageUtil objectStorageUtil;
 
 //    @Override
 //    @Transactional
@@ -75,9 +79,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String,Object> getProductList(Search search) throws Exception {
     	
+    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
+        search.setPageSize(search.getPageSize());
+        
     	List<Product> productList = productDao.getProductList(search);
     	int totalCount = productDao.getProductTotalCount(search);
     	
+    	System.out.println("프로덕트 리스트입니다. " + productList);
     	
     	for (Product product : productList) {
             List<String> imageUuidList = productImageDao.getProductImageList(product.getProductNo());
@@ -93,24 +101,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public void updateProduct(Product product, List<String> imageFiles) throws Exception {
-    	productDao.updateProduct(product); 
-    	
-    	// 이미지 파일 업데이트
-        for (String imageFile : imageFiles) {
-            String uuid = ImageFileUtil.getProductImageUUIDFileName(imageFile);
+    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception {
+        productDao.updateProduct(product);
+
+        // 이미지 파일 업데이트
+        for (int i = 0; i < uuidFileNames.size(); i++) {
+            String uuid = uuidFileNames.get(i);
+            String originalFilename = originalFileNames.get(i);
+
             ProductImage productImage = new ProductImage();
             productImage.setProductNo(product.getProductNo());
-            productImage.setImageFile(imageFile);
-            productImage.setUuid(uuid); // UUID 설정
+            productImage.setImageFile(originalFilename);
+            productImage.setUuid(uuid);
             productImageDao.addProductImage(productImage);
         }
-        
     }
 
     @Override
     public void deleteProduct(int productNo) throws Exception {
     	
+    	List<String> imageUuidList = productImageDao.getProductImageList(productNo);
+        for (String uuid : imageUuidList) {
+            objectStorageUtil.deleteFile(uuid);
+        }
+        
     	productImageDao.deleteProductImage(productNo);
     	productDao.deleteProduct(productNo);
         
@@ -118,6 +132,8 @@ public class ProductServiceImpl implements ProductService {
     
     @Override
     public void deleteImage(String uuid) throws Exception {
+    	
+    	objectStorageUtil.deleteFile(uuid);
     	productImageDao.deleteImage(uuid);
     	
     }
