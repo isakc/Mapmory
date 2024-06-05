@@ -1,109 +1,82 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE mapper
-		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapmory.services.notice.dao.NoticeDao">
 
-	<resultMap type="notice" id="noticeSelectMap">
-	    <result property="noticeNo" column="notice_no" jdbcType="INTEGER"/>
-	    <result property="noticeTitle" column="notice_title" jdbcType="VARCHAR"/>
-	    <result property="noticeText" column="notice_text" jdbcType="VARCHAR"/>
-	    <result property="noticeRegDate" column="notice_reg_date" jdbcType="DATE"/>
-	    <result property="userId" column="user_id" jdbcType="VARCHAR"/>
-	    <result property="noticeType" column="notice_type" jdbcType="TINYINT"/>
-	</resultMap>
-	
-	<sql id="select-notice-list">
+    <resultMap type="notice" id="noticeSelectMap">
+        <result property="noticeNo" column="notice_no" jdbcType="INTEGER" />
+        <result property="noticeTitle" column="notice_title" jdbcType="VARCHAR" />
+        <result property="noticeText" column="notice_text" jdbcType="VARCHAR" />
+        <result property="noticeRegDate" column="notice_reg_date" jdbcType="DATE" />
+        <result property="userId" column="user_id" jdbcType="VARCHAR" />
+        <result property="noticeType" column="notice_type" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="select-notice-and-faq-list">
         SELECT
         notice_no, notice_title, notice_text,
-        notice_reg_date,user_id, notice_type,
+        notice_reg_date, user_id, notice_type,
         ROW_NUMBER() OVER (ORDER BY notice_no) AS row_seq
         FROM notice
-        WHERE notice_type = 0
     </sql>
-    
-    <sql id="select-faq-list">
-        SELECT
-        notice_no, notice_title, notice_text,
-        notice_reg_date,user_id, notice_type,
-        ROW_NUMBER() OVER (ORDER BY notice_no) AS row_seq
-        FROM notice
-        WHERE notice_type = 1
-    </sql>
-    
-	<insert id="addNotice" parameterType="notice">
-    	INSERT INTO notice (notice_title, notice_text, notice_reg_date, user_id, notice_type)
-    	VALUES (#{noticeTitle}, #{noticeText}, SYSDATE(), 
-            	(SELECT user_id FROM users WHERE user_id = #{userId}), 0)
+
+    <insert id="addNoticeOrFaq" parameterType="notice">
+		INSERT INTO notice (notice_title, notice_text, notice_reg_date, user_id, notice_type)
+		VALUES (#{noticeTitle}, #{noticeText}, SYSDATE(), #{userId}, #{noticeType})
 	</insert>
-	
-	<select id="getDetailNotice" resultType="notice" resultMap="noticeSelectMap">
-		SELECT
-            notice_no, notice_title, notice_text, notice_reg_date
+
+    <select id="getDetailNotice" resultType="notice" resultMap="noticeSelectMap">
+        SELECT
+        notice_title,notice_text,notice_no,notice_type
         FROM notice
         WHERE notice_no = #{noticeNo}
-	</select>
+    </select>
 
-	<select id="getNoticeList" parameterType="search" resultMap="noticeSelectMap">
-		SELECT *
-        FROM (
-        SELECT inner_table.*
-        FROM (
-        <include refid="select-notice-list"/>
-        ) inner_table
-        ) in_table
-        WHERE in_table.row_seq BETWEEN #{startRowNum} AND #{endRowNum}
+    <select id="getNoticeList" parameterType="search" resultMap="noticeSelectMap">
+	    <include refid="select-notice-and-faq-list" />
+	    WHERE notice_type = 0
+	    ORDER BY notice_no DESC
+	    LIMIT #{offset}, #{pageSize}
 	</select>
 	
-	<update id="updateNoticeAndFaq" parameterType="notice">
-		UPDATE notice
+	<select id="getFaqList" parameterType="search" resultMap="noticeSelectMap">
+	    <include refid="select-notice-and-faq-list" />
+	    WHERE notice_type = 1
+	    ORDER BY notice_no DESC
+	    LIMIT #{offset}, #{pageSize}
+	</select>
+
+    <update id="updateNoticeAndFaq" parameterType="notice">
+        UPDATE notice
         <set>
             notice_title = #{noticeTitle},
             notice_text = #{noticeText},
             notice_reg_date = SYSDATE()
         </set>
         WHERE notice_no= #{noticeNo}
-	</update>
-	
-	<delete id="deleteNoticeAndFaq" parameterType="notice">
-		DELETE FROM notice
-		WHERE notice_no = #{noticeNo}
-	</delete>
-	
-	<insert id="addFaq" parameterType="notice">
-    	INSERT INTO notice (notice_title, notice_text, notice_reg_date, user_id, notice_type)
-    	VALUES (#{noticeTitle}, #{noticeText}, SYSDATE(), 
-            	(SELECT user_id FROM users WHERE user_id = #{userId}), 1)
-	</insert>
-	
-	<select id="getFaqList" parameterType="search" resultMap="noticeSelectMap">
-		SELECT *
-        FROM (
-        SELECT inner_table.*
-        FROM (
-        <include refid="select-faq-list"/>
-        ) inner_table
-        ) in_table
-        WHERE in_table.row_seq BETWEEN #{startRowNum} AND #{endRowNum}
-	</select>
-	
-		 <select  id="getNoticeTotalCount"  parameterType="search"	 resultType="int">
-	  	SELECT COUNT(*)
-	  	FROM(	SELECT notice_no , notice_title , notice_text
-						FROM notice
-						<if test="searchCondition != null">
-							<where>
-								<if test="searchCondition == 0 and searchKeyword !='' ">
-						 			notice_title = #{searchKeyword}
-								</if>
-								<if test="searchCondition == 1 and searchKeyword !='' ">
-						 			notice_text = #{searchKeyword}
-								</if>
-							</where>
-						</if> ) countTable						
-	 </select>
-	
+    </update>
+
+    <delete id="deleteNoticeAndFaq" parameterType="notice">
+        DELETE FROM notice
+        WHERE notice_no = #{noticeNo}
+    </delete>
+
+    <select id="getNoticeTotalCount" parameterType="search" resultType="int">
+        SELECT COUNT(*)
+        FROM( SELECT notice_no , notice_title , notice_text
+        FROM notice
+        <if test="searchCondition != null">
+            <where>
+                <if test="searchCondition == 0 and searchKeyword !='' ">
+                    notice_title = #{searchKeyword}
+                </if>
+                <if test="searchCondition == 1 and searchKeyword !='' ">
+                    notice_text = #{searchKeyword}
+                </if>
+            </where>
+        </if> ) countTable
+    </select>
+
 
 </mapper>
