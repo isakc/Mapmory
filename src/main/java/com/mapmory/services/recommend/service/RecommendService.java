@@ -16,10 +16,13 @@ public interface RecommendService {
 	
 	public Recommend getRecordData(int recordNo) throws Exception;
 	
-	public void saveDatasetToCSV(Recommend recommend) throws Exception;
+	public void saveDatasetToCSV(Recommend recommend, String bucketName) throws Exception;
 	
 	public void updateDataset() throws Exception;
 	
 	public void getRecommendData() throws Exception;
+	
+	
+	
 	public void modifyCsvFile(String bucketName, String fileName) throws Exception;
 }

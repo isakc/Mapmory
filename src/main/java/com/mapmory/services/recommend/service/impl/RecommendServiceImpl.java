@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +157,7 @@ public class RecommendServiceImpl implements RecommendService {
 	@Override
 	public void updateDataset() throws Exception {
 		
-		String uri= "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";
+		String uri= "/api/v1/services/8j0xi1tr7n1/datasets/m6yz1ig2475";
 //		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
 		String url = "https://aitems.apigw.ntruss.com"+uri;
 		String timestamp = String.valueOf(System.currentTimeMillis());
@@ -225,7 +226,7 @@ public class RecommendServiceImpl implements RecommendService {
         
         try {
             String response = restTemplate.postForObject(url, entity, String.class);
-            System.out.println(response);
+            System.out.println(response+"complete");
         } catch (HttpClientErrorException e) {
             System.out.println("Error: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
         }
@@ -257,50 +258,115 @@ public class RecommendServiceImpl implements RecommendService {
 		System.out.println(response);
 	}
 	
-	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
-	public String makeSignature(String timestamp, String url, String method) throws Exception {
-		
-		
 	
-		String space = " ";					// one space
-		String newLine = "\n";					// new line
-//		String method = "GET";					// method
-//		String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
-//		String timestamp = time;			// current timestamp (epoch)
-		String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
-		String secretKey = aitems_Secret_Key;
-		
-		System.out.println(url);
-		System.out.println(accessKey);
-		System.out.println(secretKey);
-		System.out.println(timestamp);
-
-		String message = new StringBuilder()
-			.append(method)
-			.append(space)
-			.append(url)
-			.append(newLine)
-			.append(timestamp)
-			.append(newLine)
-			.append(accessKey)
-			.toString();
-		
-		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-		Mac mac = Mac.getInstance("HmacSHA256");
-		mac.init(signingKey);
-
-		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-		String encodeBase64String = Base64.encodeBase64String(rawHmac);
-
-	  return encodeBase64String;
-
-	
-	}
 
 	@Override
-	public void saveDatasetToCSV(Recommend recommend) throws Exception {
-		System.out.println("saveDatasetToCSV : "+recommend.toString());
+	public void saveDatasetToCSV(Recommend recommend, String bucketName) throws Exception {
 		
+//      Recommend(userId=user1, recordNo=0, recordTitle=기록 제목1, category=음식, hashTag=맛집|나가|중국집|3000원|굿, positive=96, timeStamp=1717551122)
+		String userId = recommend.getUserId();
+		String recordNo = String.valueOf(recommend.getRecordNo());
+		String recordTitle = recommend.getRecordTitle();
+		String category = recommend.getCategory();
+		String hashTag = recommend.getHashTag();
+		String positive = String.valueOf(recommend.getPositive());
+		String timeStamp = String.valueOf(recommend.getTimeStamp());
+		
+		
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(aitems_Access_Key, aitems_Secret_Key);
+        
+		String REGION = "kr-standard";
+	    String ENDPOINT = "https://kr.object.ncloudstorage.com";
+		
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withPathStyleAccessEnabled(true)
+                .build();
+        
+        //user.csv 
+        //CSV 파일 다운로드
+        S3Object s3Object = s3Client.getObject(bucketName, "dataset/user.csv");
+        InputStream inputStream = s3Object.getObjectContent();
+        CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        //CSV 파일 읽어오기
+        List<String[]> allData = csvReader.readAll();
+        csvReader.close();
+        
+        String[] userData = { userId , recordNo, positive, timeStamp};
+        
+        allData.add(userData);
+        
+        // Step 4: 수정된 CSV 파일을 로컬에 저장
+        String tempFileName = "temp_" + "user.csv";
+        FileWriter outputFile = new FileWriter(tempFileName);
+        CSVWriter writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        // Step 5: 수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, "dataset/user.csv", new File(tempFileName));
+
+        // Step 6: 로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+        System.out.println("user.csv 수정 완료");
+        
+        //item.csv 
+        //CSV 파일 다운로드
+        s3Object = s3Client.getObject(bucketName, "dataset/item.csv");
+        inputStream = s3Object.getObjectContent();
+        csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        //CSV 파일 읽어오기
+        allData = csvReader.readAll();
+        csvReader.close();
+        
+        String[] itemData = { recordNo, recordTitle, category};
+        
+        allData.add(itemData);
+        
+        // 수정된 CSV 파일을 로컬에 저장
+        tempFileName = "temp_" + "item.csv";
+        outputFile = new FileWriter(tempFileName);
+        writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        // 수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, "dataset/item.csv", new File(tempFileName));
+
+        // 로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+        System.out.println("itme.csv 수정 완료");
+        
+        //interaction.csv 
+        //CSV 파일 다운로드
+        s3Object = s3Client.getObject(bucketName, "dataset/interaction.csv");
+        inputStream = s3Object.getObjectContent();
+        csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        //CSV 파일 읽어오기
+        allData = csvReader.readAll();
+        csvReader.close();
+        
+        String[] interactionData = { userId, recordNo, hashTag, timeStamp};
+        
+        allData.add(interactionData);
+        
+        //수정된 CSV 파일을 로컬에 저장
+        tempFileName = "temp_" + "interaction.csv";
+        outputFile = new FileWriter(tempFileName);
+        writer = new CSVWriter(outputFile);
+        writer.writeAll(allData);
+        writer.close();
+
+        //수정된 CSV 파일을 Object Storage에 업로드
+        s3Client.putObject(bucketName, "dataset/interaction.csv", new File(tempFileName));
+
+        //로컬 임시 파일 삭제
+        new File(tempFileName).delete();
+        System.out.println("interaction.csv 수정 완료");
 	}
 	
 	
@@ -342,6 +408,53 @@ public class RecommendServiceImpl implements RecommendService {
         // Step 6: 로컬 임시 파일 삭제
         new File(tempFileName).delete();
     }
+	
+	
+	
+	
+	
+	
+	
+	
+	//api 호출할 때 필요한 x-ncp-apigw-signature-v2 값 얻어오기 https://api.ncloud-docs.com/docs/ko/common-ncpapi
+		public String makeSignature(String timestamp, String url, String method) throws Exception {
+			
+			
+		
+			String space = " ";					// one space
+			String newLine = "\n";					// new line
+//			String method = "GET";					// method
+//			String url = "/api/v1/services/r0g5crs583y/datasets/m6yz1ig2475";	// url (include query string)
+//			String timestamp = time;			// current timestamp (epoch)
+			String accessKey = aitems_Access_Key;			// access key id (from portal or Sub Account)
+			String secretKey = aitems_Secret_Key;
+			
+			System.out.println(url);
+			System.out.println(accessKey);
+			System.out.println(secretKey);
+			System.out.println(timestamp);
+
+			String message = new StringBuilder()
+				.append(method)
+				.append(space)
+				.append(url)
+				.append(newLine)
+				.append(timestamp)
+				.append(newLine)
+				.append(accessKey)
+				.toString();
+			
+			SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(signingKey);
+
+			byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+			String encodeBase64String = Base64.encodeBase64String(rawHmac);
+
+		  return encodeBase64String;
+
+		
+		}
 }
 
 	

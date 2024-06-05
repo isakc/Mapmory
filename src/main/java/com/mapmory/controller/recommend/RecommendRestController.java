@@ -32,7 +32,7 @@ public class RecommendRestController {
 	    	
 	    	
 	    	
-//	    	int positive = recommendService.getPositive(requestPayload);
+	    	//긍정도 값 받기
 	    	int positive = recommendService.getPositive(recordText);
 	    	recommend.setPositive(positive);
 	    	System.out.println("positive : "+positive);
@@ -43,9 +43,10 @@ public class RecommendRestController {
 //	    	recommend.setCategory(category);
 //	    	System.out.println(category);
 	    	
-//	    	recommendService.updateDataset();
-//	    	recommendService.saveDatasetToCSV(recommend);
-	    	recommendService.getRecommendData();
+	    	
+//	    	recommendService.updateDataset(); //주기학습 데이터 업로드 
+	    	recommendService.saveDatasetToCSV(recommend,"aitems-8982956307867"); //추천 데이터 csv파일로 만들기
+//	    	recommendService.getRecommendData(); //추천받기
 	    	
 //	    	System.out.println(recommend.toString());
 	    	
