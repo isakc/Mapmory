@@ -16,6 +16,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class Subscription {
+	private int subscriptionNo;
 	private String userId;
 	private int nextPaymentMethod;
 	private String nextSubscriptionCardType;

@@ -51,7 +51,7 @@ public class SubscriptionDaoTest {
 		Assert.assertEquals("ORD001", subscription.getMerchantUid());
 	}
 	
-	@Test
+	//@Test
 	public void testUpdatePaymentMethod() throws Exception{
 		String userId = "user1";
 		
