@@ -13,7 +13,7 @@
 			<result property="recordNo"			column="record_no"			jdbcType="INTEGER"/>
 			<result property="replyNo"			column="reply_no"			jdbcType="INTEGER"/>
 			<result property="reportNo"			column="report_no"			jdbcType="INTEGER"/>
-			<result property="chatRoomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
+			<result property="chatroomNo"		column="chatroom_no"		jdbcType="INTEGER"/>
 			<result property="logsType"			column="logs_type"			jdbcType="INTEGER"/>
 			<result property="replyText"		column="reply_text"			jdbcType="VARCHAR"/>
 			<result property="replyImageName"	column="reply_image_name"	jdbcType="VARCHAR"/>
