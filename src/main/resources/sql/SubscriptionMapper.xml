@@ -29,31 +29,15 @@
 		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
 				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
 		FROM subscription
-		<!-- WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date -->
-		WHERE user_id = #{userId}
-		ORDER BY subscription_end_date DESC
-		LIMIT 1;
+		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>
-		<!-- UPDATE subscription 
+		UPDATE subscription 
 		SET next_subscription_payment_method = #{nextPaymentMethod},
 			next_subscription_card_type = #{nextSubscriptionCardType},
-			next_subscription_last_four_digits= #{nextSubscriptionLastFourDigits},
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date -->
-		
-		UPDATE subscription 
-		SET next_subscription_payment_method = #{nextPaymentMethod}
-		WHERE user_id = (
-    		SELECT user_id 
-    		FROM (
-        		SELECT user_id
-        		FROM subscription
-        		WHERE user_id = #{userId}
-        		ORDER BY next_subscription_payment_date DESC
-        		LIMIT 1
-    		) t
-		);
+			next_subscription_last_four_digits= #{nextSubscriptionLastFourDigits}
+		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date;
 	</update>
 	
 	<update id="deleteSubscription" parameterType="string">
@@ -68,12 +52,15 @@
 		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
 				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
 		FROM subscription
-		where DATE(next_subscription_payment_date) = CURDATE();
+		<!-- where DATE(next_subscription_payment_date) = CURDATE(); 오늘 날짜까지 같은 경우--> 
+		WHERE next_subscription_payment_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 MINUTE); <!-- 테스트용: 분까지 -->
+		
 	</select>
 	
 	<select id="countSubscription" parameterType="string" resultType="int">
 		SELECT count(*)
 		FROM mapmory_db.subscription
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date;
+		<!-- WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date; -->
+		 WHERE user_id = #{userId} AND NOW() BETWEEN AND DATE_ADD(NOW(), INTERVAL 1 MINUTE); <!-- 테스트용: 분까지  -->
 	</select>
 </mapper>
