@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.GeoUtil;
-import com.mapmory.services.map.domain.SearchMarker;
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -21,7 +22,7 @@ import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.RecordDto;
-import com.mapmory.services.timeline.domain.Search;
+import com.mapmory.services.timeline.domain.SearchDto;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -49,14 +50,14 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Override
 	public Record getDetailTimeline(int recordNo) throws Exception{
-		return recordToMap(timelineDao.selectDetailTimeline(recordNo));
+		return TimelineUtil.recordToMap(timelineDao.selectDetailTimeline(recordNo));
 	}
 	
 	@Override
 	public List<Record> getTimelineList(Search search) throws Exception{
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
-			recordList.add(recordToMap(map));
+			recordList.add(TimelineUtil.recordToMap(map));
 		}
 		return recordList;
 	}
@@ -81,31 +82,6 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
-	//map을 record로 묶어주는 기능
-	@Override
-	public Record recordToMap(Map<String, Object> map) throws Exception {
-		Record record=Record.builder()
-				.recordNo((int)map.get("recordNo"))
-				.recordUserId((String)map.get("recordUserId"))
-				.recordTitle((String)map.get("recordTitle"))
-				.latitude((Double)map.get("latitude"))
-				.longitude((Double)map.get("longitude"))
-				.checkpointAddress((String)map.get("checkpointAddress"))
-				.checkpointDate((LocalDateTime)map.get("checkpointDate"))
-				.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
-				.imageName((List<String>)map.get("imageName"))
-				.hashtag((List<String>)map.get("hashtag"))
-				.categoryNo((Integer)map.get("categoryNo"))
-				.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
-				.tempType((Integer)map.get("tempType"))
-				.recordAddDate((LocalDateTime)map.get("recordAddDate"))
-				.sharedDate((LocalDateTime)map.get("sharedDate"))
-				.updateCount((Integer)map.get("updateCount"))
-				.d_DayDate((Date)map.get("d_DayDate"))
-				.timecapsuleType((Integer)map.get("timecapsuleType"))
-				.build();
-		return record;
-	}
 	//record select시 imageNo 못가져와서 가져오는 image select
 	@Override
 	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
@@ -152,17 +128,22 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 
 	@Override
-	public List<Record> getMapRecordList(com.mapmory.common.domain.Search searchMarker) throws Exception {
-		Map<String, Object> map=GeoUtil.calculateRadius(searchMarker.getLatitude(), searchMarker.getLongitude(), searchMarker.getRadius());
-		map.put("fallowType", searchMarker.getFollowType());
-		map.put("userId", searchMarker.getUserId());
-		map.put("limit", searchMarker.getLimit());
-		map.put("sharedType", searchMarker.getSharedType());
-		map.put("offset", searchMarker.getOffset());
+	public List<Record> getMapRecordList(Search search) throws Exception {
+		SearchDto searchDto=GeoUtil.calculateRadius(search.getLatitude(), search.getLongitude(), search.getRadius());
+		searchDto.setUserId(search.getUserId() );
+		searchDto.setFollowType(search.getFollowType() );
+//		searchDto.setUserIdList(timelineDao.selectFollowUserId(search.getUserId()) );
+//		System.out.println("searchDto.getUserIdList() : "+searchDto.getUserIdList());
+		searchDto.setLimit(search.getLimit() );
+		searchDto.setSharedType(search.getSharedType() );
+		searchDto.setOffset(search.getOffset() );
 		List<Record> recordList=new ArrayList<Record>();
-		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(map)) {
-			recordList.add(recordToMap(tempMap));
+		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
+			Record record =TimelineUtil.recordToMap(tempMap);
+			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
+			recordList.add(record);
 		}
+		GeoUtil.sortByDistance(recordList);
 		return recordList;
 	}
 	

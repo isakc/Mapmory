@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>상품 상세</title>
+</head>
+
+<body>
+    <h1>상품 상세</h1>
+    <div>
+        <h2 th:text="${notice.noticeTitle}">상품 제목</h2>
+        <p th:text="${notice.noticeText}">가격</p>
+        <a th:href="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}">수정</a>
+        <a th:href="@{/notice/deleteNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+    </div>
+</body>
+
+</html>

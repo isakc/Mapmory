@@ -3,11 +3,10 @@ package com.mapmory.services.timeline.service;
 import java.util.List;
 import java.util.Map;
 
-import com.mapmory.services.map.domain.SearchMarker;
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.Search;
 import com.mapmory.services.timeline.domain.SharedRecord;
 
 public interface TimelineService {
@@ -21,8 +20,6 @@ public interface TimelineService {
 	public void updateTimeline(Record record) throws Exception;
 	
 	public void deleteTimeline(int recordNo) throws Exception;
-	//map을 record로 묶어주는 기능
-	public Record recordToMap(Map<String,Object> map) throws Exception;
 	//record select시 imageNo 못가져와서 가져오는 image select
 	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception;
 	//image만 삭제
@@ -43,7 +40,7 @@ public interface TimelineService {
 	
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception;
 	
-	public List<Record> getMapRecordList(com.mapmory.common.domain.Search searchMarker) throws Exception;
+	public List<Record> getMapRecordList(Search searchMarker) throws Exception;
 	
 	
 	

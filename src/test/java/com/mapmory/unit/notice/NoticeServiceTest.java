@@ -61,7 +61,7 @@ public class NoticeServiceTest {
 		notice.setNoticeText("테스트클래스 내용입니다.");
 		notice.setUserId("admin");
 		
-		noticeService.addNotice(notice);
+		noticeService.addNoticeOrFaq(notice);
 		
 		notice = noticeService.getDetailNotice(11);
 		
@@ -88,19 +88,4 @@ public class NoticeServiceTest {
 		noticeService.deleteNoticeAndFaq(13);
 	}
 	
-	//@Test
-	public void TestAddFaq() throws Exception {
-		
-		Notice notice = new Notice();
-		
-		notice.setNoticeTitle("테스트클래스 작성중입니다");
-		notice.setNoticeText("테스트클래스 내용입니다.");
-		notice.setUserId("admin");
-
-		noticeService.addFaq(notice);
-		
-		notice = noticeService.getDetailNotice(17);
-		
-		System.out.println(notice);
-	}
 }

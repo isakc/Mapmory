@@ -6,16 +6,21 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.policy.Resource;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 
 @Component
 public class ObjectStorageUtil {
@@ -52,9 +57,7 @@ public class ObjectStorageUtil {
 	    String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
 	    AmazonS3 s3Client = getS3Client();
 	    PutObjectResult result = s3Client.putObject(new PutObjectRequest(bucketName, key, localFile));
-	    // 업로드 성공 후 처리할 로직 추가
 	}
-        // 업로드 성공 후 처리할 로직 추가
     
     private File convertMultiPartToFile(MultipartFile file) throws Exception {
         String tempDir = System.getProperty("java.io.tmpdir");
@@ -62,5 +65,22 @@ public class ObjectStorageUtil {
         Files.copy(file.getInputStream(), Paths.get(convFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
         return convFile;
     }
-	
+    
+    public void deleteFile(String uuidFileName) throws Exception {
+        String key = folderName + "/" + uuidFileName;
+        AmazonS3 s3Client = getS3Client();
+        s3Client.deleteObject(bucketName, key);
+    }
+    
+    //상품 주소 가리기
+    public ByteArrayResource getImageResource(String uuid) throws Exception {
+        AmazonS3 s3Client = getS3Client();
+        String key = folderName + "/" + uuid;
+        S3Object s3Object = s3Client.getObject(bucketName, key);
+        S3ObjectInputStream inputStream = s3Object.getObjectContent();
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        ByteArrayResource resource = new ByteArrayResource(bytes);
+        return resource;
+    }
+
 }

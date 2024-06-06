@@ -13,9 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.mapmory.services.map.domain.SearchMarker;
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.Search;
 import com.mapmory.services.timeline.service.TimelineService;
 
 
@@ -121,35 +120,45 @@ public class TimelineController {
 				.selectDay2(LocalDateTime.parse("2024-06-05T00:00:00"))
 				.build();
 		model.addAttribute("list11",timelineService.getTimelineList(search));
-		com.mapmory.common.domain.Search searchMarker=com.mapmory.common.domain.Search.builder()
-	 			.latitude(39.345678)
-	 			.longitude(129.345678)
+		
+		//성문 지원
+		search=Search.builder()
+	 			.latitude(33.450701)
+	 			.longitude(126.570667)
 	 			.radius(110)
-	 			.limit(30)
+	 			.limit(10)
 	 			.userId("user1")
 	 			.followType(1)
 	 			.currentPage(1)
 				.build();
-		model.addAttribute("list12",timelineService.getMapRecordList(searchMarker));
-		searchMarker=com.mapmory.common.domain.Search.builder()
-	 			.latitude(39.345678)
-	 			.longitude(129.345678)
+		model.addAttribute("list12",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(33.450701)
+	 			.longitude(126.570667)
 	 			.radius(110)
-	 			.limit(30)
-	 			.userId("user2")
+	 			.limit(10)
+	 			.userId("user1")
 	 			.sharedType(1)
 	 			.currentPage(1)
 				.build();
-		model.addAttribute("list13",timelineService.getMapRecordList(searchMarker));
-		searchMarker=com.mapmory.common.domain.Search.builder()
-	 			.latitude(39.345678)
-	 			.longitude(129.345678)
+		model.addAttribute("list13",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(37.56789)
+	 			.longitude(127.345678)
 	 			.radius(110)
-	 			.limit(30)
-	 			.userId("user2")
+	 			.limit(10)
+	 			.userId("user1")
 	 			.currentPage(1)
 				.build();
-		model.addAttribute("list14",timelineService.getMapRecordList(searchMarker));
+		model.addAttribute("list14",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(33.450701)
+	 			.longitude(126.570667)
+	 			.radius(110)
+	 			.limit(5)
+	 			.currentPage(1)
+				.build();
+		model.addAttribute("list15",timelineService.getMapRecordList(search));
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{
