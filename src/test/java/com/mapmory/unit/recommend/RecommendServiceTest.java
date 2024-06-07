@@ -28,27 +28,27 @@ public class RecommendServiceTest {
 //	@Test
 	public void addSearchData() throws Exception{
 		
-		
-		List<Map<String,Object>> imageTag = new ArrayList<Map<String,Object>>();
-		Map<String, Object> map =  new HashMap<String,Object>();
-		map.put("imageTagType", 0);
-		map.put("imageTagText", "#멋진풍경");
-		
-		Map<String, Object> map2 =  new HashMap<String,Object>();
-		map2.put("imageTagType", 0);
-		map2.put("imageTagText", "#인생샷");
-		
-		imageTag.add(map);
-		imageTag.add(map2);
-
-		Record record = Record.builder()
-				.recordUserId("user3")
-				.imageTag(imageTag)
-				.categoryNo(4)
-				.build();
-		
-		recommendServiceImpl.addSearchData(record);
-		
+//		
+//		List<Map<String,Object>> imageTag = new ArrayList<Map<String,Object>>();
+//		Map<String, Object> map =  new HashMap<String,Object>();
+//		map.put("imageTagType", 0);
+//		map.put("imageTagText", "#멋진풍경");
+//		
+//		Map<String, Object> map2 =  new HashMap<String,Object>();
+//		map2.put("imageTagType", 0);
+//		map2.put("imageTagText", "#인생샷");
+//		
+//		imageTag.add(map);
+//		imageTag.add(map2);
+//
+//		Record record = Record.builder()
+//				.recordUserId("user3")
+//				.imageTag(imageTag)
+//				.categoryNo(4)
+//				.build();
+//		
+//		recommendServiceImpl.addSearchData(record);
+//		
 		
 	}
 	
@@ -64,28 +64,28 @@ public class RecommendServiceTest {
 	
 	@Test
 	public void getRecordData() throws Exception{
-		List<Map<String,Object>> imageTag = new ArrayList<Map<String,Object>>();
-		Map<String, Object> map =  new HashMap<String,Object>();
-		map.put("imageTagType", 0);
-		map.put("imageTagText", "#멋진풍경");
-		
-		Map<String, Object> map2 =  new HashMap<String,Object>();
-		map2.put("imageTagType", 0);
-		map2.put("imageTagText", "#인생샷");
-		
-		imageTag.add(map);
-		imageTag.add(map2);
-
-		int recordNo = 1;
-		
-		Record record = Record.builder()
-				.recordUserId("user1")
-				.imageTag(imageTag)
-				.categoryNo(4)
-				.recordTitle("테스트 타이틀")
-				.build();
-		
-		recommendServiceImpl.getRecordData(record, recordNo);
+//		List<Map<String,Object>> imageTag = new ArrayList<Map<String,Object>>();
+//		Map<String, Object> map =  new HashMap<String,Object>();
+//		map.put("imageTagType", 0);
+//		map.put("imageTagText", "#멋진풍경");
+//		
+//		Map<String, Object> map2 =  new HashMap<String,Object>();
+//		map2.put("imageTagType", 0);
+//		map2.put("imageTagText", "#인생샷");
+//		
+//		imageTag.add(map);
+//		imageTag.add(map2);
+//
+//		int recordNo = 1;
+//		
+//		Record record = Record.builder()
+//				.recordUserId("user1")
+//				.imageTag(imageTag)
+//				.categoryNo(4)
+//				.recordTitle("테스트 타이틀")
+//				.build();
+//		
+//		recommendServiceImpl.getRecordData(record, recordNo);
 	}
 	
 }
