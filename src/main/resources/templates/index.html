@@ -266,10 +266,10 @@ $("#convertButton").click(function() {
         mediaRecorder.stop();
     
         mediaRecorder.addEventListener("stop", () => {
-            audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+            audioBlob = new Blob(recordedChunks, { type: 'audio/mp3' });
             
             const formData = new FormData();
-            formData.append('audioFile', audioBlob, 'recording.wav');
+            formData.append('audioFile', audioBlob, 'recording.mp3');
     
             fetch('/recommend/upload', {
                 method: 'POST',
