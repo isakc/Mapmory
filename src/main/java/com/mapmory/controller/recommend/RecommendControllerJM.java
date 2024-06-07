@@ -5,12 +5,16 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 
+@RestController
+@RequestMapping("recommend/*")
 public class RecommendControllerJM {
 
 	@Autowired
