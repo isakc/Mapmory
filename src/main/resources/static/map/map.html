@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>맵</title>
+<style>
+	html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+</style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/javascript/config/key.js"></script>
+	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
+	
+	<script th:inline="javascript">
+	
+		$(document).ready(function() {
+			const test = API_KEYS.tmap;
+			
+			var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+			mapOption = {
+				center : new kakao.maps.LatLng(37.499396, 127.029038), // 지도의 중심좌표
+				level : 3 // 지도의 확대 레벨
+			};
+
+			var map = new kakao.maps.Map(mapContainer, mapOption); // 지도 생성
+
+			if (navigator.geolocation) {
+				
+			    navigator.geolocation.getCurrentPosition(function(position) { // GeoLocation을 이용해서 접속 위치 얻어옴
+			        
+			        var lat = position.coords.latitude, // 현재 위도
+			            lon = position.coords.longitude; // 현재 경도
+			        
+			        var locPosition = new kakao.maps.LatLng(lat, lon); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
+			        
+			        map.setCenter(locPosition); // map 보이는 center 변경 
+			      });
+			}// 위치 알림 허용
+			
+			
+			$.ajax({
+				url : 'http://localhost:8000/timeline/getDetailTimeline2', // 요청을 보낼 URL을 입력
+				method : 'GET',
+				success : function(response) {
+					console.log('Success:', response);
+				},
+				error : function(error) {
+					console.log('Error:', error);
+				}
+			});// 페이지가 로드되면 AJAX 요청 보내기
+			
+		});// onload시 실행
+		
+		
+		
+		
+	</script>
+	
+</head>
+<body>
+	<div id="mapWrap" style="width: 100%; height: 100%;">
+		<div id="map" style="width: 100%; height: 100%;"></div>
+	</div>
+</body>
+</html>

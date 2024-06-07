@@ -25,7 +25,7 @@ public interface SubscriptionService {
 	
 	public boolean requestSubscription(Subscription subscription) throws Exception;
 	
-	public Subscription schedulePay(Subscription subscription) throws Exception;
+	public boolean schedulePay(Subscription subscription) throws Exception;
 
 	public List<Subscription> getTodaySubscriptionList() throws Exception;
 	

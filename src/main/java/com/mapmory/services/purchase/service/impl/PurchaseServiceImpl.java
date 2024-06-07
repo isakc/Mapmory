@@ -46,26 +46,36 @@ public class PurchaseServiceImpl implements PurchaseService {
 	
 	@Override
 	public void addPurchase(Purchase purchase) throws Exception {
+		
 		purchaseDao.addPurchase(purchase);
-	}//addPurchase
+		
+	}// addPurchase
 
 	@Override
 	public Purchase getPurchase(int purchaseNo) throws Exception {
+		
 		return purchaseDao.getPurchase(purchaseNo);
-	}//getPurchase
+		
+	}// getPurchase
 
 	@Override
 	public List<Purchase> getPurchaseList(String userId) throws Exception {
+		
 		return purchaseDao.getPurchaseList(userId);
-	}//getPurchaseList
+		
+	}// getPurchaseList
 
 	@Override
 	public int getPurchaseTotalCount(String userId) throws Exception {
+		
 		return purchaseDao.getPurchaseTotalCount(userId);
-	}//getPurchaseTotalCount
+		
+	}// getPurchaseTotalCount
 
 	@Override
 	public IamportResponse<Payment> validatePurchase(String impUid) throws IamportResponseException, IOException {
+		
 		return iamportClient.paymentByImpUid(impUid);
-	}//validatePurchase
+		
+	}// validatePurchase
 }

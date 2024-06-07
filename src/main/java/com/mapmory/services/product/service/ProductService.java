@@ -10,7 +10,7 @@ import com.mapmory.services.product.domain.ProductImage;
 public interface ProductService {
 
 //    public void addProduct(Product product, List<String> imageFiles) throws Exception;
-	public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception;
+	public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames,List<String> imageTag) throws Exception;
 
     public Product getDetailProduct(int productNo) throws Exception;
 
@@ -25,4 +25,10 @@ public interface ProductService {
     public Map<String,Object> getProductImages(int productNo) throws Exception;
     
     public void deleteImage(String uuid) throws Exception;
+    
+    public String getImageUrlByImageTag(String imageTag) throws Exception;
+    
+    public void processImageWithTag(String imageTag) throws Exception;
+    
+    ProductImage getImageByTag(String imageTag) throws Exception;
 }
