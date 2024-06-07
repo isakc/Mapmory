@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.GeoUtil;
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -49,14 +50,14 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Override
 	public Record getDetailTimeline(int recordNo) throws Exception{
-		return recordToMap(timelineDao.selectDetailTimeline(recordNo));
+		return TimelineUtil.recordToMap(timelineDao.selectDetailTimeline(recordNo));
 	}
 	
 	@Override
 	public List<Record> getTimelineList(Search search) throws Exception{
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
-			recordList.add(recordToMap(map));
+			recordList.add(TimelineUtil.recordToMap(map));
 		}
 		return recordList;
 	}
@@ -81,31 +82,6 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
-	//map을 record로 묶어주는 기능
-	@Override
-	public Record recordToMap(Map<String, Object> map) throws Exception {
-		Record record=Record.builder()
-				.recordNo((int)map.get("recordNo"))
-				.recordUserId((String)map.get("recordUserId"))
-				.recordTitle((String)map.get("recordTitle"))
-				.latitude((Double)map.get("latitude"))
-				.longitude((Double)map.get("longitude"))
-				.checkpointAddress((String)map.get("checkpointAddress"))
-				.checkpointDate((LocalDateTime)map.get("checkpointDate"))
-				.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
-				.imageName((List<String>)map.get("imageName"))
-				.hashtag((List<String>)map.get("hashtag"))
-				.categoryNo((Integer)map.get("categoryNo"))
-				.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
-				.tempType((Integer)map.get("tempType"))
-				.recordAddDate((LocalDateTime)map.get("recordAddDate"))
-				.sharedDate((LocalDateTime)map.get("sharedDate"))
-				.updateCount((Integer)map.get("updateCount"))
-				.d_DayDate((Date)map.get("d_DayDate"))
-				.timecapsuleType((Integer)map.get("timecapsuleType"))
-				.build();
-		return record;
-	}
 	//record select시 imageNo 못가져와서 가져오는 image select
 	@Override
 	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
@@ -163,7 +139,7 @@ public class TimelineServiceImpl implements TimelineService {
 		searchDto.setOffset(search.getOffset() );
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
-			Record record =recordToMap(tempMap);
+			Record record =TimelineUtil.recordToMap(tempMap);
 			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
 			recordList.add(record);
 		}
