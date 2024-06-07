@@ -33,7 +33,10 @@ build/
 .vscode/
 
 # 키 관련 프로퍼티 파일
-application-key.properties
+src/main/resources/application-key.properties
 
 # DB, mybatis
-datasource-mybatis.properties
+src/main/resources/datasource-mybatis.properties
+
+# javascript key
+src/main/resources/static/javascript/config/key.js
