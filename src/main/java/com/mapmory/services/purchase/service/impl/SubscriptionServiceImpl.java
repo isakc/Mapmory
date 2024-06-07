@@ -1,18 +1,10 @@
 package com.mapmory.services.purchase.service.impl;
 
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +29,6 @@ import com.mapmory.services.purchase.domain.IamportToken;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.PurchaseService;
-import com.mapmory.services.purchase.service.SubscriptionScheduler;
 import com.mapmory.services.purchase.service.SubscriptionService;
 
 @Service("subscriptionServiceImpl")
@@ -75,23 +66,45 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		
 		purchaseService.addPurchase(purchase);
 		subscriptionDao.addSubscription(subscription); // DB에 구독 정보 저장
-	}//addSubscription
+	}// addSubscription: 구독 DB에 저장
 
 	@Override
 	public Subscription getDetailSubscription(String userId) throws Exception {
 		Subscription subscription = subscriptionDao.getDetailSubscription(userId);
 		
 		return subscription;
-	}//getDetailSubscription
+	}// getDetailSubscription
 
 	@Override
 	public void updatePaymentMethod(Subscription subscription) throws Exception {
 		
-		deleteSubscription(subscription.getUserId());
+		Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
+		
+		subscription.setSubscriptionStartDate(currentSubscription.getSubscriptionStartDate());
+		subscription.setSubscriptionEndDate(currentSubscription.getSubscriptionEndDate());
+		subscription.setNextSubscriptionPaymentDate(currentSubscription.getNextSubscriptionPaymentDate());
+		
+		String accessToken = getPortOneToken();
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(accessToken);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("customer_uid", subscription.getCustomerUid());
+		
+		String requestJson = new Gson().toJson(map);
+		HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, headers);
+		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/unschedule", requestEntity, String.class);
+		System.out.println("update resultJson: " + requestJson);
+		
+        subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
+		schedulePay(subscription);
 		
 		subscriptionDao.updatePaymentMethod(subscription);
 		
-	}//updatePaymentMethod
+	}// updatePaymentMethod
 
 	@Override
 	public void deleteSubscription(String userId) throws Exception {
@@ -105,30 +118,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		Subscription subscription = getDetailSubscription(userId);
 		Map<String, Object> map = new HashMap<>();
 		map.put("customer_uid", subscription.getCustomerUid());
-		map.put("merchant_uid", subscription.getMerchantUid());
 
 		String requestJson = new Gson().toJson(map);
-		
 		HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, headers);
-		
-		ResponseEntity<String> unscheduleResponseEntity = restTemplate.exchange(
-			    "https://api.iamport.kr/subscribe/payments/unschedule",
-			    HttpMethod.POST,
-			    requestEntity,
-			    String.class
-			);
-		
-//		ResponseEntity<String> deleteResponseEntity = restTemplate.exchange(
-//			    "https://api.iamport.kr/subscribe/customers/{customer_uid}",
-//			    HttpMethod.DELETE,
-//			    requestEntity,
-//			    String.class,
-//			    subscription.getCustomerUid()
-//			);
+		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/unschedule", requestEntity, String.class);
+		System.out.println("delete resultJson: " + requestJson);
 		
 		subscriptionDao.deleteSubscription(userId);
-	}//deleteSubscription
-	
+	}// deleteSubscription
 	
 	@Override
 	public boolean requestSubscription(Subscription subscription) throws Exception {
@@ -150,44 +147,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		String requestJson = new Gson().toJson(map);
 		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
 		String resultJson = restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/again", entity, String.class);
-		System.out.println("resultJson: " + resultJson);
+		
+		System.out.println("request resultJson: " + resultJson);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 		String status = rootNode.get("response").get("status").asText();
-		
 		
 		if(status.equals("paid")) {
 			return true;
 		}
 		
 		return false;
-	}//구독 결제 요청
+	}// requestSubscription: 첫 구독 시 결제 요청
 	
-	public Subscription schedulePay(Subscription subscription) throws Exception {
-
-//		LocalDateTime currentDateTime = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        String formattedDateTime = currentDateTime.format(formatter);
-//		Calendar cal = Calendar.getInstance();
-//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
-//		
-//		//cal.add(Calendar.DATE, +31);
-//		cal.add(Calendar.MINUTE, +1);
-//		String date = sdf.format(cal.getTime());
-//		
-//		try {
-//			Date stp = new Date();
-//			stp = sdf.parse(date);
-//			
-//			timestamp = stp.getTime()/1000;
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		} 
+	public boolean schedulePay(Subscription subscription) throws Exception {
 		
 		long timestamp = 0;
 		LocalDateTime localDateTime = subscription.getNextSubscriptionPaymentDate();
-		Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
+		Instant instant = localDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant(); //한국시간으로 변경
 		timestamp = instant.getEpochSecond();
 		 
 		 String accessToken = getPortOneToken();
@@ -196,8 +174,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		 HttpHeaders headers = new HttpHeaders();
 		 headers.setContentType(MediaType.APPLICATION_JSON);
 		 headers.setBearerAuth(accessToken);//헤더에 access token 추가
-		 
-		 subscription.setMerchantUid("subscription_"+subscription.getUserId()+"_"+LocalDateTime.now());
 		 
 		 JsonObject scheduleJson = new JsonObject();
 		 scheduleJson.addProperty("merchant_uid", subscription.getMerchantUid() );
@@ -217,29 +193,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		 
 		 ObjectMapper objectMapper = new ObjectMapper();
 	     JsonNode rootNode = objectMapper.readTree(restTemplate.postForObject("https://api.iamport.kr/subscribe/payments/schedule", entity, String.class));
-	     System.out.println(rootNode);
+	     String status = rootNode.get("code").asText();
 	     
-	     // response 배열에서 merchant_uid와 schedule_at 추출
-//	     String merchantUid = rootNode.get("response").get(0).get("merchant_uid").asText();
-//	     long scheduleAtUnixTime = rootNode.get("response").get(0).get("schedule_at").asLong()+3;
+	     System.out.println("schedulepay: " + rootNode);
 	     
-	     // Unix 시간을 LocalDateTime으로 변환
-//	     LocalDateTime nextSubscriptionPaymentDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(scheduleAtUnixTime), ZoneId.systemDefault());
-//		 
-//	     subscription.setMerchantUid(merchantUid);
-//	     subscription.setNextSubscriptionPaymentDate(nextSubscriptionPaymentDate);
-//	     subscription.setSubscriptionStartDate(nextSubscriptionPaymentDate.plusMinutes(-1));
-//	     subscription.setSubscriptionEndDate(nextSubscriptionPaymentDate);
+	     if(status.equals("0")) {
+	    	 return true;
+	     }
 	     
-		 return subscription;
-	}//schedulePay: 정기결제 예약 등록하는 곳
+		 return false;
+	}// schedulePay: 정기결제 예약 등록하는 곳
 
 	@Override
 	public String getPortOneToken() throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
-		
-		//서버로 요청할 Header
-		HttpHeaders headers = new HttpHeaders();
+		HttpHeaders headers = new HttpHeaders(); //서버로 요청할 Header
 	    headers.setContentType(MediaType.APPLICATION_JSON);
 		
 	    Map<String, Object> map = new HashMap<>();
@@ -259,18 +227,18 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 		IamportToken iamportToken = str.fromJson(getAccessToken, IamportToken.class);
 		String accessToken = iamportToken.getAccess_token();
-		
+		 
 		return accessToken;
-	}//getPortOneToken
+	}// getPortOneToken: PortOne 토큰 가져오기
 
 	@Override
 	public int countSubscription(String userId) throws Exception {
 		return subscriptionDao.countSubscription(userId);
-	}
+	}// countSubscription: 구독 개수 가져오기
 
 	@Override
 	public List<Subscription> getTodaySubscriptionList() throws Exception {
 		return subscriptionDao.getTodaySubscriptionList();
-	}
+	}// getTodaySubscriptionList: 오늘 결제일 유저 리스트
 	
 }
