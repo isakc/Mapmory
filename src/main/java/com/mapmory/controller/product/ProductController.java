@@ -171,16 +171,4 @@ public class ProductController {
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
-    
-    @GetMapping("/image")
-    @ResponseBody
-    public String getImageUrlByImageTag(@RequestParam("imageTag") String imageTag) {
-        try {
-            return productService.getImageUrlByImageTag(imageTag);
-        } catch (Exception e) {
-            return "서버 오류 발생";
-        }
-    }
-    
-    
 }

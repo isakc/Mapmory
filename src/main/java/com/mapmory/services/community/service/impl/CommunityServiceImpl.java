@@ -123,7 +123,7 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public Map<String, Object> getUSerReportList(Search search, String userId) throws Exception {
+	public Map<String, Object> getUserReportList(Search search, String userId) throws Exception {
 		List<Object> list = communityDao.getUSerReportList(search, userId);
 		int totalCount = communityDao.getUserReportTotalCount(search, userId);
 		
