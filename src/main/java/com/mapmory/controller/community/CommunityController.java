@@ -20,10 +20,10 @@ public class CommunityController {
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
 	
-	@Value("${pageUnit}")
+	@Value("${page.Unit}")
 	int PageUnit;
 	
-	@Value("${pageSize}")
+	@Value("${page.Size}")
 	int PageSize;
 	
 	@PostMapping("/addReply")
