@@ -53,7 +53,8 @@ public class ProductController {
     
     @PostMapping("/addProduct")
     public String addProduct(@ModelAttribute("product") Product product,
-                             @RequestParam("uploadFile") List<MultipartFile> files) throws Exception {
+                             @RequestParam("uploadFile") List<MultipartFile> files,
+                             @RequestParam("imageTag") List<String> imageTag) throws Exception {
         // 각 이미지 파일에 대해 UUID 생성하여 처리
         List<String> uuidFileNames = new ArrayList<>();
         List<String> originalFileNames = new ArrayList<>();
@@ -64,7 +65,7 @@ public class ProductController {
             uuidFileNames.add(uuid);
             originalFileNames.add(originalFilename);
         }
-        productService.addProduct(product, uuidFileNames, originalFileNames);
+        productService.addProduct(product, uuidFileNames, originalFileNames, imageTag);
         return "redirect:/product/getProductList";
     }
     
@@ -170,4 +171,16 @@ public class ProductController {
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
+    
+    @GetMapping("/image")
+    @ResponseBody
+    public String getImageUrlByImageTag(@RequestParam("imageTag") String imageTag) {
+        try {
+            return productService.getImageUrlByImageTag(imageTag);
+        } catch (Exception e) {
+            return "서버 오류 발생";
+        }
+    }
+    
+    
 }

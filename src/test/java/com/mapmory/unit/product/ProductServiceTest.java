@@ -44,9 +44,14 @@ public class ProductServiceTest {
         List<String> imageFiles = new ArrayList<>();
         imageFiles.add("test_image12.jpg");
         imageFiles.add("test_image13.jpg");
+        
+        List<String> imageTag = new ArrayList<>();
+        
+        imageTag.add("/안녕/");
+        imageTag.add("/잘가/");
 
         // When
-        productService.addProduct(product, imageFiles, imageFiles);
+        productService.addProduct(product, imageFiles, imageFiles,imageTag);
 
         // Then
     }

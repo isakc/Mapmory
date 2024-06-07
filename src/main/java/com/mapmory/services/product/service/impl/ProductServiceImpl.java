@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,9 @@ public class ProductServiceImpl implements ProductService {
     
     @Autowired
     private ObjectStorageUtil objectStorageUtil;
+    
+    @Value("${cdn.url}")
+    private String cdnUrl;
 
 //    @Override
 //    @Transactional
@@ -47,17 +52,19 @@ public class ProductServiceImpl implements ProductService {
     
     @Override
     @Transactional
-    public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception {
+    public void addProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames, List<String> imageTag) throws Exception {
         productDao.addProduct(product);
 
         for (int i = 0; i < uuidFileNames.size(); i++) {
             String uuid = uuidFileNames.get(i);
             String originalFilename = originalFileNames.get(i);
+            String imageTags = imageTag.get(i);
 
             ProductImage productImage = new ProductImage();
             productImage.setProductNo(product.getProductNo());
             productImage.setImageFile(originalFilename); // 원본 파일명 설정
             productImage.setUuid(uuid);
+            productImage.setImageTag(imageTags);
             productImageDao.addProductImage(productImage);
         }
     }
@@ -147,5 +154,40 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String,Object> getProductImages(int productNo) throws Exception {
         return (Map<String, Object>) productImageDao.getProductImageList(productNo);
+    }
+    
+    public String getImageUrl(ByteArrayResource imageResource) {
+        return cdnUrl + "productImage/" + imageResource.getDescription();
+    }
+    
+    public void processImageWithTag(String imageTag) throws Exception {
+        // IMAGE_TAG를 기반으로 이미지 조회
+        ProductImage productImage = getImageByTag(imageTag);
+        
+        if (productImage != null) {
+            // 이미지 처리 로직 구현
+            String imageUUID = productImage.getUuid();
+            // ...
+            System.out.println("Image UUID: " + imageUUID);
+        } else {
+            System.out.println("이건 이미지에 없는거임 ㅋ");
+        }
+    }
+    
+    @Override
+    public String getImageUrlByImageTag(String imageTag) throws Exception {
+        ProductImage productImage = productImageDao.getImageByTag(imageTag);
+        if (productImage != null) {
+            String uuid = productImage.getUuid();
+            ByteArrayResource imageResource = objectStorageUtil.getImageResource(uuid);
+            return cdnUrl + "productImage/" + uuid;
+        } else {
+            return "이미지 not found";
+        }
+    }
+    
+    @Override
+    public ProductImage getImageByTag(String imageTag) throws Exception {
+        return productImageDao.getImageByTag(imageTag);
     }
 }
