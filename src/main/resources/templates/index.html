@@ -231,73 +231,73 @@ $("#convertButton").click(function() {
 //이미지 태그 테스트 ==========================================================================================================================================
 	
 //녹음하기 =================================================================================================================================================
-let mediaRecorder;
-let recordedChunks = [];
-let audioBlob;
-
-const requestMicrophoneAccess = () => {
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      document.getElementById('startRecording').disabled = false;
-      document.getElementById('startRecording').addEventListener('click', startRecording);
-    })
-    .catch(error => {
-      console.error('마이크 접근 권한 요청 실패:', error);
-      alert('마이크 접근 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
-    });
-};
-
-const startRecording = () => {
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.start();
-
-      mediaRecorder.addEventListener("dataavailable", event => {
-        recordedChunks.push(event.data);
-      });
-
-      document.getElementById('startRecording').disabled = true;
-      document.getElementById('stopRecording').disabled = false;
-    });
-};
-
-const stopRecording = () => {
-  mediaRecorder.stop();
-
-  mediaRecorder.addEventListener("stop", () => {
-    audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+    let mediaRecorder;
+    let recordedChunks = [];
+    let audioBlob;
     
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
-
-    fetch('recommend/upload', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      console.log('녹음 파일 업로드 성공');
-      document.getElementById('playRecording').disabled = false;
-    })
-    .catch(error => {
-      console.error('녹음 파일 업로드 실패:', error);
-    });
-
-    recordedChunks = [];
-    document.getElementById('startRecording').disabled = false;
-    document.getElementById('stopRecording').disabled = true;
-  });
-};
-
-const playRecording = () => {
-  const audioUrl = URL.createObjectURL(audioBlob);
-  const audio = new Audio(audioUrl);
-  audio.play();
-};
-
-requestMicrophoneAccess();
-document.getElementById('stopRecording').addEventListener('click', stopRecording);
-document.getElementById('playRecording').addEventListener('click', playRecording);
+    const requestMicrophoneAccess = () => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                document.getElementById('startRecording').disabled = false;
+                document.getElementById('startRecording').addEventListener('click', startRecording);
+            })
+            .catch(error => {
+                console.error('마이크 접근 권한 요청 실패:', error);
+                alert('마이크 접근 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
+            });
+    };
+    
+    const startRecording = () => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+    
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    recordedChunks.push(event.data);
+                });
+    
+                document.getElementById('startRecording').disabled = true;
+                document.getElementById('stopRecording').disabled = false;
+            });
+    };
+    
+    const stopRecording = () => {
+        mediaRecorder.stop();
+    
+        mediaRecorder.addEventListener("stop", () => {
+            audioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+            
+            const formData = new FormData();
+            formData.append('audioFile', audioBlob, 'recording.wav');
+    
+            fetch('/recommend/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('녹음 파일 업로드 성공');
+                    alert('녹음 파일 업로드 성공');
+                } else {
+                    console.error('녹음 파일 업로드 실패:', data.message);
+                    alert('녹음 파일 업로드 실패: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('녹음 파일 업로드 중 오류 발생:', error);
+                alert('녹음 파일 업로드 중 오류 발생');
+            });
+    
+            recordedChunks = [];
+            document.getElementById('startRecording').disabled = false;
+            document.getElementById('stopRecording').disabled = true;
+        });
+    };
+    
+    requestMicrophoneAccess();
+    document.getElementById('stopRecording').addEventListener('click', stopRecording);
 </script>
 
 

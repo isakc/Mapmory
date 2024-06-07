@@ -24,7 +24,7 @@ public class RecommendControllerJM {
 	String speechFolderName;
 	
 	@PostMapping("/upload")
-	public void uploadAudio(@RequestParam("audio") MultipartFile audioFile) throws Exception {
+	public void uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
 	    String originalFileName = audioFile.getOriginalFilename();
 	    String uuidFileName = ImageFileUtil.getProductImageUUIDFileName(originalFileName); // UUID 파일명 생성
 	    
