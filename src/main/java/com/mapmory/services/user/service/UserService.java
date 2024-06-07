@@ -82,7 +82,7 @@ public interface UserService {
 	 * 이용약관은 file io 로 처리
 	 * @return
 	 */
-	public List<TermsAndConditions> getTermsAndConditionsList(String dirPath) throws Exception;
+	public List<TermsAndConditions> getTermsAndConditionsList() throws Exception;
 	
 	/**
 	 * 이용약관은 file io 로 처리
