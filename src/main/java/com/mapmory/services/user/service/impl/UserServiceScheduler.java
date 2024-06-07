@@ -20,10 +20,10 @@ public class UserServiceScheduler {
 	@Value("${object.tac.folderName}")
 	private String folderName;
 	
-	// public final static String DOWNLOAD_FILE_PATH = "C:\\bitcampProject\\Mapmory\\src\\main\\resources\\static\\termsAndConditions";
-	//  public final static String DOWNLOAD_FILE_PATH = "/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/static/termsAndConditions";
-	// public final static String DOWNLOAD_FILE_PATH = "/src/main/resources/static/termsAndConditions/";
-	public final static String DOWNLOAD_FILE_PATH = "/tmp/";
+	@Value("${directory.path.tac}")
+	private String tacDirectoryPath;
+	
+	// public final static String DOWNLOAD_FILE_PATH = "src/main/resources/static/termsAndConditions/";
 
 	/**
 	 * 매일 12시 정각에 object storage로부터 이용약관 file을 최신화.
@@ -34,8 +34,7 @@ public class UserServiceScheduler {
 	// protected
 	public void fetchTermsAndConditions() throws Exception {
 		
-		String folderName = "/";
-		objectStorageUtil.downloadFile(folderName, DOWNLOAD_FILE_PATH);
+		objectStorageUtil.downloadFile(folderName, tacDirectoryPath);
 	}
 
 }

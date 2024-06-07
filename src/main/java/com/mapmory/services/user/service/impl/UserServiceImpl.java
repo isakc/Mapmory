@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 	@Qualifier("userDao")
 	private UserDao userDao;
 
-	@Value("${tac.directory.path}")
+	@Value("${directory.path.tac}")
 	private String tacDirectoryPath;
 	
 	@Override

@@ -105,30 +105,25 @@ public class ObjectStorageUtil {
      */
     public void downloadFile(String objectStorageDirectoryPath, String downloadDirectoryPath) throws Exception {
     	
-    	// final AmazonS3 s3 = getS3Client();
-    	// test 이후 교체할 것
-    	final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ENDPOINT, REGION))
-				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(objectAccessKey, objectSecretKey)))
-				.build();
+    	final AmazonS3 s3 = getS3Client();
     	
     	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, objectStorageDirectoryPath);
-       	List<String> filePaths = result.get("filePaths");
+       	List<String> objectStorageFilePaths = result.get("filePaths");
 		List<String> fileNames = result.get("fileNames");
-    	
-       	System.out.println("filePaths : "+ filePaths);
-       	
-    	for(int i = 0; i < filePaths.size(); i++) {
+
+    	for(int i = 0; i < objectStorageFilePaths.size(); i++) {
     		
-    		String downloadFilePath = downloadDirectoryPath+ fileNames.get(i)+".txt";
+    		String downloadFilePath = downloadDirectoryPath +"/"+ fileNames.get(i);
     		
-    		System.out.println("downloadFilePath : "+downloadFilePath);
+    		// System.out.println("downloadFilePath : "+downloadFilePath);
     		try {
     			
-    			S3Object s3Object = s3.getObject(bucketName, filePaths.get(i));
+    			// System.out.println("filePath : " + objectStorageFilePaths.get(i).trim());
+    			
+    			S3Object s3Object = s3.getObject(bucketName, objectStorageFilePaths.get(i).trim());
     			S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
     			
-    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadDirectoryPath));
+    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadDirectoryPath+fileNames.get(i)));
     			byte[] bytesArray = new byte[4096];
     			int bytesRead = -1;
     			while( (bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
@@ -147,7 +142,7 @@ public class ObjectStorageUtil {
     	
     }
     
-    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String directoryPath) throws Exception {
+    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String objectStorageDirectoryPath) throws Exception {
 		
 		List<String> filePaths = new ArrayList<>();
 		List<String> fileNames = new ArrayList<>();
@@ -156,22 +151,25 @@ public class ObjectStorageUtil {
 			
 			ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
 					.withBucketName(bucketName)
-					.withDelimiter("/")
+					.withPrefix(objectStorageDirectoryPath)
 					.withMaxKeys(300);
 			
 			ObjectListing objectListing = s3.listObjects(listObjectsRequest);
 
 			for(S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-				// System.out.println("    name=" + objectSummary.getKey() + ", size=" + objectSummary.getSize() + ", owner=" + objectSummary.getOwner().getId());
-				
 				String filePath = objectSummary.getKey();
 				long fileSize = objectSummary.getSize();
 				
-				if(filePath.contains(directoryPath+"/") && fileSize != 0L) {
+				// System.out.println("    name=" + filePath + ", size=" + fileSize + ", owner=" + objectSummary.getOwner().getId());
+
+				if(filePath.contains(objectStorageDirectoryPath) && fileSize != 0L) {
 					
 					String[] tempStr =filePath.split("/");
 					int last = tempStr.length - 1;
-					fileNames.add(tempStr[last].split("\\.")[0]);
+					
+					// System.out.println("tempStr : " + tempStr);
+					
+					fileNames.add(tempStr[last]);
 					filePaths.add(filePath);
 				}
 			}
