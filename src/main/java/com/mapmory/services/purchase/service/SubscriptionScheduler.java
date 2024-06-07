@@ -18,7 +18,7 @@ public class SubscriptionScheduler {
 	 @Autowired
 	    private SubscriptionService subscriptionService;
 
-	    @Scheduled(cron = "0 * * * * *") // 매일 자정에 실행
+	    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
 	    public void processSubscriptions() throws Exception {
 	        List<Subscription> subscriptions = subscriptionService.getTodaySubscriptionList();
 	        for (Subscription subscription : subscriptions) {
