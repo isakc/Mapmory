@@ -24,7 +24,7 @@ public class RecommendControllerJM {
 	@Autowired
 	ObjectStorageUtil objectStorageUtil;
 	
-	@Value("${speech.folderName")
+	@Value("${speech.folderName}")
 	String speechFolderName;
 	
 	@PostMapping("/upload")
