@@ -30,6 +30,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -53,6 +54,9 @@ public class UserServiceImpl implements UserService {
 	@Qualifier("userDao")
 	private UserDao userDao;
 
+	@Value("${tac.directory.path}")
+	private String tacDirectoryPath;
+	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) {
 		// TODO Auto-generated method stub
@@ -277,12 +281,12 @@ public class UserServiceImpl implements UserService {
 	
 	
 	@Override
-	public List<TermsAndConditions> getTermsAndConditionsList(String dirPath) throws Exception {
+	public List<TermsAndConditions> getTermsAndConditionsList() throws Exception {
 		// TODO Auto-generated method stub
 
 		List<TermsAndConditions> result = new ArrayList<>();
 		
-		try (Stream<Path> paths = Files.walk(Paths.get(dirPath))){
+		try (Stream<Path> paths = Files.walk(Paths.get(tacDirectoryPath))){
 			
 			List<Path> files = paths.filter(Files::isRegularFile).collect(Collectors.toList());
 			
@@ -303,15 +307,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception {
+	public TermsAndConditions getDetailTermsAndConditions(String fileName) throws Exception {
 		// TODO Auto-generated method stub
-		
-		
+
+		String filePath = tacDirectoryPath + "/" + fileName;
 		
 		try {
-			
-			
-			
+		
 			BufferedReader br = new BufferedReader(new FileReader(filePath));
 			
 			if(br.lines() == null) 
@@ -379,6 +381,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateProfile(String userId, String profileImageName, String introduction) {
 		// TODO Auto-generated method stub
+		
+		String changedProfileImageName = ImageFileUtil.getProductImageUUIDFileName(profileImageName);
+		
+		
 		
 		User user = User.builder()
 						.userId(userId)

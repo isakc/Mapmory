@@ -89,7 +89,12 @@ public class ObjectStorageUtil {
         return cdnUrl + "productImage/" + imageResource.getDescription();
     }
     
-    public void downloadFile(String directoryPath, String downloadFilePath) throws Exception {
+    /**
+     * @param objectStorageDirectoryPath  object storage 내 target directory path를 full name으로 명시한다.
+     * @param downloadDirectoryPath  본인이 local server 내에 저장하고 싶은 경로 위치에 저장한다. root 경로는 project 최상위 경로이다.
+     * @throws Exception
+     */
+    public void downloadFile(String objectStorageDirectoryPath, String downloadDirectoryPath) throws Exception {
     	
     	// final AmazonS3 s3 = getS3Client();
     	// test 이후 교체할 것
@@ -98,18 +103,23 @@ public class ObjectStorageUtil {
 				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(objectAccessKey, objectSecretKey)))
 				.build();
     	
-    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, directoryPath);
-    	List<String> filePaths = result.get("filePaths");
+    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, objectStorageDirectoryPath);
+       	List<String> filePaths = result.get("filePaths");
 		List<String> fileNames = result.get("fileNames");
     	
+       	System.out.println("filePaths : "+ filePaths);
+       	
     	for(int i = 0; i < filePaths.size(); i++) {
     		
+    		String downloadFilePath = downloadDirectoryPath+ fileNames.get(i)+".txt";
+    		
+    		System.out.println("downloadFilePath : "+downloadFilePath);
     		try {
     			
     			S3Object s3Object = s3.getObject(bucketName, filePaths.get(i));
     			S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
     			
-    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadFilePath));
+    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadDirectoryPath));
     			byte[] bytesArray = new byte[4096];
     			int bytesRead = -1;
     			while( (bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
@@ -137,7 +147,7 @@ public class ObjectStorageUtil {
 			
 			ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
 					.withBucketName(bucketName)
-					// .withDelimiter("/")
+					.withDelimiter("/")
 					.withMaxKeys(300);
 			
 			ObjectListing objectListing = s3.listObjects(listObjectsRequest);

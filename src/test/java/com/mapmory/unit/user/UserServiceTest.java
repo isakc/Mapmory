@@ -255,13 +255,14 @@ public class UserServiceTest {
 		Assertions.assertThat(result.getUserId()).isEqualTo("user2");
 	}
 	
-	// @Test
+	@Test
 	public void testGetDetailTermsAndConditions() throws Exception {
 		
-		String filePath = "C:\\Users\\rlaeo\\OneDrive\\바탕 화면\\bitcamp project\\이용약관 예제\\개인정보 수집 및 이용 약관.txt";
+		// String fileName = "C:\\Users\\rlaeo\\OneDrive\\바탕 화면\\bitcamp project\\이용약관 예제\\개인정보 수집 및 이용 약관.txt";
+		String fileName = "개인정보 수집 및 이용 약관.txt";
 		
 		try {
-			TermsAndConditions result = userService.getDetailTermsAndConditions(filePath);
+			TermsAndConditions result = userService.getDetailTermsAndConditions(fileName);
 
 			Assertions.assertThat(result).isNotNull();
 			Assertions.assertThat(result.getTitle()).contains("개인정보");
@@ -276,9 +277,7 @@ public class UserServiceTest {
 	@Test
 	public void testGetTermsAndConditionsList() throws Exception {
 		
-		String dirPath = "C:\\Users\\rlaeo\\OneDrive\\바탕 화면\\bitcamp project\\이용약관 예제";
-		
-		List<TermsAndConditions> result = userService.getTermsAndConditionsList(dirPath);
+		List<TermsAndConditions> result = userService.getTermsAndConditionsList();
 		
 		Assertions.assertThat(result.size()).isEqualTo(2);
 		Assertions.assertThat(result.get(0).getTitle()).contains("개인정보");
