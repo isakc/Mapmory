@@ -38,13 +38,15 @@
                                     <input type="text" class="form-control input-style" id="price" placeholder="시작금액 입력" name="price" required>
                                 </div>
                                 <input type="hidden" class="form-control input-style" id="writer" placeholder="" name="userId" value="admin">
+                                
                                 <label class="font-12" for="mainFileAttached">상품이미지</label>
+                                <div id="imagePreview"></div>
                                 <input type="file" class="form-control input-style" name="uploadFile" accept=".gif, .jpg, .png, .jpeg, .gif" multiple required>
+                                
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div style="text-align: center" class="font-13">
                                             <button type="submit" class="col-sm-12 btn btn-dark mt-2 mb-0 display-30 py-3" id="regBtn">등록</button>
-                                            <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/%ED%88%B4%EB%B0%94.png" />
                                         </div>
                                     </div>
                                 </div>
@@ -55,6 +57,44 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.querySelector('input[name="uploadFile"]').addEventListener('change', function (event) {
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '';
+
+            var files = event.target.files;
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var reader = new FileReader();
+
+                reader.onload = (function (file) {
+                    return function (e) {
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '200px';
+                        img.style.height = '200px';
+                        img.style.margin = '10px';
+
+                        var tagInput = document.createElement('input');
+                        tagInput.type = 'text';
+                        tagInput.name = 'imageTag';
+                        tagInput.className = 'form-control input-style';
+                        tagInput.placeholder = '이미지 태그 입력';
+                        tagInput.required = true;
+
+                        var div = document.createElement('div');
+                        div.appendChild(img);
+                        div.appendChild(tagInput);
+
+                        imagePreview.appendChild(div);
+                    };
+                })(file);
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </body>
 
 </html>

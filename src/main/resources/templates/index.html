@@ -11,12 +11,22 @@
     <h1 th:text="${'Hello World'}"></h1>
     <a href="/timeline/getDetailTimeline" th:text="${'getDetailTimeline'}"></a><br/>
     <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
+    <a href="/product/getProductList" th:text="${'getproductList'}"></a><br/>
+    <a href="/product/addProduct" th:text="${'addProduct'}"></a><br/>
+    <a href="/notice/getNoticeList" th:text="${'getNoticeList'}"></a><br/>
+    <a href="/notice/getFaqList" th:text="${'getFaqList'}"></a><br/>
    <div id="captchaImageContainer">
     <!-- 캡차 이미지가 표시될 곳 -->
 </div>
         <input type="text" id="captcha-input" placeholder="Enter Captcha">
         <button id="verify-button">확인</button>
     </div>
+    
+    <<div>
+    <input type="text" id="imageTagInput" placeholder="이미지 태그 입력">
+    <button id="convertButton">변환</button>
+</div>
+<div id="imageContainer"></div>
     <div class="form-group">
 		<label for="email" class="col-sm-offset-1 col-sm-3 control-label">이메일</label>
 		<div class="col-sm-4">
@@ -45,9 +55,8 @@
    
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    // script.js
 
+//캡차 ===========================================================================================================================================
 $(document).ready(function() {
   var captchaKey;
 
@@ -88,7 +97,9 @@ $(document).ready(function() {
 
   loadCaptcha(); // 페이지 로드 시 캡차 로드
 });
-    
+//캡차 ===========================================================================================================================================
+	
+//카카오로그인 =======================================================================================================================================
 $(document).ready(function() {
 	Kakao.init('bde4d0b1dd558fcdac6b04e0ba243c20');
 	Kakao.Auth.createLoginButton({
@@ -100,7 +111,9 @@ $(document).ready(function() {
 		}
 	});
 });
-
+//카카오로그인 =======================================================================================================================================
+	
+//휴대폰인증 ==========================================================================================================================================
 $(document).ready(function() {
     var checkNum; // 인증번호 저장 변수
 
@@ -139,7 +152,9 @@ $(document).ready(function() {
         }
     });
 });
-
+//휴대폰인증 ==========================================================================================================================================
+	
+// 이메일 인증 =========================================================================================================================================
 $(document).ready(function(){ 
 	$("#emailAuth").click(function () {
 		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
@@ -181,6 +196,37 @@ $(document).ready(function(){
 		}
 	});
 });
+//이메일 인증 =========================================================================================================================================
+	
+// 이미지 태그 테스트 ====================================================================================================================================
+$("#convertButton").click(function() {
+        var imageTag = $("#imageTagInput").val();
+
+        if (imageTag.trim() === "") {
+            alert("이미지 태그를 입력해주세요.");
+            return;
+        }
+
+        $.ajax({
+            url: "/product/image",
+            method: "GET",
+            data: {
+                imageTag: imageTag
+            },
+            success: function(imageUrl) {
+                if (imageUrl.startsWith("http")) {
+                    $("#imageContainer").html('<img src="' + imageUrl + '">');
+                } else {
+                    alert(imageUrl);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("이미지 가져오기 실패:", error);
+                alert("이미지를 가져오는 중 오류가 발생했습니다.");
+            }
+        });
+    });
+//이미지 태그 테스트 ====================================================================================================================================
 </script>
 
 

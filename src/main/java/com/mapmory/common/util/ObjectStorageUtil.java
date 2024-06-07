@@ -36,6 +36,9 @@ public class ObjectStorageUtil {
     
     @Value("${object.folderName}")
     private String folderName;
+    
+    @Value("${cdn.url}")
+    private String cdnUrl;
 	
 	public AmazonS3 getS3Client() {
 		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
@@ -79,8 +82,10 @@ public class ObjectStorageUtil {
         S3Object s3Object = s3Client.getObject(bucketName, key);
         S3ObjectInputStream inputStream = s3Object.getObjectContent();
         byte[] bytes = IOUtils.toByteArray(inputStream);
-        ByteArrayResource resource = new ByteArrayResource(bytes);
-        return resource;
+        return new ByteArrayResource(bytes, uuid);
     }
 
+    public String getImageUrl(ByteArrayResource imageResource) {
+        return cdnUrl + "productImage/" + imageResource.getDescription();
+    }
 }
