@@ -20,30 +20,30 @@ public class RecommendController {
 	@Qualifier("recommendServiceImpl")
 	private RecommendService recommendService;
     
-    @PostMapping("/test")
-    public String test(@RequestBody Map<String, String> requestPayload) throws Exception{
+//    @PostMapping("/test")
+//    public String test(@RequestBody Map<String, String> requestPayload) throws Exception{
+//    	
+//    	System.out.println("RecommendRestController /test run");
+//    	System.out.println("====");
+//    	System.out.println(requestPayload.getClass());
+//    	System.out.println("====");
     	
-    	System.out.println("RecommendRestController /test run");
-    	System.out.println("====");
-    	System.out.println(requestPayload.getClass());
-    	System.out.println("====");
+//    	int recordNo = 1;
+//    	Recommend recommend = recommendService.getRecordData(recordNo);
+//    	
+////    	int positive = recommendService.getPositive(requestPayload);
+//    	int positive = recommendService.getPositive("ASD");
+//    	recommend.setPositive(positive);
+//    	System.out.println("positive : "+positive);
+//    	
+////    	String category = recommendService.getRecordData();
+////    	recommend.setCategory(category);
+////    	System.out.println(category);
+//    	
+//    	System.out.println(recommend.toString());
+//    	
+//    	return null;
     	
-    	int recordNo = 1;
-    	Recommend recommend = recommendService.getRecordData(recordNo);
-    	
-//    	int positive = recommendService.getPositive(requestPayload);
-    	int positive = recommendService.getPositive("ASD");
-    	recommend.setPositive(positive);
-    	System.out.println("positive : "+positive);
-    	
-//    	String category = recommendService.getRecordData();
-//    	recommend.setCategory(category);
-//    	System.out.println(category);
-    	
-    	System.out.println(recommend.toString());
-    	
-    	return null;
-    	
-    }
+//    }
 	
 }

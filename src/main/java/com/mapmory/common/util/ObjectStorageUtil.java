@@ -46,16 +46,25 @@ public class ObjectStorageUtil {
     @Value("${object.bucketName}")
     private String bucketName;
     
-    @Value("${object.folderName}")
-    private String folderName;
-    
     @Value("${cdn.url}")
     private String cdnUrl;
 	
     private static String REGION = "kr-standard";
     private static String ENDPOINT = "https://kr.object.ncloudstorage.com";
     
-	public void uploadFileToS3(MultipartFile file, String uuidFileName) throws Exception {
+    private AmazonS3 getS3Client() {
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
+	    
+	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+	            .withPathStyleAccessEnabled(true)
+	            .build();
+	    
+		return s3Client;
+	}
+    
+	public void uploadFileToS3(MultipartFile file, String uuidFileName, String folderName) throws Exception {
 	    File localFile = convertMultiPartToFile(file);
 	    String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
 	    AmazonS3 s3Client = getS3Client();
@@ -69,14 +78,14 @@ public class ObjectStorageUtil {
         return convFile;
     }
     
-    public void deleteFile(String uuidFileName) throws Exception {
+    public void deleteFile(String uuidFileName,String folderName) throws Exception {
         String key = folderName + "/" + uuidFileName;
         AmazonS3 s3Client = getS3Client();
         s3Client.deleteObject(bucketName, key);
     }
     
     //상품 주소 가리기
-    public ByteArrayResource getImageResource(String uuid) throws Exception {
+    public ByteArrayResource getImageResource(String uuid,String folderName) throws Exception {
         AmazonS3 s3Client = getS3Client();
         String key = folderName + "/" + uuid;
         S3Object s3Object = s3Client.getObject(bucketName, key);
@@ -85,31 +94,36 @@ public class ObjectStorageUtil {
         return new ByteArrayResource(bytes, uuid);
     }
 
-    public String getImageUrl(ByteArrayResource imageResource) {
-        return cdnUrl + "productImage/" + imageResource.getDescription();
+    public String getImageUrl(ByteArrayResource imageResource,String folderName) {
+        return cdnUrl + folderName + "/" + imageResource.getDescription();
     }
     
-    public void downloadFile(String directoryPath, String downloadFilePath) throws Exception {
+    /**
+     * @param objectStorageDirectoryPath  object storage 내 target directory path를 full name으로 명시한다.
+     * @param downloadDirectoryPath  본인이 local server 내에 저장하고 싶은 경로 위치에 저장한다. root 경로는 project 최상위 경로이다.
+     * @throws Exception
+     */
+    public void downloadFile(String objectStorageDirectoryPath, String downloadDirectoryPath) throws Exception {
     	
-    	// final AmazonS3 s3 = getS3Client();
-    	// test 이후 교체할 것
-    	final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ENDPOINT, REGION))
-				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(objectAccessKey, objectSecretKey)))
-				.build();
+    	final AmazonS3 s3 = getS3Client();
     	
-    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, directoryPath);
-    	List<String> filePaths = result.get("filePaths");
+    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, objectStorageDirectoryPath);
+       	List<String> objectStorageFilePaths = result.get("filePaths");
 		List<String> fileNames = result.get("fileNames");
-    	
-    	for(int i = 0; i < filePaths.size(); i++) {
+
+    	for(int i = 0; i < objectStorageFilePaths.size(); i++) {
     		
+    		String downloadFilePath = downloadDirectoryPath +"/"+ fileNames.get(i);
+    		
+    		// System.out.println("downloadFilePath : "+downloadFilePath);
     		try {
     			
-    			S3Object s3Object = s3.getObject(bucketName, filePaths.get(i));
+    			// System.out.println("filePath : " + objectStorageFilePaths.get(i).trim());
+    			
+    			S3Object s3Object = s3.getObject(bucketName, objectStorageFilePaths.get(i).trim());
     			S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
     			
-    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadFilePath));
+    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadDirectoryPath+fileNames.get(i)));
     			byte[] bytesArray = new byte[4096];
     			int bytesRead = -1;
     			while( (bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
@@ -128,7 +142,7 @@ public class ObjectStorageUtil {
     	
     }
     
-    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String directoryPath) throws Exception {
+    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String objectStorageDirectoryPath) throws Exception {
 		
 		List<String> filePaths = new ArrayList<>();
 		List<String> fileNames = new ArrayList<>();
@@ -137,22 +151,25 @@ public class ObjectStorageUtil {
 			
 			ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
 					.withBucketName(bucketName)
-					// .withDelimiter("/")
+					.withPrefix(objectStorageDirectoryPath)
 					.withMaxKeys(300);
 			
 			ObjectListing objectListing = s3.listObjects(listObjectsRequest);
 
 			for(S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-				// System.out.println("    name=" + objectSummary.getKey() + ", size=" + objectSummary.getSize() + ", owner=" + objectSummary.getOwner().getId());
-				
 				String filePath = objectSummary.getKey();
 				long fileSize = objectSummary.getSize();
 				
-				if(filePath.contains(directoryPath+"/") && fileSize != 0L) {
+				// System.out.println("    name=" + filePath + ", size=" + fileSize + ", owner=" + objectSummary.getOwner().getId());
+
+				if(filePath.contains(objectStorageDirectoryPath) && fileSize != 0L) {
 					
 					String[] tempStr =filePath.split("/");
 					int last = tempStr.length - 1;
-					fileNames.add(tempStr[last].split("\\.")[0]);
+					
+					// System.out.println("tempStr : " + tempStr);
+					
+					fileNames.add(tempStr[last]);
 					filePaths.add(filePath);
 				}
 			}
@@ -172,15 +189,4 @@ public class ObjectStorageUtil {
 		return null;
 	}
     
-    private AmazonS3 getS3Client() {
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
-	    
-	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
-	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-	            .withPathStyleAccessEnabled(true)
-	            .build();
-	    
-		return s3Client;
-	}
 }
