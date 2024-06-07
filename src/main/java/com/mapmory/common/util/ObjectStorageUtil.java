@@ -46,16 +46,25 @@ public class ObjectStorageUtil {
     @Value("${object.bucketName}")
     private String bucketName;
     
-    @Value("${object.folderName}")
-    private String folderName;
-    
     @Value("${cdn.url}")
     private String cdnUrl;
 	
     private static String REGION = "kr-standard";
     private static String ENDPOINT = "https://kr.object.ncloudstorage.com";
     
-	public void uploadFileToS3(MultipartFile file, String uuidFileName) throws Exception {
+    private AmazonS3 getS3Client() {
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
+	    
+	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+	            .withPathStyleAccessEnabled(true)
+	            .build();
+	    
+		return s3Client;
+	}
+    
+	public void uploadFileToS3(MultipartFile file, String uuidFileName, String folderName) throws Exception {
 	    File localFile = convertMultiPartToFile(file);
 	    String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
 	    AmazonS3 s3Client = getS3Client();
@@ -69,14 +78,14 @@ public class ObjectStorageUtil {
         return convFile;
     }
     
-    public void deleteFile(String uuidFileName) throws Exception {
+    public void deleteFile(String uuidFileName,String folderName) throws Exception {
         String key = folderName + "/" + uuidFileName;
         AmazonS3 s3Client = getS3Client();
         s3Client.deleteObject(bucketName, key);
     }
     
     //상품 주소 가리기
-    public ByteArrayResource getImageResource(String uuid) throws Exception {
+    public ByteArrayResource getImageResource(String uuid,String folderName) throws Exception {
         AmazonS3 s3Client = getS3Client();
         String key = folderName + "/" + uuid;
         S3Object s3Object = s3Client.getObject(bucketName, key);
@@ -85,8 +94,8 @@ public class ObjectStorageUtil {
         return new ByteArrayResource(bytes, uuid);
     }
 
-    public String getImageUrl(ByteArrayResource imageResource) {
-        return cdnUrl + "productImage/" + imageResource.getDescription();
+    public String getImageUrl(ByteArrayResource imageResource,String folderName) {
+        return cdnUrl + folderName + "/" + imageResource.getDescription();
     }
     
     /**
@@ -182,15 +191,4 @@ public class ObjectStorageUtil {
 		return null;
 	}
     
-    private AmazonS3 getS3Client() {
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
-	    
-	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
-	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-	            .withPathStyleAccessEnabled(true)
-	            .build();
-	    
-		return s3Client;
-	}
 }

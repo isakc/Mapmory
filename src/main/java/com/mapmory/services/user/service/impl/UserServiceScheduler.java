@@ -37,9 +37,5 @@ public class UserServiceScheduler {
 		String folderName = "/";
 		objectStorageUtil.downloadFile(folderName, DOWNLOAD_FILE_PATH);
 	}
-	
-	
-	
-	
-	
+
 }
