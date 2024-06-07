@@ -41,8 +41,17 @@
 	 	<result property="profileImageName" column="profile_image_name" jdbcType="VARCHAR"/>
 	 	<result property="hideProfile" column="hide_profile" jdbcType="TINYINT"/>
 	 </resultMap>
-	
-	
+	 
+	 <!-- <resultMap id="selectSuspensionLogMap" type="map">  -->
+	 <resultMap id="selectSuspensionLogMap" type="com.mapmory.services.user.domain.SuspensionLogList">
+	 	<id property="userId" column="user_id"/>
+	 	<collection property="suspensionDetailList" ofType="com.mapmory.services.user.domain.SuspensionDetail" javaType="list">
+	 		<id property="logNo" column="log_no" />
+	 		<result property="startSuspensionDate" column="start_suspension_date"/>
+	 		<result property="reason" column="reason"/>
+	 	</collection>
+	 </resultMap>
+
 	<insert id="insertUser" parameterType="user">
 		INSERT INTO
 		users (user_id, user_password, user_name, nickname, birthday, email, phone_number, sex)
@@ -62,7 +71,9 @@
 	</insert>
 	
 	<insert id="insertSuspendLog" parameterType="suspensionLog">
-		
+		INSERT INTO
+		suspension_login_log (user_id, start_suspension_date, reason, log_type)
+		VALUES (#{userId}, #{suspensionDetail.startSuspensionDate}, #{suspensionDetail.reason}, 1)
 	</insert>
 	
 	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
@@ -148,6 +159,21 @@
 		LIMIT #{limit} OFFSET #{offset}
 	</select>
 	
+	<select id="selectSuspensionList" parameterType="search" resultMap="selectSuspensionLogMap">
+		
+		SELECT
+		u.user_id, s.log_no, s.start_suspension_date, s.reason
+		FROM users u
+			JOIN suspension_login_log s ON u.user_id = s.user_id
+		WHERE  
+			<if test="searchCondition == 0">s.user_id LIKE CONCAT('%', #{userId}, '%')</if>
+			<if test="searchCondition == 1"> s.user_id = #{userId} </if>
+			AND s.log_type=1
+		<if test="searchCondition == 0">ORDER BY u.user_id</if> 
+		<!-- wrapper type이 아니므로. -->
+		<if test="limit != 0 and currentPage != 0"> LIMIT #{limit} OFFSET #{offset} </if>
+	</select>
+	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT
 		COUNT(*)
@@ -189,5 +215,10 @@
 	<delete id="deleteFollow" parameterType="followBlock">
 		DELETE FROM follow_block
 		WHERE user_id=#{userId} AND target_id=#{targetId}
+	</delete>
+	
+	<delete id="deleteSuspendUser" parameterType="integer">
+		DELETE FROM suspension_login_log
+		WHERE log_no = #{logNo}
 	</delete>
 </mapper>

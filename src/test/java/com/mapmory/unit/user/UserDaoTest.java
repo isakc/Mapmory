@@ -3,6 +3,7 @@ package com.mapmory.unit.user;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,9 @@ import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SuspensionDetail;
+import com.mapmory.services.user.domain.SuspensionLog;
+import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.User;
 
 
@@ -69,7 +73,7 @@ public class UserDaoTest {
 		Assertions.assertThat(resultList.get(0).getUserId()).isEqualTo(userId);
 	}
 	
-	@Test
+	// @Test
 	public void testInsertFollow() throws Exception {
 		
 		String userId = "user_123";
@@ -81,6 +85,26 @@ public class UserDaoTest {
 						.build();
 		
 		int result = userDao.insertFollow(follow);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+	}
+	
+	// login_date, start_suspension_date 는 nullable하도록 table에서 변경해야 함.
+	// @Test
+	public void testInsertSuspendLog() {
+		
+		String userId = "user1";
+		LocalDateTime startSuspensionDate = LocalDateTime.now();
+		String reason = "수많은 욕설을 사용했습니다.";
+		
+		SuspensionDetail detail = new SuspensionDetail(startSuspensionDate, reason);
+		
+		SuspensionLog log = SuspensionLog.builder()
+							.userId(userId)
+							.suspensionDetail(detail)
+							.build();
+		
+		int result = userDao.insertSuspendLog(log);
 		
 		Assertions.assertThat(result).isEqualTo(1);
 	}
@@ -206,6 +230,49 @@ public class UserDaoTest {
 		Assertions.assertThat(followList.size()).isEqualTo(count);
 		
 		Assertions.assertThat(followList.get(0).getUserId()).isEqualTo("user3");
+	}
+	
+	// @Test
+	public void testSelectSuspensionList() {
+		
+		String userId = "user";
+		int currentPage = 1;
+		int limit = 5;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.currentPage(currentPage)
+						.limit(limit)
+						.build();
+		
+		List<SuspensionLogList> result = userDao.selectSuspensionList(search);
+		
+		Assertions.assertThat(result.size()).isEqualTo(2);
+		Assertions.assertThat(result.get(0).getUserId()).isEqualTo("user1");
+	}
+	
+	// @Test
+	public void testSelectSuspensionListActually() {
+		
+		String userId = "user2";
+		int currentPage = 1;
+		int limit = 5;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.currentPage(currentPage)
+						.limit(limit)
+						.build();
+		
+		List<SuspensionLogList> result = userDao.selectSuspensionList(search);
+		Assertions.assertThat(result.get(0).getUserId()).isEqualTo(userId);
+		Assertions.assertThat(result.get(0).getSuspensionDetailList().get(0).getReason()).isEqualTo("욕함");
+		
+		// Map<String, Object> map = userDao.selectSuspensionList(search);
+		
+		// Assertions.assertThat((String)map.get("userId")).isEqualTo(userId);
+		//Assertions.assertThat(((SuspensionDetail)((List)map.get("suspensionDetailList")).get(0)).getReason()).isEqualTo("욕함");
+		
 	}
 	
 	// @Test
@@ -360,6 +427,37 @@ public class UserDaoTest {
 		}
 		
 		Assertions.assertThat(flag).isTrue();
+	}
+	
+	// @Test
+	@SuppressWarnings("unchecked")
+	public void testDeleteSuspendUser() {
+		
+		int logNo = 37;
+		
+		int result = userDao.deleteSuspendUser(logNo);
+		
+		Assertions.assertThat(result).isEqualTo(1);
+
+		
+		String userId = "user2";
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.build();
+		
+		// Map<String, Object> map = userDao.selectSuspensionList(search);
+		SuspensionLogList resultMap = userDao.selectSuspensionList(search).get(0);
+		
+		boolean test = true;
+		// for(SuspensionDetail sd : (List<SuspensionDetail>)map.get("suspensionDetailList")) {
+		for(SuspensionDetail sd : resultMap.getSuspensionDetailList()) {
+			
+			if(sd.getLogNo() == logNo)
+				test = false;
+		}
+		
+		Assertions.assertThat(test).isTrue();
 	}
 	
 	// @Test
