@@ -51,7 +51,7 @@ public interface CommunityService {
 	public void doReport(Report report) throws Exception;
 	
 	//신고 목록 조회 
-	public Map<String, Object> getUSerReportList(Search search, String userId) throws Exception;
+	public Map<String, Object> getUserReportList(Search search, String userId) throws Exception;
 	
 	//전체 신고 목록 조회(관리자)
 	public Map<String, Object> getAdminReportList(Search search, int role) throws Exception;
