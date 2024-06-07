@@ -271,7 +271,7 @@ const stopRecording = () => {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.wav');
 
-    fetch('/upload', {
+    fetch('recommend/upload', {
       method: 'POST',
       body: formData
     })
