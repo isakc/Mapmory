@@ -7,8 +7,8 @@
     
     <!-- Result Map -->
 <resultMap id="recordResultMap" type="java.util.HashMap">
-    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
-    <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
+    <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
     <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
     <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
@@ -25,10 +25,30 @@
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
     <!-- <collection property="imageName" ofType="String" javaType="ArrayList" select="selectImage" column="record_no"/>
     <collection property="hashtag" ofType="String" javaType="ArrayList" select="selectHashtag" column="record_no"/> -->
-    <collection property="imageTag" ofType="java.util.HashMap" javaType="java.util.ArrayList">
+    <collection property="imageTagList" ofType="java.util.HashMap" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="image_tag_order" />
     	<result property="imageTagType" column="image_tag_type" />
     	<result property="imageTagText" column="image_tag_text" />
     </collection>
+</resultMap>
+
+<resultMap id="recordResultMapList" type="java.util.HashMap">
+    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
+    <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+    <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
+    <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
+    <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
+    <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
+    <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
+    <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
+    <result property="sharedDate" column="shared_date" jdbcType="TIMESTAMP"/>
+    <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
+    <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
+    <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
 </resultMap>
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
@@ -40,7 +60,15 @@
     </selectKey> -->
 </insert>
 
-<insert id="insertImageName" parameterType="map">
+<insert id="insertImageTag" parameterType="map">
+INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
+    VALUES 
+    <foreach collection="imageTagList" item="imageTag" separator=",">
+    	(#{recordNo:NUMERIC}, #{imageTag.imageTagType:NUMERIC}, #{imageTag.imageTagText:VARCHAR})
+    </foreach>
+</insert>
+
+<!-- <insert id="insertImageName" parameterType="map">
 	INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
     VALUES 
     <foreach collection="imageName" item="image" separator=",">
@@ -54,9 +82,9 @@
     <foreach collection="hashtag" item="tag" separator=",">
     	(#{recordNo:NUMERIC}, 0, #{tag:VARCHAR})
     </foreach>
-</insert>
+</insert> -->
 
-<select id="selectDetailTimeline" resultMap="recordResultMap">
+<select id='selectDetailTimeline' resultMap='recordResultMap' parameterType='Integer'>
    <!-- SELECT 
     record_no,
     record_user_id,
@@ -95,6 +123,7 @@ WHERE
        a1.update_count AS update_count,
        a1.d_day_date AS d_day_date,
        a1.timecapsule_type AS timecapsule_type,
+       a2.image_tag_order AS image_tag_order,
        a2.image_tag_type AS image_tag_type,
        a2.image_tag_text AS image_tag_text
    FROM 
@@ -180,10 +209,10 @@ FROM
 			AND <![CDATA[d_day_date < CURRENT_TIMESTAMP]]>
 		</if>
 	</if>
-	<if test="!(userId==null)">
-		<bind name="userId" value="_parameter.getUserId().trim()"/>
-		<if test="!(userId=='')">
-			AND user_id = TRIM(BOTH ' ' FROM #{userId})
+	<if test='!(userId==null)'>
+		<bind name='userId' value='_parameter.getUserId().trim()'/>
+		<if test='!(userId=="")'>
+			AND record_user_id=#{userId}
 		</if>
 	</if>
 	<if test="!(selectDay1==null and selectDay2==null )">
@@ -241,6 +270,10 @@ ORDER BY
     image_tag_order IS NULL ASC, 
     image_tag_order ASC;
 </select>
+
+<delete id="deleteImageTag" parameterType="Integer">
+    DELETE FROM image_tag WHERE record_no = #{recordNo}
+</delete>
 
 <delete id="deleteImageToRecordNo" parameterType="Integer">
     DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=1

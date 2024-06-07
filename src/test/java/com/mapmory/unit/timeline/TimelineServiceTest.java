@@ -3,7 +3,9 @@ package com.mapmory.unit.timeline;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -27,12 +30,14 @@ public class TimelineServiceTest {
 	@Transactional
 	public void testAddTimeline() throws Exception{
 		System.out.println("\n===================================");
-		List<String> image= new ArrayList<String>();
-		image.add("A.png");
-		image.add("B.jpg");
-		List<String> hash= new ArrayList<String>();
-		hash.add("#test");
-		hash.add("#test2");
+		List<ImageTag> image= new ArrayList<ImageTag>();
+		image.add(ImageTag.builder().imageTagText("A.png").build());
+		image.add(ImageTag.builder().imageTagText("B.jpg").build());
+		List<ImageTag> hash= new ArrayList<ImageTag>();
+		hash.add(ImageTag.builder().imageTagText("#test").build());
+		hash.add(ImageTag.builder().imageTagText("#test2").build());
+		System.out.println("image : "+image);
+		System.out.println("hash : "+hash);
 		Record record = Record.builder()
 				.recordUserId("user1")
 				.recordTitle("test 기록")
@@ -58,12 +63,12 @@ public class TimelineServiceTest {
 	@Transactional
 	public void testUpdateTimeline() throws Exception{
 		System.out.println("\n===================================");
-		List<String> image= new ArrayList<String>();
-		image.add("A.png");
-		image.add("B.jpg");
-		List<String> hash= new ArrayList<String>();
-		hash.add("#test");
-		hash.add("#test2");
+		List<ImageTag> image= new ArrayList<ImageTag>();
+		image.add(ImageTag.builder().imageTagText("A.png").build());
+		image.add(ImageTag.builder().imageTagText("B.jpg").build());
+		List<ImageTag> hash= new ArrayList<ImageTag>();
+		hash.add(ImageTag.builder().imageTagText("#test").build());
+		hash.add(ImageTag.builder().imageTagText("#test2").build());
 		Record record = Record.builder()
 				.recordNo(2)
 				.recordUserId("user1")
@@ -90,15 +95,15 @@ public class TimelineServiceTest {
 	@Transactional
 	public void testDeleteTimeline() throws Exception{
 		System.out.println("\n===================================");
-		timelineService.deleteTimeline(6);
+		timelineService.deleteTimeline(91);
 	}
 	
 //	@Test
-	@Transactional
-	public void testSelectImageForDelete() throws Exception{
-		System.out.println("\n===================================");
-		System.out.println(timelineService.getImageForDelete(1));
-	}
+//	@Transactional
+//	public void testSelectImageForDelete() throws Exception{
+//		System.out.println("\n===================================");
+//		System.out.println(timelineService.getImageForDelete(1));
+//	}
 	
 //	@Test
 	@Transactional
@@ -128,13 +133,13 @@ public class TimelineServiceTest {
 		timelineService.deleteCategory(15);
 	}
 	
-	@Test
+//	@Test
 	@Transactional
 	public void testRecordToUserId() throws Exception{
 		System.out.println("\n===================================");
 		Search search=Search.builder()
-				.userId("user1").
-				currentPage(1)
+				.userId("user1")
+				.currentPage(1)
 				.limit(5)
 				.sharedType(1)
 				.tempType(1)
