@@ -1,11 +1,16 @@
 package com.mapmory.common.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -15,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.policy.Resource;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
@@ -41,15 +45,6 @@ public class ObjectStorageUtil {
     
     @Value("${object.bucketName}")
     private String bucketName;
-	
-	@Value("${test.object.Access.Key}")
-	private String accessKey;
-	
-	@Value("${test.object.Secret.Key}")
-	private String secretKey;
-
-	@Value("${test.object.bucketName}")
-	private String testBucketName;
     
     @Value("${object.folderName}")
     private String folderName;
@@ -94,62 +89,78 @@ public class ObjectStorageUtil {
         return cdnUrl + "productImage/" + imageResource.getDescription();
     }
     
-    public void downloadFile(String directoryPath) throws Exception {
+    public void downloadFile(String directoryPath, String downloadFilePath) throws Exception {
     	
+    	// final AmazonS3 s3 = getS3Client();
+    	// test 이후 교체할 것
+    	final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ENDPOINT, REGION))
+				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(objectAccessKey, objectSecretKey)))
+				.build();
+    	
+    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, directoryPath);
+    	List<String> filePaths = result.get("filePaths");
+		List<String> fileNames = result.get("fileNames");
+    	
+    	for(int i = 0; i < filePaths.size(); i++) {
+    		
+    		try {
+    			
+    			S3Object s3Object = s3.getObject(bucketName, filePaths.get(i));
+    			S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+    			
+    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadFilePath));
+    			byte[] bytesArray = new byte[4096];
+    			int bytesRead = -1;
+    			while( (bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
+    				outputStream.write(bytesArray, 0, bytesRead);
+    			}
+    			
+    			outputStream.close();
+    			s3ObjectInputStream.close();
+    			
+    		} catch (AmazonS3Exception e) {
+    		    e.printStackTrace();
+    		} catch(SdkClientException e) {
+    		    e.printStackTrace();
+    		}
+    	}
     	
     }
     
-    private AmazonS3 getS3Client() {
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
-	    
+    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String directoryPath) throws Exception {
 		
-		
-	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
-	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-	            .withPathStyleAccessEnabled(true)
-	            .build();
-	    
-		return s3Client;
-	}
-    
-    public List<String> getObjectStorageSelectFileList(String directoryPath) throws Exception {
-		
-    	System.out.println("directoryPath : "+directoryPath);
-    	
-		// final AmazonS3 s3 = getS3Client();
-    	// test 이후 변경할 것
-    	final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ENDPOINT, REGION))
-				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-				.build();
-		
-		List<String> result = new ArrayList<>();
+		List<String> filePaths = new ArrayList<>();
+		List<String> fileNames = new ArrayList<>();
 
 		try {
 			
 			ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
-					.withBucketName(testBucketName)
+					.withBucketName(bucketName)
 					// .withDelimiter("/")
 					.withMaxKeys(300);
 			
 			ObjectListing objectListing = s3.listObjects(listObjectsRequest);
-			
-			System.out.println("File List:");
+
 			for(S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
 				// System.out.println("    name=" + objectSummary.getKey() + ", size=" + objectSummary.getSize() + ", owner=" + objectSummary.getOwner().getId());
 				
-				String fileName = objectSummary.getKey();
+				String filePath = objectSummary.getKey();
 				long fileSize = objectSummary.getSize();
 				
-				if(fileName.contains(directoryPath+"/") && fileSize != 0L) {
+				if(filePath.contains(directoryPath+"/") && fileSize != 0L) {
 					
-					String[] tempStr =fileName.split("/");
+					String[] tempStr =filePath.split("/");
 					int last = tempStr.length - 1;
-					result.add(tempStr[last].split("\\.")[0]);
+					fileNames.add(tempStr[last].split("\\.")[0]);
+					filePaths.add(filePath);
 				}
 			}
 			
+			Map<String, List<String>> result = new HashMap<>();
+			result.put("filePaths", filePaths);
+			result.put("fileNames", fileNames);
+
 			return result;
 			
 		} catch(AmazonS3Exception e) {
@@ -159,5 +170,17 @@ public class ObjectStorageUtil {
 		}
 		
 		return null;
+	}
+    
+    private AmazonS3 getS3Client() {
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
+	    
+	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+	            .withPathStyleAccessEnabled(true)
+	            .build();
+	    
+		return s3Client;
 	}
 }
