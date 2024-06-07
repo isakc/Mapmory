@@ -15,6 +15,11 @@
 		<result property="hashTag" column="image_tag_text" jdbcType="VARCHAR" />
 	</resultMap>
 	
+	<select id="getCategory" parameterType="int" resultType="String">
+		SELECT category_name FROM  category
+		WHERE category_No = #{categoryNo};
+	</select>
+	
 	<select id="getCategoryName" parameterType="int" resultType="String">
 		SELECT category_name c 
 		FROM record r, category c
@@ -28,6 +33,20 @@
     		WHERE r.record_no = #{recordNo}
     		AND i.image_tag_type = 0
     		AND r.record_no = i.record_no;
+	</select>
+	
+	<insert id="addSearchData" parameterType="String">
+		INSERT IGNORE INTO recommend_keyword (user_id, keyword)
+		VALUES (#{userId}, #{keyword});
+	</insert>
+	
+	<select id="getSearchData" parameterType="String" resultType="String">
+		SELECT keyword FROM recommend_keyword
+		<if test='userId != null'>
+			WHERE user_id = #{userId};
+		</if>
+
+		
 	</select>
 	
 	
