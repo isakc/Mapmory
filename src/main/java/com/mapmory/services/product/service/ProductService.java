@@ -18,17 +18,18 @@ public interface ProductService {
 
     public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception;
 
-    public void deleteProduct(int productNo) throws Exception;
+    public void deleteProduct(int productNo,String folderName) throws Exception;
 
     public Product getProductByName(String productTitle) throws Exception;
 
     public Map<String,Object> getProductImages(int productNo) throws Exception;
     
-    public void deleteImage(String uuid) throws Exception;
+    public void deleteImage(String uuid,String folderName) throws Exception;
     
-    public String getImageUrlByImageTag(String imageTag) throws Exception;
+    public String getImageUrlByImageTag(String imageTag,String folderName) throws Exception;
     
     public void processImageWithTag(String imageTag) throws Exception;
     
     ProductImage getImageByTag(String imageTag) throws Exception;
+
 }
