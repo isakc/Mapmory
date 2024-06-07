@@ -42,6 +42,9 @@ public class ProductController {
     @Value("${page.Size}")
     int pageSize;
     
+    @Value("${object.folderName}")
+    private String folderName;
+    
     public ProductController() {
 		System.out.println(this.getClass());
 	}
@@ -61,7 +64,7 @@ public class ProductController {
         for (MultipartFile file : files) {
             String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
             String originalFilename = file.getOriginalFilename();
-            objectStorageUtil.uploadFileToS3(file, uuid); // 파일 업로드 시 UUID 값 전달
+            objectStorageUtil.uploadFileToS3(file, uuid,folderName); // 파일 업로드 시 UUID 값 전달
             uuidFileNames.add(uuid);
             originalFileNames.add(originalFilename);
         }
@@ -118,7 +121,7 @@ public class ProductController {
                 if (!file.isEmpty()) { // 빈 파일이 아닌 경우에만 처리
                     String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
                     String originalFilename = file.getOriginalFilename();
-                    objectStorageUtil.uploadFileToS3(file, uuid); // 파일 업로드
+                    objectStorageUtil.uploadFileToS3(file, uuid, folderName); // 파일 업로드
                     uuidFileName.add(uuid);
                     originalFileNames.add(originalFilename);
                 }
@@ -128,7 +131,7 @@ public class ProductController {
         // 삭제할 이미지 UUID 목록 처리
         if (deleteImageUuids != null && !deleteImageUuids.isEmpty()) {
             for (String uuid : deleteImageUuids) {
-                productService.deleteImage(uuid);
+                productService.deleteImage(uuid,folderName);
             }
         }
 
@@ -147,7 +150,7 @@ public class ProductController {
     
     @GetMapping("/deleteProduct/{productNo}")
     public String deleteProduct(@PathVariable int productNo) throws Exception {
-        productService.deleteProduct(productNo);
+        productService.deleteProduct(productNo,folderName);
         return "redirect:/product/getProductList";
     }
     
@@ -155,7 +158,7 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<String> deleteImage(@PathVariable String uuid) {
         try {
-            productService.deleteImage(uuid);
+            productService.deleteImage(uuid,folderName);
             return ResponseEntity.ok("이미지 삭제 완료");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 삭제 중 오류 발생");
@@ -166,9 +169,19 @@ public class ProductController {
     @GetMapping("/image/{uuid}")
     @ResponseBody
     public ResponseEntity<ByteArrayResource> getImage(@PathVariable String uuid) throws Exception {
-        ByteArrayResource resource = objectStorageUtil.getImageResource(uuid);
+        ByteArrayResource resource = objectStorageUtil.getImageResource(uuid,folderName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
+   
+    @GetMapping("/image")
+    @ResponseBody
+    public String getImageUrlByImageTag(@RequestParam("imageTag") String imageTag) {
+        try {
+            return productService.getImageUrlByImageTag(imageTag,folderName);
+        } catch (Exception e) {
+            return "서버 오류 발생";
+        }
     }
 }
