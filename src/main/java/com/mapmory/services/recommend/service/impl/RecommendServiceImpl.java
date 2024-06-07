@@ -71,22 +71,22 @@ public class RecommendServiceImpl implements RecommendService {
 	
 	@Override
 	public void addSearchData(Record record) throws Exception {
-		
-		String userId = record.getRecordUserId();
-		String category = recommendDao.getCategory(record.getCategoryNo());
-		List<String> hashTag = record.getHashtag();
-		
-		System.out.println("userId : "+userId+", category : "+category+", hashTag : "+hashTag);
-		
-		if(category != null) {
-			recommendDao.addSearchData(userId, category);
-		}
-		
-		if(hashTag != null) {
-			for(String i : hashTag) {
-				recommendDao.addSearchData(userId, i);
-			}
-		}
+//		
+//		String userId = record.getRecordUserId();
+//		String category = recommendDao.getCategory(record.getCategoryNo());
+//		List<String> hashTag = record.getHashtag();
+//		
+//		System.out.println("userId : "+userId+", category : "+category+", hashTag : "+hashTag);
+//		
+//		if(category != null) {
+//			recommendDao.addSearchData(userId, category);
+//		}
+//		
+//		if(hashTag != null) {
+//			for(String i : hashTag) {
+//				recommendDao.addSearchData(userId, i);
+//			}
+//		}
 		
 	}
 
@@ -184,43 +184,45 @@ public class RecommendServiceImpl implements RecommendService {
 
 	@Override
 	public Recommend getRecordData(Record record, int recordNo) throws Exception {
-		System.out.println("RecommendServiceImpl getRecordData()");
-		Recommend recommend = new Recommend();
+//		System.out.println("RecommendServiceImpl getRecordData()");
+//		Recommend recommend = new Recommend();
+//		
+//		int categoryNo = record.getCategoryNo();
+//		
+//		//해시태그 추천시스템에 맞게 저장
+//		List<String> hash = record.getHashtag();
+//		if(hash != null) {
+//			System.out.println("hash : "+hash);
+//			String hashTags = "";
+//			for(String i : hash) {
+//				String hashTag = i.substring(1).trim();
+//				if( hashTags == "") {
+//					hashTags += hashTag;
+//				} else {
+//					hashTags += "|"+hashTag;
+//				}
+//				
+//			}
+//			recommend.setHashTag(hashTags);
+//			System.out.println("hashTags : " + hashTags);
+//		}		
+//		
+//		//카테고리 이름저장
+//		recommend.setCategory(recommendDao.getCategory(categoryNo));
+//		
+//		//타임스탬프 epoch 시간으로 받아오기
+//		long timestamp = Instant.now().getEpochSecond();
+//		recommend.setTimeStamp(timestamp);
+////		System.out.println(timestamp.getEpochSecond());
+//		
+//		recommend.setUserId(record.getRecordUserId());
+//		recommend.setRecordNo(recordNo);
+//		
+//		System.out.println(recommend.toString());
+//		System.out.println("RecommendServiceImpl getRecordData end");
+//		return recommend;
 		
-		int categoryNo = record.getCategoryNo();
-		
-		//해시태그 추천시스템에 맞게 저장
-		List<String> hash = record.getHashtag();
-		if(hash != null) {
-			System.out.println("hash : "+hash);
-			String hashTags = "";
-			for(String i : hash) {
-				String hashTag = i.substring(1).trim();
-				if( hashTags == "") {
-					hashTags += hashTag;
-				} else {
-					hashTags += "|"+hashTag;
-				}
-				
-			}
-			recommend.setHashTag(hashTags);
-			System.out.println("hashTags : " + hashTags);
-		}		
-		
-		//카테고리 이름저장
-		recommend.setCategory(recommendDao.getCategory(categoryNo));
-		
-		//타임스탬프 epoch 시간으로 받아오기
-		long timestamp = Instant.now().getEpochSecond();
-		recommend.setTimeStamp(timestamp);
-//		System.out.println(timestamp.getEpochSecond());
-		
-		recommend.setUserId(record.getRecordUserId());
-		recommend.setRecordNo(recordNo);
-		
-		System.out.println(recommend.toString());
-		System.out.println("RecommendServiceImpl getRecordData end");
-		return recommend;
+		return null;
 		
 		
 	}

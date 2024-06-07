@@ -1,9 +1,13 @@
 package com.mapmory.controller.recommend;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,11 +28,24 @@ public class RecommendControllerJM {
 	String speechFolderName;
 	
 	@PostMapping("/upload")
-	public void uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
-	    String originalFileName = audioFile.getOriginalFilename();
-	    String uuidFileName = ImageFileUtil.getProductImageUUIDFileName(originalFileName); // UUID 파일명 생성
-	    
-	    // ObjectStorageUtil을 사용하여 S3에 업로드
-	    objectStorageUtil.uploadFileToS3(audioFile, uuidFileName, speechFolderName);
+	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        String originalFileName = audioFile.getOriginalFilename();
+	        String uuidFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+
+	        // ObjectStorageUtil을 사용하여 S3에 업로드
+	        objectStorageUtil.uploadFileToS3(audioFile, uuidFileName, speechFolderName);
+
+	        response.put("success", true);
+	        response.put("message", "파일 업로드 성공");
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("success", false);
+	        response.put("message", "파일 업로드 중 오류 발생");
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
 }
