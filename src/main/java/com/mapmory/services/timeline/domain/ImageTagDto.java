@@ -8,5 +8,6 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class ImageTagDto {
 	private int imageTagOrder;
+	private int imageTagType;
 	private String imageTagText;
 }

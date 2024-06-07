@@ -19,10 +19,12 @@ public interface TimelineDao {
 	
 	//Record CRUD
 	public void insertTimeline(Record record) throws Exception;
-	//record insert시 Imagefile insert
-	public void insertImageName(Map<String,Object> map) throws Exception;
-	//record insert시 Hashtag insert
-	public void insertHashtag(Map<String,Object> map) throws Exception;
+	
+	public void insertImageTag(Map<String,Object> map) throws Exception;
+//	//record insert시 Imagefile insert
+//	public void insertImageName(Map<String,Object> map) throws Exception;
+//	//record insert시 Hashtag insert
+//	public void insertHashtag(Map<String,Object> map) throws Exception;
 	//resultmap collection 사용 시 Map으로만 묶어짐
 	public Map<String, Object> selectDetailTimeline(int recordNo) throws Exception;
 	
@@ -37,6 +39,8 @@ public interface TimelineDao {
 	//Image and Hashtag delete
 	//record select시 imageNo 못가져와서 가져오는 image select
 	public List<ImageTagDto> selectImageForDelete(int recordNo) throws Exception;
+	
+	public void deleteImageTag(int recordNo) throws Exception;
 	
 	public void deleteImageToRecordNo(int recordNo) throws Exception;
 	

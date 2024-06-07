@@ -8,12 +8,13 @@
         <result property="productNo" column="product_no" jdbcType="INTEGER" />
         <result property="imageName" column="image_name" jdbcType="VARCHAR" />
         <result property="prodRegDate" column="prod_reg_date" jdbcType="DATE" />
+        <result property="imageTag" column="image_tag" jdbcType="VARCHAR" />
     </resultMap>
 
     <!-- 이미지 파일 추가 -->
     <insert id="addProductImage" parameterType="productImage">
-        INSERT INTO IMAGE_FILE (UUID, PRODUCT_NO, IMAGE_NAME)
-        VALUES (#{uuid}, #{productNo}, #{imageFile})
+        INSERT INTO IMAGE_FILE (UUID, PRODUCT_NO, IMAGE_NAME, IMAGE_TAG)
+        VALUES (#{uuid}, #{productNo}, #{imageFile}, #{imageTag})
     </insert>
 
 
@@ -37,5 +38,11 @@
         SET UUID = #{uuid}
         WHERE PRODUCT_NO = #{productNo}
     </update>
+    
+    <select id="getImageByTag" parameterType="String" resultType="productImage">
+    	SELECT *
+    	FROM IMAGE_FILE
+    	WHERE IMAGE_TAG = #{imageTag}
+    </select>
 
 </mapper>

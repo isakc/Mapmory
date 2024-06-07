@@ -44,9 +44,14 @@ public class ProductServiceTest {
         List<String> imageFiles = new ArrayList<>();
         imageFiles.add("test_image12.jpg");
         imageFiles.add("test_image13.jpg");
+        
+        List<String> imageTag = new ArrayList<>();
+        
+        imageTag.add("/안녕/");
+        imageTag.add("/잘가/");
 
         // When
-        productService.addProduct(product, imageFiles, imageFiles);
+        productService.addProduct(product, imageFiles, imageFiles,imageTag);
 
         // Then
     }
@@ -113,14 +118,14 @@ public class ProductServiceTest {
     //@Test
     public void testDeleteImage() throws Exception {
     	
-    	productService.deleteImage("c2e31b5692784d50ba294a81fb535b51.jpg");
+    	productService.deleteImage("c2e31b5692784d50ba294a81fb535b51.jpg","/");
     	System.out.println("=======================================");
     	
     }
     
     //@Test
     public void testDeleteProduct() throws Exception {
-    	productService.deleteProduct(25);
+    	productService.deleteProduct(25,"/");
     }
     
     //@Test

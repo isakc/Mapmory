@@ -13,14 +13,17 @@
 </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
+    <script src="/javascript/config/key.js"></script>
+	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
 	
-	<script>
+	<script th:inline="javascript">
 	
 		$(document).ready(function() {
+			const test = API_KEYS.tmap;
+			
 			var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 			mapOption = {
-				center : new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+				center : new kakao.maps.LatLng(37.499396, 127.029038), // 지도의 중심좌표
 				level : 3 // 지도의 확대 레벨
 			};
 

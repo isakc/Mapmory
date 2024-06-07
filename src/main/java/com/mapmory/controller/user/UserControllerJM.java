@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,6 +22,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
 import com.mapmory.services.user.service.UserServiceJM;
 
@@ -39,6 +43,43 @@ public class UserControllerJM {
     
     @Value("${spring.mail.username}")
     private String emailId;
+    
+    @GetMapping("/addUser")
+	public String addUser(Model model) throws Exception {
+	    System.out.println("/user/addUser : GET");
+	    return "user/addUser";
+	}
+
+    @PostMapping("/addUser")
+    public String addUser(@ModelAttribute("user") User user,
+                          @ModelAttribute("socialInfo") SocialLoginInfo socialLoginInfo,
+                          HttpSession session) throws Exception {
+        System.out.println("/user/addUser : POST");
+
+        String kakaoId = (String) session.getAttribute("tempSocialId");
+        if (kakaoId != null) {
+            socialLoginInfo.setSocialId(kakaoId);
+        }
+
+        boolean result = userService.addUser(
+            user.getUserId(),
+            user.getUserPassword(),
+            user.getUserName(),
+            user.getNickname(),
+            user.getBirthday(),
+            user.getSex(),
+            user.getEmail(),
+            user.getPhoneNumber()
+        );
+
+        session.removeAttribute("tempSocialId"); // 세션에서 카카오 아이디 제거
+
+        if (result) {
+            return "index";
+        } else {
+            return "redirect:/user/addUser";
+        }
+    }
 
 	@GetMapping(value = "kakaoLogin")
     public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpSession session, RedirectAttributes redirectAttributes) {

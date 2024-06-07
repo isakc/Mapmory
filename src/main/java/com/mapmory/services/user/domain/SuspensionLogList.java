@@ -1,6 +1,7 @@
 package com.mapmory.services.user.domain;
 
-import lombok.Builder;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,9 +9,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Builder
-public class SuspensionLog {
+public class SuspensionLogList {
 
 	private String userId;
-	private SuspensionDetail suspensionDetail;
+	private List<SuspensionDetail> suspensionDetailList;
 }

@@ -1,6 +1,7 @@
 package com.mapmory.services.user.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,6 +11,7 @@ import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLog;
+import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.User;
 
 @Mapper
@@ -23,7 +25,7 @@ public interface UserDao {
 	
 	public int insertSocialLoginLink(SocialLoginInfo socialLoginInfo);
 	
-	public int insertSuspendLog(String userId);
+	public int insertSuspendLog(SuspensionLog log);
 	
 	public User selectUser(User user);
 	
@@ -40,7 +42,13 @@ public interface UserDao {
 	 */
 	public List<LoginLog> selectUserLoginList(Search search);
 	
-	public List<SuspensionLog> selectSuspensionList(Search search);
+	/**
+	 * searchCondition (0: LIKE 조회, 1: '=' 조회)
+	 * @param search
+	 * @return
+	 */
+	public List<SuspensionLogList> selectSuspensionList(Search search);
+	// public Map<String, Object> selectSuspensionList(Search search);
 	
 	// 내 정보 수정, 프로필 수정, 비밀번호 변경, 2단계 인증 설정, 회원 탈퇴 처리, 회원 정지 모두 지원
 	public int updateUser(User user);
@@ -53,6 +61,8 @@ public interface UserDao {
 	public int updateRecoverAccount(String userId);
 	
 	public int deleteFollow(FollowBlock follow);
+
+	public int deleteSuspendUser(int logNo);
 	
 	// id, nickname 모두 지원
 	public int checkDuplication(User user);
