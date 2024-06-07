@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import javax.crypto.Mac;
@@ -38,6 +39,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
+import com.mapmory.services.timeline.domain.Record;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -68,14 +70,78 @@ public class RecommendServiceImpl implements RecommendService {
     private String aitems_Secret_Key;
 	
 	@Override
-	public void addSearchData() throws Exception {
-		// TODO Auto-generated method stub
+	public void addSearchData(Record record) throws Exception {
+		
+		String userId = record.getRecordUserId();
+		String category = recommendDao.getCategory(record.getCategoryNo());
+		List<String> hashTag = record.getHashtag();
+		
+		System.out.println("userId : "+userId+", category : "+category+", hashTag : "+hashTag);
+		
+		if(category != null) {
+			recommendDao.addSearchData(userId, category);
+		}
+		
+		if(hashTag != null) {
+			for(String i : hashTag) {
+				recommendDao.addSearchData(userId, i);
+			}
+		}
 		
 	}
 
 	@Override
-	public void getSearchData() throws Exception {
-		// TODO Auto-generated method stub
+	public String[] getSearchData(String userId) throws Exception {
+		List<String> data = recommendDao.getSearchData(userId);		
+		Random rand = new Random();
+		int dataLength = data.size();
+		int[] randInt = new int[5];
+		String[] result;
+		
+		System.out.println("data"+data);
+		System.out.println(dataLength);
+		
+		if(dataLength != 0 ) {
+			if(dataLength > 5) {
+				System.out.println("6개 이상");
+				result = new String[5];
+				for(int k = 0; k < 5; k++) {
+					randInt[k] = rand.nextInt(dataLength);
+					for(int i = 0; i < 5; i++) {
+						if(randInt[k] == randInt[i] && k!=i && k !=0) {
+							randInt[k] = rand.nextInt(dataLength);
+							k--;
+							continue;
+						}					
+					}
+				}
+				
+				for(int j = 0; j < 5; j++) {
+					result[j] = data.get(randInt[j]);
+				}
+				
+			} else {
+				System.out.println("5개 이하");
+				result = new String[dataLength];
+				int k = 0;
+				for(String i : data) {
+					result[k] = i;
+					System.out.println("result["+k+"] : " + result[k]);
+					k++;
+				}
+				System.out.println(result);
+				
+			}
+			
+			for(String rs : result) {
+				System.out.println("rs :"+rs);
+			}
+			return result;	
+		}else {
+			result = new String[1];
+			result[0] = "아직 추천해 드릴 수 있는 검색어가 존재하지 않아요!";
+			return result;
+		}		
 		
 	}
 
@@ -117,37 +183,42 @@ public class RecommendServiceImpl implements RecommendService {
 	}
 
 	@Override
-	public Recommend getRecordData(int recordNo) throws Exception {
-		
+	public Recommend getRecordData(Record record, int recordNo) throws Exception {
 		System.out.println("RecommendServiceImpl getRecordData()");
-
 		Recommend recommend = new Recommend();
 		
-		//카테고리 이름받기
-		recommend.setCategory(recommendDao.getCategoryName(recordNo));
+		int categoryNo = record.getCategoryNo();
 		
-		//해시태그 받아오기 시작
-		List<String> hash = recommendDao.getHashTagNames(recordNo);
-		System.out.println("hash : "+hash);
-		String hashTags = "";
-		for(String i : hash) {
-			String hashTag = i.substring(1).trim();
-			if( hashTags == "") {
-				hashTags += hashTag;
-			} else {
-				hashTags += "|"+hashTag;
+		//해시태그 추천시스템에 맞게 저장
+		List<String> hash = record.getHashtag();
+		if(hash != null) {
+			System.out.println("hash : "+hash);
+			String hashTags = "";
+			for(String i : hash) {
+				String hashTag = i.substring(1).trim();
+				if( hashTags == "") {
+					hashTags += hashTag;
+				} else {
+					hashTags += "|"+hashTag;
+				}
+				
 			}
-		}
-		recommend.setHashTag(hashTags);
-		System.out.println("hashTags : " + hashTags);
-		//해시태그 받아오기 끝
+			recommend.setHashTag(hashTags);
+			System.out.println("hashTags : " + hashTags);
+		}		
+		
+		//카테고리 이름저장
+		recommend.setCategory(recommendDao.getCategory(categoryNo));
 		
 		//타임스탬프 epoch 시간으로 받아오기
 		long timestamp = Instant.now().getEpochSecond();
 		recommend.setTimeStamp(timestamp);
 //		System.out.println(timestamp.getEpochSecond());
 		
+		recommend.setUserId(record.getRecordUserId());
+		recommend.setRecordNo(recordNo);
 		
+		System.out.println(recommend.toString());
 		System.out.println("RecommendServiceImpl getRecordData end");
 		return recommend;
 		
