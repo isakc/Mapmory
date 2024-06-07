@@ -15,13 +15,14 @@ public class LogAspectJ {
 	public Object invoke(ProceedingJoinPoint joinPoint) throws Throwable {
 			
 		System.out.println("");
+		System.out.println("==="+getClass().getSimpleName()+"===");
 		System.out.println("[Around before] target object's method :: "+ joinPoint.getTarget().getClass().getSimpleName() +"."+ joinPoint.getSignature().getName());
 		if(joinPoint.getArgs().length !=0){
 			System.out.println("[Around before] method에 전달되는 argument 개수 = " + joinPoint.getArgs().length);
 			System.out.println("[Around before] method에 전달되는 argument :: " + Arrays.asList(joinPoint.getArgs()) ); 
 		}
 
-		System.out.println(getClass().getSimpleName() +" :: target  object's  method proceed... ");
+		System.out.println(joinPoint.getTarget().getClass().getSimpleName() +"."+ joinPoint.getSignature().getName() +"  proceed... ");
 		Object obj = joinPoint.proceed();
 
 		System.out.println("[Around after] '"+joinPoint.getTarget().getClass().getSimpleName() +"."+joinPoint.getSignature().getName()+"' return value = "+obj);

@@ -1,24 +1,37 @@
 package com.mapmory.common.util;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.IOUtils;
 
 @Component
@@ -39,20 +52,8 @@ public class ObjectStorageUtil {
     @Value("${cdn.url}")
     private String cdnUrl;
 	
-	public AmazonS3 getS3Client() {
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
-	    
-		String REGION = "kr-standard";
-	    String ENDPOINT = "https://kr.object.ncloudstorage.com";
-		
-	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
-	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-	            .withPathStyleAccessEnabled(true)
-	            .build();
-	    
-		return s3Client;
-	}
+    private static String REGION = "kr-standard";
+    private static String ENDPOINT = "https://kr.object.ncloudstorage.com";
     
 	public void uploadFileToS3(MultipartFile file, String uuidFileName) throws Exception {
 	    File localFile = convertMultiPartToFile(file);
@@ -87,4 +88,99 @@ public class ObjectStorageUtil {
     public String getImageUrl(ByteArrayResource imageResource) {
         return cdnUrl + "productImage/" + imageResource.getDescription();
     }
+    
+    public void downloadFile(String directoryPath, String downloadFilePath) throws Exception {
+    	
+    	// final AmazonS3 s3 = getS3Client();
+    	// test 이후 교체할 것
+    	final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+				.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(ENDPOINT, REGION))
+				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(objectAccessKey, objectSecretKey)))
+				.build();
+    	
+    	Map<String, List<String>> result = getObjectStorageSelectFileList(s3, directoryPath);
+    	List<String> filePaths = result.get("filePaths");
+		List<String> fileNames = result.get("fileNames");
+    	
+    	for(int i = 0; i < filePaths.size(); i++) {
+    		
+    		try {
+    			
+    			S3Object s3Object = s3.getObject(bucketName, filePaths.get(i));
+    			S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+    			
+    			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(downloadFilePath));
+    			byte[] bytesArray = new byte[4096];
+    			int bytesRead = -1;
+    			while( (bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
+    				outputStream.write(bytesArray, 0, bytesRead);
+    			}
+    			
+    			outputStream.close();
+    			s3ObjectInputStream.close();
+    			
+    		} catch (AmazonS3Exception e) {
+    		    e.printStackTrace();
+    		} catch(SdkClientException e) {
+    		    e.printStackTrace();
+    		}
+    	}
+    	
+    }
+    
+    private Map<String, List<String>> getObjectStorageSelectFileList(AmazonS3 s3, String directoryPath) throws Exception {
+		
+		List<String> filePaths = new ArrayList<>();
+		List<String> fileNames = new ArrayList<>();
+
+		try {
+			
+			ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
+					.withBucketName(bucketName)
+					// .withDelimiter("/")
+					.withMaxKeys(300);
+			
+			ObjectListing objectListing = s3.listObjects(listObjectsRequest);
+
+			for(S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
+				// System.out.println("    name=" + objectSummary.getKey() + ", size=" + objectSummary.getSize() + ", owner=" + objectSummary.getOwner().getId());
+				
+				String filePath = objectSummary.getKey();
+				long fileSize = objectSummary.getSize();
+				
+				if(filePath.contains(directoryPath+"/") && fileSize != 0L) {
+					
+					String[] tempStr =filePath.split("/");
+					int last = tempStr.length - 1;
+					fileNames.add(tempStr[last].split("\\.")[0]);
+					filePaths.add(filePath);
+				}
+			}
+			
+			Map<String, List<String>> result = new HashMap<>();
+			result.put("filePaths", filePaths);
+			result.put("fileNames", fileNames);
+
+			return result;
+			
+		} catch(AmazonS3Exception e) {
+		    System.err.println(e.getErrorMessage());
+		} catch(SdkClientException e) {
+		    e.printStackTrace();
+		}
+		
+		return null;
+	}
+    
+    private AmazonS3 getS3Client() {
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(objectAccessKey, objectSecretKey);
+	    
+	    AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+	            .withEndpointConfiguration(new EndpointConfiguration(ENDPOINT, REGION))
+	            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+	            .withPathStyleAccessEnabled(true)
+	            .build();
+	    
+		return s3Client;
+	}
 }

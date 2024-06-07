@@ -41,11 +41,14 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.insertTimeline(record);
 		System.out.println(record);
 		map.put("recordNo",record.getRecordNo());
-		map.put("imageName",record.getImageName());
-		map.put("hashtag",record.getHashtag());
+//		System.out.println("record.getImageTagList():"+record.getImageTagList());
+		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+//		map.put("imageName",record.getImageName());
+//		map.put("hashtag",record.getHashtag());
 		
-		timelineDao.insertImageName(map);
-		timelineDao.insertHashtag(map);
+		timelineDao.insertImageTag(map);
+//		timelineDao.insertImageName(map);
+//		timelineDao.insertHashtag(map);
 	}
 	
 	@Override
@@ -67,18 +70,21 @@ public class TimelineServiceImpl implements TimelineService {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.updateTimeline(record);
 		map.put("recordNo",record.getRecordNo());
-		map.put("imageName",record.getImageName());
-		map.put("hashtag",record.getHashtag());
+		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+//		map.put("imageName",record.getImageName());
+//		map.put("hashtag",record.getHashtag());
 		
-		timelineDao.insertImageName(map);
-		timelineDao.insertHashtag(map);
+		timelineDao.insertImageTag(map);
+//		timelineDao.insertImageName(map);
+//		timelineDao.insertHashtag(map);
 		
 	}
 
 	@Override
 	public void deleteTimeline(int recordNo) throws Exception {
-		timelineDao.deleteHashtag(recordNo);
-		timelineDao.deleteImageToRecordNo(recordNo);
+//		timelineDao.deleteHashtag(recordNo);
+//		timelineDao.deleteImageToRecordNo(recordNo);
+		timelineDao.deleteImageTag(recordNo);
 		timelineDao.deleteTimeline(recordNo);
 	}
 	

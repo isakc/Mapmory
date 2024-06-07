@@ -1,24 +1,49 @@
 package com.mapmory.services.user.service.impl;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
+import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SuspensionDetail;
+import com.mapmory.services.user.domain.SuspensionLog;
+import com.mapmory.services.user.domain.SuspensionLogList;
+import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
+
+import kr.co.shineware.nlp.komoran.exception.FileFormatException;
 
 @Service("userServiceImpl")
 @Transactional
@@ -47,23 +72,56 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 
-	// 먼저 조회 로직을 구상한 후에, count 로직을 만들어서 정책에 따라 처리해야 한다.
 	@Override
-	public boolean addSuspendUser(String userId) {
+	public boolean addSuspendUser(String userId, String reason) throws Exception {
 		// TODO Auto-generated method stub
 		
-		/*
-		User user = User.builder()
-					.userId(userId)
-					.endSuspensionDate();
-					.build();
+		int searchCondition = 1;
 		
-		int result = userDao.updateUser(user);
+		Search search = Search.builder()
+							.userId(userId)
+							.searchCondition(searchCondition)
+							.build();
+		
+		// @SuppressWarnings("rawtypes")
+		// int count = ((List) userDao.selectSuspensionList(search).get("suspensionDetailList")).size();
+		// int count = userDao.selectSuspensionList(search).get(0).getSuspensionDetailList().size();
+		SuspensionLogList tempResult = getSuspensionLogListActually(userId);
+		int count = 0;
+		if(tempResult == null)
+			count = 0;
+		else
+			count = tempResult.getSuspensionDetailList().size();
+			
+		LocalDateTime startSuspensionDate = LocalDateTime.now(); 
+		switch(count) {
+		
+			case 0:
+				startSuspensionDate.plusDays(1);
+				break;
+			case 1:
+				startSuspensionDate.plusDays(7);
+				break;
+			case 2:
+				startSuspensionDate.plusDays(14);
+				break;
+			case 3:
+				startSuspensionDate.plusYears(9999L);
+				break;
+			default :
+				throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
+		}
+		
+		SuspensionDetail detail = new SuspensionDetail(startSuspensionDate, reason);
+		
+		SuspensionLog log = SuspensionLog.builder()
+							.userId(userId)
+							.suspensionDetail(detail)
+							.build();
+		
+		int result = userDao.insertSuspendLog(log);
 		
 		return intToBool(result);
-		*/
-		
-		return false;
 	}
 
 	@Override
@@ -168,12 +226,14 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<FollowMap> getFollowList(String userId, String searchKeyword) {
+	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit) {
 		// TODO Auto-generated method stub
 		
 		Search search = Search.builder()
 						.userId(userId)
 						.searchKeyword(searchKeyword)
+						.currentPage(currentPage)
+						.limit(limit)
 						.build();
 		
 		return userDao.selectFollowList(search);
@@ -186,9 +246,114 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updateSuspendUser(String userId) {
+	public List<SuspensionLogList> getSuspensionLogList(String userId, Integer currentPage, Integer limit) {
 		// TODO Auto-generated method stub
-		return false;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchCondition(0)
+						.limit(limit)
+						.currentPage(currentPage)
+						.build();
+		
+		return userDao.selectSuspensionList(search);
+	}
+	
+	@Override
+	public SuspensionLogList getSuspensionLogListActually(String userId) {
+		// TODO Auto-generated method stub
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchCondition(1)
+						.build();
+		List<SuspensionLogList> result = userDao.selectSuspensionList(search);
+
+		if(result.size() == 0)
+			return null;
+		else
+			return result.get(0);
+	}
+	
+	
+	@Override
+	public List<TermsAndConditions> getTermsAndConditionsList(String dirPath) throws Exception {
+		// TODO Auto-generated method stub
+
+		List<TermsAndConditions> result = new ArrayList<>();
+		
+		try (Stream<Path> paths = Files.walk(Paths.get(dirPath))){
+			
+			List<Path> files = paths.filter(Files::isRegularFile).collect(Collectors.toList());
+			
+			for (Path filePath : files) {
+				
+				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
+				
+				if(temp == null)
+					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
+				
+				result.add(temp);
+			}
+			
+			return result;
+		} catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+	}
+
+	@Override
+	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception {
+		// TODO Auto-generated method stub
+		
+		
+		
+		try {
+			
+			
+			
+			BufferedReader br = new BufferedReader(new FileReader(filePath));
+			
+			if(br.lines() == null) 
+				throw new FileNotFoundException("file을 찾지 못했습니다...");
+			
+			String title = null;
+			Boolean required = null;
+			StringBuilder contents = new StringBuilder();
+			
+			String nextLine = null;
+			
+			while( (nextLine = br.readLine()) != null  ) {
+	
+				if(nextLine.isEmpty())
+					continue;
+				
+				if(title == null) {
+					
+					title = nextLine.trim();
+					continue;
+					
+				} else if(required == null) {
+					
+					if(nextLine.trim().equalsIgnoreCase("필수"))
+						required = true;
+					else if(nextLine.trim().equalsIgnoreCase("선택"))
+						required = false;
+					else
+						throw new FileFormatException("'필수' 또는 '선택'만 기입해주세요.");
+					
+					continue;
+					
+				} else {
+					contents.append(nextLine).append("\n");
+				}
+			}
+
+			return new TermsAndConditions(title, required, contents);
+			
+		} catch(Exception e) {
+			throw new Exception();
+		}
 	}
 	
 	@Override
@@ -292,6 +457,15 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
+
+	@Override
+	public boolean deleteSuspendUser(int logNo) {
+		// TODO Auto-generated method stub
+		
+		int result = userDao.deleteSuspendUser(logNo);
+		return intToBool(result);
+	}
+	
 	@Override
 	public boolean checkSecondaryAuth(String userId) {
 		// TODO Auto-generated method stub
@@ -375,22 +549,6 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
-	
-	@Override
-	public Map<String, Object> getTermsAndConditionsList() {
-		// TODO Auto-generated method stub
-		// 이용약관은 file io 로 처리
-		
-		return null;
-	}
-
-	@Override
-	public Object getDetailTermsAndConditions() {
-		// TODO Auto-generated method stub
-		// 이용약관은 file io 로 처리
-		
-		return null;
-	}
 
 
 	private boolean intToBool(int result) {
@@ -400,5 +558,4 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
-
 }

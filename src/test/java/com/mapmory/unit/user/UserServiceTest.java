@@ -16,6 +16,8 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SuspensionLogList;
+import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
 
@@ -49,8 +51,44 @@ public class UserServiceTest {
 		Assertions.assertThat(resultUser.getUserPassword()).isEqualTo(password);
 	}
 	
-	public void testAddSuspendUser() {
+	// @Test
+	public void testAddSuspendUser() throws Exception {
 		
+		// 최초 정지인 경우
+		String userId = "user10";
+		String reason = "선정성";
+		
+		boolean result = userService.addSuspendUser(userId, reason);
+				
+		Assertions.assertThat(result).isTrue();
+		
+		SuspensionLogList resultTemp = userService.getSuspensionLogListActually(userId);
+		Assertions.assertThat(resultTemp.getSuspensionDetailList().size()).isEqualTo(1);
+		Assertions.assertThat(resultTemp.getSuspensionDetailList().get(0).getReason()).isEqualTo(reason);
+				
+		// 영구 정지인 경우
+		userId = "user1";
+		result = userService.addSuspendUser(userId, reason);
+		
+		Assertions.assertThat(result).isTrue();
+		
+		resultTemp = userService.getSuspensionLogListActually(userId);
+		Assertions.assertThat(resultTemp.getSuspensionDetailList().size()).isEqualTo(4);
+		Assertions.assertThat(resultTemp.getSuspensionDetailList().get(3).getReason()).isEqualTo(reason);
+		
+		
+		
+		// 예외가 발생하는 경우(정책 최대 개수 초과)
+		userId = "user2";
+		boolean flag = false;
+		try {
+			result = userService.addSuspendUser(userId, reason);
+		} catch (Exception e) {
+			Assertions.assertThat(e).isNotNull();
+			flag = true;
+		}
+		
+		Assertions.assertThat(flag).isTrue();
 	}
 	
 	// @Test
@@ -168,14 +206,84 @@ public class UserServiceTest {
 		
 		String userId = "user1";
 		String searchKeyword = "a";
+		int currentPage = 1;
+		int limit = 5;
 		
-		List<FollowMap> list = userService.getFollowList(userId, searchKeyword);
+		List<FollowMap> list = userService.getFollowList(userId, searchKeyword, currentPage, limit);		
 		String nickname = list.get(0).getNickname();
 		String userName = list.get(0).getUserName();
 		boolean result = nickname.contains(searchKeyword) || userName.contains(searchKeyword);
 		Assertions.assertThat(result).isTrue();
 	}
 	
+	// @Test
+	public void testGetSuspensionLogList() {
+		
+		String userId = "user";
+		int searchCondition = 0;
+		int currentPage = 1;
+		int limit = 5;
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchCondition(searchCondition)
+						.limit(limit)
+						.currentPage(currentPage)
+						.build();
+		
+		 List<SuspensionLogList> result = userService.getSuspensionLogList(userId, currentPage, limit);
+		 Assertions.assertThat(result.get(0).getUserId()).isEqualTo("user1");
+		 Assertions.assertThat(result.get(0).getSuspensionDetailList().get(0).getReason()).isEqualTo("욕함");
+		 Assertions.assertThat(result.get(1).getUserId()).isEqualTo("user2");
+	}
+	
+
+	// @Test
+	public void testGetSuspensionLogListActually() {
+		
+		String userId = "user2";
+		int searchCondition = 1;
+
+		
+		Search search = Search.builder()
+						.userId(userId)
+						.searchCondition(searchCondition)
+						.build();
+		
+		SuspensionLogList result = userService.getSuspensionLogListActually(userId);
+		Assertions.assertThat(result.getSuspensionDetailList().size()).isEqualTo(4);
+		Assertions.assertThat(result.getUserId()).isEqualTo("user2");
+	}
+	
+	// @Test
+	public void testGetDetailTermsAndConditions() throws Exception {
+		
+		String filePath = "C:\\Users\\rlaeo\\OneDrive\\바탕 화면\\bitcamp project\\이용약관 예제\\개인정보 수집 및 이용 약관.txt";
+		
+		try {
+			TermsAndConditions result = userService.getDetailTermsAndConditions(filePath);
+
+			Assertions.assertThat(result).isNotNull();
+			Assertions.assertThat(result.getTitle()).contains("개인정보");
+			Assertions.assertThat(result.getRequired()).isTrue();
+			Assertions.assertThat(result.getContents()).contains("회사");
+		} catch (Exception e) {
+			// TODO: handle exception
+			Assertions.fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testGetTermsAndConditionsList() throws Exception {
+		
+		String dirPath = "C:\\Users\\rlaeo\\OneDrive\\바탕 화면\\bitcamp project\\이용약관 예제";
+		
+		List<TermsAndConditions> result = userService.getTermsAndConditionsList(dirPath);
+		
+		Assertions.assertThat(result.size()).isEqualTo(2);
+		Assertions.assertThat(result.get(0).getTitle()).contains("개인정보");
+		Assertions.assertThat(result.get(1).getTitle()).contains("위치");
+	}
 	
 	// @Test
 	public void testUpdateUserPassword() {
@@ -264,7 +372,10 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(result).isTrue();
 		
-		List<FollowMap> list = userService.getFollowList(userId, null);
+		int currentPage = 1;
+		int limit = 5;
+		
+		List<FollowMap> list = userService.getFollowList(userId, targetId, currentPage, limit);
 		
 		boolean flag = true;
 		for(FollowMap fm : list) {
@@ -273,6 +384,20 @@ public class UserServiceTest {
 		}
 		
 		Assertions.assertThat(flag).isTrue();
+	}
+	
+	// @Test
+	public void testDeleteSuspendUser() {
+		
+		int logNo = 15;
+		
+		boolean result = userService.deleteSuspendUser(logNo);
+		Assertions.assertThat(result).isTrue();
+		
+		
+		String userId = "user1";
+		int count = userService.getSuspensionLogListActually(userId).getSuspensionDetailList().size();
+		Assertions.assertThat(count).isEqualTo(2);
 	}
 	
 	// @Test
@@ -332,7 +457,7 @@ public class UserServiceTest {
 		Assertions.assertThat(result).isEqualTo(true);
 	}
 
-	@Test
+	// @Test
 	public void testCheckSecondaryAuth() {
 		
 		// 2단계 인증을 설정하지 않은 경우

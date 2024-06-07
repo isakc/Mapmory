@@ -61,7 +61,7 @@ public class TimelineController {
 //		model.addAttribute("list3",recordList);
 		model.addAttribute("list3",timelineService.getTimelineList(search));
 		search=Search.builder()
-				.currentPage(1)
+				.currentPage(3)
 				.limit(3)
 				.sharedType(0)
 				.tempType(1)
@@ -69,7 +69,7 @@ public class TimelineController {
 				.build();
 		model.addAttribute("list4",timelineService.getTimelineList(search));
 		search=Search.builder()
-				.currentPage(1)
+				.currentPage(3)
 				.limit(3)
 				.sharedType(1)
 				.tempType(1)
@@ -78,7 +78,7 @@ public class TimelineController {
 		model.addAttribute("list5",timelineService.getTimelineList(search));
 		search=Search.builder()
 				.currentPage(1)
-				.limit(3)
+				.limit(5)
 				.sharedType(0)
 				.tempType(0)
 				.timecapsuleType(1)
@@ -95,7 +95,7 @@ public class TimelineController {
 		model.addAttribute("list7",timelineService.getTimelineList(search));
 		//대민 지원
 		search=Search.builder()
-				.userId(" ").
+				.userId(" user2 ").
 				currentPage(1)
 				.limit(5)
 				.sharedType(1)
