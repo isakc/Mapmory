@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
@@ -19,7 +21,20 @@ public interface UserService {
 	 *  그 외 controller에서 사용해야 할 각종 business logic (REST 포함) 추가 예정
 	 */
 	
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber);
+	/**
+	 * 
+	 * @param userId  : 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능
+	 * @param userPassword  : 8~16자의 영문 대/소문자, 숫자, 특수문자만 사용 가능
+	 * @param userName  : 최소 2자 최대 18자의 한글 및 영문 사용만 가능
+	 * @param nickname  : 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능하다. 첫 글자는 띄어쓰기가 불가능
+	 * @param birthday
+	 * @param sex  : 0:비공개, 1:남자, 2:여성
+	 * @param email  : test@test.com
+	 * @param phoneNumber  : 010-1234-1234
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception;
 	
 	/**
 	 * 계정 정지 정책 (1회: 1일 정지, 2회: 7일 정지, 3회: 14일 정지, 4회: 영구 정지)
@@ -41,9 +56,9 @@ public interface UserService {
 	
 	public String getId(String userName, String email);
 	
-	// 0: google, 1: naver, 2: kakao
 	@Deprecated
 	/**
+	 * socialLoginInfoType (0 : google, 1 : naver, 2 : kakao)
 	 * checkSocialId()를 사용하기 바람.
 	 * @param socialLoginInfo
 	 * @return
@@ -73,7 +88,10 @@ public interface UserService {
 	public SuspensionLogList getSuspensionLogListActually(String userId);
 	
 	/**
-	 * 사용자 전체 로그인 통계를 조회한다.
+	 * 사용자 전체 로그인 통계를 조회한다. 
+	 * searchCondition(0: 일간, 1: 주간, 2: 월간)
+	 * selectDay1, selectDay2를 사용하여 주간 및 월간 통계를 지원한다.
+	 * 일간 통계는 selectDay1만 입력하면 된다.
 	 * @return
 	 */
 	public List<LoginLog> getUserLoginList(Search search);
@@ -90,9 +108,18 @@ public interface UserService {
 	 */
 	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception;
 	
-	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber);
+	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception;
 	
-	public boolean updateProfile(String userId, String profileImageName, String introduction);
+	/**
+	 * 
+	 * @param file
+	 * @param userId
+	 * @param profileImageName
+	 * @param introduction  : 최대 100글자
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception;
 	
 	public boolean updatePassword(String userId, String userPassword);
 	

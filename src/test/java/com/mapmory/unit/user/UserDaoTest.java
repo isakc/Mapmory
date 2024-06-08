@@ -392,6 +392,45 @@ public class UserDaoTest {
 		
 		Assertions.assertThat(resultUser.getLeaveAccountDate()).isNull();
 	}
+	
+	
+	// @Test
+	public void testUpdateHideProfile() throws Exception {
+		
+		String userId = "user1";
+		User user = User.builder()
+					.userId(userId)
+					.build();
+		
+		
+		int before = userDao.selectUser(user).getHideProfile();
+		
+		int result = userDao.updateHideProfile(userId);
+		Assertions.assertThat(result).isOne();
+		
+		int after = userDao.selectUser(user).getHideProfile();
+		Assertions.assertThat(before).isNotEqualTo(after);
+		
+	}
+	
+	// @Test
+	public void testUpdateSecondaryAuth() throws Exception {
+		
+		String userId = "user1";
+		User user = User.builder()
+					.userId(userId)
+					.build();
+		
+		
+		int before = userDao.selectUser(user).getSetSecondaryAuth();
+		
+		int result = userDao.updateSecondaryAuth(userId);
+		Assertions.assertThat(result).isOne();
+		
+		int after = userDao.selectUser(user).getSetSecondaryAuth();
+		Assertions.assertThat(before).isNotEqualTo(after);
+		
+	}
 
 	// @Test
 	public void testDeleteFollow() {

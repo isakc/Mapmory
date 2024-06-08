@@ -60,6 +60,10 @@ public interface UserDao {
 	 */
 	public int updateRecoverAccount(String userId);
 	
+	public int updateHideProfile(String userId);
+	
+	public int updateSecondaryAuth(String userId);
+	
 	public int deleteFollow(FollowBlock follow);
 
 	public int deleteSuspendUser(int logNo);
