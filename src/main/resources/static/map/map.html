@@ -10,6 +10,7 @@
             height: 100%;
             width: 100%;
         }
+        
 </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -20,6 +21,7 @@
 		var map;
 		var markers = [];
 		var polylines = [];
+		var bounds;   
 		
 		$(document).ready(function() {
 			var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
@@ -29,7 +31,7 @@
 			};
 
 			map = new kakao.maps.Map(mapContainer, mapOption); // 지도 생성
-			
+		        
 			if (navigator.geolocation) {
 				
 			    navigator.geolocation.getCurrentPosition(function(position) { // GeoLocation을 이용해서 접속 위치 얻어옴
@@ -37,14 +39,13 @@
 			        var currentLat = position.coords.latitude, // 현재 위도
 			            currentLon = position.coords.longitude; // 현재 경도
 			        
-			        var locPosition = new kakao.maps.LatLng(currentLat, currentLon); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
+			        var locPosition = new kakao.maps.LatLng(currentLat, currentLon); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성
 			        
-			        map.setCenter(locPosition); // map 보이는 center 변경
+			        map.setCenter(locPosition); // map center 변경
 			        
 			        setMarkers( [ {lat: currentLat, lon: currentLon} ] );
 			      });
-			}// 위치 알림 허용
-			
+			}// 위치 알림 허용 
 			
 			$.ajax({
 				url : 'http://localhost:8000/timeline/getDetailTimeline2', // 요청을 보낼 URL을 입력
@@ -95,13 +96,17 @@
 		        
 		        $("#result").html(tDistance + tTime);
 		        
+		        bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
+		        
 		        for(var i=0; i<response.lat.length; i++){
 		        	const latlng = new kakao.maps.LatLng(response.lat[i], response.lon[i]);
+		        	bounds.extend(latlng);
 		        	
 		        	drawInfoArr.push(latlng);
 		        }
 		        
 		        drawLine(drawInfoArr);
+		        map.setBounds(bounds);
 		        
 		        $("#description").html( "<div><span>" + response.description +"</span></div>" );
 		        
@@ -112,33 +117,100 @@
 		      }//error
 		      
 		    });//ajax
+			    
+		  };//도보 경로찾기
+		  
+		  const drawRoute2 = () => {
 
-		    /* const requestData = {
-		      startX: "126.97706222534221",
-		      startY: "37.56519464635573",
-		      endX: "127.0695190429689",
-		      endY: "37.15331179226123",
-		      lang: "0",
-		      count: "5",
-		      format: "json"
-		    }; // 대중교통
-		    
-		    $.ajax({
+		        let tDescription; // 설명
+		        let drawInfoArr = []; // 선을 그릴 위도,경도 모음
+		        
+			   const requestData = {
+		        		startX: "127.0319638",
+				        startY: "37.4972038",
+				        endX: "127.0549272",
+				        endY: "37.4745103",
+				        reqCoordType: "WGS84GEO",
+				        resCoordType: "WGS84GEO",
+				        startName: "출발지",
+				        endName: "도착지"
+				}; // 보행자, 자동차
+
+			    $.ajax({
 			      method: "POST",
 			      contentType: 'application/json; charset=utf-8',
-			      url: "http://localhost:8000/map/rest/getTransitRouteList", // 대중교통
+			      url: "http://localhost:8000/map/rest/getCarRoute", //도보, 자동차
 			      data: JSON.stringify(requestData),
 			  
 			      success: function (response) {
-			    	  console.log(response);
-			    	  
-			    	  const tDistance = "<span>총 거리 : " + ((response.totalDistance) / 1000).toFixed(1) + "km,</span>";
-				      const tTime = "<span>총 시간 : " + ((response.totalTime) / 60).toFixed(0) + "분</span>";
-				      
-			      }//success
-			    });//ajax 대중교통 */
-			    
-		  };//drawRoute()
+			    	console.log(response);
+			    	
+			    	setMarkers([
+			    	    { lat: requestData.startY, lon: requestData.startX },
+			    	    { lat: requestData.endY, lon: requestData.endX }
+			    	]);
+			    	
+			        const tDistance = "<span>총 거리 : " + ((response.totalDistance) / 1000).toFixed(1) + "km,</span>";
+			        const tTime = "<span>총 시간 : " + ((response.totalTime) / 60).toFixed(0) + "분</span>";
+			        
+			        $("#result").html(tDistance + tTime);
+
+			        bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
+			        
+			        for(var i=0; i<response.lat.length; i++){
+			        	const latlng = new kakao.maps.LatLng(response.lat[i], response.lon[i]);
+			        	
+			        	bounds.extend(latlng);
+			        	
+			        	drawInfoArr.push(latlng);
+			        }
+			        
+			        drawLine(drawInfoArr);
+			        map.setBounds(bounds);
+			        
+			        $("#description").html( "<div><span>" + response.description +"</span></div>" );
+			        
+			      },//success
+			      
+			      error: function (request, status, error) {
+			    	  console.error("code:" + request.status + "\nmessage:" + request.responseText + "\nerror:" + error);
+			      }//error
+			      
+			    });//ajax
+				    
+			  };//자동차 경로찾기
+			  
+			  const drawRoute3 = () => {
+
+			        let tDescription; // 설명
+			        let drawInfoArr = []; // 선을 그릴 위도,경도 모음
+
+				    const requestData = {
+				      startX: "126.97706222534221",
+				      startY: "37.56519464635573",
+				      endX: "127.0695190429689",
+				      endY: "37.15331179226123",
+				      lang: "0",
+				      count: "5",
+				      format: "json"
+				    }; // 대중교통
+				    
+				    $.ajax({
+					      method: "POST",
+					      contentType: 'application/json; charset=utf-8',
+					      url: "http://localhost:8000/map/rest/getTransitRouteList", // 대중교통
+					      data: JSON.stringify(requestData),
+					  
+					      success: function (response) {
+					    	  console.log(response);
+					    	  
+					    	  const tDistance = "<span>총 거리 : " + ((response.totalDistance) / 1000).toFixed(1) + "km,</span>";
+						      const tTime = "<span>총 시간 : " + ((response.totalTime) / 60).toFixed(0) + "분</span>";
+						      
+					      }//success
+					    });//ajax 대중교통
+					    
+				  };//대중교통 경로찾기()
 		  
 		  const drawLine = (arrPoint) => {
 			  clearPolylines();
@@ -194,10 +266,12 @@
 </head>
 <body>
 	<div id="mapWrap" style="width: 100%; height: 100%;">
-		<div id="map" style="width: 100%; height: 80%;"></div>
+		<div id="map" style="width: 100%; height: 90%;"></div>
 		<div id="result"></div>
 		<div id="description"></div>
-		<button onclick="drawRoute()">경로 요청하기</button>
+		<button onclick="drawRoute()">도보 경로 요청하기</button>
+		<button onclick="drawRoute2()">자동차 경로 요청하기</button>
+		<button onclick="drawRoute3()">대중교통 경로 요청하기</button>
 	</div>
 </body>
 </html>
