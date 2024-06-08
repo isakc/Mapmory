@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
-import com.mapmory.services.timeline.domain.NotifyTimecapsule;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
 
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -26,23 +27,15 @@ public class TimelineScheduler {
 	@Qualifier("timelineDao")
 	private TimelineDao timelineDao;
 	
-	@Value("${timecapsuleTime}")
+	@Autowired
+	@Qualifier("timelineUtil")
+	private TimelineUtil timelineUtil;
+	
+	@Value("${timecapsule.time}")
 	String timecapsuleTime;
 	
 	@Value("${timeline.coolsms.tophonenumber}")
 	private String toPhoneNumber;
-
-	@Value("${timeline.coolsms.url}")
-	private String COOL_SMS_URL;
-	
-	@Value("${timeline.coolsms.apikey}")
-	private String INSERT_API_KEY;
-	
-	@Value("${timeline.coolsms.apisecret}")
-	private String INSERT_API_SECRET_KEY;
-	
-	@Value("${timeline.coolsms.fromphonenumber}")
-	private String FROM_PHONE_NUMBER;
 	
 //	0 0/5 * * * ? : 매 5분마다 실행
 //			0 0 0/1 * * ? : 매 1시간마다 실행
@@ -63,9 +56,11 @@ public class TimelineScheduler {
 	public void Scheduler() throws Exception {
 		String text="";
 		
-		for(NotifyTimecapsule n:timelineDao.selectNotifyTimecapsule(LocalTime.parse(timecapsuleTime))) {
+		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule(LocalTime.parse(timecapsuleTime))) {
 			text="";
 			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsulCount()+" 건의 타임캡슐 기록이 존재합니다. ";
+			
+			timelineUtil.sendOne(n.getUserPhoneNumber(), text);
 		}
 		//cool sms api 문자보내기
 //		DefaultMessageService messageService=NurigoApp.INSTANCE.initialize(INSERT_API_KEY, INSERT_API_SECRET_KEY, COOL_SMS_URL);

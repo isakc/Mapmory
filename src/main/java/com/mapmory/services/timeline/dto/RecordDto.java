@@ -1,14 +1,16 @@
-package com.mapmory.services.timeline.domain;
+package com.mapmory.services.timeline.dto;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder(toBuilder = true)
-public class Record2 {
+public class RecordDto {
 	private int recordNo;
 	private String recordUserId;
 	private String recordTitle;
@@ -17,6 +19,8 @@ public class Record2 {
 	private String checkpointAddress;
 	private LocalDateTime checkpointDate;
 	private String mediaName;
+	private List<String> imageName;
+	private List<String> Hashtag;
 	private int sharedType;
 	private int categoryNo;
 	private String recordText;

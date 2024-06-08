@@ -1,6 +1,7 @@
 package com.mapmory.common.domain;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.mapmory.services.map.domain.SearchMarker;
@@ -34,6 +35,7 @@ public class Search {
 	private Integer sharedType;
 	private Integer tempType;
 	private Integer timecapsuleType;
+	private LocalDate selectDate;
 	private LocalDateTime selectDay1;
 	private LocalDateTime selectDay2;
 
