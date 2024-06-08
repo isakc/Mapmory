@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -31,6 +32,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -56,6 +58,13 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${directory.path.tac}")
 	private String tacDirectoryPath;
+	
+	@Value("${object.profile.folderName}")
+	private String profileFolderName;
+	
+	
+	@Autowired
+	private ObjectStorageUtil objectStorageUtil;
 	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) {
@@ -174,6 +183,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean addLoginLog(String userId) {
 		// TODO Auto-generated method stub
+		
+		
 		return false;
 	}
 	
@@ -186,6 +197,8 @@ public class UserServiceImpl implements UserService {
 		
 		return userDao.selectUser(user);
 	}
+	
+	
 	
 	@Override
 	public String getId(String userName, String email) {
@@ -246,6 +259,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<LoginLog> getUserLoginList(Search search) {
 		// TODO Auto-generated method stub
+		
+		
+		userDao.selectUserLoginList(search);
+		
 		return null;
 	}
 
@@ -379,20 +396,35 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updateProfile(String userId, String profileImageName, String introduction) {
+	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception {
 		// TODO Auto-generated method stub
 		
+		/*
+		 * 1. object storage에서 기존 프사를 지운다.
+		 * 2. object storage에서 새로운 프사를 넣는다.
+		 */
+		
+		User user = getDetailUser(userId);
+		
+		// 기존애 사용하던 커스텀 프로필이 있는 경우, object storage에서 해당 내용을 제거한 후 진행
+		System.out.println("profileName : " + user.getProfileImageName());
+		if( !user.getProfileImageName().equals("default_image.jpg")) {
+			
+			objectStorageUtil.deleteFile(user.getProfileImageName(), profileFolderName);
+		}
+		
 		String changedProfileImageName = ImageFileUtil.getProductImageUUIDFileName(profileImageName);
+		System.out.println("changedProfileName : " + changedProfileImageName );
+		objectStorageUtil.uploadFileToS3(file, changedProfileImageName, profileFolderName);
 		
 		
-		
-		User user = User.builder()
+		User tempUser = User.builder()
 						.userId(userId)
-						.profileImageName(profileImageName)
+						.profileImageName(changedProfileImageName)
 						.introduction(introduction)
 						.build();
 		
-		int result = userDao.updateUser(user);
+		int result = userDao.updateUser(tempUser);
 		
 		return intToBool(result);
 	}
@@ -410,15 +442,6 @@ public class UserServiceImpl implements UserService {
 		
 		return intToBool(result);
 	}
-
-	@Override
-	public boolean updateSecondaryAuth(String userId) {
-		// TODO Auto-generated method stub
-		
-		
-		
-		return false;
-	}	
 
 	@Override
 	public int updateRecoverAccount(String userId) {
@@ -446,8 +469,19 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateHideProfile(String userId) {
 		// TODO Auto-generated method stub
-		return false;
+		
+		int result = userDao.updateHideProfile(userId);
+		return intToBool(result);
 	}
+	
+
+	@Override
+	public boolean updateSecondaryAuth(String userId) {
+		// TODO Auto-generated method stub
+		
+		int result = userDao.updateSecondaryAuth(userId);
+		return intToBool(result);
+	}	
 
 	@Override
 	public boolean deleteFollow(String userId, String targetId) {

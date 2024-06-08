@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginLog;
@@ -73,7 +75,10 @@ public interface UserService {
 	public SuspensionLogList getSuspensionLogListActually(String userId);
 	
 	/**
-	 * 사용자 전체 로그인 통계를 조회한다.
+	 * 사용자 전체 로그인 통계를 조회한다. 
+	 * searchCondition(0: 일간, 1: 주간, 2: 월간)
+	 * selectDay1, selectDay2를 사용하여 주간 및 월간 통계를 지원한다.
+	 * 일간 통계는 selectDay1만 입력하면 된다.
 	 * @return
 	 */
 	public List<LoginLog> getUserLoginList(Search search);
@@ -92,7 +97,7 @@ public interface UserService {
 	
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber);
 	
-	public boolean updateProfile(String userId, String profileImageName, String introduction);
+	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception;
 	
 	public boolean updatePassword(String userId, String userPassword);
 	

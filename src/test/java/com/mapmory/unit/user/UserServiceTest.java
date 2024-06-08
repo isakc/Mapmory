@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -345,20 +346,43 @@ public class UserServiceTest {
 		Assertions.assertThat(resultDate).isNull();
 	}
 	
+	
 	// @Test
-	public void testUpdateProfile() {
+	// Multipart 관련은 test 불가.
+	public void testUpdateProfile() throws Exception {
 		
 		String userId = "john_doe_90";
+		MultipartFile file = null;
 		String profileFileName = "apwoskd123.jpg";
 		String introduction = "안녕하세요. 반갑습니다.";
 		
-		boolean result = userService.updateProfile(userId, profileFileName, introduction);
+		boolean result = userService.updateProfile(file, userId, profileFileName, introduction);
 		
 		Assertions.assertThat(result).isTrue();
 		
 		User user = userService.getDetailUser(userId);
 		Assertions.assertThat(user.getProfileImageName()).isEqualTo(profileFileName);
 		Assertions.assertThat(user.getIntroduction()).isEqualTo(introduction);
+	}
+	
+	// @Test
+	public void testUpdateHideProfile() {
+		
+		String userId = "user1";
+		
+		boolean result = userService.updateHideProfile(userId);
+		
+		Assertions.assertThat(result).isTrue();
+	}
+	
+	// @Test
+	public void testUpdateSecondaryAuth() {
+		
+		String userId = "user1";
+		
+		boolean result = userService.updateSecondaryAuth(userId);
+		
+		Assertions.assertThat(result).isTrue();
 	}
 	
 	// @Test

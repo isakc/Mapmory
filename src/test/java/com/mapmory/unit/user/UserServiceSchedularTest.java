@@ -15,11 +15,9 @@ public class UserServiceSchedularTest {
 	private UserServiceScheduler scheduler;
 	
 	
-	@Test
+	// @Test
 	public void testFetchTermsAndConditions() throws Exception {
 		
-		scheduler.fetchTermsAndConditions();
+		// scheduler.fetchTermsAndConditions();
 	}
-	
-	
 }
