@@ -16,12 +16,12 @@
 		<result property="price"				column="price"				jdbcType="INTEGER"  />
 	</resultMap>
 	
-	<insert id="addPurchase" parameterType="purchase">
+	<insert id="addPurchase" parameterType="purchase" useGeneratedKeys="true" keyProperty="purchaseNo">
 	 	INSERT INTO purchase (user_id, product_no, payment_method, card_type, last_four_digits, purchase_date, price)
 	 	VALUES (#{userId}, #{productNo}, #{paymentMethod}, #{cardType}, #{lastFourDigits}, #{purchaseDate,jdbcType=TIMESTAMP}, #{price})
 	 </insert>
 	 
-	 <select id="getPurchase" parameterType="int" resultMap="purchaseSelectMap">
+	 <select id="getDetailPurchase" parameterType="int" resultMap="purchaseSelectMap">
 	 	SELECT user_id, product_no, payment_method, card_type, last_four_digits, purchase_date, price
 	 	FROM purchase
 	 	WHERE purchase_no = #{purchaseNo}
