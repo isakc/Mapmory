@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.SearchDto;
+import com.mapmory.services.timeline.dto.SearchDto;
 
 public class GeoUtil {
 

@@ -20,15 +20,16 @@
 		<typeAlias alias="product" type="com.mapmory.services.product.domain.Product" />
 		<typeAlias alias="purchase" type="com.mapmory.services.purchase.domain.Purchase" />
 		<typeAlias alias="subscription" type="com.mapmory.services.purchase.domain.Subscription" />
-		<typeAlias alias="searchDto" type="com.mapmory.services.timeline.domain.SearchDto" />
 		<typeAlias alias="category" type="com.mapmory.services.timeline.domain.Category" />
 		<typeAlias alias="record" type="com.mapmory.services.timeline.domain.Record" />
-		<typeAlias alias="record2" type="com.mapmory.services.timeline.domain.Record2" />
 		<typeAlias alias="imageTag" type="com.mapmory.services.timeline.domain.ImageTag" />
-		<typeAlias alias="imageTagDto" type="com.mapmory.services.timeline.domain.ImageTagDto" />
 		<typeAlias alias="sharedRecord" type="com.mapmory.services.timeline.domain.SharedRecord" />
-		<typeAlias alias="countAddressDto" type="com.mapmory.services.timeline.domain.CountAddressDto" />
-		<typeAlias alias="notifyTimecapsule" type="com.mapmory.services.timeline.domain.NotifyTimecapsule" />
+		<typeAlias alias="imageTagDto" type="com.mapmory.services.timeline.dto.ImageTagDto" />
+		<typeAlias alias="record2" type="com.mapmory.services.timeline.dto.Record2" />
+		<typeAlias alias="searchDto" type="com.mapmory.services.timeline.dto.SearchDto" />
+		<typeAlias alias="countAddressDto" type="com.mapmory.services.timeline.dto.CountAddressDto" />
+		<typeAlias alias="summaryRecordDto" type="com.mapmory.services.timeline.dto.SummaryRecordDto" />
+		<typeAlias alias="notifyTimecapsuleDto" type="com.mapmory.services.timeline.dto.NotifyTimecapsuleDto" />
 		<typeAlias alias="followBlock" type="com.mapmory.services.user.domain.FollowBlock" />
 		<typeAlias alias="loginLog" type="com.mapmory.services.user.domain.LoginLog" />
 		<typeAlias alias="socialLoginInfo" type="com.mapmory.services.user.domain.SocialLoginInfo" />

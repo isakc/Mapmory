@@ -14,7 +14,7 @@ public interface PurchaseService {
 	public void addPurchase(Purchase purchase) throws Exception;
 	
 	//selectOne
-	public Purchase getPurchase(int purchaseNo) throws Exception;
+	public Purchase getDetailPurchase(int purchaseNo) throws Exception;
 	
 	//selectList
 	public List<Purchase> getPurchaseList(String userId) throws Exception;

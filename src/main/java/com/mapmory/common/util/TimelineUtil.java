@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +20,20 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
-@Component
+@Component("timelineUtil")
 public class TimelineUtil {
+
+	@Value("${timeline.coolsms.url}")
+	private String COOL_SMS_URL;
+	
+	@Value("${timeline.coolsms.apikey}")
+	private String INSERT_API_KEY;
+	
+	@Value("${timeline.coolsms.apisecret}")
+	private String INSERT_API_SECRET_KEY;
+	
+	@Value("${timeline.coolsms.fromphonenumber}")
+	private String FROM_PHONE_NUMBER;
 	
 	//map을 record로 묶어주는 기능
 		public static Record recordToMap(Map<String, Object> map) {
@@ -102,7 +115,11 @@ public class TimelineUtil {
 		    return imageTagList;
 		}
 		
-//	    public SingleMessageSentResponse sendOne(String toPhoneNumber, String text) {
+	    public SingleMessageSentResponse sendOne(String toPhoneNumber, String text) {
+	    	System.out.println("INSERT_API_KEY : " + INSERT_API_KEY);
+	    	System.out.println("INSERT_API_SECRET_KEY : " + INSERT_API_SECRET_KEY);
+	    	System.out.println("COOL_SMS_URL : " + COOL_SMS_URL);
+	    	System.out.println("FROM_PHONE_NUMBER : " + FROM_PHONE_NUMBER);
 //	    	DefaultMessageService messageService=NurigoApp.INSTANCE.initialize(INSERT_API_KEY, INSERT_API_SECRET_KEY, COOL_SMS_URL);
 //	    	
 //	        Message message = new Message();
@@ -115,6 +132,7 @@ public class TimelineUtil {
 //	        System.out.println(response);
 //
 //	        return response;
-//	    }
+	    	return null;
+	    }
 
 }

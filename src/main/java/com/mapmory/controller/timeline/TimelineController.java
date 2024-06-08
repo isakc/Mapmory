@@ -2,6 +2,7 @@ package com.mapmory.controller.timeline;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,6 +160,11 @@ public class TimelineController {
 	 			.currentPage(1)
 				.build();
 		model.addAttribute("list15",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.userId("user1")
+				.selectDate(LocalDate.parse("2024-05-29"))
+				.build();
+		model.addAttribute("list16",timelineService.getSummaryRecord(search));
 	}
 	
 	@GetMapping({"addVoiceToText"})
