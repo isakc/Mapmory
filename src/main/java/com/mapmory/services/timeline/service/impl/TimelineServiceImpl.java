@@ -17,6 +17,7 @@ import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.CountAddressDto;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record2;
@@ -126,6 +127,11 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public void deleteCategory(int categoryNo) throws Exception {
 		timelineDao.deleteCategory(categoryNo);
+	}
+	
+	@Override
+	public CountAddressDto getCountAddress(Record record) throws Exception{
+		return timelineDao.selectCountAddress(record);
 	}
 	
 	@Override

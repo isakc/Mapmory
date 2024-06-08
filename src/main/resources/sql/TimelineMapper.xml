@@ -52,8 +52,8 @@
 </resultMap>
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
-	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
-    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
+	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
+    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{checkpointDate:TIMESTAMP}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
 	 <!-- 자동 생성된 키 값을 조회 -->
     <!-- <selectKey keyProperty="recordNo" keyColumn="record_no" resultType="int" order="AFTER">
         SELECT LAST_INSERT_ID()
@@ -240,6 +240,7 @@ LIMIT #{limit} OFFSET #{offset}
         latitude = #{latitude:DOUBLE},
         longitude = #{longitude:DOUBLE},
         checkpoint_address = #{checkpointAddress:VARCHAR},
+        checkpoint_date = #{checkpointDate:TIMESTAMP},
         media_name = #{mediaName:VARCHAR},
         category_no = #{categoryNo:NUMERIC},
         record_text = #{recordText:VARCHAR},
@@ -309,17 +310,50 @@ ORDER BY
     </update>
 
     <!-- Delete -->
-    <delete id="deleteCategory" parameterType="int">
+    <delete id="deleteCategory" parameterType="Integer">
         DELETE FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
     </delete>
+    
+    <select id="selectCountAddress" parameterType="record" resultType="countAddressDto">
+	SELECT 
+		COUNT(*) AS checkpoint_count, 
+		(SELECT 
+		checkpoint_date 
+		FROM record 
+		WHERE checkpoint_address=#{checkpointAddress:VARCHAR} 
+		AND record_user_id=#{recordUserId:VARCHAR}
+		AND timecapsule_type=0 
+		ORDER BY checkpoint_date DESC 
+		LIMIT 1) AS checkpoint_date 
+	FROM record 
+	WHERE checkpoint_address=#{checkpointAddress:VARCHAR}  
+	AND record_user_id=#{recordUserId:VARCHAR} 
+	AND timecapsule_type=0 
+	GROUP BY checkpoint_address=#{checkpointAddress:VARCHAR}
+    </select>
+    
+    <select id="selectNotifyTimecapsule" resultType="notifyTimecapsule" parameterType="java.time.LocalTime">
+    SELECT
+		a1.record_user_id AS record_user_id,
+		COUNT(a1.d_day_date) AS timecapsule_count,
+		a2.phone_number AS phone_number
+	FROM record a1
+	LEFT JOIN users a2 ON a1.record_user_id=a2.user_id 
+	WHERE d_day_date 
+	BETWEEN TIMESTAMP(CURRENT_DATE(), #{dDayTime}) AND TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY), #{dDayTime}) 
+	AND temp_type=1 
+	AND timecapsule_type=1
+	GROUP BY record_user_id
+    </select>
     
 <sql id="selectSharedRecordListUnit">
 SELECT
 	RECORD_NO,
+	RECORD_USER_ID,
 	RECORD_TITLE,
 	SHARED_DATE,
 	UPDATE_COUNT,
-    (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
+    <!-- (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname, -->
     (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
     CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
     (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,

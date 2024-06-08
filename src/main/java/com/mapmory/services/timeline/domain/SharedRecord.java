@@ -9,10 +9,11 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class SharedRecord {
 	private int recordNo;
+	private String recordUserId;
 	private String recordTitle;
 	private LocalDateTime sharedDate;
 	private int updateCount;
-	private String nickname;
+//	private String nickname;
 	private String profileImageName;
 	private boolean subscriptionEndDate;
 	private String imageTagType;

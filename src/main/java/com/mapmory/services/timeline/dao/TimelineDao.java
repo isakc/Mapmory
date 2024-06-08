@@ -1,5 +1,6 @@
 package com.mapmory.services.timeline.dao;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -7,8 +8,10 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.CountAddressDto;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.ImageTagDto;
+import com.mapmory.services.timeline.domain.NotifyTimecapsule;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.SearchDto;
@@ -58,6 +61,10 @@ public interface TimelineDao {
 	public void updateCategory(Category category) throws Exception;
 	
 	public void deleteCategory(int categoryNo) throws Exception;
+	
+	public CountAddressDto selectCountAddress(Record record) throws Exception;
+	
+	public List<NotifyTimecapsule> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
 	
 	public List<SharedRecord> selectSharedRecordList(Search search) throws Exception;
 	

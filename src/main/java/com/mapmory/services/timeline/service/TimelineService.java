@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.CountAddressDto;
 import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
@@ -37,6 +38,8 @@ public interface TimelineService {
 	public void updateCategory(Category category) throws Exception;
 	
 	public void deleteCategory(int categoryNo) throws Exception;
+	
+	public CountAddressDto getCountAddress(Record record) throws Exception;
 	
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception;
 	

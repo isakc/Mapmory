@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.CountAddressDto;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -60,7 +62,7 @@ public class TimelineServiceTest {
 	}
 	
 //	@Test
-	@Transactional
+//	@Transactional
 	public void testUpdateTimeline() throws Exception{
 		System.out.println("\n===================================");
 		List<ImageTag> image= new ArrayList<ImageTag>();
@@ -76,6 +78,7 @@ public class TimelineServiceTest {
 				.latitude(37.1232322)
 				.longitude(127.1233322)
 				.checkpointAddress("변경된 동서남북")
+				.checkpointDate(LocalDateTime.parse("2013-06-13T12:22:30"))
 				.mediaName("가.mp4")
 				.imageName(image)
 				.hashtag(hash)
@@ -146,5 +149,22 @@ public class TimelineServiceTest {
 				.timecapsuleType(0)
 				.build();
 		System.out.println(timelineService.getTimelineList(search).size());
+	}
+	
+	@Test
+	@Transactional
+	public void testGetCountAddress() throws Exception{
+		System.out.println("\n===================================");
+		Record record = Record.builder()
+				.recordUserId("user1")
+				.checkpointAddress("서울시 강남구")
+				.build();
+		CountAddressDto c =timelineService.getCountAddress(record);
+		
+		System.out.println(c);
+
+		Assertions.assertThat(c.getCheckpointCount()).isEqualTo(4);
+		Assertions.assertThat(c.getCheckpointDate()).isEqualTo("2024-08-01T12:00:00");
+		
 	}
 }
