@@ -51,17 +51,15 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 	
 	@Override
-	public Map<String, Object> getReplyList(Search search, int recordNo, int replyNo) throws Exception {
-		List<Object> list = communityDao.getReplyList(search, recordNo, replyNo);
+	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
+		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
-		int likeCount = communityDao.getReactionLikeTotalCount(search, recordNo, replyNo);
-		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, recordNo, replyNo);
+
 			
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
-		map.put("likeCount", Integer.valueOf(likeCount));
-		map.put("dislikeCount", Integer.valueOf(dislikeCount));
+
 		return map;
 	}
 
@@ -94,6 +92,10 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Reply getReply(int replyNo) throws Exception {
+//		int likeCount = communityDao.getReactionLikeTotalCount(replyNo);
+//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(replyNo);
+//		map.put("likeCount", Integer.valueOf(likeCount));
+//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
 		return communityDao.getReply(replyNo);
 	}	
 	

@@ -1,5 +1,8 @@
 package com.mapmory.controller.community;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,13 +12,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @Controller
@@ -50,12 +56,16 @@ public class CommunityController {
 	}
 	
 	@GetMapping("/getDetailSharedRecord/{recordNo}")
-	public String getDetailTimeline(Model model, @PathVariable int recordNo) throws Exception {
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));			
+	public String getDetailSharedRecord(Model model, @PathVariable int recordNo) throws Exception{
+		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo));
 		return "community/getDetailSharedRecord";
-		
 	}
-	
+
+	@GetMapping("/getReplyList/{recordNo}")
+	public String getReplyList(Search search, @PathVariable int recordNo, Model model) throws Exception {
+		communityService.getReplyList(search, recordNo);
+		return "community/getReplyList";
+    }	
 	
 //	@PostMapping("/addReply")
 //	public String addReply(MultipartHttpServletRequest request)  throws Exception{
