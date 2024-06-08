@@ -32,7 +32,7 @@
     </collection>
 </resultMap>
 
-<resultMap id="recordResultMapList" type="java.util.HashMap">
+<!-- <resultMap id="recordResultMapList" type="java.util.HashMap">
     <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
@@ -49,7 +49,7 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-</resultMap>
+</resultMap> -->
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
 	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
@@ -68,44 +68,7 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
     </foreach>
 </insert>
 
-<!-- <insert id="insertImageName" parameterType="map">
-	INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
-    VALUES 
-    <foreach collection="imageName" item="image" separator=",">
-    	(#{recordNo:NUMERIC}, 1, #{image:VARCHAR})
-    </foreach>
-</insert>
-
-<insert id="insertHashtag" parameterType="map">
-	INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
-    VALUES 
-    <foreach collection="hashtag" item="tag" separator=",">
-    	(#{recordNo:NUMERIC}, 0, #{tag:VARCHAR})
-    </foreach>
-</insert> -->
-
 <select id='selectDetailTimeline' resultMap='recordResultMap' parameterType='Integer'>
-   <!-- SELECT 
-    record_no,
-    record_user_id,
-    record_title,
-    latitude,
-    longitude,
-    checkpoint_address,
-    checkpoint_date,
-    media_name,
-    category_no,
-    record_text,
-    temp_type,
-    record_add_date,
-    shared_date,
-    update_count,
-    d_day_date,
-    timecapsule_type
-FROM 
-    record
-WHERE 
-    record_no = #{value} -->
     SELECT 
        a1.record_no AS record_no,
        a1.record_user_id AS record_user_id,
@@ -131,35 +94,6 @@ WHERE
    LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
    WHERE 
        a1.record_no = #{value}
-</select>
-
-
-<select id="selectImage" resultType="String" parameterType="Integer">
-  SELECT
-	image_tag_text
-FROM
-	image_tag
-WHERE
-	record_no=#{value} 
-AND
-	image_tag_type=1
-ORDER BY 
-    image_tag_order IS NULL ASC, 
-    image_tag_order ASC;
-</select>
-
-<select id="selectHashtag" resultType="String" parameterType="Integer">
-  SELECT
-	image_tag_text
-FROM
-	image_tag
-WHERE
-	record_no=#{value} 
-AND
-	image_tag_type=0
-ORDER BY 
-    image_tag_order IS NULL ASC, 
-    image_tag_order ASC;
 </select>
 
 <sql id="selectTimelineListUnit">
@@ -233,6 +167,25 @@ LIMIT #{limit} OFFSET #{offset}
 </if>
 </select>
 
+<select id="selectSummaryRecord" parameterType="searchDto" resultType="summaryRecordDto">
+	SELECT 
+       a1.record_no AS record_no,
+       a1.checkpoint_address AS checkpoint_address,
+       a1.checkpoint_date AS checkpoint_date,
+       a2.image_tag_text AS image_tag_text
+   FROM 
+       record a1
+   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+<trim prefix="where" prefixOverrides="AND||OR">
+	a1.record_user_id=#{userId}
+	AND <![CDATA[a1.checkpoint_date BETWEEN TIMESTAMP(#{selectDate}, #{checkpointTime}) AND TIMESTAMP(DATE_ADD(#{selectDate}, INTERVAL 1 DAY), #{checkpointTime}) ]]>
+	AND a1.temp_type=1 
+	AND a1.timecapsule_type=0
+	AND a2.image_tag_type=1
+</trim>
+	ORDER BY rand() limit 1
+</select>
+
 <update id="updateTimeline" parameterType="record">
     UPDATE record
     SET record_user_id = #{recordUserId:VARCHAR},
@@ -257,35 +210,12 @@ LIMIT #{limit} OFFSET #{offset}
     DELETE FROM record WHERE record_no = #{recordNo}
 </delete>
 
-<select id="selectImageForDelete" parameterType="Integer" resultType="imageTagDto">
-SELECT
-	image_tag_order,
-	image_tag_text
-FROM
-	image_tag
-WHERE
-	record_no=#{value} 
-AND
-	image_tag_type=1
-ORDER BY 
-    image_tag_order IS NULL ASC, 
-    image_tag_order ASC;
-</select>
-
 <delete id="deleteImageTag" parameterType="Integer">
     DELETE FROM image_tag WHERE record_no = #{recordNo}
 </delete>
 
-<delete id="deleteImageToRecordNo" parameterType="Integer">
-    DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=1
-</delete>
-
 <delete id="deleteImageToImageNo" parameterType="Integer">
     DELETE FROM image_tag WHERE image_tag_order=#{imageTagOrder} AND image_tag_type=1
-</delete>
-
-<delete id="deleteHashtag" parameterType="Integer">
-    DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=0
 </delete>
 
 	<!-- Create -->
@@ -332,7 +262,7 @@ ORDER BY
 	GROUP BY checkpoint_address=#{checkpointAddress:VARCHAR}
     </select>
     
-    <select id="selectNotifyTimecapsule" resultType="notifyTimecapsule" parameterType="java.time.LocalTime">
+    <select id="selectNotifyTimecapsule" resultType="notifyTimecapsuleDto" parameterType="java.time.LocalTime">
     SELECT
 		a1.record_user_id AS record_user_id,
 		COUNT(a1.d_day_date) AS timecapsule_count,
@@ -445,6 +375,75 @@ FROM
 LIMIT #{limit} OFFSET #{offset}
 </select>
 
+<!-- 미사용 -->
+
+<!-- <delete id="deleteHashtag" parameterType="Integer">
+    DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=0
+</delete> -->
+
+<!-- <delete id="deleteImageToRecordNo" parameterType="Integer">
+    DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=1
+</delete> -->
+
+<!-- <select id="selectImage" resultType="String" parameterType="Integer">
+  SELECT
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=1
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC;
+</select>
+
+<select id="selectHashtag" resultType="String" parameterType="Integer">
+  SELECT
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=0
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC;
+</select> -->
+
+<!-- <select id="selectImageForDelete" parameterType="Integer" resultType="imageTagDto">
+SELECT
+	image_tag_order,
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=1
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC;
+</select> -->
+
+<!-- <insert id="insertImageName" parameterType="map">
+	INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
+    VALUES 
+    <foreach collection="imageName" item="image" separator=",">
+    	(#{recordNo:NUMERIC}, 1, #{image:VARCHAR})
+    </foreach>
+</insert>
+
+<insert id="insertHashtag" parameterType="map">
+	INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
+    VALUES 
+    <foreach collection="hashtag" item="tag" separator=",">
+    	(#{recordNo:NUMERIC}, 0, #{tag:VARCHAR})
+    </foreach>
+</insert> -->
+
 <!-- <select id="selectFollowUserId" parameterType="String" resultType="String">
 SELECT 
 target_id
@@ -453,10 +452,6 @@ WHERE user_id=#{userId}
 AND FB_TYPE=0
 </select> -->
 
-
-
-
-<!-- 미사용 -->
 <!-- <select id="selectDetailTimeline2" resultType="record2" parameterType="integer">
   SELECT 
     record_no,

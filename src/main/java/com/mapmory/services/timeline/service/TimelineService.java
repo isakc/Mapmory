@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
-import com.mapmory.services.timeline.domain.CountAddressDto;
-import com.mapmory.services.timeline.domain.ImageTagDto;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
+import com.mapmory.services.timeline.dto.CountAddressDto;
+import com.mapmory.services.timeline.dto.ImageTagDto;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
 public interface TimelineService {
 	//Record CRUD
@@ -21,12 +22,8 @@ public interface TimelineService {
 	public void updateTimeline(Record record) throws Exception;
 	
 	public void deleteTimeline(int recordNo) throws Exception;
-	//record select시 imageNo 못가져와서 가져오는 image select
-	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception;
 	//image만 삭제
 	public void deleteImage(int imageNo) throws Exception;
-	//hashtag는 일괄 삭제 후 summit
-//	public void deleteHashtag(int recordNo) throws Exception;
 	
 	//Category CRUD
 	public void addCategory(Category category) throws Exception;
@@ -41,12 +38,18 @@ public interface TimelineService {
 	
 	public CountAddressDto getCountAddress(Record record) throws Exception;
 	
+	public SummaryRecordDto getSummaryRecord(Search search) throws Exception;
+	
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception;
 	
 	public List<Record> getMapRecordList(Search searchMarker) throws Exception;
 	
 	
-	
+
+	//record select시 imageNo 못가져와서 가져오는 image select
+//	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception;
+	//hashtag는 일괄 삭제 후 summit
+//	public void deleteHashtag(int recordNo) throws Exception;
 	//아래 미사용
 //	public RecordDto getDetailTimeline2(int recordNo) throws Exception;
 //	

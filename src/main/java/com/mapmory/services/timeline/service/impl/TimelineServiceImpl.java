@@ -2,6 +2,7 @@ package com.mapmory.services.timeline.service.impl;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +19,15 @@ import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
-import com.mapmory.services.timeline.domain.CountAddressDto;
 import com.mapmory.services.timeline.domain.ImageTag;
-import com.mapmory.services.timeline.domain.ImageTagDto;
-import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.RecordDto;
-import com.mapmory.services.timeline.domain.SearchDto;
 import com.mapmory.services.timeline.domain.SharedRecord;
+import com.mapmory.services.timeline.dto.CountAddressDto;
+import com.mapmory.services.timeline.dto.ImageTagDto;
+import com.mapmory.services.timeline.dto.Record2;
+import com.mapmory.services.timeline.dto.RecordDto;
+import com.mapmory.services.timeline.dto.SearchDto;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 
 
@@ -35,6 +38,9 @@ public class TimelineServiceImpl implements TimelineService {
 	@Autowired
 	@Qualifier("timelineDao")
 	private TimelineDao timelineDao;
+	
+	@Value("${summary.record.time}")
+	private String checkpointTime;
 	
 	//Record CRUD
 	public void addTimeline(Record record) throws Exception{
@@ -89,20 +95,12 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
-	//record select시 imageNo 못가져와서 가져오는 image select
-	@Override
-	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
-		return timelineDao.selectImageForDelete(recordNo);
-	}
 	//image만 삭제
 	@Override
 	public void deleteImage(int imageNo) throws Exception {
 		timelineDao.deleteImageToImageNo(imageNo);
 	}
-
-//	@Override
-//	public void deleteHashtag(int recordNo) throws Exception {
-//	}
+	
 	//Category CRUD
 	@Override
 	public void addCategory(Category category) throws Exception {
@@ -135,6 +133,15 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
+	public SummaryRecordDto getSummaryRecord(Search search) throws Exception{
+		return timelineDao.selectSummaryRecord(SearchDto.builder()
+				.selectDate(search.getSelectDate())
+				.checkpointTime(LocalTime.parse(checkpointTime))
+				.userId(search.getUserId())
+				.build());
+	}
+	
+	@Override
 	public List<SharedRecord> getSharedRecordList(Search search) throws Exception{
 		return timelineDao.selectSharedRecordList(search);
 	}
@@ -158,8 +165,17 @@ public class TimelineServiceImpl implements TimelineService {
 		GeoUtil.sortByDistance(recordList);
 		return recordList;
 	}
-	
 
+//	@Override
+//	public void deleteHashtag(int recordNo) throws Exception {
+//	}
+	
+	//record select시 imageNo 못가져와서 가져오는 image select
+//	@Override
+//	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
+//		return timelineDao.selectImageForDelete(recordNo);
+//	}
+	
 	//아래 미사용
 //	@Override
 //	public RecordDto getDetailTimeline2(int recordNo) throws Exception {

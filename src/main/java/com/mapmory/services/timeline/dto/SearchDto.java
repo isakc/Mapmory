@@ -1,5 +1,7 @@
-package com.mapmory.services.timeline.domain;
+package com.mapmory.services.timeline.dto;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import lombok.Builder;
@@ -21,5 +23,8 @@ public class SearchDto {
 	private Double minLongitude;
 	private Double maxLongitude;
 	private Integer followType;
+	
+	private LocalDate selectDate;
+	private LocalTime checkpointTime;
 //	private List<String> userIdList;
 }
