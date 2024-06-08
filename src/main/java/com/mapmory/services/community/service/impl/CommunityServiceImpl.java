@@ -18,8 +18,8 @@ import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.dao.TimelineDao;
-import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 

@@ -32,9 +32,9 @@
     </collection>
 </resultMap>
 
-<!-- <resultMap id="recordResultMapList" type="java.util.HashMap">
-    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
-    <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
+<resultMap id="sharedRecordResultMap" type="java.util.HashMap">
+    <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
     <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
     <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
@@ -49,7 +49,15 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-</resultMap> -->
+    <result property='nickname' column='nickname' jdbcType='VARCHAR'/>
+    <result property='profileImageName' column='profile_image_name' jdbcType='VARCHAR'/>
+    <result property='subscriptionEndDate' column='subscription_end_date' jdbcType='NUMERIC'/>
+    <collection property="imageTagList" ofType="java.util.HashMap" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="image_tag_order" />
+    	<result property="imageTagType" column="image_tag_type" />
+    	<result property="imageTagText" column="image_tag_text" />
+    </collection>
+</resultMap>
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
 	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
@@ -276,6 +284,37 @@ LIMIT #{limit} OFFSET #{offset}
 	GROUP BY record_user_id
     </select>
     
+<select id='selectDetailSharedRecord' resultMap='sharedRecordResultMap' parameterType='Integer'>
+    SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a1.record_title AS record_title,
+       a1.latitude AS latitude,
+       a1.longitude AS longitude,
+       a1.checkpoint_address AS checkpoint_address,
+       a1.checkpoint_date AS checkpoint_date,
+       a1.media_name AS media_name,
+       a1.category_no AS category_no,
+       a1.record_text AS record_text,
+       a1.temp_type AS temp_type,
+       a1.record_add_date AS record_add_date,
+       a1.shared_date AS shared_date,
+       a1.update_count AS update_count,
+       a1.d_day_date AS d_day_date,
+       a1.timecapsule_type AS timecapsule_type,
+       (SELECT nickname FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS nickname,
+       (SELECT profile_image_name FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS profile_image_name,
+       CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = a1.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+       a2.image_tag_order AS image_tag_order,
+       a2.image_tag_type AS image_tag_type,
+       a2.image_tag_text AS image_tag_text
+   FROM 
+       record a1
+   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+   WHERE 
+       a1.record_no = #{value}
+</select>
+    
 <sql id="selectSharedRecordListUnit">
 SELECT
 	RECORD_NO,
@@ -302,7 +341,7 @@ ORDER BY
 	shared_date IS NULL DESC
 </sql>
 
-<select id="selectSharedRecordList" parameterType="search" resultType="sharedRecord">
+<select id="selectSharedRecordList" parameterType="search" resultType="sharedRecordDto">
 SELECT
 inner_table.*
 FROM

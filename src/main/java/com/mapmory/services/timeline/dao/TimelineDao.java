@@ -10,12 +10,11 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.dto.ImageTagDto;
 import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
-import com.mapmory.services.timeline.dto.Record2;
 import com.mapmory.services.timeline.dto.SearchDto;
+import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
 @Mapper
@@ -57,7 +56,9 @@ public interface TimelineDao {
 	
 	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
 	
-	public List<SharedRecord> selectSharedRecordList(Search search) throws Exception;
+	public Map<String, Object> selectDetailSharedRecord(int recordNo) throws Exception;
+	
+	public List<SharedRecordDto> selectSharedRecordList(Search search) throws Exception;
 	
 	public List<Map<String, Object>> selectMapRecordList(SearchDto searchDto) throws Exception;
 	
