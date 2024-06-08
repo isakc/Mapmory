@@ -174,9 +174,11 @@
 		<if test="limit != 0 and currentPage != 0"> LIMIT #{limit} OFFSET #{offset} </if>
 	</select>
 	
+	<!-- 
 	<select id="selectUserLoginList" parameterType="search" resultMap="">
 	
 	</select>
+	 -->
 	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT

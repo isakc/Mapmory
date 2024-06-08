@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,17 +33,40 @@ public class UserServiceTest {
 	
 	
 	// @Test
-	public void testAddUser() {
+	public void testAddUser() throws Exception {
 		
-		String userId = "hong";
-		String password = "qwer1234";
+		String userId = null;
 		String userName = "홍길동";
-		String nickname="나는 홍길동";
+		String password = "qwer1234";
+		String nickname=null;
 		LocalDate birthday = LocalDate.parse("2010-02-22");
 		String email = "test@test.com";
 		String phoneNumber = "010-1234-1234";
 		int sex = 1;
 		
+		// 유해성에 위배되는 아이디를 사용한 경우
+		userId = "씨1fuc#k발";
+		nickname = "홍길동";
+		try {
+			boolean result = userService.addUser(userId, password, userName, nickname, birthday, sex, email, phoneNumber);
+			
+		} catch(Exception e) {
+			Assertions.assertThatExceptionOfType(Exception.class);
+		}
+		
+		// 유해성에 위배되는 닉네임을 사용한 경우
+		userId = "hong";
+		nickname="씨   발";
+		try {
+			boolean result = userService.addUser(userId, password, userName, nickname, birthday, sex, email, phoneNumber);
+			
+		} catch(Exception e) {
+			Assertions.assertThatExceptionOfType(Exception.class);
+		}
+		
+		// 정상적으로 입력한 경우
+		userId = "hong";
+		nickname = "홍길동";
 		boolean result = userService.addUser(userId, password, userName, nickname, birthday, sex, email, phoneNumber);
 		
 		Assertions.assertThat(result).isEqualTo(true);
@@ -51,6 +75,8 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(resultUser.getUserPassword()).isEqualTo(password);
 	}
+	
+	
 	
 	// @Test
 	public void testAddSuspendUser() throws Exception {
@@ -306,7 +332,8 @@ public class UserServiceTest {
 	}
 	
 	// @Test
-	public void testUpdateUserInfo() {
+	@DisplayName("회원정보업데이트 - 정상인 경우")
+	public void testUpdateUserInfo() throws Exception {
 		
 		String userId = "my_id-is_456";
 		String userName = "홍길동";
@@ -315,7 +342,7 @@ public class UserServiceTest {
 		Integer sex = 0;
 		String email = "test@test.com";
 		String phoneNumber = "010-6666-3333";
-	
+		
 		boolean result = userService.updateUserInfo(userId, userName, nickname, birthday, sex, email, phoneNumber);
 		
 		Assertions.assertThat(result).isEqualTo(true);
@@ -327,6 +354,27 @@ public class UserServiceTest {
 	    Assertions.assertThat(resultUser.getSex()).isEqualTo(sex);
 	    Assertions.assertThat(resultUser.getEmail()).isEqualTo(email);
 	    Assertions.assertThat(resultUser.getPhoneNumber()).isEqualTo(phoneNumber);
+	}
+	
+	@Test
+	@DisplayName("회원정보업데이트 - 비속어를 사용한 경우")
+	public void testUpdateUserInfoErr() throws Exception {
+		
+		String userId = "my_id-is_456";
+		String userName = "홍길동";
+		String 	nickname="씨   발";
+		LocalDate birthday = LocalDate.parse("2001-09-21");
+		Integer sex = 0;
+		String email = "test@test.com";
+		String phoneNumber = "010-6666-3333";
+		
+		
+		try {
+			userService.updateUserInfo(userId, userName, nickname, birthday, sex, email, phoneNumber);
+			
+		} catch(Exception e) {
+			Assertions.assertThatExceptionOfType(Exception.class);
+		}
 	}
 	
 	// @Test

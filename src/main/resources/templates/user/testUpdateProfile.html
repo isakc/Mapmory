@@ -14,6 +14,7 @@
 		$('button').on('click', function() {
 			
 			$('form').attr('method', 'post').attr('action', '/user/testUpdateProfile').attr('enctype', 'multipart/form-data').submit();
+			// window.location.href="/user/testUpdateProfile";
 		});
 	});
 	</script>
@@ -26,6 +27,8 @@
 			<input type="text" name="introduction" class="form-control" placeholder="자기소개 작성" />
 			<button type="button" class="btn btn-primary">제출</button>
 		</form>
+		
+		<img th:src="${profileImage}">
 	</div>
 	
 </body>

@@ -31,6 +31,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
@@ -66,9 +67,20 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ObjectStorageUtil objectStorageUtil;
 	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
 	@Override
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) {
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
+		
+		if ( contentFilterUtil.checkBadWord(userId) ) 
+			throw new Exception("아이디에 비속어가 포함되어 있습니다.");
+		
+		if ( contentFilterUtil.checkBadWord(nickname) ) 
+			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
+			
+		
 		User user = User.builder()
 						.userId(userId)
 						.userPassword(userPassword)
@@ -79,7 +91,7 @@ public class UserServiceImpl implements UserService {
 						.email(email)
 						.phoneNumber(phoneNumber)
 						.build();
-		
+	
 		int result = userDao.insertUser(user);
 		
 		return intToBool(result);
@@ -183,6 +195,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean addLoginLog(String userId) {
 		// TODO Auto-generated method stub
+		
 		
 		
 		return false;
@@ -376,9 +389,11 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) {
+	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
 		
+		if ( contentFilterUtil.checkBadWord(nickname) ) 
+			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
 		
 		User user = User.builder()
 				.userId(userId)
@@ -399,10 +414,11 @@ public class UserServiceImpl implements UserService {
 	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception {
 		// TODO Auto-generated method stub
 		
-		/*
-		 * 1. object storage에서 기존 프사를 지운다.
-		 * 2. object storage에서 새로운 프사를 넣는다.
-		 */
+		if( contentFilterUtil.checkBadImage(file) )
+			throw new Exception("해당 사진은 유해성 정책에 위반되는 사진입니다.");
+		
+		if( contentFilterUtil.checkBadWord(introduction))
+			throw new Exception("자기소개란에 욕설이 포함될 수 없습니다.");
 		
 		User user = getDetailUser(userId);
 		

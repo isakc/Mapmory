@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
@@ -28,6 +29,9 @@ public class UserController {
 	@Qualifier("objectStorageUtil")
 	private ObjectStorageUtil objectStorageUtil;
 	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 
@@ -39,16 +43,28 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		// ByteArrayResource profile_image_cdn = objectStorageUtil.getImageResource(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		
+		model.addAttribute("profileImage", cdnPath);
 		
 	}
 	
 	@PostMapping("/testUpdateProfile")
-	public void testPostUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction) throws Exception {
+	public void testPostUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model) throws Exception {
 		
 		String userId = "user1";
 		
+		if(contentFilterUtil.checkBadImage(file)) {
+			System.out.println("부적절한 이미지입니다.");
+		}
+		
 		boolean result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
 		System.out.println(result);
+		
+		User user = userService.getDetailUser(userId);
+		
+		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		
+		model.addAttribute("profileImage", cdnPath);
 	}
 }
