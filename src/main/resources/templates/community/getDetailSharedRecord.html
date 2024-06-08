@@ -2,9 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>공유 기록 상세 보기</title>
 </head>
 <body>
+	<h1>공유기록상세보기</h1>
+	<table>
+		<tbody>
+			<tr>
+				<td th:text="${record.recordUserId}"></td>
+				<td th:text="${record.recordTitle}"></td>
+				<td th:text="${record}"></td>
+			</tr>
+		</tbody>
+	</table>	
 
 </body>	
 </html>

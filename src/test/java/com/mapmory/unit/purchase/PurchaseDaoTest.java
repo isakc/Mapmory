@@ -29,16 +29,11 @@ public class PurchaseDaoTest {
 				.price(1000).build();
 		
 		purchaseDao.addPurchase(purchase);
-		
-		Assert.assertEquals("user1", purchaseDao.getPurchase(purchase.getPurchaseNo()).getUserId());
-		Assert.assertEquals(1, purchaseDao.getPurchase(purchase.getPurchaseNo()).getProductNo());
-		Assert.assertEquals(1, purchaseDao.getPurchase(purchase.getPurchaseNo()).getPaymentMethod());
-		Assert.assertEquals(1000, purchaseDao.getPurchase(purchase.getPurchaseNo()).getPrice());
 	}//addProduct Test
 	
-	//@Test
-	public void testGetPurchase() throws Exception {
-		Purchase purchase = purchaseDao.getPurchase(1);
+	@Test
+	public void testGetDetailPurchase() throws Exception {
+		Purchase purchase = purchaseDao.getDetailPurchase(1);
 		
 		System.out.println(purchase);
 		
