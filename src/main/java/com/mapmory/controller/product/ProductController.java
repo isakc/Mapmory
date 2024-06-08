@@ -168,11 +168,10 @@ public class ProductController {
     //상품 이미지 주소 가리기 위한 컨트롤러
     @GetMapping("/image/{uuid}")
     @ResponseBody
-    public ResponseEntity<ByteArrayResource> getImage(@PathVariable String uuid) throws Exception {
-        ByteArrayResource resource = objectStorageUtil.getImageResource(uuid,folderName);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    public byte[] getImage(@PathVariable String uuid) throws Exception {
+        byte[] bytes = objectStorageUtil.getImageBytes(uuid, folderName);
+        System.out.println("바이트 입니다 ::::::::::::::::::::::" + bytes);
+        return bytes;
     }
    
     @GetMapping("/image")
