@@ -1,6 +1,7 @@
 package com.mapmory.services.community.service;
 
 
+import java.util.List;
 import java.util.Map;
 
 import com.mapmory.common.domain.Search;

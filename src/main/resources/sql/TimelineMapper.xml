@@ -353,7 +353,7 @@ SELECT
 	RECORD_TITLE,
 	SHARED_DATE,
 	UPDATE_COUNT,
-    <!-- (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname, -->
+    (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
     (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
     CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
     (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
