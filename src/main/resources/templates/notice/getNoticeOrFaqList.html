@@ -6,43 +6,38 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
-        $(function() {
+    $(function() {
+        $(".glyphicon-chevron-down").on("click", function() {
+            var noticeNo = $(this).next().val();
+            var $tr = $(this).closest("tr");
+            var $nextTr = $tr.next(".notice-content-row");
 
-            $(".glyphicon-chevron-down").on("click", function() {
+            if ($nextTr.length > 0) {
+                // 공지 내용이 이미 열려 있을 경우 닫기
+                $nextTr.remove();
+                $(this).toggleClass("glyphicon-chevron-up glyphicon-chevron-down");
+            } else {
+                $.ajax({
+                    url: "/notice/rest/getDetailNotice/" + noticeNo,
+                    method: "GET",
+                    dataType: "json",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    success: function(JSONData, status) {
+                        // 기존의 상세 내용을 제거
+                        $tr.next(".notice-content-row").remove();
 
-                var noticeNo = $(this).next().val();
-                var $tr = $(this).closest("tr");
-                var $nextTr = $tr.next(".notice-content-row");
-
-                if ($nextTr.length > 0) {
-                    // 공지 내용이 이미 열려 있을 경우 닫기
-                    $nextTr.remove();
-                    $(this).toggleClass("glyphicon-chevron-up glyphicon-chevron-down");
-                } else {
-
-                    $.ajax({
-                        url: "/notice/rest/getDetailNotice/" + noticeNo,
-                        method: "GET",
-                        dataType: "json",
-                        headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/json"
-                        },
-                        success: function(JSONData, status) {
-                            // 기존의 상세 내용을 제거
-                            $tr.next(".notice-content-row").remove();
-
-                            // 새로운 상세 내용 행을 추가
-                            var newContentRow = '<tr class="notice-content-row"><td colspan="3"><h1>' + JSONData.noticeText + '</h1></td></tr>';
-                            $tr.after(newContentRow);
-                            $("#" + noticeNo).toggleClass("glyphicon-chevron-down glyphicon-chevron-up");
-
-                        }
-                    });
-                }
-            });
-
+                        // 서버에서 변환된 HTML 콘텐츠를 그대로 삽입
+                        var newContentRow = '<tr class="notice-content-row"><td colspan="3">' + JSONData.noticeText + '</td></tr>';
+                        $tr.after(newContentRow);
+                        $("#" + noticeNo).toggleClass("glyphicon-chevron-down glyphicon-chevron-up");
+                    }
+                });
+            }
         });
+    });
     </script>
     <meta charset="UTF-8">
     <title>공지사항</title>
