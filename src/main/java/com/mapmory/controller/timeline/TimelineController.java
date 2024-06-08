@@ -161,6 +161,11 @@ public class TimelineController {
 		model.addAttribute("list15",timelineService.getMapRecordList(search));
 	}
 	
+	@GetMapping({"addVoiceToText"})
+	public void addVoiceToText(Model model) throws Exception,IOException {
+		
+	}
+	
 	public void updateTimeline(Model model) throws Exception,IOException{
 //		model.addAttribute("record",timelineService.getDetailTimeline(1));
 	}

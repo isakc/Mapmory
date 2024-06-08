@@ -3,7 +3,9 @@ package com.mapmory.common.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -92,9 +94,19 @@ public class ObjectStorageUtil {
         byte[] bytes = IOUtils.toByteArray(inputStream);
         return new ByteArrayResource(bytes, uuid);
     }
+    
+    public byte[] getImageBytes(String uuid, String folderName) throws Exception {
+        String imageUrl = getImageUrl(uuid, folderName);
+        
+        URL url = new URL(imageUrl);
+        InputStream inputStream = url.openStream();
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        
+        return bytes;
+    }
 
-    public String getImageUrl(ByteArrayResource imageResource,String folderName) {
-        return cdnUrl + folderName + "/" + imageResource.getDescription();
+    public String getImageUrl(String uuid,String folderName) {
+        return cdnUrl + folderName + "/" + uuid;
     }
     
     /**
