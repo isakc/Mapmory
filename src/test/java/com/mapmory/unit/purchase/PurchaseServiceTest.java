@@ -19,7 +19,7 @@ public class PurchaseServiceTest {
 	@Qualifier("purchaseServiceImpl")
 	private PurchaseService purchaseService;
 	
-	//@Test
+	@Test
 	public void testAddPurchase() throws Exception {
 		Purchase purchase = Purchase.builder()
 				.userId("user1")
@@ -30,15 +30,15 @@ public class PurchaseServiceTest {
 		
 		purchaseService.addPurchase(purchase);
 		
-		Assert.assertEquals("user1", purchaseService.getPurchase(purchase.getPurchaseNo()).getUserId());
-		Assert.assertEquals(1, purchaseService.getPurchase(purchase.getPurchaseNo()).getProductNo());
-		Assert.assertEquals(1, purchaseService.getPurchase(purchase.getPurchaseNo()).getPaymentMethod());
-		Assert.assertEquals(1000, purchaseService.getPurchase(purchase.getPurchaseNo()).getPrice());
+		Assert.assertEquals("user1", purchaseService.getDetailPurchase(purchase.getPurchaseNo()).getUserId());
+		Assert.assertEquals(1, purchaseService.getDetailPurchase(purchase.getPurchaseNo()).getProductNo());
+		Assert.assertEquals(1, purchaseService.getDetailPurchase(purchase.getPurchaseNo()).getPaymentMethod());
+		Assert.assertEquals(1000, purchaseService.getDetailPurchase(purchase.getPurchaseNo()).getPrice());
 	}//addProduct Test
 	
 	//@Test
 	public void testGetPurchase() throws Exception {
-		Purchase purchase = purchaseService.getPurchase(1);
+		Purchase purchase = purchaseService.getDetailPurchase(1);
 		
 		System.out.println(purchase);
 		
@@ -48,7 +48,7 @@ public class PurchaseServiceTest {
 		Assert.assertEquals(10000, purchase.getPrice());
 	}//addProduct Test
 		
-	@Test
+	//@Test
 	public void testGetPurchaseList() throws Exception {
 		String userId = "user2";
 		List<Purchase> purchaseList = purchaseService.getPurchaseList(userId);

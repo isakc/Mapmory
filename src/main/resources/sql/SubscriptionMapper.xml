@@ -18,7 +18,7 @@
 		<result property="merchantUid"						column="merchant_uid"								jdbcType="VARCHAR"  />
 	</resultMap>
 	
-	<insert id="addSubscription" parameterType="subscription">
+	<insert id="addSubscription" parameterType="subscription" useGeneratedKeys="true" keyProperty="subscriptionNo">
 		INSERT INTO subscription (user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
 							  		next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid)
 		VALUES (#{userId}, #{nextPaymentMethod}, #{nextSubscriptionCardType}, #{nextSubscriptionLastFourDigits},

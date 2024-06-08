@@ -52,12 +52,12 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}// addPurchase
 
 	@Override
-	public Purchase getPurchase(int purchaseNo) throws Exception {
+	public Purchase getDetailPurchase(int purchaseNo) throws Exception {
 		
-		return purchaseDao.getPurchase(purchaseNo);
+		return purchaseDao.getDetailPurchase(purchaseNo);
 		
-	}// getPurchase
-
+	}// getDetailPurchase
+	
 	@Override
 	public List<Purchase> getPurchaseList(String userId) throws Exception {
 		
