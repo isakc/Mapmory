@@ -24,8 +24,8 @@
 		<typeAlias alias="record" type="com.mapmory.services.timeline.domain.Record" />
 		<typeAlias alias="imageTag" type="com.mapmory.services.timeline.domain.ImageTag" />
 		<typeAlias alias="sharedRecord" type="com.mapmory.services.timeline.domain.SharedRecord" />
+		<typeAlias alias="sharedRecordDto" type="com.mapmory.services.timeline.dto.SharedRecordDto" />
 		<typeAlias alias="imageTagDto" type="com.mapmory.services.timeline.dto.ImageTagDto" />
-		<typeAlias alias="record2" type="com.mapmory.services.timeline.dto.Record2" />
 		<typeAlias alias="searchDto" type="com.mapmory.services.timeline.dto.SearchDto" />
 		<typeAlias alias="countAddressDto" type="com.mapmory.services.timeline.dto.CountAddressDto" />
 		<typeAlias alias="summaryRecordDto" type="com.mapmory.services.timeline.dto.SummaryRecordDto" />

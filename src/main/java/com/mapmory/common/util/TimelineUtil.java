@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.domain.SharedRecord;
 
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -60,6 +61,35 @@ public class TimelineUtil {
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.build();
 			return record;
+		}
+		
+		public static SharedRecord sharedRecordToMap(Map<String, Object> map) {
+			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
+			
+			SharedRecord sharedRecord=SharedRecord.builder()
+					.recordNo((int)map.get("recordNo"))
+					.recordUserId((String)map.get("recordUserId"))
+					.recordTitle((String)map.get("recordTitle"))
+					.latitude((Double)map.get("latitude"))
+					.longitude((Double)map.get("longitude"))
+					.checkpointAddress((String)map.get("checkpointAddress"))
+					.checkpointDate((LocalDateTime)map.get("checkpointDate"))
+					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
+					.imageName(imageToList(imageTagList))
+					.hashtag(hashtagToList(imageTagList))
+					.categoryNo((Integer)map.get("categoryNo"))
+					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
+					.tempType((Integer)map.get("tempType"))
+					.recordAddDate((LocalDateTime)map.get("recordAddDate"))
+					.sharedDate((LocalDateTime)map.get("sharedDate"))
+					.updateCount((Integer)map.get("updateCount"))
+					.d_DayDate((Date)map.get("d_DayDate"))
+					.timecapsuleType((Integer)map.get("timecapsuleType"))
+					.nickname((String)map.get("nickname"))
+					.profileImageName((String)map.get("profileImageName"))
+					.subscriptionEndDate((long)map.get("subscriptionEndDate"))
+					.build();
+			return sharedRecord;
 		}
 		
 		public static List<ImageTag> imageToList (List<Map<String, Object>> imageTagList) {

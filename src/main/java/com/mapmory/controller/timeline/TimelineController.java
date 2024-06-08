@@ -29,6 +29,7 @@ public class TimelineController {
 	@GetMapping({"getDetailTimeline"})
 	public void getDetailTimeline(Model model) throws Exception,IOException {
 		model.addAttribute("record",timelineService.getDetailTimeline(1));
+		model.addAttribute("record2",timelineService.getDetailSharedRecord(1));
 	}
 	
 	@GetMapping({"getDetailTimeline2"})
