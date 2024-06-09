@@ -81,7 +81,7 @@
             	if(rsp.success){ //빌링키 발급 성공
             		const subscription = {
     					userId: user,
-    					nextPaymentMethod: getPaymentMethod(rsp.pg_provider),
+    					nextSubscriptionPaymentMethod: getSubscriptionPaymentMethod(rsp.pg_provider),
     					nextSubscriptionCardType: rsp.card_name,
     					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
     					nextSubscriptionPaymentDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at, 1),
@@ -136,7 +136,7 @@
                 		const subscription = {
                 			customerUid: rsp.customer_uid,
         					userId: user,
-        					nextPaymentMethod: getPaymentMethod(rsp.pg_provider),
+        					nextSubscriptionPaymentMethod: getSubscriptionPaymentMethod(rsp.pg_provider),
         					nextSubscriptionCardType: rsp.card_name,
         					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
         					isSubscribed: "true",
@@ -169,7 +169,7 @@
     	  
     	  return date.getFullYear().toString() + "-"
     	  + String(date.getMonth()+1).padStart(2, '0') + "-"
-    	  + String(date.getDate()).padStart(2, '0') + "T"
+    	  + String(date.getDate()).padStart(2, '0') + " "
     	  + String(date.getHours()).padStart(2, '0') + ":" 
     	  + String(date.getMinutes()).padStart(2, '0') + ":" 
     	  + String(date.getSeconds()).padStart(2, '0');
@@ -192,7 +192,7 @@
     	   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 		}//convertUnixTimestamptoLocalDateTime: Unix 타임스탬프를 LocalDatetime으로 변환
 		
-		function getPaymentMethod(paymentMethod) {
+		function getSubscriptionPaymentMethod(paymentMethod) {
 		    const paymentMethods = {
 		    	'card': 0,
 		    	'kakaopay': 1,
@@ -201,7 +201,7 @@
 		    };
 
 		    return paymentMethods[paymentMethod];
-		}//getPaymentMethod: 결제수단 확인
+		}//getSubscriptionPaymentMethod: 결제수단 확인
 		
 		function getLastFourDigits(cardNumber) {
 		    return cardNumber.slice(-4); // 마지막 4자리 반환
@@ -213,7 +213,7 @@
 	<div>
 		<h1 th:text = "${product.productTitle}"></h1>
 		<h1 th:text = "${product.price}"></h1>
-		<img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid}(uuid=${uuid})}" alt="상품 이미지" width="300" height="300">
+		<!-- <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid}(uuid=${uuid})}" alt="상품 이미지" width="300" height="300"> -->
 	</div>
 	
 	<button onclick="nomralRequestPay('html5_inicis', 'card')">카드 일반 결제</button>

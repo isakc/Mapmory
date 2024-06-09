@@ -10,7 +10,7 @@ import com.mapmory.services.purchase.domain.Subscription;
 public interface SubscriptionDao {
 	
 	//insert
-	public void addSubscription(Subscription Subscription) throws Exception;
+	public int addSubscription(Subscription Subscription) throws Exception;
 	
 	//selectOne
 	public Subscription getDetailSubscription(String userId) throws Exception;
@@ -20,7 +20,6 @@ public interface SubscriptionDao {
 	
 	//delete
 	public void deleteSubscription(String userId) throws Exception;
-	
 	
 	///// 추가 메소드 /////
 	

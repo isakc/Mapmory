@@ -2,9 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>구매 목록</title>
 </head>
 <body>
+<table border="1">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${purchaseList}">
+                <td th:text="${item.paymentMethod}"></td>
+                <td th:text="${item.cardType}"></td>
+                <td th:text="${item.price}"></td>
+            </tr>
+        </tbody>
+    </table>
 
 </body>	
 </html>
