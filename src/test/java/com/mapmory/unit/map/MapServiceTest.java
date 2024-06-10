@@ -17,7 +17,7 @@ public class MapServiceTest {
 	@Qualifier("mapServiceImpl")
 	private MapService mapService;
 	
-	//@Test
+	@Test
 	public void testGetPedestrianRoute() throws Exception {
 		SearchRouter searchRouter = SearchRouter.builder()
 				.startX(127.0319638)
@@ -33,7 +33,7 @@ public class MapServiceTest {
 		System.out.println(mapService.getPedestrianRoute(searchRouter));
 	}// testGetPedestrianRoute Test
 	
-	@Test
+	//@Test
 	public void testGetCarRoute() throws Exception {
 		SearchRouter searchRouter = SearchRouter.builder()
 				.startX(127.0319638)

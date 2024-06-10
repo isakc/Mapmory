@@ -62,6 +62,8 @@ public interface TimelineDao {
 	
 	public List<Map<String, Object>> selectMapRecordList(SearchDto searchDto) throws Exception;
 	
+	public Record selectDetailTimeline2(int recordNo) throws Exception;
+	
 	//아래 미사용
 //	//record insert시 Imagefile insert
 //	public void insertImageName(Map<String,Object> map) throws Exception;

@@ -14,7 +14,7 @@
 
     <!-- 상품 추가 -->
     <insert id="addProduct" parameterType="product" useGeneratedKeys="true" keyProperty="productNo">
-        INSERT INTO PRODUCT (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
+        INSERT INTO product (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
         VALUES (#{productTitle}, #{price}, SYSDATE(), #{period}, #{userId})
     </insert>
 
@@ -25,9 +25,9 @@
         p.PRODUCT_TITLE,
         p.PRICE
         FROM
-        PRODUCT p
+        product p
         LEFT JOIN
-        IMAGE_FILE i ON p.product_no = i.product_no
+        image_file i ON p.product_no = i.product_no
         WHERE p.PRODUCT_NO = #{productNo}
         GROUP BY p.PRODUCT_NO
     </select>
@@ -41,8 +41,14 @@
         p.PRODUCT_REGDATE,
         p.USER_ID,
         p.PERIOD,
+<<<<<<< HEAD
         FROM PRODUCT p
         LEFT JOIN IMAGE_FILE i ON p.PRODUCT_NO = i.PRODUCT_NO
+=======
+        i.UUID
+        FROM product p
+        LEFT JOIN image_file i ON p.PRODUCT_NO = i.PRODUCT_NO
+>>>>>>> refs/heads/master
         <where>
             <if test="searchCondition != null and searchKeyword != null">
                 <if test="searchCondition == 0 and searchKeyword != ''">
@@ -58,48 +64,48 @@
         LIMIT #{pageSize} OFFSET #{offset}
     </select>-->
     <select id="getProductList" parameterType="search" resultMap="productSelectMap">
-SELECT
-    p.PRODUCT_NO,
-    p.PRODUCT_TITLE,
-    p.PRICE,
-    p.PRODUCT_REGDATE,
-    p.USER_ID,
-    p.PERIOD
-FROM PRODUCT p
-<where>
-<if test="searchCondition != null and searchKeyword != null">
-    <if test="searchCondition == 0 and searchKeyword != ''">
+		SELECT
+    	p.PRODUCT_NO,
+    	p.PRODUCT_TITLE,
+    	p.PRICE,
+    	p.PRODUCT_REGDATE,
+    	p.USER_ID,
+    	p.PERIOD
+		FROM product p
+	<where>
+		<if test="searchCondition != null and searchKeyword != null">
+    	<if test="searchCondition == 0 and searchKeyword != ''">
         AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
     </if>
     <if test="searchCondition == 1">
         AND p.PRICE = CAST(#{searchKeyword} AS DECIMAL)
     </if>
-</if>
-</where>
-ORDER BY p.PRODUCT_NO
-LIMIT #{pageSize} OFFSET #{offset}
-</select>
+	</if>
+	</where>
+		ORDER BY p.PRODUCT_NO
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
     <!-- 상품 정보 수정 -->
     <update id="updateProduct" parameterType="product">
-        UPDATE PRODUCT
+        UPDATE product
         SET PRODUCT_TITLE = #{productTitle}, PRICE = #{price}, PRODUCT_REGDATE = CURRENT_DATE(), PERIOD = #{period}, USER_ID = #{userId}
         WHERE PRODUCT_NO = #{productNo}
     </update>
 
     <!-- 상품 삭제 -->
     <delete id="deleteProduct" parameterType="int">
-        DELETE FROM PRODUCT WHERE PRODUCT_NO = #{productNo}
+        DELETE FROM product WHERE PRODUCT_NO = #{productNo}
     </delete>
 
     <!-- 상품 이름으로 조회 -->
     <select id="getProductByName" parameterType="string" resultType="product">
-        SELECT * FROM PRODUCT WHERE PRODUCT_TITLE = #{productTitle}
+        SELECT * FROM product WHERE PRODUCT_TITLE = #{productTitle}
     </select>
 
     <!-- 상품 총 개수 조회 -->
     <select id="getProductTotalCount" parameterType="search" resultType="int">
         SELECT COUNT(*)
-        FROM PRODUCT
+        FROM product
         <where>
             <if test="searchCondition != null and searchKeyword != null">
                 <if test="searchCondition == 0 and searchKeyword !='' ">

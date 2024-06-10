@@ -59,6 +59,58 @@
     </collection>
 </resultMap>
 
+<resultMap id="recordResultMap2" type="com.mapmory.services.timeline.domain.Record2">
+    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
+    <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+    <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
+    <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
+    <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
+    <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
+    <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
+    <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
+    <result property="sharedDate" column="shared_date" jdbcType="TIMESTAMP"/>
+    <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
+    <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
+    <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
+    <collection property="imageTagList" ofType="HashMap" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="image_tag_order" />
+    	<result property="imageTagType" column="image_tag_type" />
+    	<result property="imageTagText" column="image_tag_text" />
+    </collection>
+</resultMap>
+
+<select id='selectDetailTimeline2' resultMap='recordResultMap2' parameterType='Integer'>
+    SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a1.record_title AS record_title,
+       a1.latitude AS latitude,
+       a1.longitude AS longitude,
+       a1.checkpoint_address AS checkpoint_address,
+       a1.checkpoint_date AS checkpoint_date,
+       a1.media_name AS media_name,
+       a1.category_no AS category_no,
+       a1.record_text AS record_text,
+       a1.temp_type AS temp_type,
+       a1.record_add_date AS record_add_date,
+       a1.shared_date AS shared_date,
+       a1.update_count AS update_count,
+       a1.d_day_date AS d_day_date,
+       a1.timecapsule_type AS timecapsule_type,
+       a2.image_tag_order AS image_tag_order,
+       a2.image_tag_type AS image_tag_type,
+       a2.image_tag_text AS image_tag_text
+   FROM 
+       record a1
+   JOIN image_tag a2 ON a1.record_no = a2.record_no
+   WHERE 
+       a1.record_no = #{value}
+</select>
+
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
 	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
     VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{checkpointDate:TIMESTAMP}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
