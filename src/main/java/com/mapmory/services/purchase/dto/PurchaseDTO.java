@@ -23,6 +23,7 @@ public class PurchaseDTO {
     private String cardType;
     private String lastFourDigits;
     private LocalDateTime purchaseDate;
+    private String purchaseDateString;
     private int price;
     private String productTitle; // Product 정보
     private int period; // Product 정보
