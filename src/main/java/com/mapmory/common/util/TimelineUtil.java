@@ -37,7 +37,7 @@ public class TimelineUtil {
 	private String FROM_PHONE_NUMBER;
 	
 	//map을 record로 묶어주는 기능
-		public static Record recordToMap(Map<String, Object> map) {
+		public static Record mapToRecord(Map<String, Object> map) {
 			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
 			
 			Record record=Record.builder()
@@ -47,15 +47,15 @@ public class TimelineUtil {
 					.latitude((Double)map.get("latitude"))
 					.longitude((Double)map.get("longitude"))
 					.checkpointAddress((String)map.get("checkpointAddress"))
-					.checkpointDate((LocalDateTime)map.get("checkpointDate"))
+					.checkpointDate((String)map.get("checkpointDate"))
 					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
-					.imageName(imageToList(imageTagList))
-					.hashtag(hashtagToList(imageTagList))
+					.imageName(listToImage(imageTagList))
+					.hashtag(listToHashtag(imageTagList))
 					.categoryNo((Integer)map.get("categoryNo"))
 					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
 					.tempType((Integer)map.get("tempType"))
-					.recordAddDate((LocalDateTime)map.get("recordAddDate"))
-					.sharedDate((LocalDateTime)map.get("sharedDate"))
+					.recordAddDate((String)map.get("recordAddDate"))
+					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
 					.d_DayDate((Date)map.get("d_DayDate"))
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
@@ -63,7 +63,7 @@ public class TimelineUtil {
 			return record;
 		}
 		
-		public static SharedRecord sharedRecordToMap(Map<String, Object> map) {
+		public static SharedRecord mapToSharedRecord(Map<String, Object> map) {
 			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
 			
 			SharedRecord sharedRecord=SharedRecord.builder()
@@ -73,26 +73,30 @@ public class TimelineUtil {
 					.latitude((Double)map.get("latitude"))
 					.longitude((Double)map.get("longitude"))
 					.checkpointAddress((String)map.get("checkpointAddress"))
-					.checkpointDate((LocalDateTime)map.get("checkpointDate"))
+					.checkpointDate((String)map.get("checkpointDate"))
 					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
-					.imageName(imageToList(imageTagList))
-					.hashtag(hashtagToList(imageTagList))
+					.imageName(listToImage(imageTagList))
+					.hashtag(listToHashtag(imageTagList))
 					.categoryNo((Integer)map.get("categoryNo"))
 					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
 					.tempType((Integer)map.get("tempType"))
-					.recordAddDate((LocalDateTime)map.get("recordAddDate"))
-					.sharedDate((LocalDateTime)map.get("sharedDate"))
+					.recordAddDate((String)map.get("recordAddDate"))
+					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
 					.d_DayDate((Date)map.get("d_DayDate"))
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.nickname((String)map.get("nickname"))
 					.profileImageName((String)map.get("profileImageName"))
 					.subscriptionEndDate((long)map.get("subscriptionEndDate"))
+					.categoryName((String)map.get("categoryName"))
+					.categoryImoji((String)map.get("categoryImoji"))
+					.replyCount((long)map.get("replyCount"))
+					.logsCount((long)map.get("logsCount"))
 					.build();
 			return sharedRecord;
 		}
 		
-		public static List<ImageTag> imageToList (List<Map<String, Object>> imageTagList) {
+		public static List<ImageTag> listToImage (List<Map<String, Object>> imageTagList) {
 			List<ImageTag> imageName = new ArrayList<ImageTag>();
 			for (Map<String, Object> map : imageTagList) {
 		        if ((int) map.get("imageTagType") == 1) {
@@ -106,7 +110,7 @@ public class TimelineUtil {
 			return imageName;
 		}
 		
-		public static List<ImageTag> hashtagToList (List<Map<String, Object>> imageTagList) {
+		public static List<ImageTag> listToHashtag (List<Map<String, Object>> imageTagList) {
 			List<ImageTag> hashtag = new ArrayList<ImageTag>();
 			for (Map<String, Object> map : imageTagList) {
 				if ((int) map.get("imageTagType") == 0) {
@@ -120,7 +124,7 @@ public class TimelineUtil {
 			return hashtag;
 		}
 		
-		public static List<Map<String, Object>> listToImageTag (List<ImageTag> imageName, List<ImageTag> hashtag) {
+		public static List<Map<String, Object>> imageTagToList (List<ImageTag> imageName, List<ImageTag> hashtag) {
 			List<Map<String,Object>> imageTagList = new ArrayList<Map<String,Object>>();
 		    // 이미지 태그가 있는 경우에만 처리
 		    if (imageName != null) {

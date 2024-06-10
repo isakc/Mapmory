@@ -18,11 +18,11 @@ public class SubscriptionDaoTest {
 	@Qualifier("subscriptionDao")
 	private SubscriptionDao subscriptionDao;
 	
-	//@Test
+	@Test
 	public void testAddSubscription() throws Exception{
 		Subscription subscription = Subscription.builder()
 				.userId("user1")
-				.nextPaymentMethod(0)
+				.nextSubscriptionPaymentMethod(0)
 				.nextSubscriptionCardType("국민카드")
 				.nextSubscriptionLastFourDigits("1234")
 				.nextSubscriptionPaymentDate(LocalDateTime.now())
@@ -44,7 +44,7 @@ public class SubscriptionDaoTest {
 		Subscription subscription = subscriptionDao.getDetailSubscription(userId);
 		
 		Assert.assertEquals(userId, subscription.getUserId());
-		Assert.assertEquals(0, subscription.getNextPaymentMethod());
+		Assert.assertEquals(0, subscription.getNextSubscriptionPaymentMethod());
 		Assert.assertEquals("Visa", subscription.getNextSubscriptionCardType());
 		Assert.assertEquals("1234", subscription.getNextSubscriptionLastFourDigits());
 		Assert.assertEquals("CUST001", subscription.getCustomerUid());
@@ -53,11 +53,11 @@ public class SubscriptionDaoTest {
 	
 	//@Test
 	public void testUpdatePaymentMethod() throws Exception{
-		String userId = "user1";
+		String userId = "user2";
 		
 		Subscription subscription = Subscription.builder()
 				.userId(userId)
-				.nextPaymentMethod(0)
+				.nextSubscriptionPaymentMethod(0)
 				.nextSubscriptionCardType("BC 카드")
 				.nextSubscriptionLastFourDigits("5678")
 				.customerUid("test02")
@@ -68,7 +68,7 @@ public class SubscriptionDaoTest {
 		Subscription updateSubscription = subscriptionDao.getDetailSubscription(userId);
 		
 		Assert.assertEquals(userId, updateSubscription.getUserId());
-		Assert.assertEquals(0, updateSubscription.getNextPaymentMethod());
+		Assert.assertEquals(0, updateSubscription.getNextSubscriptionPaymentMethod());
 		Assert.assertEquals("BC 카드", subscription.getNextSubscriptionCardType());
 		Assert.assertEquals("5678", subscription.getNextSubscriptionLastFourDigits());
 		Assert.assertEquals("test02", subscription.getCustomerUid());
@@ -85,6 +85,18 @@ public class SubscriptionDaoTest {
 		Subscription subscription = subscriptionDao.getDetailSubscription(userId);
 		
 		Assert.assertEquals(null, subscription.getNextSubscriptionPaymentDate());
+	}
+	
+	//@Test
+	public void testGetTodaySubscriptionList() throws Exception {
 		
+		Assert.assertEquals(8, subscriptionDao.getTodaySubscriptionList().size());
+	}
+	
+	//@Test
+	public void testCountSubscription() throws Exception {
+
+		String userId = "user1";
+		Assert.assertEquals(1, subscriptionDao.countSubscription(userId));
 	}
 }

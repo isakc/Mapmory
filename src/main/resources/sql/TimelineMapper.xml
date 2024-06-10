@@ -52,6 +52,10 @@
     <result property='nickname' column='nickname' jdbcType='VARCHAR'/>
     <result property='profileImageName' column='profile_image_name' jdbcType='VARCHAR'/>
     <result property='subscriptionEndDate' column='subscription_end_date' jdbcType='NUMERIC'/>
+    <result property='categoryName' column='category_name' jdbcType='VARCHAR'/>
+    <result property='categoryImoji' column='category_imoji' jdbcType='VARCHAR'/>
+    <result property='replyCount' column='reply_count' jdbcType='NUMERIC'/>
+    <result property='logsCount' column='logs_count' jdbcType='NUMERIC'/>
     <collection property="imageTagList" ofType="java.util.HashMap" javaType="java.util.ArrayList">
     	<result property="imageTagOrder" column="image_tag_order" />
     	<result property="imageTagType" column="image_tag_type" />
@@ -59,9 +63,61 @@
     </collection>
 </resultMap>
 
+<resultMap id="recordResultMap2" type="com.mapmory.services.timeline.domain.Record2">
+    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
+    <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+    <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
+    <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
+    <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
+    <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
+    <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
+    <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
+    <result property="sharedDate" column="shared_date" jdbcType="TIMESTAMP"/>
+    <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
+    <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
+    <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
+    <collection property="imageTagList" ofType="HashMap" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="image_tag_order" />
+    	<result property="imageTagType" column="image_tag_type" />
+    	<result property="imageTagText" column="image_tag_text" />
+    </collection>
+</resultMap>
+
+<select id='selectDetailTimeline2' resultMap='recordResultMap2' parameterType='Integer'>
+    SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a1.record_title AS record_title,
+       a1.latitude AS latitude,
+       a1.longitude AS longitude,
+       a1.checkpoint_address AS checkpoint_address,
+       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
+       a1.media_name AS media_name,
+       a1.category_no AS category_no,
+       a1.record_text AS record_text,
+       a1.temp_type AS temp_type,
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
+       a1.update_count AS update_count,
+       a1.d_day_date AS d_day_date,
+       a1.timecapsule_type AS timecapsule_type,
+       a2.image_tag_order AS image_tag_order,
+       a2.image_tag_type AS image_tag_type,
+       a2.image_tag_text AS image_tag_text
+   FROM 
+       record a1
+   JOIN image_tag a2 ON a1.record_no = a2.record_no
+   WHERE 
+       a1.record_no = #{value}
+</select>
+
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
-	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
-    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{checkpointDate:TIMESTAMP}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
+	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
+    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
 	 <!-- 자동 생성된 키 값을 조회 -->
     <!-- <selectKey keyProperty="recordNo" keyColumn="record_no" resultType="int" order="AFTER">
         SELECT LAST_INSERT_ID()
@@ -84,13 +140,13 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
        a1.latitude AS latitude,
        a1.longitude AS longitude,
        a1.checkpoint_address AS checkpoint_address,
-       a1.checkpoint_date AS checkpoint_date,
+       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
        a1.media_name AS media_name,
        a1.category_no AS category_no,
        a1.record_text AS record_text,
        a1.temp_type AS temp_type,
-       a1.record_add_date AS record_add_date,
-       a1.shared_date AS shared_date,
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
        a1.update_count AS update_count,
        a1.d_day_date AS d_day_date,
        a1.timecapsule_type AS timecapsule_type,
@@ -112,13 +168,13 @@ SELECT
     latitude,
     longitude,
     checkpoint_address,
-    checkpoint_date,
+    DATE_FORMAT(checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
     media_name,
     category_no,
     record_text,
     temp_type,
-    record_add_date,
-    shared_date,
+    DATE_FORMAT(record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+    DATE_FORMAT(shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
     update_count,
     d_day_date,
     timecapsule_type
@@ -256,7 +312,7 @@ LIMIT #{limit} OFFSET #{offset}
 	SELECT 
 		COUNT(*) AS checkpoint_count, 
 		(SELECT 
-		checkpoint_date 
+		DATE_FORMAT(checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date 
 		FROM record 
 		WHERE checkpoint_address=#{checkpointAddress:VARCHAR} 
 		AND record_user_id=#{recordUserId:VARCHAR}
@@ -292,19 +348,23 @@ LIMIT #{limit} OFFSET #{offset}
        a1.latitude AS latitude,
        a1.longitude AS longitude,
        a1.checkpoint_address AS checkpoint_address,
-       a1.checkpoint_date AS checkpoint_date,
+       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
        a1.media_name AS media_name,
        a1.category_no AS category_no,
        a1.record_text AS record_text,
        a1.temp_type AS temp_type,
-       a1.record_add_date AS record_add_date,
-       a1.shared_date AS shared_date,
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
        a1.update_count AS update_count,
        a1.d_day_date AS d_day_date,
        a1.timecapsule_type AS timecapsule_type,
        (SELECT nickname FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS nickname,
        (SELECT profile_image_name FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS profile_image_name,
        CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = a1.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+    	(SELECT category_name FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_name,
+    	(SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_imoji,
+    	(SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = a1.RECORD_NO) AS reply_count,
+    	(SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = a1.RECORD_NO) logs_count,
        a2.image_tag_order AS image_tag_order,
        a2.image_tag_type AS image_tag_type,
        a2.image_tag_text AS image_tag_text
@@ -359,13 +419,13 @@ SELECT
     latitude,
     longitude,
     checkpoint_address,
-    checkpoint_date,
+    DATE_FORMAT(checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
     media_name,
     category_no,
     record_text,
     temp_type,
-    record_add_date,
-    shared_date,
+    DATE_FORMAT(record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+    DATE_FORMAT(shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
     update_count,
     d_day_date,
     timecapsule_type

@@ -23,9 +23,9 @@ import com.google.gson.Gson;
 public class ClovaSpeechClient {
 
     // Clova Speech secret key
-	private static final String SECRET = "";
+	private static final String SECRET = "7d03fe10131a4ad288ced80e4b68ab37";
     // Clova Speech invoke URL
-	private static final String INVOKE_URL = "";
+	private static final String INVOKE_URL = "https://clovaspeech-gw.ncloud.com/external/v1/7896/1406f48d2255441f90e0ecd24665c7a355931c7c823f7e68679f9b9b6a2839f7";
 
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
 	private Gson gson = new Gson();
@@ -266,13 +266,13 @@ public class ClovaSpeechClient {
 		}
 	}
 
-	public static void main(String[] args) {
-		final ClovaSpeechClient clovaSpeechClient = new ClovaSpeechClient();
-		NestRequestEntity requestEntity = new NestRequestEntity();
-		final String result =
-			clovaSpeechClient.upload(new File("/data/sample.mp4"), requestEntity);
-		//final String result = clovaSpeechClient.url("file URL", requestEntity);
-		//final String result = clovaSpeechClient.objectStorage("Object Storage key", requestEntity);
-		System.out.println(result);
-	}
+//	public static void main(String[] args) {
+//		final ClovaSpeechClient clovaSpeechClient = new ClovaSpeechClient();
+//		NestRequestEntity requestEntity = new NestRequestEntity();
+//		final String result =
+//			clovaSpeechClient.upload(new File("/data/sample.mp4"), requestEntity);
+//		//final String result = clovaSpeechClient.url("file URL", requestEntity);
+//		//final String result = clovaSpeechClient.objectStorage("Object Storage key", requestEntity);
+//		System.out.println(result);
+//	}
 }

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mapmory.common.util.ClovaSpeechClient;
+import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
 import com.mapmory.common.util.ObjectStorageUtil;
 
 import java.io.File;
@@ -48,8 +50,29 @@ public class TimelineRestController {
 	@Value("${speech.folderName}")
 	String speechFolderName;
 	
-	@PostMapping("/upload")
-	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) {
+	@PostMapping("upload")
+	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
+		// 파일 저장 위치
+        String uploadDir = "tempfile/";
+        File uploadDirFile = new File(uploadDir);
+        if (!uploadDirFile.exists()) {
+            uploadDirFile.mkdirs();  // 디렉토리가 없으면 생성
+        }
+		File uploadFile = new File(uploadDir, audioFile.getOriginalFilename());
+		audioFile.transferTo(uploadFile);
+		
+        // 추가 처리 로직 (예: 데이터베이스 저장 등)
+        System.out.println("파일 저장 위치: " + uploadFile.getAbsolutePath());
+        
+		final ClovaSpeechClient clovaSpeechClient = new ClovaSpeechClient();
+		NestRequestEntity requestEntity = new NestRequestEntity();
+		final String result =
+			clovaSpeechClient.upload(uploadFile, requestEntity);
+		//final String result = clovaSpeechClient.url("file URL", requestEntity);
+		//final String result = clovaSpeechClient.objectStorage("Object Storage key", requestEntity);
+		System.out.println(result);
+		
+		
 //	    Map<String, Object> response = new HashMap<>();
 //
 //	    try {
@@ -61,6 +84,7 @@ public class TimelineRestController {
 //
 //	        response.put("success", true);
 //	        response.put("message", "파일 업로드 성공");
+//	        
 //	        return ResponseEntity.ok(response);
 //	    } catch (Exception e) {
 //	        e.printStackTrace();

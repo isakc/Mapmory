@@ -27,17 +27,17 @@
                 <th>구매</th>
             </tr>
         </thead>
-        <tbody>
-            <tr th:each="product : ${productList}">
-                <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
-                <td th:text="${product.price}"></td>
-                <td>
-                    <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid}(uuid=${uuid})}" alt="상품 이미지" width="300" height="300">
-                </td>
-                <td th:text="${product.productRegDate}"></td>
-                <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>
-            </tr>
-        </tbody>
+<tbody>
+    <tr th:each="product : ${productList}">
+        <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
+        <td th:text="${product.price}"></td>
+        <td>
+            <img th:if="${not #lists.isEmpty(product.uuid)}" th:src="@{/product/image/{uuid}(uuid=${product.uuid[0]})}" alt="상품 이미지" width="300" height="300">
+        </td>
+        <td th:text="${product.productRegDate}"></td>
+        <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>
+    </tr>
+</tbody>
     </table>
 
     <div>

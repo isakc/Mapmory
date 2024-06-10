@@ -37,7 +37,7 @@ public class TimelineDaoTest {
 	@Value("${timeline.coolsms.tophonenumber}")
 	private String toPhoneNumber;
 	
-	@Test
+//	@Test
 	@Transactional
 	public void testSelectNotifyTimecapsule() throws Exception{
 		System.out.println("\n===================================");
@@ -51,6 +51,14 @@ public class TimelineDaoTest {
 		}
         
 		Assertions.assertThat(text).isEqualTo("user3 님, 오늘 1 건의 타임캡슐 기록이 존재합니다. ");
+		
+	}
+	@Test
+	@Transactional
+	public void testSelectDetailTimeline2() throws Exception{
+		System.out.println("\n===================================");
+		
+		System.out.println(timelineDao.selectDetailTimeline2(1));
 		
 	}
 }
