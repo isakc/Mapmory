@@ -175,12 +175,12 @@ public class ProductServiceImpl implements ProductService {
         return productImageDao.getImageByTag(imageTag);
     }
     
-    public Product getSubscription(int productNo) throws Exception {
+    public Product getSubscription() throws Exception {
     	
-    	Product product = productDao.getSubscription(productNo); // 상품 정보 가져오기
+    	Product product = productDao.getSubscription(); // 상품 정보 가져오기
     	
     	if (product != null) { // 상품 정보가 존재하는 경우에만 이미지 정보를 가져와서 설정
-    		List<String> imageUuidList = productImageDao.getProductImageList(productNo); // 이미지 정보 가져오기
+    		List<String> imageUuidList = productImageDao.getProductImageList(product.getProductNo()); // 이미지 정보 가져오기
     		product.setUuid(imageUuidList); // 이미지 정보를 상품 객체에 설정
     	}
     	
