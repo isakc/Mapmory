@@ -628,6 +628,11 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
+	public boolean checkPasswordValid(String userId, String rawPassword) {
+		
+		String hashedPassword = getPassword(userId);
+		return argon2PasswordEncoder.matches(rawPassword, hashedPassword);
+	}
 
 
 	private boolean intToBool(int result) {

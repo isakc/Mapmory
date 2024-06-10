@@ -189,5 +189,5 @@ public interface UserService {
 	 */
 	public boolean checkHideProfile(String userId);
 
-
+	public boolean checkPasswordValid(String userId, String userPassword);
 }
