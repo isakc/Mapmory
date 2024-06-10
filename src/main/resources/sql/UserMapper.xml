@@ -205,6 +205,13 @@
 		ORDER BY day;
 	</select>
 	
+	<select id="selectPassword" parameterType="string" resultType="string">
+		SELECT
+		user_password
+		FROM users
+		WHERE user_id = #{value}
+	</select>
+	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT
 		COUNT(*)
@@ -252,6 +259,13 @@
 		UPDATE users
 		SET set_secondary_auth = set_secondary_auth ^ 1
 		WHERE user_id = #{userId}
+	</update>
+	
+	<update id="updatePassword" parameterType="com.mapmory.services.user.domain.Login">
+	
+		UPDATE users
+		SET user_password = #{userPassword}
+		WHERE user_id=#{userId}
 	</update>
 	
 	<delete id="deleteFollow" parameterType="followBlock">

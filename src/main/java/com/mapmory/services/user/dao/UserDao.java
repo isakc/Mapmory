@@ -8,7 +8,11 @@ import org.apache.ibatis.annotations.Mapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.Login;
+import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
+import com.mapmory.services.user.domain.LoginMonthlyLog;
+import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
@@ -36,11 +40,18 @@ public interface UserDao {
 	public List<SocialLoginInfo> selectSocialIdList(String userId);
 	
 	/**
-	 * 사용자 전체 로그인 통계를 조회한다.
+	 * 사용자 일간 전체 로그인 통계를 조회한다.
 	 * @param search
 	 * @return
 	 */
-	public List<LoginLog> selectUserLoginList(Search search);
+	public List<LoginDailyLog> selectUserLoginDailyList(LoginSearch search);
+	
+	/**
+	 * 사용자 월간 전체 로그인 통계를 조회한다.
+	 * @param search
+	 * @return
+	 */
+	public List<LoginMonthlyLog> selectUserLoginMonthlyList(LoginSearch search);
 	
 	/**
 	 * searchCondition (0: LIKE 조회, 1: '=' 조회)
@@ -48,7 +59,8 @@ public interface UserDao {
 	 * @return
 	 */
 	public List<SuspensionLogList> selectSuspensionList(Search search);
-	// public Map<String, Object> selectSuspensionList(Search search);
+	
+	public String selectPassword(String userId);
 	
 	// 내 정보 수정, 프로필 수정, 비밀번호 변경, 2단계 인증 설정, 회원 탈퇴 처리, 회원 정지 모두 지원
 	public int updateUser(User user);
@@ -63,6 +75,8 @@ public interface UserDao {
 	public int updateHideProfile(String userId);
 	
 	public int updateSecondaryAuth(String userId);
+	
+	public int updatePassword(Login login);
 	
 	public int deleteFollow(FollowBlock follow);
 

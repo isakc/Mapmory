@@ -39,8 +39,10 @@ import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
+import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
@@ -402,6 +404,12 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public String getPassword(String userId) {
+		
+		return userDao.selectPassword(userId);
+	}
+	
+	@Override
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
 		
@@ -459,15 +467,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updatePassword(String userId, String userPassword) {
+	public boolean updatePassword(String userId, String rawPassword) {
 		// TODO Auto-generated method stub
 		
-		User user = User.builder()
-						.userId(userId)
-						.userPassword(userPassword)
-						.build();
+		String hashedPassword = argon2PasswordEncoder.encode(rawPassword);
 		
-		int result = userDao.updateUser(user);
+		Login login = Login.builder()
+				.userId(userId)
+				.userPassword(hashedPassword)
+				.build();
+		
+		int result = userDao.updatePassword(login);
 		
 		return intToBool(result);
 	}

@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.LoginDailyLog;
-import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
@@ -113,6 +112,8 @@ public interface UserService {
 	 * @return
 	 */
 	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception;
+	
+	public String getPassword(String userId);
 	
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception;
 	
