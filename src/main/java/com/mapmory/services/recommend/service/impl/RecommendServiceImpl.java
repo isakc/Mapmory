@@ -39,6 +39,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -74,19 +75,23 @@ public class RecommendServiceImpl implements RecommendService {
 		
 		String userId = record.getRecordUserId();
 		String category = recommendDao.getCategory(record.getCategoryNo());
-		List<String> hashTag = record.getHashtag();
+		List<ImageTag> hashTag = record.getHashtag();
 		
 		System.out.println("userId : "+userId+", category : "+category+", hashTag : "+hashTag);
+		
+		for(ImageTag i : hashTag) {
+			recommendDao.addSearchData(userId, i.getImageTagText());
+		}
 		
 		if(category != null) {
 			recommendDao.addSearchData(userId, category);
 		}
 		
-		if(hashTag != null) {
-			for(String i : hashTag) {
-				recommendDao.addSearchData(userId, i);
-			}
-		}
+//		if(hashTag != null) {
+//			for(String i : hashTag) {
+//				recommendDao.addSearchData(userId, i);
+//			}
+//		}
 		
 	}
 
@@ -190,12 +195,12 @@ public class RecommendServiceImpl implements RecommendService {
 		int categoryNo = record.getCategoryNo();
 		
 		//해시태그 추천시스템에 맞게 저장
-		List<String> hash = record.getHashtag();
+		List<ImageTag> hash = record.getHashtag();
 		if(hash != null) {
 			System.out.println("hash : "+hash);
 			String hashTags = "";
-			for(String i : hash) {
-				String hashTag = i.substring(1).trim();
+			for(ImageTag i : hash) {
+				String hashTag = i.getImageTagText().substring(1).trim();
 				if( hashTags == "") {
 					hashTags += hashTag;
 				} else {
@@ -217,6 +222,7 @@ public class RecommendServiceImpl implements RecommendService {
 		
 		recommend.setUserId(record.getRecordUserId());
 		recommend.setRecordNo(recordNo);
+		recommend.setRecordTitle(record.getRecordTitle());
 		
 		System.out.println(recommend.toString());
 		System.out.println("RecommendServiceImpl getRecordData end");

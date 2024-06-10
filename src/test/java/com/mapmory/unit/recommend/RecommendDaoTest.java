@@ -14,7 +14,7 @@ public class RecommendDaoTest {
 	@Qualifier("recommendDao")
 	private RecommendDao recommendDao;
 	
-	//@Test
+	@Test
 	public void addSearchData() throws Exception{
 		
 		String userId = "user1";

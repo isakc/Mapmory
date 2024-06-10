@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.mapmory.services.timeline.domain.ImageTag;
+
 @Mapper
 public interface RecommendDao {
 

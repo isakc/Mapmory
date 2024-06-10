@@ -36,7 +36,7 @@
 	</select>
 	
 	<insert id="addSearchData" parameterType="String">
-		INSERT IGNORE INTO recommend_keyword (user_id, keyword)
+		INSERT IGNORE INTO RECOMMEND_KEYWORD (user_id, keyword)
 		VALUES (#{userId}, #{keyword});
 	</insert>
 	
