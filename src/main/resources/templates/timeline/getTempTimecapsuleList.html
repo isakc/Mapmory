@@ -6,14 +6,14 @@
 </head>
 <body>
 	<a th:href="@{/timeline/addTimecapsule(userId='user1')}" th:text="'기록하기'"></a><br/>
-	<a th:href="@{/timeline/getTempTimecapsuleList(userId='user1')}" th:text="${'getTempTimecapsuleList'}"></a><br/>
+	<a th:href="@{/timeline/getTimecapsuleList(userId='user1')}" th:text="${'getTimecapsuleList'}"></a><br/>
 	<table border='1'>
 		<thead>
 		</thead>
 		<tbody>
 			<tr th:each="record : ${timecapsuleList}">
 				<td>
-					<a th:href="@{/timeline/getDetailTimecapsule(recordNo=${record.recordNo})}" th:text="${record.recordTitle}"></a><br />
+					<a th:href="@{/timeline/updateTimecapsule(recordNo=${record.recordNo})}" th:text="${record.recordTitle}"></a><br />
 					<span th:text="'&nbsp 일시 : ' + ${record.d_DayDate}"></span><br />
 					<span th:text="'&nbsp 주소 : ' + ${record.checkpointAddress}"></span><br />
 					<span th:text="' '"></span><br />

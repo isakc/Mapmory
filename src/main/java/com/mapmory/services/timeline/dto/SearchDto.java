@@ -1,9 +1,6 @@
 package com.mapmory.services.timeline.dto;
 
 import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;

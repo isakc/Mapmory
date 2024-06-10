@@ -14,7 +14,7 @@ import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
 public interface TimelineService {
 	//Record CRUD
-	public void addTimeline(Record record) throws Exception;
+	public int addTimeline(Record record) throws Exception;
 	
 	public Record getDetailTimeline(int recordNo) throws Exception;
 	
@@ -27,7 +27,7 @@ public interface TimelineService {
 	public void deleteImage(int imageNo) throws Exception;
 	
 	//Category CRUD
-	public void addCategory(Category category) throws Exception;
+	public int addCategory(Category category) throws Exception;
 	
 	public Category getCategory(int categoryNo) throws Exception;
 	
