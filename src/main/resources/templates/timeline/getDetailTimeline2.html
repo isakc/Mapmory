@@ -17,7 +17,7 @@
 <ul>
    <li th:each="item : ${list3}" th:text="${item.recordUserId == null ? null : item.recordUserId}
     +',  '+${item.recordTitle == null ? null : item.recordTitle}
-    +',  '+${item.sharedDate == null ? '' : #temporals.format(item.sharedDate, 'yyyy-MM-dd HH:mm:ss')}
+    +',  '+${item.sharedDate == null ? '' : item.sharedDate}
     +',  '+${item.tempType == null ? null : item.tempType}
     +',  '+${item.timecapsuleType == null ? null : item.timecapsuleType}"></li>
 </ul>

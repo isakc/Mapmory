@@ -118,8 +118,8 @@ public class TimelineController {
 		model.addAttribute("list10",timelineService.getSharedRecordList(search));
 		search=Search.builder()
 				.timecapsuleType(0)
-				.selectDay1(LocalDateTime.parse("2024-06-04T00:00:00"))
-				.selectDay2(LocalDateTime.parse("2024-06-05T00:00:00"))
+				.selectDay1("2024-06-04 00:00:00")
+				.selectDay2("2024-06-05 00:00:00")
 				.build();
 		model.addAttribute("list11",timelineService.getTimelineList(search));
 		
@@ -163,7 +163,7 @@ public class TimelineController {
 		model.addAttribute("list15",timelineService.getMapRecordList(search));
 		search=Search.builder()
 				.userId("user1")
-				.selectDate(LocalDate.parse("2024-05-29"))
+				.selectDate(Date.valueOf("2024-05-29"))
 				.build();
 		model.addAttribute("list16",timelineService.getSummaryRecord(search));
 	}

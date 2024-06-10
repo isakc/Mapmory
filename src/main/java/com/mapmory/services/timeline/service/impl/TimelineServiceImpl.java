@@ -49,7 +49,7 @@ public class TimelineServiceImpl implements TimelineService {
 		System.out.println(record);
 		map.put("recordNo",record.getRecordNo());
 //		System.out.println("record.getImageTagList():"+record.getImageTagList());
-		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 //		map.put("imageName",record.getImageName());
 //		map.put("hashtag",record.getHashtag());
 		
@@ -60,14 +60,14 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Override
 	public Record getDetailTimeline(int recordNo) throws Exception{
-		return TimelineUtil.recordToMap(timelineDao.selectDetailTimeline(recordNo));
+		return TimelineUtil.mapToRecord(timelineDao.selectDetailTimeline(recordNo));
 	}
 	
 	@Override
 	public List<Record> getTimelineList(Search search) throws Exception{
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
-			recordList.add(TimelineUtil.recordToMap(map));
+			recordList.add(TimelineUtil.mapToRecord(map));
 		}
 		return recordList;
 	}
@@ -77,7 +77,7 @@ public class TimelineServiceImpl implements TimelineService {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.updateTimeline(record);
 		map.put("recordNo",record.getRecordNo());
-		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 //		map.put("imageName",record.getImageName());
 //		map.put("hashtag",record.getHashtag());
 		
@@ -136,14 +136,14 @@ public class TimelineServiceImpl implements TimelineService {
 	public SummaryRecordDto getSummaryRecord(Search search) throws Exception{
 		return timelineDao.selectSummaryRecord(SearchDto.builder()
 				.selectDate(search.getSelectDate())
-				.checkpointTime(LocalTime.parse(checkpointTime))
+				.checkpointTime(checkpointTime)
 				.userId(search.getUserId())
 				.build());
 	}
 	
 	@Override
 	public SharedRecord getDetailSharedRecord(int recordNo) throws Exception{
-		return TimelineUtil.sharedRecordToMap(timelineDao.selectDetailSharedRecord(recordNo));
+		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo));
 	}
 	
 	@Override
@@ -163,7 +163,7 @@ public class TimelineServiceImpl implements TimelineService {
 		searchDto.setOffset(search.getOffset() );
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
-			Record record =TimelineUtil.recordToMap(tempMap);
+			Record record =TimelineUtil.mapToRecord(tempMap);
 			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
 			recordList.add(record);
 		}

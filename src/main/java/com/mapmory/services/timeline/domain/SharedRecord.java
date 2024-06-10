@@ -17,7 +17,7 @@ public class SharedRecord {
 	private Double latitude;
 	private Double longitude;
 	private String checkpointAddress;
-	private LocalDateTime checkpointDate;
+	private String checkpointDate;
 	private String mediaName;
 	private List<Map<String,Object>> imageTagList;
 	private List<ImageTag> imageName;
@@ -25,8 +25,8 @@ public class SharedRecord {
 	private int categoryNo;
 	private String recordText;
 	private int tempType;
-	private LocalDateTime recordAddDate;
-	private LocalDateTime sharedDate;
+	private String recordAddDate;
+	private String sharedDate;
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;
@@ -34,4 +34,8 @@ public class SharedRecord {
 	private String nickname;
 	private String profileImageName;
 	private long subscriptionEndDate;
+	private String categoryName;
+	private String categoryImoji;
+	private long replyCount;
+	private long logsCount;
 }
