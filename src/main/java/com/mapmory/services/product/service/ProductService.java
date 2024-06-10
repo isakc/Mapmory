@@ -32,4 +32,5 @@ public interface ProductService {
     
     ProductImage getImageByTag(String imageTag) throws Exception;
 
+    public Product getSubscription() throws Exception;
 }

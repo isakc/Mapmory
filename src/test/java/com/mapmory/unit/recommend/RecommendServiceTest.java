@@ -31,9 +31,10 @@ public class RecommendServiceTest {
 	@Qualifier("recommendServiceImpl")
 	RecommendServiceImpl recommendServiceImpl;
 	
-	//@Test
+	@Test
 	public void addSearchData() throws Exception{
 		
+
 		
 		System.out.println("\n===================================");
 		List<ImageTag> image= new ArrayList<ImageTag>();
@@ -56,8 +57,6 @@ public class RecommendServiceTest {
 				.categoryNo(1)
 				.recordText("기분이 나쁘진 않네요")
 				.tempType(0)
-				.recordAddDate(LocalDateTime.parse("2024-06-01T04:52:35"))
-				.sharedDate(LocalDateTime.parse("2024-06-02T05:55:27"))
 				.updateCount(0)
 				.d_DayDate(Date.valueOf("2024-06-02"))
 				.timecapsuleType(0)
@@ -70,6 +69,7 @@ public class RecommendServiceTest {
 		recommendServiceImpl.saveDatasetToCSV(recommend, "aitems-8982956307867");
 		
 		System.out.println(recommend.toString());
+
 		
 	}
 	
@@ -84,7 +84,7 @@ public class RecommendServiceTest {
 //		}
 	}
 	
-	@Test
+//	@Test
 	public void getRecordList() throws Exception{
 		
 		List<String> result = recommendServiceImpl.getRecommendData("user1");
@@ -92,7 +92,33 @@ public class RecommendServiceTest {
 		System.out.println("result: "+result);
 		Map<String, Object> map = recommendServiceImpl.getRecordList(result);	
 		System.out.println(map);
+	}
 		
+//	@Test
+	public void getRecordData() throws Exception{
+//		List<Map<String,Object>> imageTag = new ArrayList<Map<String,Object>>();
+//		Map<String, Object> map =  new HashMap<String,Object>();
+//		map.put("imageTagType", 0);
+//		map.put("imageTagText", "#멋진풍경");
+//		
+//		Map<String, Object> map2 =  new HashMap<String,Object>();
+//		map2.put("imageTagType", 0);
+//		map2.put("imageTagText", "#인생샷");
+//		
+//		imageTag.add(map);
+//		imageTag.add(map2);
+//
+//		int recordNo = 1;
+//		
+//		Record record = Record.builder()
+//				.recordUserId("user1")
+//				.imageTag(imageTag)
+//				.categoryNo(4)
+//				.recordTitle("테스트 타이틀")
+//				.build();
+//		
+//		recommendServiceImpl.getRecordData(record, recordNo);
+
 	}
 	
 }

@@ -1,7 +1,5 @@
 package com.mapmory.services.user.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +20,6 @@ public class UserServiceScheduler {
 	
 	@Value("${directory.path.tac}")
 	private String tacDirectoryPath;
-	
-	// public final static String DOWNLOAD_FILE_PATH = "src/main/resources/static/termsAndConditions/";
 
 	/**
 	 * 매일 12시 정각에 object storage로부터 이용약관 file을 최신화.
@@ -31,8 +27,7 @@ public class UserServiceScheduler {
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 0 0 * * *")
-	// protected
-	public void fetchTermsAndConditions() throws Exception {
+	protected void fetchTermsAndConditions() throws Exception {
 		
 		objectStorageUtil.downloadFile(folderName, tacDirectoryPath);
 	}

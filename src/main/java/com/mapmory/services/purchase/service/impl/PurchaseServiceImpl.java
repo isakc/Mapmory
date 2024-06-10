@@ -7,11 +7,15 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.purchase.dao.PurchaseDao;
 import com.mapmory.services.purchase.domain.Purchase;
+import com.mapmory.services.purchase.dto.PurchaseDTO;
 import com.mapmory.services.purchase.service.PurchaseService;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
@@ -45,30 +49,40 @@ public class PurchaseServiceImpl implements PurchaseService {
 	///// Method /////
 	
 	@Override
-	public void addPurchase(Purchase purchase) throws Exception {
+	public boolean addPurchase(Purchase purchase) throws Exception {
 		
-		purchaseDao.addPurchase(purchase);
+		 // 객체 자체가 null인 경우 예외 발생
+	    if (purchase == null) {
+	        throw new IllegalArgumentException("Purchase != null");
+	    }
+
+	    // 가격이 음수인 경우 예외 발생
+	    if (purchase.getPrice() < 0) {
+	        throw new DataIntegrityViolationException("Price < 0");
+	    }
+	    
+		return purchaseDao.addPurchase(purchase) == 1 ? true : false;
 		
 	}// addPurchase
 
 	@Override
-	public Purchase getPurchase(int purchaseNo) throws Exception {
+	public PurchaseDTO getDetailPurchase(int purchaseNo) throws Exception {
 		
-		return purchaseDao.getPurchase(purchaseNo);
+		return purchaseDao.getDetailPurchase(purchaseNo);
 		
-	}// getPurchase
-
+	}// getDetailPurchase
+	
 	@Override
-	public List<Purchase> getPurchaseList(String userId) throws Exception {
+	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception {
 		
-		return purchaseDao.getPurchaseList(userId);
+		return purchaseDao.getPurchaseList(search);
 		
 	}// getPurchaseList
 
 	@Override
-	public int getPurchaseTotalCount(String userId) throws Exception {
+	public int getPurchaseTotalCount(Search search) throws Exception {
 		
-		return purchaseDao.getPurchaseTotalCount(userId);
+		return purchaseDao.getPurchaseTotalCount(search);
 		
 	}// getPurchaseTotalCount
 

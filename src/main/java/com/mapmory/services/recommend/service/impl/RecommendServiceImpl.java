@@ -74,6 +74,7 @@ public class RecommendServiceImpl implements RecommendService {
 	
 	@Override
 	public void addSearchData(Record record) throws Exception {
+
 		
 		String userId = record.getRecordUserId();
 		String category = recommendDao.getCategory(record.getCategoryNo());
@@ -89,6 +90,19 @@ public class RecommendServiceImpl implements RecommendService {
 			recommendDao.addSearchData(userId, category);
 		}
 		
+
+//		
+//		String userId = record.getRecordUserId();
+//		String category = recommendDao.getCategory(record.getCategoryNo());
+//		List<String> hashTag = record.getHashtag();
+//		
+//		System.out.println("userId : "+userId+", category : "+category+", hashTag : "+hashTag);
+//		
+//		if(category != null) {
+//			recommendDao.addSearchData(userId, category);
+//		}
+//		
+
 //		if(hashTag != null) {
 //			for(String i : hashTag) {
 //				recommendDao.addSearchData(userId, i);
@@ -229,6 +243,9 @@ public class RecommendServiceImpl implements RecommendService {
 		System.out.println(recommend.toString());
 		System.out.println("RecommendServiceImpl getRecordData end");
 		return recommend;
+
+
+
 		
 		
 	}

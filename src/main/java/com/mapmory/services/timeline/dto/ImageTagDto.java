@@ -1,4 +1,4 @@
-package com.mapmory.services.timeline.domain;
+package com.mapmory.services.timeline.dto;
 
 
 import lombok.Builder;

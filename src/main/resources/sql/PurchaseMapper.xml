@@ -5,7 +5,7 @@
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mapmory.services.purchase.dao.PurchaseDao">
-	<resultMap id="purchaseSelectMap" type="purchase">
+	<resultMap id="purchaseSelectMap" type="purchaseDTO">
 		<result property="purchaseNo"			column="purchase_no"		jdbcType="INTEGER"/>
 		<result property="userId"				column="user_id"			jdbcType="VARCHAR" />
 		<result property="productNo"			column="product_no" 		jdbcType="INTEGER" />
@@ -14,28 +14,79 @@
 		<result property="lastFourDigits"		column="last_four_digits"	jdbcType="VARCHAR"  />
 		<result property="purchaseDate"			column="purchase_date"		jdbcType="TIMESTAMP" />
 		<result property="price"				column="price"				jdbcType="INTEGER"  />
+    	<result property="productTitle" 		column="product_title" 		jdbcType="VARCHAR"/>
+    	<result property="period" 				column="period" 			jdbcType="INTEGER"/>
 	</resultMap>
 	
-	<insert id="addPurchase" parameterType="purchase">
-	 	INSERT INTO purchase (user_id, product_no, payment_method, card_type, last_four_digits, purchase_date, price)
-	 	VALUES (#{userId}, #{productNo}, #{paymentMethod}, #{cardType}, #{lastFourDigits}, #{purchaseDate,jdbcType=TIMESTAMP}, #{price})
-	 </insert>
-	 
-	 <select id="getPurchase" parameterType="int" resultMap="purchaseSelectMap">
-	 	SELECT user_id, product_no, payment_method, card_type, last_four_digits, purchase_date, price
-	 	FROM purchase
-	 	WHERE purchase_no = #{purchaseNo}
-	 </select>
-	 
-	 <select id="getPurchaseList" parameterType="string" resultMap="purchaseSelectMap">
-	 	SELECT user_id, product_no, payment_method, card_type, last_four_digits, purchase_date, price
-	 	FROM purchase
-	 	WHERE user_Id = #{userId}
-	 </select>
-	 
-	 <select id="getPurchaseTotalCount" parameterType="string" resultType="int">
-	 	SELECT COUNT(*)
-	  	FROM purchase
-	  	WHERE user_id = #{userId}
-	 </select>
+	<insert id="addPurchase" parameterType="purchase" useGeneratedKeys="true" keyProperty="purchaseNo">
+    	INSERT INTO purchase (
+        	user_id,
+        	product_no,
+        	payment_method,
+        	card_type,
+        	last_four_digits,
+        	purchase_date,
+        	price
+    	)
+    	VALUES (
+        	#{userId},
+        	#{productNo},
+        	#{paymentMethod},
+        	#{cardType, jdbcType=VARCHAR},
+        	#{lastFourDigits, jdbcType=VARCHAR},
+        	#{purchaseDate, jdbcType=TIMESTAMP},
+        	#{price}
+    	)
+	</insert>
+
+	<select id="getDetailPurchase" parameterType="int" resultMap="purchaseSelectMap">
+    	SELECT
+        	p.purchase_no,
+        	p.user_id,
+        	p.product_no,
+        	p.payment_method,
+        	p.card_type,
+        	p.last_four_digits,
+        	p.purchase_date,
+        	p.price,
+        	pro.product_title,
+        	pro.period
+    	FROM 
+    		purchase p
+    	LEFT JOIN 
+    		product pro ON p.product_no = pro.product_no
+    	WHERE 
+    		p.purchase_no = #{purchaseNo}
+	</select>
+
+	<select id="getPurchaseList" parameterType="search" resultMap="purchaseSelectMap">
+    	SELECT
+        	p.purchase_no,
+        	p.user_id,
+        	p.product_no,
+        	p.payment_method,
+        	p.card_type,
+        	p.last_four_digits,
+        	p.purchase_date,
+        	p.price,
+        	pro.product_title,
+        	pro.period
+    	FROM 
+    		purchase p
+    	LEFT JOIN 
+    		product pro ON p.product_no = pro.product_no
+    	WHERE 
+    		p.user_id = #{searchKeyword}
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<select id="getPurchaseTotalCount" parameterType="search" resultType="int">
+    	SELECT
+    		COUNT(*)
+    	FROM
+    		purchase
+    	WHERE 
+    		user_id = #{searchKeyword}
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
 </mapper>

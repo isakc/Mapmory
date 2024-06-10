@@ -4,20 +4,22 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.purchase.domain.Purchase;
+import com.mapmory.services.purchase.dto.PurchaseDTO;
 
 @Mapper
 public interface PurchaseDao {
 	
 	//insert
-	public void addPurchase(Purchase purchase) throws Exception;
+	public int addPurchase(Purchase purchase) throws Exception;
 	
 	//selectOne
-	public Purchase getPurchase(int purchaseNo) throws Exception;
+	public PurchaseDTO getDetailPurchase(int purchaseNo) throws Exception;
 	
 	//selectList
-	public List<Purchase> getPurchaseList(String userId) throws Exception;
+	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception;
 	
 	//count
-	public int getPurchaseTotalCount(String userId) throws Exception;
+	public int getPurchaseTotalCount(Search search) throws Exception;
 }

@@ -3,8 +3,11 @@ package com.mapmory.common.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -20,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -65,10 +67,31 @@ public class ObjectStorageUtil {
 	}
     
 	public void uploadFileToS3(MultipartFile file, String uuidFileName, String folderName) throws Exception {
+		
+		
+		// 임시 파일 제거 중 문제(java.io.UncheckedIOException: Cannot delete ~~~)를 해결한 code
+		Path tempFile = null;
+        try {
+            // 임시 파일 생성
+            tempFile = Files.createTempFile("upload", file.getOriginalFilename());
+            file.transferTo(tempFile.toFile());
+
+            String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
+            AmazonS3 s3Client = getS3Client();
+            PutObjectResult result = s3Client.putObject(new PutObjectRequest(bucketName, key, tempFile.toFile()));
+        } finally {
+            // 임시 파일 삭제
+            if (tempFile != null) {
+                Files.deleteIfExists(tempFile);
+            }
+        }
+		
+		/*
 	    File localFile = convertMultiPartToFile(file);
 	    String key = folderName + "/" + uuidFileName; // 버킷 내 경로 설정 (UUID 값 사용)
 	    AmazonS3 s3Client = getS3Client();
 	    PutObjectResult result = s3Client.putObject(new PutObjectRequest(bucketName, key, localFile));
+	    */
 	}
     
     private File convertMultiPartToFile(MultipartFile file) throws Exception {
@@ -93,9 +116,19 @@ public class ObjectStorageUtil {
         byte[] bytes = IOUtils.toByteArray(inputStream);
         return new ByteArrayResource(bytes, uuid);
     }
+    
+    public byte[] getImageBytes(String uuid, String folderName) throws Exception {
+        String imageUrl = getImageUrl(uuid, folderName);
+        
+        URL url = new URL(imageUrl);
+        InputStream inputStream = url.openStream();
+        byte[] bytes = IOUtils.toByteArray(inputStream);
+        
+        return bytes;
+    }
 
-    public String getImageUrl(ByteArrayResource imageResource,String folderName) {
-        return cdnUrl + folderName + "/" + imageResource.getDescription();
+    public String getImageUrl(String uuid,String folderName) {
+        return cdnUrl + folderName + "/" + uuid;
     }
     
     /**

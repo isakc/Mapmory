@@ -24,6 +24,8 @@ public interface ProductDao {
     public Product getProductByName(String productTitle) throws Exception;
     
     public int getProductTotalCount(Search search) throws Exception;
+    
+    public Product getSubscription() throws Exception;
 
     // 이미지 관련 메서드 추가
 }

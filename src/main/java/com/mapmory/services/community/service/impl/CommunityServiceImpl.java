@@ -7,13 +7,20 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.timeline.dao.TimelineDao;
+import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.SharedRecordDto;
+import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 
 @Service("communityServiceImpl")
@@ -23,8 +30,20 @@ public class CommunityServiceImpl implements CommunityService {
 	@Qualifier("communityDao")
 	private CommunityDao communityDao;
 	
+	@Autowired
+	@Qualifier("timelineService")
+	private TimelineService timelineService;
+	
+	@Autowired
+	@Qualifier("timelineDao")
+	private TimelineDao timelineDao;
+	
 	public void setCommunityDao(CommunityDao communityDao) {
 		this.communityDao = communityDao;
+	}
+	
+	public void setTimelineDao(TimelineDao timelineDao) {
+		this.timelineDao = timelineDao;
 	}
 	
 	public CommunityServiceImpl() {
@@ -35,7 +54,6 @@ public class CommunityServiceImpl implements CommunityService {
 	public Map<String, Object> getReplyList(Search search, int recordNo, int replyNo) throws Exception {
 		List<Object> list = communityDao.getReplyList(search, recordNo, replyNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
-//		int totalCount2 = communityDao.getReactionReplyTotalCount(search, replyNo);
 		int likeCount = communityDao.getReactionLikeTotalCount(search, recordNo, replyNo);
 		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, recordNo, replyNo);
 			
@@ -59,9 +77,20 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 		
 	@Override
-	public void addReply(Reply reply) throws Exception {
-		communityDao.addReply(reply);
-	}
+	public void addReply(Reply reply) throws Exception {		
+		Reply newReply = Reply.builder()
+				.recordNo(reply.getRecordNo())
+				.userId(reply.getUserId())
+				.replyText(reply.getReplyText())
+				.replyImageName(reply.getReplyImageName())
+				.build();
+		
+		if(ContentFilterUtil.checkBadWord(newReply.getReplyText())) {
+			System.out.println("비속어 등록 불가능");
+		} else {
+			communityDao.addReply(newReply);	
+		}
+	}	
 
 	@Override
 	public Reply getReply(int replyNo) throws Exception {
@@ -70,6 +99,7 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public void updateReply(Reply reply) throws Exception {
+		reply.getReplyNo();
 		communityDao.updateReply(reply);
 	}
 

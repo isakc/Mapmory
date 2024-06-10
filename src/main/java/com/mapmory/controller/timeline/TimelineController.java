@@ -2,6 +2,7 @@ package com.mapmory.controller.timeline;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class TimelineController {
 	@GetMapping({"getDetailTimeline"})
 	public void getDetailTimeline(Model model) throws Exception,IOException {
 		model.addAttribute("record",timelineService.getDetailTimeline(1));
+		model.addAttribute("record2",timelineService.getDetailSharedRecord(1));
 	}
 	
 	@GetMapping({"getDetailTimeline2"})
@@ -116,8 +118,8 @@ public class TimelineController {
 		model.addAttribute("list10",timelineService.getSharedRecordList(search));
 		search=Search.builder()
 				.timecapsuleType(0)
-				.selectDay1(LocalDateTime.parse("2024-06-04T00:00:00"))
-				.selectDay2(LocalDateTime.parse("2024-06-05T00:00:00"))
+				.selectDay1("2024-06-04 00:00:00")
+				.selectDay2("2024-06-05 00:00:00")
 				.build();
 		model.addAttribute("list11",timelineService.getTimelineList(search));
 		
@@ -159,6 +161,16 @@ public class TimelineController {
 	 			.currentPage(1)
 				.build();
 		model.addAttribute("list15",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.userId("user1")
+				.selectDate(Date.valueOf("2024-05-29"))
+				.build();
+		model.addAttribute("list16",timelineService.getSummaryRecord(search));
+	}
+	
+	@GetMapping({"addVoiceToText"})
+	public void addVoiceToText(Model model) throws Exception,IOException {
+		
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{

@@ -37,9 +37,7 @@ public class UserRestControllerJM {
     @Autowired
     @Qualifier("userServiceImplJM")
     UserServiceJM userServiceJM;
-    
-    @Autowired
-    UserService userService;
+
 
     @GetMapping("/nkey")
     public ResponseEntity<String> getCaptchaKey(@RequestParam("code") String code) {

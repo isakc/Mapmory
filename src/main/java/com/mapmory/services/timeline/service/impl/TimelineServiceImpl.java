@@ -2,6 +2,7 @@ package com.mapmory.services.timeline.service.impl;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +20,14 @@ import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
-import com.mapmory.services.timeline.domain.ImageTagDto;
-import com.mapmory.services.timeline.domain.Record2;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.domain.RecordDto;
-import com.mapmory.services.timeline.domain.SearchDto;
 import com.mapmory.services.timeline.domain.SharedRecord;
+import com.mapmory.services.timeline.dto.CountAddressDto;
+import com.mapmory.services.timeline.dto.ImageTagDto;
+import com.mapmory.services.timeline.dto.RecordDto;
+import com.mapmory.services.timeline.dto.SearchDto;
+import com.mapmory.services.timeline.dto.SharedRecordDto;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 
 
@@ -35,6 +39,9 @@ public class TimelineServiceImpl implements TimelineService {
 	@Qualifier("timelineDao")
 	private TimelineDao timelineDao;
 	
+	@Value("${summary.record.time}")
+	private String checkpointTime;
+	
 	//Record CRUD
 	public void addTimeline(Record record) throws Exception{
 		Map<String, Object> map=new HashMap<String, Object>();
@@ -42,7 +49,7 @@ public class TimelineServiceImpl implements TimelineService {
 		System.out.println(record);
 		map.put("recordNo",record.getRecordNo());
 //		System.out.println("record.getImageTagList():"+record.getImageTagList());
-		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 //		map.put("imageName",record.getImageName());
 //		map.put("hashtag",record.getHashtag());
 		
@@ -53,14 +60,14 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Override
 	public Record getDetailTimeline(int recordNo) throws Exception{
-		return TimelineUtil.recordToMap(timelineDao.selectDetailTimeline(recordNo));
+		return TimelineUtil.mapToRecord(timelineDao.selectDetailTimeline(recordNo));
 	}
 	
 	@Override
 	public List<Record> getTimelineList(Search search) throws Exception{
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
-			recordList.add(TimelineUtil.recordToMap(map));
+			recordList.add(TimelineUtil.mapToRecord(map));
 		}
 		return recordList;
 	}
@@ -70,7 +77,7 @@ public class TimelineServiceImpl implements TimelineService {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.updateTimeline(record);
 		map.put("recordNo",record.getRecordNo());
-		map.put("imageTagList",TimelineUtil.listToImageTag(record.getImageName(),record.getHashtag()));
+		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 //		map.put("imageName",record.getImageName());
 //		map.put("hashtag",record.getHashtag());
 		
@@ -88,20 +95,12 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
-	//record select시 imageNo 못가져와서 가져오는 image select
-	@Override
-	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
-		return timelineDao.selectImageForDelete(recordNo);
-	}
 	//image만 삭제
 	@Override
 	public void deleteImage(int imageNo) throws Exception {
 		timelineDao.deleteImageToImageNo(imageNo);
 	}
-
-//	@Override
-//	public void deleteHashtag(int recordNo) throws Exception {
-//	}
+	
 	//Category CRUD
 	@Override
 	public void addCategory(Category category) throws Exception {
@@ -129,7 +128,26 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
-	public List<SharedRecord> getSharedRecordList(Search search) throws Exception{
+	public CountAddressDto getCountAddress(Record record) throws Exception{
+		return timelineDao.selectCountAddress(record);
+	}
+	
+	@Override
+	public SummaryRecordDto getSummaryRecord(Search search) throws Exception{
+		return timelineDao.selectSummaryRecord(SearchDto.builder()
+				.selectDate(search.getSelectDate())
+				.checkpointTime(checkpointTime)
+				.userId(search.getUserId())
+				.build());
+	}
+	
+	@Override
+	public SharedRecord getDetailSharedRecord(int recordNo) throws Exception{
+		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo));
+	}
+	
+	@Override
+	public List<SharedRecordDto> getSharedRecordList(Search search) throws Exception{
 		return timelineDao.selectSharedRecordList(search);
 	}
 
@@ -145,15 +163,24 @@ public class TimelineServiceImpl implements TimelineService {
 		searchDto.setOffset(search.getOffset() );
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
-			Record record =TimelineUtil.recordToMap(tempMap);
+			Record record =TimelineUtil.mapToRecord(tempMap);
 			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
 			recordList.add(record);
 		}
 		GeoUtil.sortByDistance(recordList);
 		return recordList;
 	}
-	
 
+//	@Override
+//	public void deleteHashtag(int recordNo) throws Exception {
+//	}
+	
+	//record select시 imageNo 못가져와서 가져오는 image select
+//	@Override
+//	public List<ImageTagDto> getImageForDelete(int recordNo) throws Exception {
+//		return timelineDao.selectImageForDelete(recordNo);
+//	}
+	
 	//아래 미사용
 //	@Override
 //	public RecordDto getDetailTimeline2(int recordNo) throws Exception {

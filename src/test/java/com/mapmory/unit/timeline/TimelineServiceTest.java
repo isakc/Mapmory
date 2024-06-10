@@ -1,12 +1,10 @@
 package com.mapmory.unit.timeline;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,6 +15,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @SpringBootTest
@@ -26,8 +25,8 @@ public class TimelineServiceTest {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
-//	@Test
-	@Transactional
+	@Test
+//	@Transactional
 	public void testAddTimeline() throws Exception{
 		System.out.println("\n===================================");
 		List<ImageTag> image= new ArrayList<ImageTag>();
@@ -50,8 +49,8 @@ public class TimelineServiceTest {
 				.categoryNo(0)
 				.recordText("test 중")
 				.tempType(0)
-				.recordAddDate(LocalDateTime.parse("2024-06-01T04:52:35"))
-				.sharedDate(LocalDateTime.parse("2024-06-02T05:55:27"))
+				.recordAddDate("2024-06-01 04:52:35")
+				.sharedDate("2024-06-02 05:55:27")
 				.updateCount(0)
 				.d_DayDate(Date.valueOf("2024-06-02"))
 				.timecapsuleType(0)
@@ -76,14 +75,15 @@ public class TimelineServiceTest {
 				.latitude(37.1232322)
 				.longitude(127.1233322)
 				.checkpointAddress("변경된 동서남북")
+				.checkpointDate("2013-06-13 12:22:30")
 				.mediaName("가.mp4")
 				.imageName(image)
 				.hashtag(hash)
 				.categoryNo(0)
 				.recordText("update 완료")
 				.tempType(0)
-				.recordAddDate(LocalDateTime.parse("2024-06-01T04:52:35"))
-				.sharedDate(LocalDateTime.parse("2024-06-02T05:55:27"))
+				.recordAddDate("2024-06-01 04:52:35")
+				.sharedDate("2024-06-02 05:55:27")
 				.updateCount(0)
 				.d_DayDate(Date.valueOf("2024-06-02"))
 				.timecapsuleType(0)
@@ -146,5 +146,22 @@ public class TimelineServiceTest {
 				.timecapsuleType(0)
 				.build();
 		System.out.println(timelineService.getTimelineList(search).size());
+	}
+	
+//	@Test
+	@Transactional
+	public void testGetCountAddress() throws Exception{
+		System.out.println("\n===================================");
+		Record record = Record.builder()
+				.recordUserId("user1")
+				.checkpointAddress("서울시 강남구")
+				.build();
+		CountAddressDto c =timelineService.getCountAddress(record);
+		
+		System.out.println(c);
+
+		Assertions.assertThat(c.getCheckpointCount()).isEqualTo(4);
+		Assertions.assertThat(c.getCheckpointDate()).isEqualTo("2024-08-01 12:00:00");
+		
 	}
 }
