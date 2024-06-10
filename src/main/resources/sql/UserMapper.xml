@@ -51,6 +51,16 @@
 	 		<result property="reason" column="reason"/>
 	 	</collection>
 	 </resultMap>
+	 
+	 <resultMap id="selectLoginDailyMap" type="com.mapmory.services.user.domain.login.LoginDailyLog">
+	 	<result property="hour" column="hour" />
+	 	<result property="count" column="count" />
+	 </resultMap>
+	 
+	 <resultMap id="selectLoginMonthlyMap" type="com.mapmory.services.user.domain.login.LoginMonthlyLog">
+	 	<result property="day" column="day" />
+	 	<result property="count" column="count" />
+	 </resultMap>
 
 	<insert id="insertUser" parameterType="user">
 		INSERT INTO
@@ -174,11 +184,26 @@
 		<if test="limit != 0 and currentPage != 0"> LIMIT #{limit} OFFSET #{offset} </if>
 	</select>
 	
-	<!-- 
-	<select id="selectUserLoginList" parameterType="search" resultMap="">
-	
+	<select id="selectUserLoginDailyList" parameterType="search" resultMap="selectLoginDailyMap">
+		SELECT
+		    SUBSTRING(login_date, 12, 2) AS hour,
+		    COUNT(*) AS count
+		FROM suspension_login_log
+		WHERE DATE(login_date) = #{selectLoginDate}
+		GROUP BY SUBSTRING(login_date, 12, 2)
+		ORDER BY hour
 	</select>
-	 -->
+	
+	<select id="selectUserLoginMonthlyList" parameterType="search" resultMap="selectLoginMonthlyMap">
+		SELECT
+		  EXTRACT(DAY FROM login_date) AS day,
+		  COUNT(*) AS count
+		FROM suspension_login_log
+		WHERE login_date IS NOT NULL
+			AND EXTRACT(YEAR FROM login_date) = #{year} AND EXTRACT(MONTH FROM login_date)  = #{month}
+		GROUP BY day
+		ORDER BY day;
+	</select>
 	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT
