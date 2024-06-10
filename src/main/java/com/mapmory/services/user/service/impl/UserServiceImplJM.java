@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mapmory.services.call.domain.UserJM;
+import com.mapmory.services.user.dao.UserDaoJM;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserServiceJM;
 
 import net.nurigo.sdk.NurigoApp;
@@ -28,6 +32,9 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 @Transactional
 @Service("userServiceImplJM")
 public class UserServiceImplJM implements UserServiceJM {
+	
+	@Autowired
+	UserDaoJM userDaoJM;
 	
 	@Value("${coolsms.apikey}")
 	private String coolsmsApiKey;
@@ -168,4 +175,12 @@ public class UserServiceImplJM implements UserServiceJM {
 		return numStr;
 	}
 	
+	//==========================화상통화==================================================
+	public UserJM findByUserId(String userId) throws Exception{
+        return userDaoJM.findByUserId(userId);
+    }
+
+    public void updateOnlineStatus(String userId, boolean isOnline) throws Exception {
+    	userDaoJM.updateOnlineStatus(userId, isOnline);
+    }
 }
