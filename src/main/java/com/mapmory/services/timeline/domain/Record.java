@@ -1,9 +1,6 @@
 package com.mapmory.services.timeline.domain;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +17,7 @@ public class Record {
 	private Double latitude;
 	private Double longitude;
 	private String checkpointAddress;
-	private LocalDateTime checkpointDate;
+	private String checkpointDate;
 	private String mediaName;
 	private List<Map<String,Object>> imageTagList;
 	private List<ImageTag> imageName;
@@ -28,8 +25,8 @@ public class Record {
 	private int categoryNo;
 	private String recordText;
 	private int tempType;
-	private LocalDateTime recordAddDate;
-	private LocalDateTime sharedDate;
+	private String recordAddDate;
+	private String sharedDate;
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;

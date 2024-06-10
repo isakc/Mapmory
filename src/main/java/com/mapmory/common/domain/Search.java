@@ -35,9 +35,9 @@ public class Search {
 	private Integer sharedType;
 	private Integer tempType;
 	private Integer timecapsuleType;
-	private LocalDate selectDate;
-	private LocalDateTime selectDay1;
-	private LocalDateTime selectDay2;
+	private Date selectDate;
+	private String selectDay1;
+	private String selectDay2;
 
 	private int radius;
 	private Double latitude;
