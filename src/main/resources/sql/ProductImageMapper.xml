@@ -13,35 +13,35 @@
 
     <!-- 이미지 파일 추가 -->
     <insert id="addProductImage" parameterType="productImage">
-        INSERT INTO IMAGE_FILE (UUID, PRODUCT_NO, IMAGE_NAME, IMAGE_TAG)
+        INSERT INTO image_file (UUID, PRODUCT_NO, IMAGE_NAME, IMAGE_TAG)
         VALUES (#{uuid}, #{productNo}, #{imageFile}, #{imageTag})
     </insert>
 
 
     <!-- 상품 번호에 해당하는 이미지 파일 리스트 조회 -->
     <select id="getProductImageList" parameterType="int" resultType="String">
-        SELECT uuid FROM IMAGE_FILE WHERE PRODUCT_NO = #{productNo}
+        SELECT uuid FROM image_file WHERE PRODUCT_NO = #{productNo}
     </select>
 
     <!-- 상품 번호에 해당하는 이미지 파일 삭제 -->
     <delete id="deleteProductImage" parameterType="int">
-        DELETE FROM IMAGE_FILE WHERE PRODUCT_NO = #{productNo}
+        DELETE FROM image_file WHERE PRODUCT_NO = #{productNo}
     </delete>
 
     <delete id="deleteImage" parameterType="String">
-        DELETE FROM IMAGE_FILE WHERE UUID = #{uuid}
+        DELETE FROM image_file WHERE UUID = #{uuid}
     </delete>
 
 
     <update id="updateProductImage" parameterType="productImage">
-        UPDATE IMAGE_FILE
+        UPDATE image_file
         SET UUID = #{uuid}
         WHERE PRODUCT_NO = #{productNo}
     </update>
     
     <select id="getImageByTag" parameterType="String" resultType="productImage">
     	SELECT *
-    	FROM IMAGE_FILE
+    	FROM image_file
     	WHERE IMAGE_TAG = #{imageTag}
     </select>
 

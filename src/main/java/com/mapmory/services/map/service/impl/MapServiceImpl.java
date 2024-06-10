@@ -3,14 +3,16 @@ package com.mapmory.services.map.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mapmory.services.map.dao.MapDao;
+import com.google.gson.Gson;
 import com.mapmory.services.map.domain.ResultDetailTransitRouter;
 import com.mapmory.services.map.domain.ResultRouter;
 import com.mapmory.services.map.domain.ResultTransitRouter;
@@ -22,9 +24,9 @@ import com.mapmory.services.map.service.MapService;
 public class MapServiceImpl implements MapService {
 
 	///// Field /////
-	@Autowired
-	@Qualifier("mapDaoImpl")
-	private MapDao mapDao;
+	
+	@Value("${tmap.apiKey}")
+	private String tmapAPIKey;
 
 	@Value("${tmap.pedestrian.URL}")
 	private String tmapPedestrianURL;
@@ -41,18 +43,14 @@ public class MapServiceImpl implements MapService {
 	
 	@Override
 	public ResultRouter getPedestrianRoute(SearchRouter searchRouter) throws Exception {
-		String resultJson = mapDao.getRoute(searchRouter, tmapPedestrianURL);
-		
-	    ResultRouter resultRouter = new ResultRouter();
+		String resultJson = getRouteResultJson(searchRouter, tmapPedestrianURL);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 	    JsonNode resultData = rootNode.path("features");
 	    
-	    double totalDistance = resultData.get(0).path("properties").path("totalDistance").asDouble();
-	    double totalTime = resultData.get(0).path("properties").path("totalTime").asDouble();
-	    List<Double> lat = new ArrayList<Double>();
-	    List<Double> lon = new ArrayList<Double>();
+	    List<Double> latituedeList = new ArrayList<Double>();
+	    List<Double> longitudeList = new ArrayList<Double>();
 	    List<String> description = new ArrayList<String>();
 	    
 	    if (resultData.isArray()) {
@@ -64,8 +62,8 @@ public class MapServiceImpl implements MapService {
                     if (coordinates.isArray()) {
                     	
                         for (JsonNode coord : coordinates) {
-                            lat.add(coord.get(1).asDouble());
-                            lon.add(coord.get(0).asDouble());
+                            latituedeList.add(coord.get(1).asDouble());
+                            longitudeList.add(coord.get(0).asDouble());
                         }//for end
                         
                     }//if
@@ -76,29 +74,27 @@ public class MapServiceImpl implements MapService {
             }//for
         }//만약 데이터가 있는 경우
 
-	    resultRouter.setTotalDistance(totalDistance);
-	    resultRouter.setTotalTime(totalTime);
-	    resultRouter.setLat(lat);
-	    resultRouter.setLon(lon);
-	    resultRouter.setDescription(description);
+	    ResultRouter resultRouter = ResultRouter.builder()
+	    							.totalDistance(resultData.get(0).path("properties").path("totalDistance").asDouble())
+	    							.totalTime(resultData.get(0).path("properties").path("totalTime").asDouble())
+	    							.lat(latituedeList)
+	    							.lon(longitudeList)
+	    							.description(description)
+	    							.build();
 	    
 		return resultRouter;
 	}// getPedestrianRoute: 도보 경로찾기
 	
 	@Override
 	public ResultRouter getCarRoute(SearchRouter searchRouter) throws Exception {
-		String resultJson = mapDao.getRoute(searchRouter, tmapCarURL);
-		
-	    ResultRouter resultRouter = new ResultRouter();
+		String resultJson = getRouteResultJson(searchRouter, tmapPedestrianURL);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
 	    JsonNode resultData = rootNode.path("features");
 	    
-	    double totalDistance = resultData.get(0).path("properties").path("totalDistance").asDouble();
-	    double totalTime = resultData.get(0).path("properties").path("totalTime").asDouble();
-	    List<Double> lat = new ArrayList<Double>();
-	    List<Double> lon = new ArrayList<Double>();
+	    List<Double> latituedeList = new ArrayList<Double>();
+	    List<Double> longitudeList = new ArrayList<Double>();
 	    List<String> description = new ArrayList<String>();
 	    
 	    if (resultData.isArray()) {
@@ -110,8 +106,8 @@ public class MapServiceImpl implements MapService {
                     if (coordinates.isArray()) {
                     	
                         for (JsonNode coord : coordinates) {
-                            lat.add(coord.get(1).asDouble());
-                            lon.add(coord.get(0).asDouble());
+                            latituedeList.add(coord.get(1).asDouble());
+                            longitudeList.add(coord.get(0).asDouble());
                         }//for end
                         
                     }//if
@@ -122,18 +118,20 @@ public class MapServiceImpl implements MapService {
             }//for
         }//만약 데이터가 있는 경우
 
-	    resultRouter.setTotalDistance(totalDistance);
-	    resultRouter.setTotalTime(totalTime);
-	    resultRouter.setLat(lat);
-	    resultRouter.setLon(lon);
-	    resultRouter.setDescription(description);
+	    ResultRouter resultRouter = ResultRouter.builder()
+	    							.totalDistance(resultData.get(0).path("properties").path("totalDistance").asDouble())
+	    							.totalTime(resultData.get(0).path("properties").path("totalTime").asDouble())
+	    							.lat(latituedeList)
+	    							.lon(longitudeList)
+	    							.description(description)
+	    							.build();
 	    
 		return resultRouter;
 	}// getCarRoute: 자동차 경로찾기
 
 	@Override
 	public List<ResultTransitRouter> getTransitRoute(SearchTransitRouter searchTransitRouter) throws Exception {
-		String resultJson = mapDao.getRoute(searchTransitRouter, tmapTransitURL);
+		String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
 	    
 		List<ResultTransitRouter> ResultRouterList = new ArrayList<ResultTransitRouter>(); // 대중교통 경로 리스트
 		
@@ -142,15 +140,7 @@ public class MapServiceImpl implements MapService {
 	    JsonNode itineraries = rootNode.path("metaData").path("plan").path("itineraries");
 	    
 	    for(JsonNode item : itineraries) {
-	    	ResultTransitRouter resultTransitRouter = new ResultTransitRouter(); // 방법 1, 방법2, ...
 	    	List<ResultDetailTransitRouter> routeDetailList = new ArrayList<ResultDetailTransitRouter>(); // 방법 중 단계를 담는 List
-	    	
-	    	resultTransitRouter.setTotalFare(item.path("fare").path("regular").path("totalFare").asInt()); // 총 요금
-	    	resultTransitRouter.setTotalTime(item.path("totalTime").asInt()); // 총 걸린 시간
-	    	resultTransitRouter.setTotalDistance(item.path("totalDistance").asInt()); // 총 거리
-	    	resultTransitRouter.setTotalWalkTime(item.path("totalWalkTime").asInt()); // 총 도보시간
-	    	resultTransitRouter.setTransferCount(item.path("transferCount").asInt()); // 환승횟수
-	    	resultTransitRouter.setPathType(item.path("pathType").asInt()); // 어떤 종류인지
 	    	
 	    	JsonNode legs = item.path("legs");
 	    	for(JsonNode leg : legs) {
@@ -181,7 +171,7 @@ public class MapServiceImpl implements MapService {
 		    	            
 		    	      }// 위도, 경도 나누기
 		    		
-		    	}//step 중 lineString
+		    	}//step 중 " " 로 lineString 파싱
 		    	
 		    	resultDetailTransitRouter.setLineStringLat(lineStringLat);
 		    	resultDetailTransitRouter.setLineStringLon(lineStringLon);
@@ -189,12 +179,33 @@ public class MapServiceImpl implements MapService {
 		    	routeDetailList.add(resultDetailTransitRouter);
 	    	}//방법 1중 단계 legs
 	    	
-	    	resultTransitRouter.setRouteList(routeDetailList); // 가는 스텝 설정
+	    	ResultTransitRouter resultTransitRouter = ResultTransitRouter.builder()
+	                .totalFare(item.path("fare").path("regular").path("totalFare").asInt()) // 총 요금
+	                .totalTime(item.path("totalTime").asInt()) // 총 걸린 시간
+	                .totalDistance(item.path("totalDistance").asInt()) // 총 거리
+	                .totalWalkTime(item.path("totalWalkTime").asInt()) // 총 도보시간
+	                .transferCount(item.path("transferCount").asInt()) // 환승횟수
+	                .pathType(item.path("pathType").asInt()) // 어떤 종류인지
+	                .routeList(routeDetailList)
+	                .build();
 	    	
 	    	ResultRouterList.add(resultTransitRouter); // 방법1 추가
 	    }//for
 	    
 		return ResultRouterList;
 	}// getTransitRoute: 대중교통 경로찾기
-
+	
+	public String getRouteResultJson(Object searchRouter, String requestUrl) throws Exception {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("appKey", tmapAPIKey);
+		
+		String requestJson = new Gson().toJson(searchRouter);
+		HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, headers);
+		String resultJson = restTemplate.postForObject(requestUrl, requestEntity, String.class);
+		
+		return resultJson;
+		
+	}// getRoute: 보행자, 자동차, 대중교통 경로 요청
 }

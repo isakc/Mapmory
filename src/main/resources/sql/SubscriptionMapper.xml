@@ -8,7 +8,7 @@
 	<resultMap id="subscriptionSelectMap" type="subscription">
 		<result property="subscriptionNo"					column="subscription_no"							jdbcType="INTEGER"/>
 		<result property="userId"							column="user_id"									jdbcType="VARCHAR"/>
-		<result property="nextPaymentMethod"				column="next_subscription_payment_method" 			jdbcType="INTEGER" />
+		<result property="nextSubscriptionPaymentMethod"	column="next_subscription_payment_method" 			jdbcType="INTEGER" />
 		<result property="nextSubscriptionCardType"			column="next_subscription_card_type"				jdbcType="VARCHAR" />
 		<result property="nextSubscriptionLastFourDigits"	column="next_subscription_last_four_digits"			jdbcType="VARCHAR" />
 		<result property="nextSubscriptionPaymentDate"		column="next_subscription_payment_date"				jdbcType="TIMESTAMP"  />
@@ -19,48 +19,98 @@
 	</resultMap>
 	
 	<insert id="addSubscription" parameterType="subscription" useGeneratedKeys="true" keyProperty="subscriptionNo">
-		INSERT INTO subscription (user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
-							  		next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid)
-		VALUES (#{userId}, #{nextPaymentMethod}, #{nextSubscriptionCardType}, #{nextSubscriptionLastFourDigits},
-				#{nextSubscriptionPaymentDate}, #{subscriptionStartDate}, #{subscriptionEndDate}, #{customerUid}, #{merchantUid})
+		INSERT INTO subscription (
+					user_id,
+					next_subscription_payment_method,
+					next_subscription_card_type,
+					next_subscription_last_four_digits,
+					next_subscription_payment_date,
+					subscription_start_date,
+					subscription_end_date,
+					customer_uid,
+					merchant_uid)
+				VALUES (
+					#{userId},
+					#{nextSubscriptionPaymentMethod},
+					#{nextSubscriptionCardType, jdbcType=VARCHAR},
+					#{nextSubscriptionLastFourDigits, jdbcType=VARCHAR},
+					#{nextSubscriptionPaymentDate, jdbcType=TIMESTAMP},
+					#{subscriptionStartDate},
+					#{subscriptionEndDate},
+					#{customerUid},
+					#{merchantUid}
+				)
 	</insert>
 	
 	<select id="getDetailSubscription" parameterType="string" resultMap="subscriptionSelectMap">
-		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
-				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
-		FROM subscription
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+		SELECT 
+			subscription_no, 
+			user_id,
+			next_subscription_payment_method,
+			next_subscription_card_type,
+			next_subscription_last_four_digits,
+			next_subscription_payment_date,
+			subscription_start_date,
+			subscription_end_date,
+			customer_uid,
+			merchant_uid
+		FROM 
+			subscription
+		WHERE 
+			user_id = #{userId} 
+			AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>
-		UPDATE subscription 
-		SET next_subscription_payment_method = #{nextPaymentMethod},
-			next_subscription_card_type = #{nextSubscriptionCardType},
-			next_subscription_last_four_digits= #{nextSubscriptionLastFourDigits}
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date;
+		UPDATE 
+			subscription 
+		<set>
+			<if test="nextSubscriptionPaymentMethod != null"> next_subscription_payment_method = #{nextSubscriptionPaymentMethod}, </if>
+			<if test="nextSubscriptionCardType != null"> next_subscription_card_type = #{nextSubscriptionCardType}, </if>
+			<if test="nextSubscriptionLastFourDigits != null"> next_subscription_last_four_digits = #{nextSubscriptionLastFourDigits} </if>
+		</set>
+		WHERE 
+			user_id = #{userId} 
+			AND NOW() BETWEEN subscription_start_date AND subscription_end_date;
 	</update>
 	
 	<update id="deleteSubscription" parameterType="string">
-		UPDATE subscription
-		SET next_subscription_payment_date = null
-		WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+		UPDATE 
+			subscription
+		SET
+			next_subscription_payment_date = null
+		WHERE 
+			user_id = #{userId} 
+			AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date
 	</update>
 	
 	<!-- 추가 메소드 -->
 	
 	<select id="getTodaySubscriptionList" resultMap="subscriptionSelectMap">
-		SELECT subscription_no, user_id, next_subscription_payment_method, next_subscription_card_type, next_subscription_last_four_digits,
-				next_subscription_payment_date, subscription_start_date, subscription_end_date, customer_uid, merchant_uid
-		FROM subscription
-		<!-- where DATE(next_subscription_payment_date) = CURDATE(); 오늘 날짜까지 같은 경우--> 
-		WHERE next_subscription_payment_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 MINUTE); <!-- 테스트용: 분까지 -->
-		
+		SELECT 
+			subscription_no,
+			user_id, 
+			next_subscription_payment_method,
+			next_subscription_card_type,
+			next_subscription_last_four_digits,
+			next_subscription_payment_date,
+			subscription_start_date,
+			subscription_end_date,
+			customer_uid,
+			merchant_uid
+		FROM 
+			subscription
+		WHERE 
+			DATE(next_subscription_payment_date) = CURDATE(); <!-- 오늘 날짜까지 같은 경우--> 
 	</select>
 	
 	<select id="countSubscription" parameterType="string" resultType="int">
-		SELECT count(*)
-		FROM mapmory_db.subscription
-		<!-- WHERE user_id = #{userId} AND NOW() BETWEEN subscription_start_date AND subscription_end_date; -->
-		 WHERE user_id = #{userId} AND NOW() BETWEEN AND DATE_ADD(NOW(), INTERVAL 1 MINUTE); <!-- 테스트용: 분까지  -->
+		SELECT 
+			count(*)
+		FROM 
+			subscription
+		 WHERE
+		 	user_id = #{userId} 
+		 	AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date;
 	</select>
 </mapper>

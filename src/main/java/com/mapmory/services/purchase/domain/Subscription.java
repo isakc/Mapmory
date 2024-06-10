@@ -18,7 +18,7 @@ import lombok.ToString;
 public class Subscription {
 	private int subscriptionNo;
 	private String userId;
-	private int nextPaymentMethod;
+	private int nextSubscriptionPaymentMethod;
 	private String nextSubscriptionCardType;
 	private String nextSubscriptionLastFourDigits;
 	private LocalDateTime nextSubscriptionPaymentDate;

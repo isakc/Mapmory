@@ -13,10 +13,10 @@ public interface SubscriptionService {
 	public Subscription getDetailSubscription(String userId) throws Exception;
 	
 	//update
-	public void updatePaymentMethod(Subscription subscription) throws Exception;
+	public boolean updatePaymentMethod(Subscription subscription) throws Exception;
 	
 	//delete
-	public void deleteSubscription(String userId) throws Exception;
+	public boolean deleteSubscription(String userId) throws Exception;
 	
 	///// 추가 메소드 /////
 	

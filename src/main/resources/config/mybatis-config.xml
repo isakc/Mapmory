@@ -19,6 +19,7 @@
 		<typeAlias alias="notice" type="com.mapmory.services.notice.domain.Notice" />
 		<typeAlias alias="product" type="com.mapmory.services.product.domain.Product" />
 		<typeAlias alias="purchase" type="com.mapmory.services.purchase.domain.Purchase" />
+		<typeAlias alias="purchaseDTO" type="com.mapmory.services.purchase.dto.PurchaseDTO" />
 		<typeAlias alias="subscription" type="com.mapmory.services.purchase.domain.Subscription" />
 		<typeAlias alias="category" type="com.mapmory.services.timeline.domain.Category" />
 		<typeAlias alias="record" type="com.mapmory.services.timeline.domain.Record" />

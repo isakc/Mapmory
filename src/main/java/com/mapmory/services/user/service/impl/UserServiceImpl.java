@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -30,7 +31,9 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -57,9 +60,27 @@ public class UserServiceImpl implements UserService {
 	@Value("${directory.path.tac}")
 	private String tacDirectoryPath;
 	
+	@Value("${object.profile.folderName}")
+	private String profileFolderName;
+	
+	
+	@Autowired
+	private ObjectStorageUtil objectStorageUtil;
+	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
 	@Override
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) {
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
+		
+		if ( contentFilterUtil.checkBadWord(userId) ) 
+			throw new Exception("아이디에 비속어가 포함되어 있습니다.");
+		
+		if ( contentFilterUtil.checkBadWord(nickname) ) 
+			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
+			
+		
 		User user = User.builder()
 						.userId(userId)
 						.userPassword(userPassword)
@@ -70,7 +91,7 @@ public class UserServiceImpl implements UserService {
 						.email(email)
 						.phoneNumber(phoneNumber)
 						.build();
-		
+	
 		int result = userDao.insertUser(user);
 		
 		return intToBool(result);
@@ -174,6 +195,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean addLoginLog(String userId) {
 		// TODO Auto-generated method stub
+		
+		
+		
 		return false;
 	}
 	
@@ -186,6 +210,8 @@ public class UserServiceImpl implements UserService {
 		
 		return userDao.selectUser(user);
 	}
+	
+	
 	
 	@Override
 	public String getId(String userName, String email) {
@@ -246,6 +272,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<LoginLog> getUserLoginList(Search search) {
 		// TODO Auto-generated method stub
+		
+		
+		userDao.selectUserLoginList(search);
+		
 		return null;
 	}
 
@@ -359,9 +389,11 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) {
+	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
 		
+		if ( contentFilterUtil.checkBadWord(nickname) ) 
+			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
 		
 		User user = User.builder()
 				.userId(userId)
@@ -379,20 +411,36 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updateProfile(String userId, String profileImageName, String introduction) {
+	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception {
 		// TODO Auto-generated method stub
 		
+		if( contentFilterUtil.checkBadImage(file) )
+			throw new Exception("해당 사진은 유해성 정책에 위반되는 사진입니다.");
+		
+		if( contentFilterUtil.checkBadWord(introduction))
+			throw new Exception("자기소개란에 욕설이 포함될 수 없습니다.");
+		
+		User user = getDetailUser(userId);
+		
+		// 기존애 사용하던 커스텀 프로필이 있는 경우, object storage에서 해당 내용을 제거한 후 진행
+		System.out.println("profileName : " + user.getProfileImageName());
+		if( !user.getProfileImageName().equals("default_image.jpg")) {
+			
+			objectStorageUtil.deleteFile(user.getProfileImageName(), profileFolderName);
+		}
+		
 		String changedProfileImageName = ImageFileUtil.getProductImageUUIDFileName(profileImageName);
+		System.out.println("changedProfileName : " + changedProfileImageName );
+		objectStorageUtil.uploadFileToS3(file, changedProfileImageName, profileFolderName);
 		
 		
-		
-		User user = User.builder()
+		User tempUser = User.builder()
 						.userId(userId)
-						.profileImageName(profileImageName)
+						.profileImageName(changedProfileImageName)
 						.introduction(introduction)
 						.build();
 		
-		int result = userDao.updateUser(user);
+		int result = userDao.updateUser(tempUser);
 		
 		return intToBool(result);
 	}
@@ -410,15 +458,6 @@ public class UserServiceImpl implements UserService {
 		
 		return intToBool(result);
 	}
-
-	@Override
-	public boolean updateSecondaryAuth(String userId) {
-		// TODO Auto-generated method stub
-		
-		
-		
-		return false;
-	}	
 
 	@Override
 	public int updateRecoverAccount(String userId) {
@@ -446,8 +485,19 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateHideProfile(String userId) {
 		// TODO Auto-generated method stub
-		return false;
+		
+		int result = userDao.updateHideProfile(userId);
+		return intToBool(result);
 	}
+	
+
+	@Override
+	public boolean updateSecondaryAuth(String userId) {
+		// TODO Auto-generated method stub
+		
+		int result = userDao.updateSecondaryAuth(userId);
+		return intToBool(result);
+	}	
 
 	@Override
 	public boolean deleteFollow(String userId, String targetId) {
