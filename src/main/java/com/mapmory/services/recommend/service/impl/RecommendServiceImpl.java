@@ -36,6 +36,8 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
@@ -363,8 +365,9 @@ public class RecommendServiceImpl implements RecommendService {
         
 	}
 
+	//  추천데이터 받아오기
 	@Override
-	public ResponseEntity<String> getRecommendData(String userId) throws Exception {
+	public List<String> getRecommendData(String userId) throws Exception {
 		String uri= "/api/v1/services/siq3vlubqhb/infers/lookup?type=personalRecommend&targetId="+userId;
 //		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
 		String url = "https://aitems.apigw.ntruss.com"+uri;
@@ -388,7 +391,19 @@ public class RecommendServiceImpl implements RecommendService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 		System.out.println(response);
 		
-		return response;
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		String stringResult = response.getBody();
+		
+		JsonNode rootNode = objectMapper.readTree(stringResult);
+		JsonNode valuesNode = rootNode.path("values");
+		List<String> values = objectMapper.convertValue(valuesNode, List.class);
+		
+		for(String i : values) {
+			System.out.println("values : " +i);
+		}
+		
+		return values;
 	}
 	
 	
@@ -551,6 +566,22 @@ public class RecommendServiceImpl implements RecommendService {
 		  return encodeBase64String;
 
 		
+		}
+
+		@Override
+		public Map<String, Object> getRecordList(List<String> recordNo) throws Exception {
+
+			for(String i : recordNo) {
+				System.out.println(i);
+			}
+			
+			List<HashMap<String,Record>> list = recommendDao.getRecordList(recordNo);
+			System.out.println("++++++++++getRecordListOver++++++++++++++");
+			System.out.println("getRecordList: "+list);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("record",list);
+			
+			return map;
 		}
 }
 

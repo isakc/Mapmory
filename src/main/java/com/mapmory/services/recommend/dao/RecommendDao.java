@@ -1,10 +1,11 @@
 package com.mapmory.services.recommend.dao;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.Record;
 
 @Mapper
 public interface RecommendDao {
@@ -18,5 +19,7 @@ public interface RecommendDao {
 	public String getCategoryName(int recordNo) throws Exception;
 	
 	public List<String> getHashTagNames(int recordNo) throws Exception;
+	
+	public List<HashMap<String,Record>> getRecordList(List<String> recordNo) throws Exception;
 	
 }

@@ -9,6 +9,7 @@
     <settings>
         <setting name="logImpl" value="STDOUT_LOGGING"/>
     	<setting name="jdbcTypeForNull" value="NULL"/>
+    	<setting name="mapUnderscoreToCamelCase" value="true"/>
 	</settings>
 	
 	<!-- FQCN(Full Qualified Class Name) Alias(별칭관리) -->

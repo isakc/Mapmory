@@ -10,4 +10,9 @@ public class MainController {
 	public String index() {
 		return "index.html";
 	}
+	
+	@GetMapping("/common/menu")
+	public void getMenu() {
+		
+	}
 }

@@ -4,6 +4,7 @@ package com.mapmory.unit.recommend;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.impl.RecommendServiceImpl;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -26,7 +31,7 @@ public class RecommendServiceTest {
 	@Qualifier("recommendServiceImpl")
 	RecommendServiceImpl recommendServiceImpl;
 	
-	@Test
+	//@Test
 	public void addSearchData() throws Exception{
 		
 		
@@ -65,6 +70,28 @@ public class RecommendServiceTest {
 		recommendServiceImpl.saveDatasetToCSV(recommend, "aitems-8982956307867");
 		
 		System.out.println(recommend.toString());
+		
+	}
+	
+	
+//	@Test
+	public void getRecommendTest() throws Exception {
+//		ObjectMapper objectMapper = new ObjectMapper();
+//		String[] result = recommendServiceImpl.getRecommendData("user1");
+//		
+//		for(String i : result) {
+//			System.out.println(i);
+//		}
+	}
+	
+	@Test
+	public void getRecordList() throws Exception{
+		
+		List<String> result = recommendServiceImpl.getRecommendData("user1");
+		System.out.println("==========getRecommendDataOver==========");
+		System.out.println("result: "+result);
+		Map<String, Object> map = recommendServiceImpl.getRecordList(result);	
+		System.out.println(map);
 		
 	}
 	
