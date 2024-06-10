@@ -33,7 +33,7 @@
     </select>
 
     <!-- 상품 리스트 조회 -->
-    <select id="getProductList" parameterType="search" resultMap="productSelectMap">
+ <!--   <select id="getProductList" parameterType="search" resultMap="productSelectMap">
         SELECT
         p.PRODUCT_NO,
         p.PRODUCT_TITLE,
@@ -41,9 +41,14 @@
         p.PRODUCT_REGDATE,
         p.USER_ID,
         p.PERIOD,
+<<<<<<< HEAD
+        FROM PRODUCT p
+        LEFT JOIN IMAGE_FILE i ON p.PRODUCT_NO = i.PRODUCT_NO
+=======
         i.UUID
         FROM product p
         LEFT JOIN image_file i ON p.PRODUCT_NO = i.PRODUCT_NO
+>>>>>>> refs/heads/master
         <where>
             <if test="searchCondition != null and searchKeyword != null">
                 <if test="searchCondition == 0 and searchKeyword != ''">
@@ -57,7 +62,29 @@
         GROUP BY p.PRODUCT_NO, i.UUID
         ORDER BY p.PRODUCT_NO
         LIMIT #{pageSize} OFFSET #{offset}
-    </select>
+    </select>-->
+    <select id="getProductList" parameterType="search" resultMap="productSelectMap">
+		SELECT
+    	p.PRODUCT_NO,
+    	p.PRODUCT_TITLE,
+    	p.PRICE,
+    	p.PRODUCT_REGDATE,
+    	p.USER_ID,
+    	p.PERIOD
+		FROM product p
+	<where>
+		<if test="searchCondition != null and searchKeyword != null">
+    	<if test="searchCondition == 0 and searchKeyword != ''">
+        AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+    </if>
+    <if test="searchCondition == 1">
+        AND p.PRICE = CAST(#{searchKeyword} AS DECIMAL)
+    </if>
+	</if>
+	</where>
+		ORDER BY p.PRODUCT_NO
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
     <!-- 상품 정보 수정 -->
     <update id="updateProduct" parameterType="product">
         UPDATE product
@@ -90,5 +117,9 @@
             </if>
         </where>
     </select>
+	
+	<select id="getSubscription" parameterType="int" resultType="product">
+    	SELECT * FROM product WHERE product_no = #{productNo} AND PERIOD = 30
+	</select>
 
 </mapper>
