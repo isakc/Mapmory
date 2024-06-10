@@ -8,7 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
+import com.mapmory.services.user.domain.LoginMonthlyLog;
+import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
@@ -94,7 +97,10 @@ public interface UserService {
 	 * 일간 통계는 selectDay1만 입력하면 된다.
 	 * @return
 	 */
-	public List<LoginLog> getUserLoginList(Search search);
+	public List<LoginDailyLog> getUserLoginDailyList(LoginSearch search);
+	
+	public List<LoginMonthlyLog> getUserLoginMonthlyList(LoginSearch search);
+
 	
 	/**
 	 * 이용약관은 file io 로 처리

@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +39,9 @@ import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
+import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.SuspensionLog;
@@ -70,6 +73,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
+	private Argon2PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder();
+	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
@@ -80,6 +85,8 @@ public class UserServiceImpl implements UserService {
 		if ( contentFilterUtil.checkBadWord(nickname) ) 
 			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
 			
+		userPassword = argon2PasswordEncoder.encode(userPassword);
+		System.out.println("암호화된 비밀번호 : " + userPassword);
 		
 		User user = User.builder()
 						.userId(userId)
@@ -269,15 +276,7 @@ public class UserServiceImpl implements UserService {
 		return userDao.selectFollowList(search);
 	}
 
-	@Override
-	public List<LoginLog> getUserLoginList(Search search) {
-		// TODO Auto-generated method stub
-		
-		
-		userDao.selectUserLoginList(search);
-		
-		return null;
-	}
+	
 
 	@Override
 	public List<SuspensionLogList> getSuspensionLogList(String userId, Integer currentPage, Integer limit) {
@@ -386,6 +385,20 @@ public class UserServiceImpl implements UserService {
 		} catch(Exception e) {
 			throw new Exception();
 		}
+	}
+	
+	@Override
+	public List<LoginDailyLog> getUserLoginDailyList(LoginSearch search) {
+		// TODO Auto-generated method stub
+		
+		return userDao.selectUserLoginDailyList(search);
+	}
+	
+	@Override
+	public List<LoginMonthlyLog> getUserLoginMonthlyList(LoginSearch search) {
+		// TODO Auto-generated method stub
+		
+		return userDao.selectUserLoginMonthlyList(search);
 	}
 	
 	@Override
