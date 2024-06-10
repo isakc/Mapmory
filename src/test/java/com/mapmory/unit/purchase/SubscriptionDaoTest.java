@@ -34,7 +34,6 @@ public class SubscriptionDaoTest {
 				
 		subscriptionDao.addSubscription(subscription);
 		//Assert.assertEquals("user1", subscription);
-		
 	}
 	
 	//@Test
@@ -91,12 +90,5 @@ public class SubscriptionDaoTest {
 	public void testGetTodaySubscriptionList() throws Exception {
 		
 		Assert.assertEquals(8, subscriptionDao.getTodaySubscriptionList().size());
-	}
-	
-	//@Test
-	public void testCountSubscription() throws Exception {
-
-		String userId = "user1";
-		Assert.assertEquals(1, subscriptionDao.countSubscription(userId));
 	}
 }

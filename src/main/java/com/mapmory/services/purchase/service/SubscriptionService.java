@@ -7,7 +7,7 @@ import com.mapmory.services.purchase.domain.Subscription;
 public interface SubscriptionService {
 	
 	//insert
-	public void addSubscription(Subscription Subscription) throws Exception;
+	public boolean addSubscription(Subscription Subscription) throws Exception;
 	
 	//selectOne
 	public Subscription getDetailSubscription(String userId) throws Exception;
@@ -20,15 +20,9 @@ public interface SubscriptionService {
 	
 	///// 추가 메소드 /////
 	
-	//other
-	public String getPortOneToken() throws Exception;
-	
 	public boolean requestSubscription(Subscription subscription) throws Exception;
 	
 	public boolean schedulePay(Subscription subscription) throws Exception;
 
 	public List<Subscription> getTodaySubscriptionList() throws Exception;
-	
-	//count
-	public int countSubscription(String userId) throws Exception;
 }
