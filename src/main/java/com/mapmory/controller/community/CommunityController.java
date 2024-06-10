@@ -1,6 +1,5 @@
 package com.mapmory.controller.community;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mapmory.common.domain.Search;
-import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.Reply;
+import com.mapmory.services.community.domain.Reply.ReplyBuilder;
 import com.mapmory.services.community.service.CommunityService;
-import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @Controller
@@ -31,7 +29,7 @@ public class CommunityController {
 	@Autowired
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
-	
+
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
@@ -56,31 +54,50 @@ public class CommunityController {
 	}
 	
 	@GetMapping("/getDetailSharedRecord/{recordNo}")
-	public String getDetailSharedRecord(Model model, @PathVariable int recordNo) throws Exception{
+	public String getDetailSharedRecord(Model model, Search search, @PathVariable int recordNo) throws Exception{
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo));
+		
+	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    model.addAttribute("replyList", replyData.get("list"));
+	    model.addAttribute("totalCount", replyData.get("totalCount"));
 		return "community/getDetailSharedRecord";
 	}
 
 	@GetMapping("/getReplyList/{recordNo}")
 	public String getReplyList(Search search, @PathVariable int recordNo, Model model) throws Exception {
-		communityService.getReplyList(search, recordNo);
+		if(search == null) {
+		search = Search.builder()
+				.currentPage(1)
+				.limit(10)
+				.build();
+		}
+		
+	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    model.addAttribute("replyList", replyData.get("list"));
+	    model.addAttribute("totalCount", replyData.get("totalCount"));
+
+	   
 		return "community/getReplyList";
     }	
 	
-//	@PostMapping("/addReply")
-//	public String addReply(MultipartHttpServletRequest request)  throws Exception{
-//		
-//		System.out.println("/community/addReply : POST 시작");
-//		
-//		MultipartFile file = request.getFile("replyImageName");
-//		int recordNo = (Integer.parseInt(request.getParameter("recordNo")));
-//		String userId = request.getParameter("userId");
-//		String replyText = request.getParameter("replyText");
-//		String replyImageName = null;
-//	
-//		
-//		return null;
-//	}
+	@PostMapping("/addReply")
+	public String addReply(@RequestParam("userId") String userId, @RequestParam("replyText") String replyText,
+							@RequestParam("replyImageName") MultipartFile replyImageName, @PathVariable int recordNo)  throws Exception{
+		
+		System.out.println("/community/addReply : POST 시작");
+		
+		String fileName = replyImageName.getOriginalFilename();
+		
+		Reply reply = Reply.builder()
+				.recordNo(recordNo)
+				.userId(userId)
+				.replyText(replyText)
+				.replyImageName(fileName)
+				.build();
+	
+		communityService.addReply(reply);
+		return "community/getReplyList/"+recordNo;
+	}
 	
 	
 }

@@ -3,14 +3,163 @@
 <head>
 	<meta charset="UTF-8">
 	<title>댓글</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
+		<!-- 댓글 작성 -->
+		<script type ="text/javascript">
+			$(document).ready(function() {
+				$('#replyForm').submit(function(event) {
+					event.preventDefault();
+					
+					var formData = new FormData($(this)[0]);
+					
+					var replyText = $('#replyText').val().trim();
+					if(replyText === '') {
+						alert('댓글 내용을 입력하세요');
+						return;
+					}
+					
+					$.ajax({
+						type : 'POST',
+						url: '/rest/addReply',
+						enctype : 'multipart/form-data',
+						data: formData,
+						processData : false,
+						contentType : false,
+						cache : false,
+						success : function(data) {
+							console.log('댓글 작성 완료 :', data);
+						},
+						error : function(xhr, status, error) {
+							console.error('댓글 작성 실패 : ', error);
+						}
+					});
+				});
+			});
+		</script>
+		
+		<!-- 댓글 삭제 -->
+		<script>
+			$('#delete').click(function() {
+				var replyNo = '';
+				
+				$.ajax({
+					type : 'delete',
+					url: '/rest/deleteReply' +replyNo,
+					success : function(result) {
+						closeModal();
+					},
+					error : function(xhr, status, error) {
+						console.error(xhr.responseText);
+					}
+				});
+			});
+		</script>	
+	
+	
+	<script>
+		function openModal() {
+		  var modal = document.getElementById("myModal");
+		  modal.style.display = "block";
+		}
+
+		function closeModal() {
+		  var modal = document.getElementById("myModal");
+		  modal.style.display = "none";
+		}	
+	</script>
+	
+	
+	<style>
+		.modal {
+		  display: none; /* 모달 숨기기 */
+		  position: fixed;
+		  z-index: 1;
+		  left: 0;
+		  top: 0;
+		  width: 100%;
+		  height: 100%;
+		  overflow: auto;
+		  background-color: rgb(0,0,0);
+		  background-color: rgba(0,0,0,0.4);
+		}
+		
+		.modal-content {
+		  background-color: #fefefe;
+		  margin: 15% auto;
+		  padding: 20px;
+		  border: 1px solid #888;
+		  width: 80%;
+		}
+		
+		.close {
+		  color: #aaa;
+		  float: right;
+		  font-size: 28px;
+		  font-weight: bold;
+		}
+		
+		.close:hover,
+		.close:focus {
+		  color: black;
+		  text-decoration: none;
+		  cursor: pointer;
+		}
+	</style>
+	
 </head>
 <body>
-	<div th:fragement="replyList">
-	
 	<h1>댓글 목록</h1>
 	<table>
-	
+		<tbody>
+			<tr>
+				<th>닉네임</th>
+				<th>프로필사진</th>
+				<th>구독유무</th>
+				<th>댓글내용</th>
+				<th>댓글사진</th>
+				<th>작성일자</th>
+				<th>좋아요수</th>
+				<th>싫어요수</th>
+				<th>더보기</th>
+			</tr>
+			<tr th:each="reply : ${replyList}">
+				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
+				<td th:text="${reply.profileImageName}"></td>
+				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
+				<td th:text="${reply.replyText}"></td>
+				<td th:text="${reply.replyImageName}"></td>
+				<td th:text="${reply.replyDate}"></td>
+				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
+				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
+				<td>
+				<button onclick="openModal()">더보기</button>
+				<div id="myModal" class="modal">
+				  <div class="modal-content">
+				    <button id="update">수정</button>
+				    <button id="delete">삭제</button>
+				    <button id="report">신고</button>
+				    <span class="close" onclick="closeModal()">&times;</span>
+				  </div>
+				</div>
+				</td>
+			</tr>
+		</tbody>
 	</table>
-	</div>
+	
+	
+	
+	<br/><br/>
+	<p th:each="reply : ${replyList}" th:text="${'댓글 내용 : ' + reply}"></p>
+
+	<form id="replyForm">
+		<label for="replyText">댓글 내용</label><br>
+		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
+		<label for="replyImageName">사진 첨부</label>
+		<input type = "file" id="replyImageName" name="replyImageName" accept="image/*">
+		<button type ="submit">댓글작성</button>
+	</form>
 </body>	
 </html>

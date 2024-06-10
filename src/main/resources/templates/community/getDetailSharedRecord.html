@@ -17,12 +17,20 @@
 				<th>주소</th>
 				<th>영상</th>
 				<th>내용</th>
+				<th>이미지</th>
+				<th>해시태그</th>
 				<th>공유날짜</th>
 				<th>구독유무</th>
 				<th>카테고리</th>
+				<th>카테고리이름</th>
+				<th>카테고리이모지</th>
+				<th>댓글수</th>
+				<th>좋아요수</th>
+				<th>싫어요수</th>
+				<th>수정횟수</th>
 			</tr>
 			<tr>
-				<td th:text="${record.nickname}"></td>	
+				<td><a th:href="@{'/user/getProfile/' + ${record.recordUserId}}" th:text="${record.nickname}"></a></td>	
 				<td th:text="${record.profileImageName}"></td>
 				<td th:text="${record.recordTitle}"></td>
 				<td th:text="${record.latitude}"></td>
@@ -30,19 +38,58 @@
 				<td th:text="${record.checkpointAddress}"></td>
 				<td th:text="${record.mediaName}"></td>
 				<td th:text="${record.recordText}"></td>
-				<td th:text="${#temporals.format(record.sharedDate, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:text="${record.imageName}"></td>
+				<td th:text="${record.hashtag}"></td>
+				<td th:text="${record.sharedDate}"></td>
 				<td th:style="'text-align: center;'" th:text="${record.subscriptionEndDate}"></td>
-				<td th:text="${record.categoryNo}"></td>			
+				<td th:style="'text-align: center;'" th:text="${record.categoryNo}"></td>
+				<td th:text="${record.categoryName}"></td>
+				<td th:text="${record.categoryImoji}"></td>
+				<td th:style="'text-align: center;'" th:text="${record.replyCount}"></td>
+				<td th:style="'text-align: center;'" th:text="${record.likeCount}"></td>		
+				<td th:style="'text-align: center;'" th:text="${record.dislikeCount}"></td>										
+				<td th:style="'text-align: center;'" th:text="${record.updateCount}"></td>			
 			</tr> 
 		</tbody>
 	</table>
+	<br/>
 	<div>
-		<td th:text="${record}"></td>
-	</div>	
-	<div>
-		<a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+		<p th:text="${'상세내용 : ' +record}"></p>
 	</div>
 
-<!-- 	<div th:include= "/getReplyList"></div> -->
+    <h1>댓글 목록</h1>
+    <table>
+        <tbody>
+            <tr>
+                <th>닉네임</th>
+                <th>프로필사진</th>
+                <th>구독유무</th>
+                <th>댓글내용</th>
+                <th>댓글사진</th>
+                <th>작성일자</th>
+                <th>좋아요수</th>
+                <th>싫어요수</th>
+            </tr>
+            <tr th:each="reply, iterStat : ${replyList}">
+                <td th:if="${iterStat.index < 5}">
+                    <a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
+                </td>
+                <td th:if="${iterStat.index < 5}" th:text="${reply.profileImageName}"></td>
+                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>    
+                <td th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></td>
+                <td th:if="${iterStat.index < 5}" th:text="${reply.replyImageName}"></td>
+                <td th:if="${iterStat.index < 5}" th:text="${reply.replyDate}"></td>
+                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
+                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br/><br/>
+    <p th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index < 5}" th:text="${'댓글 내용 : ' + reply}"></p>
+
+    <div>
+        <a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+    </div>
 </body>	
 </html>

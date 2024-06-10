@@ -54,12 +54,16 @@ public class CommunityServiceImpl implements CommunityService {
 	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
 		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
+//		int likeCount = communityDao.getReactionLikeTotalCount(search, replyNo);
+//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, replyNo);
 
-			
+
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
-
+//		map.put("likeCount", Integer.valueOf(likeCount));
+//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
+		
 		return map;
 	}
 
@@ -82,9 +86,9 @@ public class CommunityServiceImpl implements CommunityService {
 				.replyText(reply.getReplyText())
 				.replyImageName(reply.getReplyImageName())
 				.build();
-		
+
 		if(ContentFilterUtil.checkBadWord(newReply.getReplyText())) {
-			System.out.println("비속어 등록 불가능");
+			throw new Exception("비속어가 포함된 댓글은 등록할 수 없음");
 		} else {
 			communityDao.addReply(newReply);	
 		}
