@@ -26,7 +26,7 @@ public class Report {
 	private Integer chatroomNo;
 	private String reportTitle;
 	private String reportText;
-	private LocalDateTime reportDate;
+	private String reportDate;
 	private int reportStatus;
 	private int reportResult;
 	
