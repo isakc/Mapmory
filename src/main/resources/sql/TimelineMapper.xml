@@ -54,6 +54,8 @@
     <result property='subscriptionEndDate' column='subscription_end_date' jdbcType='NUMERIC'/>
     <result property='categoryName' column='category_name' jdbcType='VARCHAR'/>
     <result property='categoryImoji' column='category_imoji' jdbcType='VARCHAR'/>
+    <result property='likeCount' column='like_count' jdbcType='NUMERIC'/>    
+    <result property='dislikeCount' column='dislike_count' jdbcType='NUMERIC'/>    
     <result property='replyCount' column='reply_count' jdbcType='NUMERIC'/>
     <result property='logsCount' column='logs_count' jdbcType='NUMERIC'/>
     <collection property="imageTagList" ofType="java.util.HashMap" javaType="java.util.ArrayList">
@@ -363,6 +365,8 @@ LIMIT #{limit} OFFSET #{offset}
        CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = a1.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
     	(SELECT category_name FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_name,
     	(SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_imoji,
+    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 2) AS like_count,
+    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 3) AS dislike_count,   	    	
     	(SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = a1.RECORD_NO) AS reply_count,
     	(SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = a1.RECORD_NO) logs_count,
        a2.image_tag_order AS image_tag_order,

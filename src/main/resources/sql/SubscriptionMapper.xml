@@ -34,9 +34,9 @@
 					#{nextSubscriptionPaymentMethod},
 					#{nextSubscriptionCardType, jdbcType=VARCHAR},
 					#{nextSubscriptionLastFourDigits, jdbcType=VARCHAR},
-					#{nextSubscriptionPaymentDate, jdbcType=TIMESTAMP},
-					#{subscriptionStartDate},
-					#{subscriptionEndDate},
+					DATE_ADD(NOW(), INTERVAL 1 MONTH),
+					now(),
+					DATE_ADD(NOW(), INTERVAL 1 MONTH),
 					#{customerUid},
 					#{merchantUid}
 				)
@@ -58,7 +58,7 @@
 			subscription
 		WHERE 
 			user_id = #{userId} 
-			AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date
+			AND NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>
@@ -81,7 +81,7 @@
 			next_subscription_payment_date = null
 		WHERE 
 			user_id = #{userId} 
-			AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date
+			AND NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</update>
 	
 	<!-- 추가 메소드 -->
@@ -104,13 +104,4 @@
 			DATE(next_subscription_payment_date) = CURDATE(); <!-- 오늘 날짜까지 같은 경우--> 
 	</select>
 	
-	<select id="countSubscription" parameterType="string" resultType="int">
-		SELECT 
-			count(*)
-		FROM 
-			subscription
-		 WHERE
-		 	user_id = #{userId} 
-		 	AND CONVERT_TZ(NOW(), 'SYSTEM', '+09:00') BETWEEN subscription_start_date AND subscription_end_date;
-	</select>
 </mapper>

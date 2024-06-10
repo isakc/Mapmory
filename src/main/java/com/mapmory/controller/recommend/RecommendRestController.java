@@ -1,5 +1,7 @@
 package com.mapmory.controller.recommend;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +59,16 @@ public class RecommendRestController {
 	    	
 	    	return null;
 	    	
+	    }
+	    
+	    
+	    @GetMapping("/rest/getSearchRecommend")
+	    public String[] getSearchRecommend() throws Exception{
+	    	
+	    	String[] result = recommendService.getSearchData("user1");
+	    	System.out.println(result);
+	    	
+	    	return result;
 	    }
 	    
 	    

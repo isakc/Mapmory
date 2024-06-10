@@ -107,7 +107,7 @@
 		<dependency>
   			<groupId>com.github.iamport</groupId>
   			<artifactId>iamport-rest-client-java</artifactId>
-  			<version>0.2.14</version>
+  			<version>0.2.23</version>
 		</dependency>
 		
 		<!--타임라인 통계 lib-->
@@ -211,6 +211,24 @@
             <artifactId>httpmime</artifactId>
             <version>4.5.13</version>
         </dependency>
+        
+        <!-- 웹소캣 -->
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-websocket</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+    </dependency>
+    
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-messaging</artifactId>
+	</dependency>
+
 	</dependencies>
 
 	<build>

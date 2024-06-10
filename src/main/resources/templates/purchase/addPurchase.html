@@ -4,73 +4,55 @@
 	<meta charset="UTF-8">
 	<title>결제하기</title>
 	
+	<script src="/javascript/config/key.js"></script>
+	<script src="/javascript/purchase/purchase.js"></script>
 	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script>
       var IMP = window.IMP;
-      IMP.init("imp75480634");
+      IMP.init(API_KEYS.imp);
 
-      function nomralRequestPay(pg, pay_method, user) {
+      function nomralRequestPay() {
+    	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
+    	  const productTitle = $("#productTitle").val();
+    	  const price = $("#price").val()
     	  const currentDate = getCurrentDate();
+    	  alert(selectedValue);
     	  
           IMP.request_pay({
-              pg: pg,
-              pay_method: pay_method,
-              merchant_uid: "purchase_"+user+"_"+currentDate,   // 주문번호
-              name: "테스트 상품01",
-              amount: 1000,                         // 숫자 타입
+              pg: selectedValue == 1 ? 'html5_inicis' : getPaymentMethod(selectedValue),
+              pay_method: getPaymentMethod(selectedValue),
+              merchant_uid: "purchase_"+"user5"+"_"+currentDate,   // 주문번호
+              name: $("#productTitle").val(),
+              amount: price,                         // 숫자 타입
               buyer_email: "alice@example.com",
-              buyer_name: "user1",
+              buyer_name: "user5",
               buyer_tel: "010-1234-5678"
           },
           function (rsp) { // callback
             console.log(rsp);
           
-              $.ajax({
-                 url: 'http://localhost:8000/purchase/rest/verifyPurchase/' + rsp.imp_uid,
-                 method: 'POST'
-              })
-              .done(function(data) {
-                console.log(data);
-                
-                  if(rsp.paid_amount === data.response.amount){
-                	  
-                	  const purchase = {
-                			  userId: 'user2',
-                			  productNo: '2',
-                			  paymentMethod: getPaymentMethod(rsp.pg_provider),
-                			  purchaseDate: currentDate,
-                			  price: 1000
-                	  }
-                      
-                	  $.ajax({
-                		  url: 'http://localhost:8000/purchase/addPurchase',
-                		  method: 'POST',
-                		  headers: {
-                			    'Content-Type': 'application/json'
-                				},
-                		  data: JSON.stringify(purchase)
-                		  
-                	  })//성공 시 local database로 값 입력
-                	  
-                  } else {
-                      alert("결제 실패");
-                  }//if~else
-              });//done
-              
-          });//ajax
+          	$("#cardType").val(rsp.card_name);
+          	$("#lastFourDigits").val(getLastFourDigits(rsp.card_number));
+          	
+          	alert("결제 성공!!");
+          	
+          	//$("form").attr("method", "POST").attr("action", "/purchase/addPurchase/" + rsp.imp_uid).submit();
+          	
+          });//ajax 
       } //nomralRequestPay
       
-      
-      function monthlyRequestPay(pg, user) {
+      function monthlyRequestPay() {
     	  const currentDate = getCurrentDate();
+    	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
+    	  const pg = getSubscriptionPG(selectedValue);
     	  
           // IMP.request_pay(param, callback) 호출
           IMP.request_pay(
             {
               pg: pg,
-              merchant_uid: "billingKey_"+user+"_"+currentDate, // 빌링키 발급용 주문번호
-              customer_uid: user, // 카드(빌링키)와 1:1로 대응하는 값
+              merchant_uid: "billingKey_"+"user7"+"_"+currentDate, // 빌링키 발급용 주문번호
+              customer_uid: "user7", // 카드(빌링키)와 1:1로 대응하는 값
               name: "정기 구독 결제",
               amount: 0 // 0으로 설정하여 할 시 빌링키만 발급
             },//빌링키 요청
@@ -78,36 +60,16 @@
             function (rsp) {
             	console.log(rsp);
             	
-            	if(rsp.success){ //빌링키 발급 성공
-            		const subscription = {
-    					userId: user,
-    					nextSubscriptionPaymentMethod: getSubscriptionPaymentMethod(rsp.pg_provider),
-    					nextSubscriptionCardType: rsp.card_name,
-    					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
-    					nextSubscriptionPaymentDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at, 1),
-    					subscriptionStartDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at),
-    					subscriptionEndDate: convertUnixTimestamptoLocalDateTime(rsp.paid_at, 1),
-    					customerUid: rsp.customer_uid,
-    					merchantUid: "subscription_"+user+"_"+currentDate
-    				}
+            	$('input[name="userId"]').val("user7");
+                $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
+                $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
+                $('input[name="nextSubscriptionLastFourDigits"]').val(getLastFourDigits(rsp.card_number));
+                $('input[name="customerUid"]').val(rsp.customer_uid);
+                $('input[name="merchantUid"]').val("subscription_" + "user7" + "_" + currentDate);
             	
-            		$.ajax({
-    					url:'/purchase/addSubscription', //DB에 구독정보 등록하는 부분
-    					method: 'POST',
-    					headers: {
-            			    'Content-Type': 'application/json'
-            			},
-    					data: JSON.stringify(subscription),
-    					
-    					success:function(result) {
-    						
-    						if(result){
-        						alert('구독 결제 성공!!');
-    						}else{
-    							alert('결제 실패!!');
-    						}//if~else
-    					}//success
-    				});//ajax
+                if(rsp.success){ //빌링키 발급 성공
+
+                  	$("#subscriptionForm").attr("method", "POST").attr("action", "/purchase/addSubscription/").submit();
     				
     			} else { //빌링키 발급 실패한 경우
     				alert('구독 결제 실패');
@@ -115,118 +77,65 @@
     		});//callback rsp
             	
           } //monthlyRequestPay: 정기결제
-          
-          
-          function updatePaymentMethod(pg, user) {
-        	  const currentDate = getCurrentDate();
-              
-              IMP.request_pay( // IMP.request_pay(param, callback) 호출
-                {
-                  pg: pg,
-                  merchant_uid: "update_"+user+"_"+currentDate, // 빌링키 발급용 주문번호
-                  customer_uid: user, // 카드(빌링키)와 1:1로 대응하는 값
-                  name: "결제 수단 변경",
-                  amount: 0 // 0 으로 설정하여 할 시 빌링키만 발급
-                },//빌링키 요청
-
-                function (rsp) {
-                	console.log(rsp);
-                	
-                	if(rsp.success){ //빌링키 발급 성공
-                		const subscription = {
-                			customerUid: rsp.customer_uid,
-        					userId: user,
-        					nextSubscriptionPaymentMethod: getSubscriptionPaymentMethod(rsp.pg_provider),
-        					nextSubscriptionCardType: rsp.card_name,
-        					nextSubscriptionLastFourDigits: getLastFourDigits(rsp.card_number),
-        					isSubscribed: "true",
-        					merchantUid: "subscription_"+user+"_"+currentDate
-        				}
-                	
-                		$.ajax({
-	    					url:'/purchase/updatePaymentMethod', //결제 상태를 확인하고 스케줄러를 호출하는 부분
-	    					type : 'POST',
-	    					headers: {
-	            			    'Content-Type': 'application/json'
-	            			},
-	    					data: JSON.stringify(subscription),
-	    					
-	    					success:function() {
-	    						alert('결제 수단 변경 완료');
-	    					}//success
-	    				});//ajax 
-        			} else { //빌링키 발급 실패한 경우
-        				alert('결제수단 변경 실패');
-        			}//if~else
-        		});//callback rsp
-                	
-              }//update: 결제수단 변경
-              
-
-      function getCurrentDate() {
-    	  
-    	  let date = new Date();
-    	  
-    	  return date.getFullYear().toString() + "-"
-    	  + String(date.getMonth()+1).padStart(2, '0') + "-"
-    	  + String(date.getDate()).padStart(2, '0') + " "
-    	  + String(date.getHours()).padStart(2, '0') + ":" 
-    	  + String(date.getMinutes()).padStart(2, '0') + ":" 
-    	  + String(date.getSeconds()).padStart(2, '0');
-        }//getCurrentDate: 현재 날짜 구하기
-        
-       function convertUnixTimestamptoLocalDateTime(unixTimestamp, period) {
-    	   const milliseconds = unixTimestamp * 1000; // 밀리초 단위로 변환
-
-    	   // Date 객체 생성
-    	   const date = new Date(milliseconds);
-    	   let addMonth = period ? 2 : 1
-
-    	   const year = date.getFullYear();
-    	   const month = String(date.getMonth() + addMonth ).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    	   const day = String(date.getDate() ).padStart(2, '0');
-    	   const hours = String(date.getHours() ).padStart(2, '0');
-    	   const minutes = String(date.getMinutes() ).padStart(2, '0');
-    	   const seconds = String(date.getSeconds() ).padStart(2, '0');
-
-    	   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-		}//convertUnixTimestamptoLocalDateTime: Unix 타임스탬프를 LocalDatetime으로 변환
-		
-		function getSubscriptionPaymentMethod(paymentMethod) {
-		    const paymentMethods = {
-		    	'card': 0,
-		    	'kakaopay': 1,
-		    	'payco': 2,
-		    	'tosspay': 3
-		    };
-
-		    return paymentMethods[paymentMethod];
-		}//getSubscriptionPaymentMethod: 결제수단 확인
-		
-		function getLastFourDigits(cardNumber) {
-		    return cardNumber.slice(-4); // 마지막 4자리 반환
-		}//getLastFourDigits: 카드번호 마지막 4자리 가져오기
 		
       </script>
 </head>
 <body>
+	
+	<label for="productTitle">상품이름: </label>
+	<input type="text" id="productTitle" th:field="${product.productTitle}">
+	
+	<label for="price">Price</label>
+	<input type="number" name="price" th:field="${product.price}" readonly ><br><br>
+	
+	<label>Payment Method:</label><br>
+	
 	<div>
-		<h1 th:text = "${product.productTitle}"></h1>
-		<h1 th:text = "${product.price}"></h1>
-		<!-- <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid}(uuid=${uuid})}" alt="상품 이미지" width="300" height="300"> -->
+		<input type="radio" name="paymentMethod" value="1">
+		<label for="paymentMethod">카드결제</label>
 	</div>
 	
-	<button onclick="nomralRequestPay('html5_inicis', 'card')">카드 일반 결제</button>
-    <button onclick="nomralRequestPay('kakaopay', 'kakaopay')">카카오 일반 결제</button>
-    <button onclick="nomralRequestPay('tosspay', 'tosspay')">토스페이 일반 결제</button>
-    <button onclick="nomralRequestPay('payco', 'payco', 'user')">페이코 일반 결제</button>
-
-    <button onclick="monthlyRequestPay('html5_inicis')">카드 정기 결제</button>
-    <button onclick="monthlyRequestPay('kakaopay.TCSUBSCRIP', 'user5')">카카오 정기 결제5</button>
-    <button onclick="updatePaymentMethod('kakaopay.TCSUBSCRIP', 'user7')">카카오 정기 변경7</button>
-    <button onclick="monthlyRequestPay('payco.AUTOPAY', 'user5')">페이코 정기 결제5</button>
-    <button onclick="monthlyRequestPay('payco.AUTOPAY', 'user7')">페이코 정기 결제7</button>
-    
-    <a href="/purchase/deleteSubscription/user7">구독해지 7</a>
+	<div>
+		<input type="radio" name="paymentMethod" value="2">
+		<label for="paymentMethod">카카오페이</label>
+	</div>
+	
+	<div>
+		<input type="radio" name="paymentMethod" value="3">
+		<label for="paymentMethod">페이코</label>
+	</div>
+	
+	<div th:if="${product.period == 0}">
+		<input type="radio" name="paymentMethod" value="4">
+		<label for="paymentMethod">토스페이</label>
+	</div>
+	
+	<div th:if="${product.period == 0}">
+	
+		<form id="normalPayment">
+        	<input type="hidden" name="userId" value="user2">
+        	<input type="hidden" name="productNo" th:field="${product.productNo}">
+        	<input type="hidden" name="cardType">
+        	<input type="hidden" name="lastFourDigits" >
+        	<input type="hidden" name="purchaseDate">
+    	</form>
+	
+		<button onclick="nomralRequestPay()">결제하기</button>
+	</div>
+	    	
+	<div th:if="${product.period != 0}">
+		<form id="subscriptionForm">
+		
+        	<input type="hidden" name="userId" value="user7" readonly>
+        	<input type="hidden" name="nextSubscriptionPaymentMethod" readonly>
+        	<input type="hidden" name="nextSubscriptionCardType" readonly>
+        	<input type="hidden" name="nextSubscriptionLastFourDigits" readonly>
+        	<input type="hidden" name="customerUid" readonly>
+        	<input type="hidden" name="merchantUid" readonly>
+        	
+    	</form>
+    	
+		<button onclick="monthlyRequestPay()">구독결제</button>
+	</div>
 </body>	
 </html>

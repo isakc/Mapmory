@@ -14,7 +14,7 @@ public class RecommendDaoTest {
 	@Qualifier("recommendDao")
 	private RecommendDao recommendDao;
 	
-	//@Test
+	@Test
 	public void addSearchData() throws Exception{
 		
 		String userId = "user1";
@@ -32,6 +32,8 @@ public class RecommendDaoTest {
 		recommendDao.getCategory(recordNo);
 		recommendDao.getCategory(0);
 	}
+	
+	
 	
 	
 

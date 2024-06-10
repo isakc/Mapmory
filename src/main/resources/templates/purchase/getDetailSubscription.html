@@ -2,9 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>구독 상세 정보</title>
 </head>
 <body>
+	<h1 th:text="${subscription.userId}"></h1>
+    <p>Subscription No: <span th:text="${subscription.subscriptionNo}"></span></p>
+    <p>Next Subscription Payment Method: <span th:text="${subscription.nextSubscriptionPaymentMethod}"></span></p>
+    <p>Next Subscription Card Type: <span th:text="${subscription.nextSubscriptionCardType}"></span></p>
+    <p>Next Subscription Last Four Digits: <span th:text="${subscription.nextSubscriptionLastFourDigits}"></span></p>
+    <p>Next Subscription Payment Date: <span th:text="${subscription.nextSubscriptionPaymentDate}"></span></p>
+    <p>Subscription Start Date: <span th:text="${subscription.subscriptionStartDate}"></span></p>
+    <p>Subscription End Date: <span th:text="${subscription.subscriptionEndDate}"></span></p>
+    <p>Is Subscribed: <span th:text="${subscription.isSubscribed}"></span></p>
+    <p>Customer UID: <span th:text="${subscription.customerUid}"></span></p>
+    <p>Merchant UID: <span th:text="${subscription.merchantUid}"></span></p>
 
+	<a href="/purchase/updatePaymentMethod">결제수단 변경 7</a>
+    <a href="/purchase/deleteSubscription/user7">구독해지 7</a>
 </body>	
 </html>

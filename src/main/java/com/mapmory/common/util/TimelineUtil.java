@@ -90,6 +90,8 @@ public class TimelineUtil {
 					.subscriptionEndDate((long)map.get("subscriptionEndDate"))
 					.categoryName((String)map.get("categoryName"))
 					.categoryImoji((String)map.get("categoryImoji"))
+					.likeCount((long)map.get("likeCount"))
+					.dislikeCount((long)map.get("dislikeCount"))
 					.replyCount((long)map.get("replyCount"))
 					.logsCount((long)map.get("logsCount"))
 					.build();

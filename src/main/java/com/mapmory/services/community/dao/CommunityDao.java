@@ -14,7 +14,7 @@ import com.mapmory.services.user.domain.FollowBlock;
 public interface CommunityDao {
 	
 	//댓글 목록 조회
-	public List<Object> getReplyList(Search search, int recordNo, int replyNo) throws Exception;
+	public List<Object> getReplyList(Search search, int recordNo) throws Exception;
 	
 	//내가 쓴 댓글 목록 조회
 	public List<Object> getUserReplyList(Search search, String userId) throws Exception;
@@ -83,10 +83,10 @@ public interface CommunityDao {
 	public int getReplyUserTotalCount(Search search, String userId) throws Exception;
 		
 	//좋아요 개수
-	public int getReactionLikeTotalCount(Search search, int recordNo, int replyNo) throws Exception;
+	public int getReactionLikeTotalCount(Search search, int replyNo) throws Exception;
 	
 	//싫어요 개수
-	public int getReactionDisLikeTotalCount(Search search, int recordNo, int replyNo) throws Exception;
+	public int getReactionDisLikeTotalCount(Search search, int replyNo) throws Exception;
 		
 	//사용자 신고 총 개수
 	public int getUserReportTotalCount(Search search, String userId) throws Exception;

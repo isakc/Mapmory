@@ -7,8 +7,6 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.dto.PurchaseDTO;
 import com.siot.IamportRestClient.exception.IamportResponseException;
-import com.siot.IamportRestClient.response.IamportResponse;
-import com.siot.IamportRestClient.response.Payment;
 
 public interface PurchaseService {
 	
@@ -25,5 +23,5 @@ public interface PurchaseService {
 	public int getPurchaseTotalCount(Search search) throws Exception;
 	
 	//Iamport api 결제 검증
-	public IamportResponse<Payment> validatePurchase(String impUid) throws IamportResponseException, IOException;
+	public boolean validatePurchase(String impUid, Purchase purchase) throws IamportResponseException, IOException;
 }

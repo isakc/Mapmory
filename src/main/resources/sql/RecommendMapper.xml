@@ -15,6 +15,26 @@
 		<result property="hashTag" column="image_tag_text" jdbcType="VARCHAR" />
 	</resultMap>
 	
+	<!-- timeline  -->
+	<resultMap id="recordResultMapList"  type="java.util.HashMap">
+	    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+	    <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
+	    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+	    <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
+	    <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+	    <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
+	    <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
+	    <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
+	    <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+	    <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
+	    <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
+	    <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
+	    <result property="sharedDate" column="shared_date" jdbcType="TIMESTAMP"/>
+	    <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
+	    <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
+	    <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
+	</resultMap>
+	
 	<select id="getCategory" parameterType="int" resultType="String">
 		SELECT category_name FROM  category
 		WHERE category_No = #{categoryNo};
@@ -44,9 +64,15 @@
 		SELECT keyword FROM recommend_keyword
 		<if test='userId != null'>
 			WHERE user_id = #{userId};
-		</if>
-
-		
+		</if>	
+	</select>
+	
+	<select id="getRecordList" resultMap="recordResultMapList">
+		SELECT LATITUDE, LONGITUDE FROM record
+		WHERE record_no IN
+		<foreach item="recordNo" index="index" collection="recordNo" open="(" separator="," close=")">
+			#{recordNo}
+		</foreach>
 	</select>
 	
 	

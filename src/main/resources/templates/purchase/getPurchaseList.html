@@ -8,16 +8,30 @@
 <table border="1">
         <thead>
             <tr>
-                <th>Item Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
+            	<th>purchaseNo</th>
+            	<th>userId</th>
+            	<th>productNo</th>
+            	<th>paymentMethod</th>
+            	<th>cardType</th>
+            	<th>lastFourDigits</th>
+            	<th>purchaseDate</th>
+            	<th>price</th>
+                <th>productTitle</th>
+                <th>period</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="item : ${purchaseList}">
+                <td th:text="${item.purchaseNo}"></td>
+                <td th:text="${item.userId}"></td>
+                <td th:text="${item.productNo}"></td>
                 <td th:text="${item.paymentMethod}"></td>
                 <td th:text="${item.cardType}"></td>
+                <td th:text="${item.lastFourDigits}"></td>
+                <td th:text="${item.purchaseDateString}"></td>
                 <td th:text="${item.price}"></td>
+                <td th:text="${item.productTitle}"></td>
+                <td th:text="${item.period}"></td>
             </tr>
         </tbody>
     </table>

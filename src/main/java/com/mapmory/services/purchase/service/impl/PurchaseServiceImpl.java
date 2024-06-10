@@ -1,6 +1,8 @@
 package com.mapmory.services.purchase.service.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.purchase.dao.PurchaseDao;
@@ -61,6 +62,11 @@ public class PurchaseServiceImpl implements PurchaseService {
 	        throw new DataIntegrityViolationException("Price < 0");
 	    }
 	    
+	    if(purchase.getPaymentMethod() != 1) {
+	    	purchase.setCardType(null);
+	    	purchase.setLastFourDigits(null);
+	    }
+
 		return purchaseDao.addPurchase(purchase) == 1 ? true : false;
 		
 	}// addPurchase
@@ -74,8 +80,15 @@ public class PurchaseServiceImpl implements PurchaseService {
 	
 	@Override
 	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception {
+		List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
 		
-		return purchaseDao.getPurchaseList(search);
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+		for(PurchaseDTO purchase : purchaseList) {
+			purchase.setPurchaseDateString( purchase.getPurchaseDate().format(formatter) );
+		}
+		
+		return purchaseList;
 		
 	}// getPurchaseList
 
@@ -87,9 +100,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}// getPurchaseTotalCount
 
 	@Override
-	public IamportResponse<Payment> validatePurchase(String impUid) throws IamportResponseException, IOException {
+	public boolean validatePurchase(String impUid, Purchase purchase) throws IamportResponseException, IOException {
+		IamportResponse<Payment> validation = iamportClient.paymentByImpUid(impUid);
 		
-		return iamportClient.paymentByImpUid(impUid);
+		return validation.getResponse().getAmount().compareTo( new BigDecimal(purchase.getPrice())) == 0 ? true : false;
 		
-	}// validatePurchase
+	}// validatePurchase: 위변조 검증 메소드
 }

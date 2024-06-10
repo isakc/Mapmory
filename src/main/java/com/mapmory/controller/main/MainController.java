@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MainController {
 	
-	@GetMapping("/index")
+	@GetMapping("/")
 	public String index() {
 		return "index.html";
+	}
+	
+	@GetMapping("/common/menu")
+	public void getMenu() {
+		
 	}
 }
