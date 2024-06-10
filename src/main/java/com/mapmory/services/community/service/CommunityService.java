@@ -13,7 +13,7 @@ import com.mapmory.services.user.domain.FollowBlock;
 public interface CommunityService {
 	
 	//기록의 댓글 목록 조회
-	public Map<String, Object> getReplyList(Search search, int recordNo, int replyNo) throws Exception;
+	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception;
 	
 	//내가 쓴 댓글 목록 조회
 	public Map<String, Object> getUserReplyList(Search search, String userId) throws Exception;
