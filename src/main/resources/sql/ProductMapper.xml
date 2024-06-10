@@ -117,5 +117,9 @@
             </if>
         </where>
     </select>
+	
+	<select id="getSubscription" parameterType="int" resultType="product">
+    	SELECT * FROM product WHERE product_no = #{productNo} AND PERIOD = 30
+	</select>
 
 </mapper>
