@@ -67,4 +67,16 @@ public class UserController {
 		
 		model.addAttribute("profileImage", cdnPath);
 	}
+	
+	@GetMapping("/login")
+	public void getLogin() {
+		
+		System.out.println("login test");
+	}
+	
+	@PostMapping("/login")
+	public void postLogin(@RequestParam String role) {
+		
+		
+	}
 }
