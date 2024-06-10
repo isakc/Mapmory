@@ -1,18 +1,45 @@
 <!DOCTYPE html>
-
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Title</title>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
 </head>
 <body>
-	<h1 th:text="${'getDetailTimeline'}"></h1>
+	<a th:href="@{/timeline/getSimpleTimeline(recordNo=1)}"
+		th:text="${'getSimpleTimeline'}"></a>
+	<br />
+	<table border=1>
+		<tr>
+			<td th:text="${record.recordTitle}"></td>
+			<td th:text="${record.categoryNo}"></td>
+			<td th:text="${record.updateCount}"></td>
+			<td th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointDate}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointAddress}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.mediaName}"></td>
+		</tr>
+		<tr th:each="image : ${record.imageName}">
+			<td th:text="${image.imageTagText}"></td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><span th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}"></span></td>
+		</tr>
+		<tr>
+			<td th:text="${record.recordText}"></td>
+		</tr>
+	</table>
 	<ul>
-		<li th:text="${record}"></li>
-	</ul>
-	<ul>
-		<li th:text="'재용 sharedRecord : '+${record2}"></li>
+	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}"
+		th:text=" '수정' "></a></li>
 	</ul>
 </body>
 </html>

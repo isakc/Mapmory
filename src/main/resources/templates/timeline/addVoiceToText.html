@@ -1,82 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html>
 <head>
-	<meta charset="UTF-8">
-	<title>addVoiceToText</title>
+    <meta charset="UTF-8">
+    <title>녹음 파일 업로드</title>
 </head>
 <body>
-<button id="startRecording">녹음 시작</button>
-<button id="stopRecording" disabled>녹음 종료</button>
+    <button id="startRecording">녹음 시작</button>
+    <button id="stopRecording" disabled>녹음 종료</button>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
 
-<script th:inline="javascript">
-let mediaRecorder;
-    let recordedChunks = [];
-    let audioBlob;
-    
-    const requestMicrophoneAccess = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                document.getElementById('startRecording').disabled = false;
-                document.getElementById('startRecording').addEventListener('click', startRecording);
-            })
-            .catch(error => {
-                console.error('마이크 접근 권한 요청 실패:', error);
-                alert('마이크 접근 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
-            });
-    };
-    
-    const startRecording = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
-    
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    recordedChunks.push(event.data);
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
+        let audioBlob;
+        
+        const startRecording = () => {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+        
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        recordedChunks.push(event.data);
+                    });
+        
+                    document.getElementById('startRecording').disabled = true;
+                    document.getElementById('stopRecording').disabled = false;
                 });
-    
-                document.getElementById('startRecording').disabled = true;
-                document.getElementById('stopRecording').disabled = false;
+        };
+        
+        const stopRecording = () => {
+            mediaRecorder.stop();
+        
+            mediaRecorder.addEventListener("stop", () => {
+                audioBlob = new Blob(recordedChunks, { type: 'audio/mp3' });
+                
+                const formData = new FormData();
+                formData.append('audioFile', audioBlob, 'recording.mp3');
+        
+                fetch('/timeline/rest/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('녹음 파일 업로드 성공');
+                        alert('녹음 파일 업로드 성공');
+                    } else {
+                        console.error('녹음 파일 업로드 실패:', data.message);
+                        alert('녹음 파일 업로드 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('녹음 파일 업로드 중 오류 발생:', error);
+                    alert('녹음 파일 업로드 중 오류 발생');
+                });
+        
+                recordedChunks = [];
+                document.getElementById('startRecording').disabled = false;
+                document.getElementById('stopRecording').disabled = true;
             });
-    };
-    
-    const stopRecording = () => {
-        mediaRecorder.stop();
-    
-        mediaRecorder.addEventListener("stop", () => {
-            audioBlob = new Blob(recordedChunks, { type: 'audio/mp3' });
-            
-            const formData = new FormData();
-            formData.append('audioFile', audioBlob, 'recording.mp3');
-    
-            fetch('timeline/rest/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('녹음 파일 업로드 성공');
-                    alert('녹음 파일 업로드 성공');
-                } else {
-                    console.error('녹음 파일 업로드 실패:', data.message);
-                    alert('녹음 파일 업로드 실패: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('녹음 파일 업로드 중 오류 발생:', error);
-                alert('녹음 파일 업로드 중 오류 발생');
-            });
-    
-            recordedChunks = [];
-            document.getElementById('startRecording').disabled = false;
-            document.getElementById('stopRecording').disabled = true;
-        });
-    };
-    
-    requestMicrophoneAccess();
-    document.getElementById('stopRecording').addEventListener('click', stopRecording);
-</script>
-
-</body>	
+        };
+        
+        document.getElementById('startRecording').addEventListener('click', startRecording);
+        document.getElementById('stopRecording').addEventListener('click', stopRecording);
+    </script>
+</body>
 </html>

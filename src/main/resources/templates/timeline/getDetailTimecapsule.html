@@ -5,6 +5,39 @@
 	<title>Insert title here</title>
 </head>
 <body>
-
-</body>	
+	<a th:href="@{/timeline/getTimecapsuleList(userId=${record.recordUserId})}"
+		th:text="${'getTimecapsuleList'}"></a>
+	<br />
+	<table border=1>
+		<tr>
+			<td th:text="${record.recordTitle}"></td>
+			<td th:text="${record.categoryNo}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointDate}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointAddress}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.mediaName}"></td>
+		</tr>
+		<tr th:each="image : ${record.imageName}">
+			<td th:text="${image.imageTagText}"></td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><span th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}"></span></td>
+		</tr>
+		<tr>
+			<td th:text="${record.recordText}"></td>
+		</tr>
+	</table>
+	<ul>
+	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}"
+		th:text=" '수정' "></a></li>
+	</ul>
+</body>
 </html>

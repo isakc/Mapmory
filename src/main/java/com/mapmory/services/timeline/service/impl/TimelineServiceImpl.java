@@ -1,8 +1,5 @@
 package com.mapmory.services.timeline.service.impl;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +16,9 @@ import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
-import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
-import com.mapmory.services.timeline.dto.ImageTagDto;
-import com.mapmory.services.timeline.dto.RecordDto;
 import com.mapmory.services.timeline.dto.SearchDto;
 import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
@@ -43,7 +37,7 @@ public class TimelineServiceImpl implements TimelineService {
 	private String checkpointTime;
 	
 	//Record CRUD
-	public void addTimeline(Record record) throws Exception{
+	public int addTimeline(Record record) throws Exception{
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.insertTimeline(record);
 		System.out.println(record);
@@ -56,6 +50,7 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.insertImageTag(map);
 //		timelineDao.insertImageName(map);
 //		timelineDao.insertHashtag(map);
+		return record.getRecordNo();
 	}
 	
 	@Override
@@ -76,15 +71,11 @@ public class TimelineServiceImpl implements TimelineService {
 	public void updateTimeline(Record record) throws Exception {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.updateTimeline(record);
-		map.put("recordNo",record.getRecordNo());
-		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
-//		map.put("imageName",record.getImageName());
-//		map.put("hashtag",record.getHashtag());
-		
-		timelineDao.insertImageTag(map);
-//		timelineDao.insertImageName(map);
-//		timelineDao.insertHashtag(map);
-		
+		if(record.getImageName()!=null ||record.getHashtag()!=null) {
+			map.put("recordNo",record.getRecordNo());
+			map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
+			timelineDao.insertImageTag(map);
+		}
 	}
 
 	@Override
@@ -103,8 +94,9 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	//Category CRUD
 	@Override
-	public void addCategory(Category category) throws Exception {
+	public int addCategory(Category category) throws Exception {
 		timelineDao.insertCategory(category);
+		return category.getCategoryNo();
 	}
 
 	@Override

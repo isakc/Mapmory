@@ -1,13 +1,8 @@
 package com.mapmory.common.domain;
 
 import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import com.mapmory.services.map.domain.SearchMarker;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
