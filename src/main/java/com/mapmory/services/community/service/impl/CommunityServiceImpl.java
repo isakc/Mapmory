@@ -194,4 +194,14 @@ public class CommunityServiceImpl implements CommunityService {
 		communityDao.deleteBlockedUser(userId, targetId);
 		
 	}
+
+	@Override
+	public void deleteReplyByRecord(int recordNo) throws Exception {
+		communityDao.deleteReplyByRecord(recordNo);
+	}
+
+	@Override
+	public void deleteCommunityLogsByRecord(int recordNo) throws Exception {
+		communityDao.deleteCommunityLogsByRecord(recordNo);
+	}
 }

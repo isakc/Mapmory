@@ -147,7 +147,6 @@
 				url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
 				success : function(data) {
 					console.log('댓글 삭제 완료 :', data);
-					upateReplyList();
 					closeModal();
 				},
 				error : function(xhr, status, error) {
@@ -155,9 +154,6 @@
 				}
 			});
 			
-			function updateReplyList() {
-				
-			}
 		});
 	});
 	

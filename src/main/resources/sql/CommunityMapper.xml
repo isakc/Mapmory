@@ -109,6 +109,12 @@
 		WHERE user_id = #{userId:VARCHAR} AND reply_no = #{replyNo}
 	</delete>	
 	
+	<!-- 기록 삭제 시 댓글 삭제 -->	
+	<delete id="deleteReplyByRecord" parameterType="reply">
+		DELETE FROM reply
+		WHERE record_no = #{recordyNo}
+	</delete>	
+	
 	<!-- 기록에 작성된 댓글 Count -->
 	<select id="getReplyTotalCount" parameterType="search" resultType="int">
 		SELECT COUNT(*) FROM reply
@@ -147,6 +153,12 @@
 	<delete id="deleteCommunityLogs" parameterType="communityLogs">
 		DELETE FROM community_logs
 		WHERE community_logs_no = #{communityLogsNo} AND user_id = #{userId} 
+	</delete>
+
+	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
+	<delete id="deleteCommunityLogs" parameterType="communityLogs">
+		DELETE FROM community_logs
+		WHERE record_no = #{recordNo} 
 	</delete>
 
 	<!-- 커뮤니티 활동 목록 조회 -->

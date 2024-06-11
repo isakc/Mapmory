@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -95,9 +97,9 @@ public class CommunityRestController {
 		
 	}	
 	
-	@PostMapping("/rest/deleteReply")
-	public String deleteReply(Reply reply, MultipartFile replyImageName, String userId, int recordNo) throws Exception {
-		communityService.deleteReply(userId, recordNo);
+	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
+	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo) throws Exception {
+		communityService.deleteReply(userId, replyNo);
 		return "redirect: community/getReplyList";
 		
 	}	
