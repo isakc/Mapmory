@@ -52,12 +52,12 @@
 	 	</collection>
 	 </resultMap>
 	 
-	 <resultMap id="selectLoginDailyMap" type="com.mapmory.services.user.domain.login.LoginDailyLog">
+	 <resultMap id="selectLoginDailyMap" type="com.mapmory.services.user.domain.LoginDailyLog">
 	 	<result property="hour" column="hour" />
 	 	<result property="count" column="count" />
 	 </resultMap>
 	 
-	 <resultMap id="selectLoginMonthlyMap" type="com.mapmory.services.user.domain.login.LoginMonthlyLog">
+	 <resultMap id="selectLoginMonthlyMap" type="com.mapmory.services.user.domain.LoginMonthlyLog">
 	 	<result property="day" column="day" />
 	 	<result property="count" column="count" />
 	 </resultMap>
@@ -106,15 +106,14 @@
 				SELECT
 				*
 				FROM users
-				WHERE 
-				<if test="searchCondition == 0">user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
-				<if test="searchCondition == 1">nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition == 0">WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition == 1">WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
 				ORDER BY reg_date DESC
 				) origin, 
 				(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum};
+		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}
 	</select>
 	
 	<select id="getUserListTotalCount" parameterType="search" resultType="integer">
@@ -135,7 +134,7 @@
 			(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		WHERE temp.n BETWEEN 1 AND 5;
+		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}
 	</select>
 	
 	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">

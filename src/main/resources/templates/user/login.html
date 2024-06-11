@@ -3,195 +3,63 @@
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-
-        .container {
-            width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-
-        .button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .message {
-            margin-top: 15px;
-        }
-    </style>
     
     <script>
-        $(function() {
-            $('#loginButton').click(function(event) {
-                event.preventDefault();
-
-                const userId = $('#userId').val();
-                const password = $('#password').val();
-
-                // 서버로 로그인 요청 보내기
-                $.ajax({
-                    url: '/auth/rest/authenticate', // 로그인 API URL
-                    method: 'POST',
-                    headers: {
-                    	'content-type' : 'application/json'
-                    },
+ 		$(function() {
+ 			
+			$('#login').on('click', function() {
+        		
+        		$.ajax({
+                    type: "POST",
+                    url: "/user/rest/login",
+                    contentType: "application/json",
                     data: JSON.stringify({
-                        userId: userId,
-                        userPassword: password
+                        userId: $("#username").val(),
+                        userPassword: $("#password").val()
                     }),
                     success: function(response) {
-                        if (response.success) {
-                            // 로그인 성공
-                            const jwtToken = response.data.token;
-
-                            console.log(jwtToken);
-                            
-                            // localStorage에 토큰 저장
-                            localStorage.setItem('jwtToken', jwtToken);
-
-                            // 메시지 출력
-                            $('.message').text('로그인 성공!');
-
-                            // 페이지 이동 또는 기타 작업 수행
-                            window.location.href = '/'; // 보호된 페이지 URL
-                        } else {
-                            // 로그인 실패
-                            $('.message').text('아이디 또는 비밀번호가 틀립니다.');
+                    	
+                    	// console.log("_"+response+"_");
+                    	console.log("server 응답 : "+ response);
+                        if (response == "true" || response == true) {
+                        	
+                        	console.log("로그인 성공!");
+                            // submitSession();
+                            console.log("cookie를 요청합니다...");
+                        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
                         }
                     },
-                    error: function(error) {
-                        // 요청 오류
-                        console.error('로그인 요청 오류:', error);
-                        $('.message').text('로그인 요청 오류.');
+                    error: function(jqXHR) {
+                        alert("오류 발생: " + jqXHR.responseText);
                     }
                 });
-            });
-            
-            $('#actionButton').on('click', function() {
-                // localStorage에서 토큰 가져옴
-                const token = localStorage.getItem('jwtToken');
-
-                // 토큰이 존재하는지 확인
-                if (token) {
-                    // 보호된 리소스 요청
-                    $.ajax({
-                        url: '/user/testUpdateProfile',
-                        method: 'GET',
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        },
-                        success: function(response) {
-                            console.log('보호된 리소스 응답:', response);
-                        },
-                        error: function(error) {
-                            console.error('보호된 리소스 요청 오류:', error);
-                        }
-                    });
-                } else {
-                    console.error('토큰이 존재하지 않음');
+        	});
+ 		});
+   
+        function submitSession() {
+        	
+        	console.log("cookie를 요청합니다...");
+        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
+        	/*
+            $.ajax({
+                type: "POST",
+                url: "/submit",
+                success: function(response) {
+                    window.location.href = response;
+                },
+                error: function() {
+                    alert("세션 제출 실패");
                 }
             });
-            
-            $('#generateButton').click(function(event) {
-                event.preventDefault();
-
-                const userId = $('#userId').val();
-                const password = $('#password').val();
-
-                // 서버로 로그인 요청 보내기
-                $.ajax({
-                    url: '/auth/rest/generate-token', // 로그인 API URL
-                    method: 'POST',
-                    headers: {
-                    	'content-type' : 'application/json'
-                    },
-                    data: JSON.stringify({
-                        userId: userId,
-                        userPassword: password
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            // 로그인 성공
-                            const jwtToken = response.data.token;
-
-                            console.log(jwtToken);
-                            
-                            // localStorage에 토큰 저장
-                            localStorage.setItem('jwtToken', jwtToken);
-
-                            // 메시지 출력
-                            $('.message').text('로그인 성공!');
-
-                            // 페이지 이동 또는 기타 작업 수행
-                            window.location.href = '/'; // 보호된 페이지 URL
-                        } else {
-                            // 로그인 실패
-                            $('.message').text('아이디 또는 비밀번호가 틀립니다.');
-                        }
-                    },
-                    error: function(error) {
-                        // 요청 오류
-                        console.error('로그인 요청 오류:', error);
-                        $('.message').text('로그인 요청 오류.');
-                    }
-                });
-            });
-            
-            $('#deleteButton').on('click', function(){
-            	
-            	window.localStorage.removeItem('jwtToken');
-            	console.log('jwtToken : ' + localStorage.getItem('jwtToken') );
-            });
-        });
+        	*/
+        }
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>로그인</h1>
-
-        <div class="input-group">
-            <label for="userId">아이디</label>
-            <input type="text" id="userId" name="userId" required>
-        </div>
-
-        <div class="input-group">
-            <label for="password">비밀번호</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-
-        <button class="button" id="loginButton">로그인</button>
-		<button class="button" id="generateButton">로그인 인증없이 token받기</button>
-        <div class="message"></div>
-        
-        <div class="row">
-        	<button class="button" id="actionButton">행동을 수행한다.</button>
-        </div>
-        <div class="row">
-        	<button class="button" id="deleteButton">토큰 삭제</button>
-        </div>
-    </div>
+    <form id="loginForm">
+        <input type="text" id="username" name="userId" placeholder="아이디">
+        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
+        <button type="button" id="login">로그인</button>
+    </form> 
 </body>
 </html>

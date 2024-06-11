@@ -18,19 +18,11 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
@@ -41,7 +33,6 @@ import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
-import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
@@ -50,6 +41,7 @@ import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.UserSearch;
 import com.mapmory.services.user.service.UserService;
 
 import kr.co.shineware.nlp.komoran.exception.FileFormatException;
@@ -75,7 +67,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
-	private Argon2PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder();
+	@Autowired
+	private PasswordEncoder passwordEncoder; 
+	// private Argon2PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder();
 	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
@@ -87,7 +81,7 @@ public class UserServiceImpl implements UserService {
 		if ( contentFilterUtil.checkBadWord(nickname) ) 
 			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
 			
-		userPassword = argon2PasswordEncoder.encode(userPassword);
+		userPassword = passwordEncoder.encode(userPassword);
 		System.out.println("암호화된 비밀번호 : " + userPassword);
 		
 		User user = User.builder()
@@ -470,7 +464,8 @@ public class UserServiceImpl implements UserService {
 	public boolean updatePassword(String userId, String rawPassword) {
 		// TODO Auto-generated method stub
 		
-		String hashedPassword = argon2PasswordEncoder.encode(rawPassword);
+		String hashedPassword = passwordEncoder.encode(rawPassword);
+		System.out.println("hashedPassword : " + hashedPassword);
 		
 		Login login = Login.builder()
 				.userId(userId)
@@ -628,12 +623,34 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
-	public boolean checkPasswordValid(String userId, String rawPassword) {
-		
-		String hashedPassword = getPassword(userId);
-		return argon2PasswordEncoder.matches(rawPassword, hashedPassword);
-	}
+	/**
+	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
+	 */
+	public void setupForTest() {
 
+		/*
+		UserSearch search = UserSearch.builder()
+							.searchCondition(-1)
+							.role(0)
+							.currentPage(1)
+							.pageSize(100)
+							.limit(100)
+							.build();
+		List<User> list = userDao.selectUserList(search);
+		
+		for(User user : list) {
+			
+			String userId = user.getUserId();
+			String userPassword = getPassword(userId);
+			
+			updatePassword(userId, userPassword);
+		}
+		*/
+		
+		String userId="user1";
+		String userPassword="password1";
+		updatePassword(userId, userPassword);
+	}
 
 	private boolean intToBool(int result) {
 		
@@ -642,4 +659,6 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
+	
+	
 }

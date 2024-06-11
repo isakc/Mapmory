@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
@@ -188,6 +189,6 @@ public interface UserService {
 	 * @return
 	 */
 	public boolean checkHideProfile(String userId);
-
-	public boolean checkPasswordValid(String userId, String userPassword);
+	
+	public void setupForTest();
 }
