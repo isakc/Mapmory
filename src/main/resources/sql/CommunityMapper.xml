@@ -156,7 +156,7 @@
 	</delete>
 
 	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
-	<delete id="deleteCommunityLogs" parameterType="communityLogs">
+	<delete id="deleteCommunityLogsByRecord" parameterType="communityLogs">
 		DELETE FROM community_logs
 		WHERE record_no = #{recordNo} 
 	</delete>
