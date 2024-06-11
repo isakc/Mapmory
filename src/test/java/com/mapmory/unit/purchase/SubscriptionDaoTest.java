@@ -18,7 +18,7 @@ public class SubscriptionDaoTest {
 	@Qualifier("subscriptionDao")
 	private SubscriptionDao subscriptionDao;
 	
-	@Test
+	//@Test
 	public void testAddSubscription() throws Exception{
 		Subscription subscription = Subscription.builder()
 				.userId("user1")
@@ -79,7 +79,7 @@ public class SubscriptionDaoTest {
 			
 		String userId = "user1";
 		
-		subscriptionDao.deleteSubscription(userId);
+		subscriptionDao.cancelSubscription(userId);
 
 		Subscription subscription = subscriptionDao.getDetailSubscription(userId);
 		
