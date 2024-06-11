@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Reply.ReplyBuilder;
@@ -23,7 +25,7 @@ import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @Controller
-@RequestMapping("community/*")
+@RequestMapping("/community/*")
 public class CommunityController {
 
 	@Autowired
@@ -34,11 +36,17 @@ public class CommunityController {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
+    @Autowired
+    private ObjectStorageUtil objectStorageUtil;	
+	
 	@Value("${page.Unit}")
 	int PageUnit;
 	
 	@Value("${page.Size}")
 	int PageSize;
+	
+	@Value("${object.reply.folderName}")
+	private String replyFolder;
 	
 	TimelineController timelineController = new TimelineController();
 	
@@ -81,18 +89,21 @@ public class CommunityController {
     }	
 	
 	@PostMapping("/addReply")
-	public String addReply(@RequestParam("userId") String userId, @RequestParam("replyText") String replyText,
-							@RequestParam("replyImageName") MultipartFile replyImageName, @PathVariable int recordNo)  throws Exception{
+	public String addReply(@RequestParam("userId") String userId, @RequestParam("replyText") String replyText, 
+							@RequestParam("replyImageName") MultipartFile replyImageName, @RequestParam("recordNo") int recordNo) throws Exception{
 		
 		System.out.println("/community/addReply : POST 시작");
 		
-		String fileName = replyImageName.getOriginalFilename();
-		
+        String uuid = ImageFileUtil.getProductImageUUIDFileName(replyImageName.getOriginalFilename());
+        String originalFilename = replyImageName.getOriginalFilename();
+
+        objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder); 
+        
 		Reply reply = Reply.builder()
 				.recordNo(recordNo)
-				.userId(userId)
+				.userId("user3")
 				.replyText(replyText)
-				.replyImageName(fileName)
+				.replyImageName(uuid)
 				.build();
 	
 		communityService.addReply(reply);

@@ -3,53 +3,55 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 </head>
 <body>
-	<form th:action="@{/timeline/updateTimeline}" th:object="${record}" method="post" >
-	<input type="hidden" th:field="*{recordNo}" th:value="${record.recordNo}" />
-	<input type="hidden" th:field="*{recordUserId}" th:value="${record.recordUserId}" />
-	<input type="hidden" th:field="*{latitude}" th:value="${record.latitude}" />
-	<input type="hidden" th:field="*{longitude}" th:value="${record.longitude}" />
-	<input type="hidden" th:field="*{tempType}" th:value="${record.tempType}" />
-	<input type="hidden" th:field="*{recordAddDate}" th:value="${record.recordAddDate}" />
-	<input type="hidden" th:field="*{d_DayDate}" th:value="${record.d_DayDate}" />
-	<input type="hidden" th:field="*{timecapsuleType}" th:value="${record.timecapsuleType}" />
+	<form th:action="@{/timeline/updateTimeline}" th:object="${record}" method="post" enctype="multipart/form-data">
+	<input type="hidden" th:field="*{recordNo}" />
+	<input type="hidden" th:field="*{recordUserId}" />
+	<input type="hidden" th:field="*{latitude}" />
+	<input type="hidden" th:field="*{longitude}" />
+	<input type="hidden" th:field="*{tempType}" />
+	<input type="hidden" th:field="*{recordAddDate}" />
+	<input type="hidden" th:field="*{d_DayDate}" />
+	<input type="hidden" th:field="*{timecapsuleType}" />
 	<table border=1>
 		<tr>
-			<td><input type="text" th:field="*{recordTitle}" th:value="${record.recordTitle}" /></td>
+			<td><input type="text" th:field="*{recordTitle}" /></td>
 			<td>
 			<select th:field="*{categoryNo}">
 				<option th:value="0" th:text="'없음'"/>
 				<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
 			</select>
 			</td>
-			<td><span th:text="${record.updateCount}+'번째 수정' "></span><input type="hidden" th:field="*{updateCount}" th:value="${record.updateCount}" /></td>
-			<td><span th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span><input type="hidden" th:field="*{sharedDate}" th:value="${record.sharedDate}" /></td>
+			<td><span th:text="*{updateCount}+'번째 수정' "></span><input type="hidden" th:field="*{updateCount}" /></td>
+			<td><span th:text="*{sharedDate!=null ? '공유됨' : '비공유'}"></span><input type="hidden" th:name="sharedDateType" th:value="*{sharedDate}" /></td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{checkpointDate}" th:value="${record.checkpointDate}" /></td>
+			<td><input type="text" th:field="*{checkpointDate}" disabled="disabled"/></td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{checkpointAddress}" th:value="${record.checkpointAddress}" /></td>
+			<td><input type="text" th:field="*{checkpointAddress}" /></td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{mediaName}" th:value="${record.mediaName}" /></td>
+			<td><input type="text" th:field="*{mediaName}" /></td>
 		</tr>
-		<tr th:each="image, iterStat : ${record.imageName}">
+		<tr th:each="image : *{imageName}">
 			<td>
-			<span th:text="${image.imageTagText}"></span>
-			<!-- <input type="hidden" th:field="*{imageName[__${iterStat.index}__]}" th:value="${image}" /> -->
+				<img src="/images/uploadFiles/${image.imageTagText}" height="200" />
+				<span th:text="${image.imageTagText}"></span>
+				<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
+				<button type="button" th:text="x"></button>
 			</td>
-		</tr>
 		<tr>
-			<td><br /></td>
+			<td><input type="file" multiple name="imageFile"><br /></td>
 		</tr>
 		<tr>
 			<td><input th:name="hashtagText" th:value="${hashtagText}" />
 			</td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{recordText}" th:value="${record.recordText}" /></td>
+			<td><input type="text" th:field="*{recordText}" /></td>
 		</tr>
 	</table>
 	<ul>
@@ -58,5 +60,12 @@
 	<li><button type="submit" th:text="'작성완료'"></button></li>
 	</ul>
 	</form>
+	
+	<script type="text/javascript">
+	
+	/* $("#manuDate").datepicker({
+		dateFormat :"yyyy-mm-dd"
+	}); */
+	</script>
 </body>
 </html>
