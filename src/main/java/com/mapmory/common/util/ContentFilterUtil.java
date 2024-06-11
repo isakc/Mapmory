@@ -1,15 +1,10 @@
 package com.mapmory.common.util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Base64;
 
 import org.json.JSONArray;
@@ -21,15 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.vane.badwordfiltering.BadWordFiltering;
 
-@Component
+@Component("contentFilterUtil")
 public class ContentFilterUtil {
 
-	@Value("${greenEye.GREEN_EYE_URL}")
+	@Value("${greenEye.GREEN.EYE.URI}")
 	private String apiUrl;
 	
 	@Value("${greenEye.SECRET_KEY}")
-	private String key;	
-
+	private String key;
+	
 	//기록 내용, 댓글, 닉네임 등 텍스트에 대한 비속어 필터링 메서드
 	public static boolean checkBadWord(String text) {
 		BadWordFiltering badWordFiltering = new BadWordFiltering();	
@@ -44,26 +39,12 @@ public class ContentFilterUtil {
 	}	
 	
 	public boolean checkBadImage(MultipartFile file) {
-		
+
 		try {
 			
 			//base64로 인코딩
 			byte [] imageBytes = file.getBytes();
 			String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-			
-			//URL 객체 생성
-			URL url = new URL(apiUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			
-			//요청 메소드 설정(POST)
-			connection.setRequestMethod("POST");
-			
-			//요청 헤더 설정
-			connection.setRequestProperty("X-GREEN_EYE-SCRET", key);
-			connection.setRequestProperty("Content-Type", "application/json");
-			
-			//출력 스트림 사용 가능 설정
-			connection.setDoOutput(true);
 			
 			//JSON 객체 생성
 			JSONObject jsonObject = new JSONObject();
@@ -82,8 +63,22 @@ public class ContentFilterUtil {
 			
 			//JSON 객체에 이미지 배열 추기
 			jsonObject.put("images", imagesArray);
-			String jsonInputString = jsonObject.toString();
+			String jsonInputString = jsonObject.toString();			
 			
+			//URL 객체 생성
+			URL url = new URL(apiUrl);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			
+			//요청 메소드 설정(POST)
+			connection.setRequestMethod("POST");
+			
+			//요청 헤더 설정
+			connection.setRequestProperty("X-GREEN-EYE-SECRET", key);
+			connection.setRequestProperty("Content-Type", "application/json");
+			
+			//출력 스트림 사용 가능 설정
+			connection.setDoOutput(true);
+						
 			//JSON 입력 문자열을 출력 스트팀으로 변환
 			try (OutputStream os = connection.getOutputStream()) {
 				byte [] input = jsonInputString.getBytes("UTF-8");
@@ -141,6 +136,11 @@ public class ContentFilterUtil {
 		System.out.println("Porn Confidence : "+pornConfidence);
 		System.out.println("Sexy Confidence : "+sexyConfidence);
 		
-		return adultConfidence >= 0.2 || pornConfidence >= 0.2;
+		if(adultConfidence >= 0.2 || pornConfidence >= 0.2) {
+			return true;
+		} else {
+			return false;
+		}
+			
 	}
 }
