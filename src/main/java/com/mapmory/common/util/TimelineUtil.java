@@ -151,6 +151,28 @@ public class TimelineUtil {
 		    return imageTagList;
 		}
 		
+		public static String hashtagListToText(List<ImageTag> hashtag){
+			String hashtagText="";
+			for(ImageTag imageTag:hashtag) {
+				hashtagText+=imageTag.getImageTagText()+" ";
+			}
+			return hashtagText.trim();
+		}
+		
+		public static List<ImageTag> hashtagTextToList(String hashtagText,int recordNo){
+			String[] hashtagArr=hashtagText.replace(" ", "").split("#");
+			List<ImageTag> hashtagList=new ArrayList<ImageTag>();
+			for(int i=1;i<hashtagArr.length;i++) {
+					hashtagList.add(ImageTag
+						.builder()
+						.imageTagText("#"+hashtagArr[i])
+						.imageTagType(0)
+						.recordNo(recordNo)
+						.build());
+			}
+			return hashtagList;
+		}
+		
 	    public SingleMessageSentResponse sendOne(String toPhoneNumber, String text) {
 	    	System.out.println("INSERT_API_KEY : " + INSERT_API_KEY);
 	    	System.out.println("INSERT_API_SECRET_KEY : " + INSERT_API_SECRET_KEY);

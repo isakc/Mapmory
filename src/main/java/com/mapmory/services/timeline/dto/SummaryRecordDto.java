@@ -9,6 +9,7 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class SummaryRecordDto {
 	private int recordNo;
+	private String recordUserId;
 	private String checkpointAddress;
 	private LocalDateTime checkpointDate;
 	private String imageName;
