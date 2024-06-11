@@ -19,8 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -35,8 +40,23 @@ public class TimelineController {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
+	@Autowired
+	private TextToImage textToImage;
+	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
+    @Autowired
+    private ObjectStorageUtil objectStorageUtil;
+	
 	@Value("${default.time}")
 	private String defaultTime;
+	
+	@Value("${object.timeline.image}")
+	private String imageFileFolder;
+	
+	@Value("${object.timeline.media}")
+	private String mediaFileFolder;
 	
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
@@ -110,7 +130,9 @@ public class TimelineController {
 	@GetMapping("getDetailTimeline")
 	public String getDetailTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		Record record=timelineService.getDetailTimeline(recordNo);
+		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
 	}
 	
@@ -126,7 +148,9 @@ public class TimelineController {
 	@GetMapping("getDetailTimecapsule")
 	public String getDetailTimecapsule(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		Record record=timelineService.getDetailTimeline(recordNo);
+		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("record",record);
 		return "timeline/getDetailTimecapsule";
 	}
 	
@@ -143,17 +167,43 @@ public class TimelineController {
 	
 	@PostMapping("updateTimeline")
 	public String updateTimeline(Model model,
-			@ModelAttribute(value="record") Record record,
-			@ModelAttribute(value="hashtagText") String hashtagText) throws Exception,IOException {
+			@ModelAttribute("record") Record record,
+			@ModelAttribute("hashtagText") String hashtagText,
+			@RequestParam("imageNameText") List<String> imageNameText,
+			@RequestParam("imageFile") List<MultipartFile> imageFile) throws Exception,IOException {
+		List<ImageTag> imageName=new ArrayList<ImageTag>();
+		if( !(imageFile==null) ) {
+		
+		System.out.println("List<String> imageNameText : "+imageNameText);
+		System.out.println("List<MultipartFile> imageFile : "+imageFile);
+		
+		for (MultipartFile image : imageFile) {
+			if (contentFilterUtil.checkBadImage(image) == false) {
+				System.out.println("이미지 검사 통과");
+				String uuid = ImageFileUtil.getImageUUIDFileName(image.getOriginalFilename());
+				objectStorageUtil.uploadFileToS3(image, uuid, imageFileFolder);
+				imageName.add(
+						ImageTag.builder().recordNo(record.getRecordNo()).imageTagType(1).imageTagText(uuid).build());
+			} else {
+				System.out.println(image.getOriginalFilename() + " 번째 이미지, 차단");
+			}
+		}
+	}
+		record.setImageName(imageName);
 		
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
 		record.setUpdateCount(record.getUpdateCount()+1);
+		
 		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
+			if(record.getRecordAddDate()==null) {
+				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " "));
+			}
 			record.setTempType(1);
 		}else {
 			record.setTempType(0);
 		}
+		
 		System.out.println("record.getImageName() : "+record.getImageName());
 		System.out.println("record.getHashtag() : "+record.getHashtag());
 		timelineService.updateTimeline(record);

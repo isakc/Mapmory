@@ -17,7 +17,7 @@ public class TextToImage {
     @Value("${object.folderName}")
     private String folderName;
 
-    // 이미지 태그 패턴 (/안녕/ 형식)
+    // 이미지 태그 패턴 (/확인/ 형식)
     private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile("/([^/]+)/");
 
     public String processImageTags(String content) throws Exception {

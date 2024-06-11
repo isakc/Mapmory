@@ -5,7 +5,7 @@ import java.util.UUID;
 public class ImageFileUtil {
 
     // 파일명에서 UUID 형식의 파일명으로 변경하는 메서드
-    public static String getProductImageUUIDFileName(String originalFilename) {
+    public static String getImageUUIDFileName(String originalFilename) {
         if (originalFilename == null || !originalFilename.contains(".")) {
             throw new IllegalArgumentException("Invalid file name: " + originalFilename);
         }
