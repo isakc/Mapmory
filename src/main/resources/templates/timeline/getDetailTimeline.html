@@ -31,10 +31,10 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><span th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}"></span></td>
+			<td><span th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span></td>
 		</tr>
 		<tr>
-			<td th:text="${record.recordText}"></td>
+			<td th:utext="${record.recordText}"></td>
 		</tr>
 	</table>
 	<span><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text=" '수정' "></a></span>

@@ -1,12 +1,10 @@
 package com.mapmory.services.purchase.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.dto.PurchaseDTO;
-import com.siot.IamportRestClient.exception.IamportResponseException;
 
 public interface PurchaseService {
 	
@@ -23,5 +21,7 @@ public interface PurchaseService {
 	public int getPurchaseTotalCount(Search search) throws Exception;
 	
 	//Iamport api 결제 검증
-	public boolean validatePurchase(String impUid, Purchase purchase) throws IamportResponseException, IOException;
+	public boolean validatePurchase(String impUid, Purchase purchase) throws Exception;
+	
+	public boolean deletePurchase(int purchaseNo) throws Exception;
 }

@@ -13,8 +13,8 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Login {
+public class SessionData {
 
 	private String userId;
-	private String userPassword;
+	private int role;
 }

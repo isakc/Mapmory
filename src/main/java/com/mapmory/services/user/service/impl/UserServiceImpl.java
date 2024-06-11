@@ -443,7 +443,7 @@ public class UserServiceImpl implements UserService {
 			objectStorageUtil.deleteFile(user.getProfileImageName(), profileFolderName);
 		}
 		
-		String changedProfileImageName = ImageFileUtil.getProductImageUUIDFileName(profileImageName);
+		String changedProfileImageName = ImageFileUtil.getImageUUIDFileName(profileImageName);
 		System.out.println("changedProfileName : " + changedProfileImageName );
 		objectStorageUtil.uploadFileToS3(file, changedProfileImageName, profileFolderName);
 		

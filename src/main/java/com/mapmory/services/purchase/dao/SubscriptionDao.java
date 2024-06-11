@@ -18,10 +18,12 @@ public interface SubscriptionDao {
 	//update
 	public int updatePaymentMethod(Subscription subscription) throws Exception;
 	
-	//delete
-	public int deleteSubscription(String userId) throws Exception;
+	public int cancelSubscription(String userId) throws Exception;
 	
 	///// 추가 메소드 /////
+
+	//delete
+	public int deleteSubscription(int subscriptionNo) throws Exception;
 	
 	public List<Subscription> getTodaySubscriptionList() throws Exception;
 	
