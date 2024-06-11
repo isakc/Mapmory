@@ -236,6 +236,7 @@ LIMIT #{limit} OFFSET #{offset}
 <select id="selectSummaryRecord" parameterType="searchDto" resultType="summaryRecordDto">
 	SELECT 
        a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
        a1.checkpoint_address AS checkpoint_address,
        a1.checkpoint_date AS checkpoint_date,
        a2.image_tag_text AS image_tag_text
@@ -276,8 +277,14 @@ LIMIT #{limit} OFFSET #{offset}
     DELETE FROM record WHERE record_no = #{recordNo}
 </delete>
 
-<delete id="deleteImageTag" parameterType="Integer">
-    DELETE FROM image_tag WHERE record_no = #{recordNo}
+<delete id="deleteImageTag" parameterType="imageTag">
+    DELETE FROM image_tag 
+    <trim prefix="where" prefixOverrides="AND||OR"> 
+    record_no = #{recordNo}
+    <if test="!(imageTagType==null)">
+		AND image_tag_type=#{imageTagType}
+	</if>
+    </trim>
 </delete>
 
 <delete id="deleteImageToImageNo" parameterType="Integer">
@@ -285,7 +292,7 @@ LIMIT #{limit} OFFSET #{offset}
 </delete>
 
 	<!-- Create -->
-    <insert id="insertCategory" parameterType="category" useGeneratedKeys="true" keyProperty="categoryNo">
+    <insert id="insertCategory" parameterType="category">
         INSERT INTO category (CATEGORY_NAME, CATEGORY_IMOJI)
         VALUES (#{categoryName:VARCHAR}, #{categoryImoji:VARCHAR})
     </insert>

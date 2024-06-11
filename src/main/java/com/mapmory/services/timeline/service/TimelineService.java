@@ -27,7 +27,7 @@ public interface TimelineService {
 	public void deleteImage(int imageNo) throws Exception;
 	
 	//Category CRUD
-	public int addCategory(Category category) throws Exception;
+	public void addCategory(Category category) throws Exception;
 	
 	public Category getCategory(int categoryNo) throws Exception;
 	

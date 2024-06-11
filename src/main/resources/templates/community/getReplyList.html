@@ -7,70 +7,136 @@
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	
-		<!-- 댓글 작성 -->
-		<script type ="text/javascript">
-			$(document).ready(function() {
-				$('#replyForm').submit(function(event) {
-					event.preventDefault();
-					
-					var formData = new FormData($(this)[0]);
-					
-					var replyText = $('#replyText').val().trim();
-					if(replyText === '') {
-						alert('댓글 내용을 입력하세요');
-						return;
-					}
-					
-					$.ajax({
-						type : 'POST',
-						url: '/rest/addReply',
-						enctype : 'multipart/form-data',
-						data: formData,
-						processData : false,
-						contentType : false,
-						cache : false,
-						success : function(data) {
-							console.log('댓글 작성 완료 :', data);
-						},
-						error : function(xhr, status, error) {
-							console.error('댓글 작성 실패 : ', error);
-						}
-					});
-				});
-			});
-		</script>
-		
-		<!-- 댓글 삭제 -->
-		<script>
-			$('#delete').click(function() {
-				var replyNo = '';
-				
-				$.ajax({
-					type : 'delete',
-					url: '/rest/deleteReply' +replyNo,
-					success : function(result) {
-						closeModal();
-					},
-					error : function(xhr, status, error) {
-						console.error(xhr.responseText);
-					}
-				});
-			});
-		</script>	
-	
-	
+	<!-- 더보기 창 -->
 	<script>
 		function openModal() {
-		  var modal = document.getElementById("myModal");
-		  modal.style.display = "block";
+			var modal = document.getElementById("myModal");
+		 	var updateBtn = document.getElementById("update"); 
+		    var deleteBtn = document.getElementById("delete");
+		    var reportBtn = document.getElementById("report"); 
+			modal.style.display = "block";
+	        updateBtn.style.display = "block";
+	        deleteBtn.style.display = "block"; 
+	        reportBtn.style.display = "none"; 
 		}
 
 		function closeModal() {
-		  var modal = document.getElementById("myModal");
-		  modal.style.display = "none";
-		}	
+			var modal = document.getElementById("myModal");
+			modal.style.display = "none";
+		}		
 	</script>
+	<!-- 더보기 창 -->	
 	
+	
+	<!-- 댓글 작성 시작 -->
+	<script type ="text/javascript">
+	$(document).ready(function() {
+		$('#replyForm').submit(function(event) {
+			event.preventDefault();
+                
+			var formData = new FormData(this);
+                
+			var replyText = $('#replyText').val().trim();
+			if(replyText === '') {
+				alert('댓글 내용을 입력하세요');
+				return;
+			}
+
+			var recordNo = $('#recordNo').val();
+			console.log(recordNo);
+			formData.append("recordNo", recordNo);
+			formData.append("userId", "user5");
+            
+			var reply = {
+				recordNo : recordNo,
+				userId : "user5",
+				replyText : replyText
+			};
+
+			formData.append("reply", JSON.stringify(reply));
+            
+			$.ajax({
+				type : 'POST',
+				url: '/community/rest/addReply',
+				enctype : 'multipart/form-data',
+				contentType : false,
+				processData : false,
+				data : formData, 
+				success : function(data) {
+					console.log('댓글 작성 완료 :', data);
+					updateReplyList(data);
+				},
+				error : function(xhr, status, error) {
+					console.error('댓글 작성 실패 : ', error);
+				}
+			});
+            
+			// 댓글 목록에 새로운 댓글 추가 함수
+			function updateReplyList(replyData) {
+
+				console.log("replyData : " + JSON.stringify(replyData));
+				
+				var userId = replyData.userId;
+				var nickname = replyData.nickname;
+				var profileImageName = replyData.profileImageName;
+				var subscriptionEndDate = replyData.subscriptionEndDate;
+				var replyText = replyData.replyText;
+				var replyImageName = replyData.replyImageName;
+				var replyDate = replyData.replyDate;
+				var likeCount = replyData.likeCount;
+				var dislikeCount = replyData.dislikeCount;
+			    
+				// 새로운 댓글을 추가할 행을 생성
+				var newRow = '<tr>' +
+					'<td><a href="/user/getProfile/' + userId + '">' + nickname + '</a></td>' +
+					'<td>' + profileImageName + '</td>' +
+					'<td style="text-align: center;">' + subscriptionEndDate + '</td>' +
+					'<td>' + replyText + '</td>' +
+					'<td>' + replyImageName + '</td>' +
+					'<td>' + replyDate + '</td>' +
+					'<td style="text-align: center;">' + likeCount + '</td>' +
+					'<td style="text-align: center;">' + dislikeCount + '</td>' +
+			        '<td>' +
+			            '<button onclick="openModal()">더보기</button>' +
+			            '<div id="myModal" class="modal" style="display:none;">' +
+			                '<div class="modal-content">' +
+			                    '<button id="update">수정</button>' +
+			                    '<button id="delete">삭제</button>' +
+			                    '<button id="report">신고</button>' +
+			                    '<span class="close" onclick="closeModal()">&times;</span>' +
+			                '</div>' +
+			            '</div>' +
+		        	'</td>' +
+					'</tr>';            	
+            	                        
+				// 새로운 행을 댓글 목록에 추가
+				$('table tbody').append(newRow);		
+				// 입력 필드 초기화
+				$('#replyText').val('');
+				$('#replyImageName').val('');
+            }   
+        });
+    }); 
+	</script>
+	<!-- 댓글 작성 종료 -->	
+
+
+	<!-- 댓글 수정 시작 -->
+	<script type ="text/javascript">
+	
+	
+	</script>
+	<!-- 댓글 수정 종료 -->
+
+
+
+
+	<!-- 댓글 삭제 시작 -->
+	<script type ="text/javascript">
+
+	
+	</script>
+	<!-- 댓글 삭제 종료 -->
 	
 	<style>
 		.modal {
@@ -111,6 +177,7 @@
 	
 </head>
 <body>
+	<form id="replyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 	<h1>댓글 목록</h1>
 	<table>
 		<tbody>
@@ -125,7 +192,7 @@
 				<th>싫어요수</th>
 				<th>더보기</th>
 			</tr>
-			<tr th:each="reply : ${replyList}">
+			<tr th:each="reply, rowStat : ${replyList}" data-recordno="${reply.recordNo}">
 				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
 				<td th:text="${reply.profileImageName}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
@@ -134,13 +201,15 @@
 				<td th:text="${reply.replyDate}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
+				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}"></td>
+				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}"></td>
 				<td>
-				<button onclick="openModal()">더보기</button>
+				<button type="button" onclick="openModal()">더보기</button>
 				<div id="myModal" class="modal">
 				  <div class="modal-content">
-				    <button id="update">수정</button>
-				    <button id="delete">삭제</button>
-				    <button id="report">신고</button>
+				    <button type="button" id="update">수정</button>
+				    <button type="button" id="delete">삭제</button>
+				    <button type="button" id="report">신고</button>
 				    <span class="close" onclick="closeModal()">&times;</span>
 				  </div>
 				</div>
@@ -148,18 +217,15 @@
 			</tr>
 		</tbody>
 	</table>
-	
-	
+		<label for="replyText">댓글 내용</label><br> 
+		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
+		<label for="replyImageName">사진 첨부</label>
+		<input type = "file" id="replyImageName" name="replyImageName" class="form-control">
+		<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">		
+		<button type ="submit" >댓글작성</button>
+	</form>
 	
 	<br/><br/>
 	<p th:each="reply : ${replyList}" th:text="${'댓글 내용 : ' + reply}"></p>
-
-	<form id="replyForm">
-		<label for="replyText">댓글 내용</label><br>
-		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
-		<label for="replyImageName">사진 첨부</label>
-		<input type = "file" id="replyImageName" name="replyImageName" accept="image/*">
-		<button type ="submit">댓글작성</button>
-	</form>
 </body>	
 </html>

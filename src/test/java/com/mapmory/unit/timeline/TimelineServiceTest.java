@@ -25,8 +25,8 @@ public class TimelineServiceTest {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
-	@Test
-//	@Transactional
+//	@Test
+	@Transactional
 	public void testAddTimeline() throws Exception{
 		System.out.println("\n===================================");
 		List<ImageTag> image= new ArrayList<ImageTag>();
@@ -58,7 +58,7 @@ public class TimelineServiceTest {
 		timelineService.addTimeline(record);
 	}
 	
-//	@Test
+	@Test
 	@Transactional
 	public void testUpdateTimeline() throws Exception{
 		System.out.println("\n===================================");
