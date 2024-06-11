@@ -7,7 +7,28 @@
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	
-	<!-- 댓글 작성 -->
+	<!-- 더보기 창 -->
+	<script>
+		function openModal() {
+			var modal = document.getElementById("myModal");
+		 	var updateBtn = document.getElementById("update"); 
+		    var deleteBtn = document.getElementById("delete");
+		    var reportBtn = document.getElementById("report"); 
+			modal.style.display = "block";
+	        updateBtn.style.display = "block";
+	        deleteBtn.style.display = "block"; 
+	        reportBtn.style.display = "none"; 
+		}
+
+		function closeModal() {
+			var modal = document.getElementById("myModal");
+			modal.style.display = "none";
+		}		
+	</script>
+	<!-- 더보기 창 -->	
+	
+	
+	<!-- 댓글 작성 시작 -->
 	<script type ="text/javascript">
 	$(document).ready(function() {
 		$('#replyForm').submit(function(event) {
@@ -24,7 +45,7 @@
 			var recordNo = $('#recordNo').val();
 			console.log(recordNo);
 			formData.append("recordNo", recordNo);
-			formData.append("userId", "user3");
+			formData.append("userId", "user5");
             
 			var reply = {
 				recordNo : recordNo,
@@ -97,20 +118,25 @@
         });
     }); 
 	</script>
+	<!-- 댓글 작성 종료 -->	
 
 
-	<script>
-		function openModal() {
-		  var modal = document.getElementById("myModal");
-		  modal.style.display = "block";
-		}
-
-		function closeModal() {
-		  var modal = document.getElementById("myModal");
-		  modal.style.display = "none";
-		}	
-	</script>
+	<!-- 댓글 수정 시작 -->
+	<script type ="text/javascript">
 	
+	
+	</script>
+	<!-- 댓글 수정 종료 -->
+
+
+
+
+	<!-- 댓글 삭제 시작 -->
+	<script type ="text/javascript">
+
+	
+	</script>
+	<!-- 댓글 삭제 종료 -->
 	
 	<style>
 		.modal {
@@ -178,12 +204,12 @@
 				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}"></td>
 				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}"></td>
 				<td>
-				<button onclick="openModal()">더보기</button>
+				<button type="button" onclick="openModal()">더보기</button>
 				<div id="myModal" class="modal">
 				  <div class="modal-content">
-				    <button id="update">수정</button>
-				    <button id="delete">삭제</button>
-				    <button id="report">신고</button>
+				    <button type="button" id="update">수정</button>
+				    <button type="button" id="delete">삭제</button>
+				    <button type="button" id="report">신고</button>
 				    <span class="close" onclick="closeModal()">&times;</span>
 				  </div>
 				</div>
@@ -191,7 +217,7 @@
 			</tr>
 		</tbody>
 	</table>
-			<label for="replyText">댓글 내용</label><br> 
+		<label for="replyText">댓글 내용</label><br> 
 		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
 		<label for="replyImageName">사진 첨부</label>
 		<input type = "file" id="replyImageName" name="replyImageName" class="form-control">

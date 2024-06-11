@@ -22,7 +22,7 @@ public class ContentFilterUtil {
 	@Value("${greenEye.GREEN.EYE.URI}")
 	private String apiUrl;
 	
-	@Value("${greenEye.SECRET_KEY}")
+	@Value("${greenEye.SECRET.KEY}")
 	private String key;
 	
 	//기록 내용, 댓글, 닉네임 등 텍스트에 대한 비속어 필터링 메서드
