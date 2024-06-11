@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>로그인</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+ 		$(function() {
+ 			
+			$('#login').on('click', function() {
+        		
+        		$.ajax({
+                    type: "POST",
+                    url: "/user/rest/login",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userId: $("#username").val(),
+                        userPassword: $("#password").val()
+                    }),
+                    success: function(response) {
+                    	
+                    	// console.log("_"+response+"_");
+                    	console.log("server 응답 : "+ response);
+                        if (response == "true" || response == true) {
+                        	
+                        	console.log("로그인 성공!");
+                            // submitSession();
+                            console.log("cookie를 요청합니다...");
+                        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
+                        }
+                    },
+                    error: function(jqXHR) {
+                        alert("오류 발생: " + jqXHR.responseText);
+                    }
+                });
+        	});
+ 		});
+   
+        function submitSession() {
+        	
+        	console.log("cookie를 요청합니다...");
+        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
+        	/*
+            $.ajax({
+                type: "POST",
+                url: "/submit",
+                success: function(response) {
+                    window.location.href = response;
+                },
+                error: function() {
+                    alert("세션 제출 실패");
+                }
+            });
+        	*/
+        }
+    </script>
+</head>
+<body>
+    <form id="loginForm">
+        <input type="text" id="username" name="userId" placeholder="아이디">
+        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
+        <button type="button" id="login">로그인</button>
+    </form> 
+</body>
+</html>

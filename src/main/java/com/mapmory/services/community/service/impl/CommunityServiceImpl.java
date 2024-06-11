@@ -30,20 +30,8 @@ public class CommunityServiceImpl implements CommunityService {
 	@Qualifier("communityDao")
 	private CommunityDao communityDao;
 	
-	@Autowired
-	@Qualifier("timelineService")
-	private TimelineService timelineService;
-	
-	@Autowired
-	@Qualifier("timelineDao")
-	private TimelineDao timelineDao;
-	
 	public void setCommunityDao(CommunityDao communityDao) {
 		this.communityDao = communityDao;
-	}
-	
-	public void setTimelineDao(TimelineDao timelineDao) {
-		this.timelineDao = timelineDao;
 	}
 	
 	public CommunityServiceImpl() {
@@ -54,15 +42,10 @@ public class CommunityServiceImpl implements CommunityService {
 	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
 		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
-//		int likeCount = communityDao.getReactionLikeTotalCount(search, replyNo);
-//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, replyNo);
-
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
-//		map.put("likeCount", Integer.valueOf(likeCount));
-//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
 		
 		return map;
 	}
@@ -96,10 +79,6 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Reply getReply(int replyNo) throws Exception {
-//		int likeCount = communityDao.getReactionLikeTotalCount(replyNo);
-//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(replyNo);
-//		map.put("likeCount", Integer.valueOf(likeCount));
-//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
 		return communityDao.getReply(replyNo);
 	}	
 	

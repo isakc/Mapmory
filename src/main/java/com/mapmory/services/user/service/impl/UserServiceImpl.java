@@ -18,18 +18,11 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
@@ -38,13 +31,17 @@ import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
-import com.mapmory.services.user.domain.LoginLog;
+import com.mapmory.services.user.domain.Login;
+import com.mapmory.services.user.domain.LoginDailyLog;
+import com.mapmory.services.user.domain.LoginMonthlyLog;
+import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.UserSearch;
 import com.mapmory.services.user.service.UserService;
 
 import kr.co.shineware.nlp.komoran.exception.FileFormatException;
@@ -70,6 +67,10 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder; 
+	// private Argon2PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder();
+	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
@@ -80,6 +81,8 @@ public class UserServiceImpl implements UserService {
 		if ( contentFilterUtil.checkBadWord(nickname) ) 
 			throw new Exception("닉네임에 비속어가 포함되어 있습니다.");
 			
+		userPassword = passwordEncoder.encode(userPassword);
+		System.out.println("암호화된 비밀번호 : " + userPassword);
 		
 		User user = User.builder()
 						.userId(userId)
@@ -269,15 +272,7 @@ public class UserServiceImpl implements UserService {
 		return userDao.selectFollowList(search);
 	}
 
-	@Override
-	public List<LoginLog> getUserLoginList(Search search) {
-		// TODO Auto-generated method stub
-		
-		
-		userDao.selectUserLoginList(search);
-		
-		return null;
-	}
+	
 
 	@Override
 	public List<SuspensionLogList> getSuspensionLogList(String userId, Integer currentPage, Integer limit) {
@@ -389,6 +384,26 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public List<LoginDailyLog> getUserLoginDailyList(LoginSearch search) {
+		// TODO Auto-generated method stub
+		
+		return userDao.selectUserLoginDailyList(search);
+	}
+	
+	@Override
+	public List<LoginMonthlyLog> getUserLoginMonthlyList(LoginSearch search) {
+		// TODO Auto-generated method stub
+		
+		return userDao.selectUserLoginMonthlyList(search);
+	}
+	
+	@Override
+	public String getPassword(String userId) {
+		
+		return userDao.selectPassword(userId);
+	}
+	
+	@Override
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
 		
@@ -446,15 +461,18 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updatePassword(String userId, String userPassword) {
+	public boolean updatePassword(String userId, String rawPassword) {
 		// TODO Auto-generated method stub
 		
-		User user = User.builder()
-						.userId(userId)
-						.userPassword(userPassword)
-						.build();
+		String hashedPassword = passwordEncoder.encode(rawPassword);
+		System.out.println("hashedPassword : " + hashedPassword);
 		
-		int result = userDao.updateUser(user);
+		Login login = Login.builder()
+				.userId(userId)
+				.userPassword(hashedPassword)
+				.build();
+		
+		int result = userDao.updatePassword(login);
 		
 		return intToBool(result);
 	}
@@ -605,7 +623,34 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
+	/**
+	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
+	 */
+	public void setupForTest() {
 
+		/*
+		UserSearch search = UserSearch.builder()
+							.searchCondition(-1)
+							.role(0)
+							.currentPage(1)
+							.pageSize(100)
+							.limit(100)
+							.build();
+		List<User> list = userDao.selectUserList(search);
+		
+		for(User user : list) {
+			
+			String userId = user.getUserId();
+			String userPassword = getPassword(userId);
+			
+			updatePassword(userId, userPassword);
+		}
+		*/
+		
+		String userId="user1";
+		String userPassword="password1";
+		updatePassword(userId, userPassword);
+	}
 
 	private boolean intToBool(int result) {
 		
@@ -614,4 +659,6 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
+	
+	
 }

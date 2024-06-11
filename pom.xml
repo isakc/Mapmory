@@ -228,6 +228,33 @@
     	<groupId>org.springframework</groupId>
     	<artifactId>spring-messaging</artifactId>
 	</dependency>
+	
+	<dependency>
+	    <groupId>org.springframework.data</groupId>
+	    <artifactId>spring-data-redis</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-data-redis</artifactId>
+	    <version>2.7.18</version>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.springframework.security</groupId>
+	  <artifactId>spring-security-crypto</artifactId>
+	  <version>5.7.3</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.bouncycastle</groupId>
+		<artifactId>bcprov-jdk15on</artifactId>
+		<version>1.68</version> <!-- 최신 안정 버전을 사용할 것을 권장합니다. -->
+	</dependency>
+	<dependency>
+		<groupId>org.bouncycastle</groupId>
+		<artifactId>bcpkix-jdk15on</artifactId>
+		<version>1.68</version> <!-- 최신 안정 버전을 사용할 것을 권장합니다. -->
+	</dependency>
 
 	</dependencies>
 
