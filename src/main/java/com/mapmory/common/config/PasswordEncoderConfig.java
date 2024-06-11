@@ -11,11 +11,11 @@ public class PasswordEncoderConfig {
 	@Bean
 	public static PasswordEncoder generatePasswordEncoder() {
 		
-		final int saltLength = 32;
-		final int hashLength = 64;
+		final int saltLength = 16;
+		final int hashLength = 32;
 		final int parallelism = Runtime.getRuntime().availableProcessors();
 		final int memory = 65536;
-		final int iterations = 32;
+		final int iterations = 16;
 		
 		return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
 	}

@@ -1,4 +1,4 @@
-package com.mapmory.services.user.domain;
+package com.mapmory.common.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.RedisUtil;
-import com.mapmory.services.user.domain.SessionData;
 
 @SpringBootTest
 // @Transactional

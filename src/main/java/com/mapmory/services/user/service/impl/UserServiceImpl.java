@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder; 
-	// private Argon2PasswordEncoder argon2PasswordEncoder = new Argon2PasswordEncoder();
 	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
