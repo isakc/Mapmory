@@ -37,9 +37,7 @@
 			<td th:text="${record.recordText}"></td>
 		</tr>
 	</table>
-	<ul>
-	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}"
-		th:text=" '수정' "></a></li>
-	</ul>
+	<span><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text=" '수정' "></a></span>
+	<span><a th:href="@{/timeline/deleteTimeline(recordNo=1,userId=${record.recordUserId})}" th:text=" '삭제' "></a></span>
 </body>
 </html>

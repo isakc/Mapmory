@@ -45,9 +45,7 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td>
-			<span th:each="hash, iterStat : ${record.hashtag}" th:text="${hash.imageTagText}"></span>
-			<!-- <input type="hidden" th:field="*{hashtag[__${iterStat.index}__]}" th:value="${hash}" /> -->
+			<td><input th:name="hashtagText" th:value="${hashtagText}" />
 			</td>
 		</tr>
 		<tr>
