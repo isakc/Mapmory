@@ -115,21 +115,7 @@ public class SubscriptionServiceTest {
 	}
 	
 	//@Test
-	public void testGetPortOneToken() throws Exception {
-		String token = subscriptionService.getPortOneToken();
-		
-		assertTrue(token instanceof String);
-	}
-	
-	//@Test
 	public void testGetTodaySubscriptionList() throws Exception {
 		Assert.assertEquals(0, subscriptionService.getTodaySubscriptionList().size());
-	}
-	
-	//@Test
-	public void testCountSubscription() throws Exception {
-		String userId = "user1";
-
-		Assert.assertEquals(1, subscriptionService.countSubscription(userId));
 	}
 }

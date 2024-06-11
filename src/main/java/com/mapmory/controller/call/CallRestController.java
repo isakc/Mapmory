@@ -19,7 +19,7 @@ import com.mapmory.services.call.service.CallService;
 
 @RestController
 @RequestMapping("/call/*")
-@CrossOrigin(origins = "http://192.168.0.22:3000")
+@CrossOrigin(origins = "https://mapmory.co.kr")
 public class CallRestController {
 
 	@Autowired

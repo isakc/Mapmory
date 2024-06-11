@@ -285,7 +285,7 @@ LIMIT #{limit} OFFSET #{offset}
 </delete>
 
 	<!-- Create -->
-    <insert id="insertCategory" parameterType="category">
+    <insert id="insertCategory" parameterType="category" useGeneratedKeys="true" keyProperty="categoryNo">
         INSERT INTO category (CATEGORY_NAME, CATEGORY_IMOJI)
         VALUES (#{categoryName:VARCHAR}, #{categoryImoji:VARCHAR})
     </insert>

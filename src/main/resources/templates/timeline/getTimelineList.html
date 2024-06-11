@@ -5,6 +5,32 @@
 	<title>Insert title here</title>
 </head>
 <body>
-
+	<h1 th:text="${'getTimelineList'}"></h1>
+	
+	<a th:href="@{/timeline/getTimecapsuleList(userId='user1')}" th:text="${'getTimecapsuleList'}"></a><br/>
+	<a th:href="@{/timeline/getSummaryRecord(userId='user1')}" th:text="${'getSummaryRecord'}"></a><br/>
+    <a th:href="@{/timeline/getTimelineList(userId='user1',selectDay='2024-08-01')}" th:text="${'getTimelineList 2024-08-01'}"></a><br/>
+    <a th:href="@{/timeline/getSimpleTimeline(recordNo=1)}" th:text="${'getSimpleTimeline'}"></a><br/>
+	
+    <a th:href="@{/timeline/getUserCategoryList}" th:text="${'getUserCategoryList'}"></a><br/>
+    <a th:href="@{/timeline/getAdminCategoryList}" th:text="${'getAdminCategoryList'}"></a><br/>
+    <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
+    <a href="/timeline/getDetailTimeline3" th:text="${'getDetailTimeline3'}"></a><br/>
+	
+	<table border='1'>
+		<thead>
+		</thead>
+		<tbody>
+			<tr th:each="record : ${timelineList}">
+				<td>
+					<span th:text="'일시 : ' + ${record.checkpointDate}"></span><br/>
+					<span th:text="'&nbsp 주소 : ' + ${record.checkpointAddress}"></span><br/>
+					<span th:text="'&nbsp '+${record.recordTitle}"></span>
+					<span th:text="${record.tempType==1 ? '기록됨' : ''}"></span><br/>
+					<span th:text="' '"></span><br/>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </body>	
 </html>

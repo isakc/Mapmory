@@ -5,6 +5,19 @@
 	<title>Insert title here</title>
 </head>
 <body>
-
+<h1 th:text="${'getSimpleTimeline'}"></h1>
+    <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
+	<table>
+		<tr>
+			<td><a th:href="@{/timeline/getDetailTimeline(recordNo=${record.recordNo})}" th:text="${record.recordTitle}"></a></td>
+			<td th:text="${record.categoryNo}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointDate}"></td>
+		</tr>
+		<tr>
+			<td th:text="${record.checkpointAddress}"></td>
+		</tr>
+	</table>
 </body>	
 </html>

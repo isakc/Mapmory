@@ -107,7 +107,7 @@
 		<dependency>
   			<groupId>com.github.iamport</groupId>
   			<artifactId>iamport-rest-client-java</artifactId>
-  			<version>0.2.14</version>
+  			<version>0.2.23</version>
 		</dependency>
 		
 		<!--타임라인 통계 lib-->

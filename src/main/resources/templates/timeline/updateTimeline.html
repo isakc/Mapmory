@@ -5,6 +5,60 @@
 	<title>Insert title here</title>
 </head>
 <body>
-
-</body>	
+	<form th:action="@{/timeline/updateTimeline}" th:object="${record}" method="post" >
+	<input type="hidden" th:field="*{recordNo}" th:value="${record.recordNo}" />
+	<input type="hidden" th:field="*{recordUserId}" th:value="${record.recordUserId}" />
+	<input type="hidden" th:field="*{latitude}" th:value="${record.latitude}" />
+	<input type="hidden" th:field="*{longitude}" th:value="${record.longitude}" />
+	<input type="hidden" th:field="*{tempType}" th:value="${record.tempType}" />
+	<input type="hidden" th:field="*{recordAddDate}" th:value="${record.recordAddDate}" />
+	<input type="hidden" th:field="*{d_DayDate}" th:value="${record.d_DayDate}" />
+	<input type="hidden" th:field="*{timecapsuleType}" th:value="${record.timecapsuleType}" />
+	<table border=1>
+		<tr>
+			<td><input type="text" th:field="*{recordTitle}" th:value="${record.recordTitle}" /></td>
+			<td>
+			<select th:field="*{categoryNo}">
+				<option th:value="0" th:text="'없음'"/>
+				<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
+			</select>
+			</td>
+			<td><span th:text="${record.updateCount}+'번째 수정' "></span><input type="hidden" th:field="*{updateCount}" th:value="${record.updateCount}" /></td>
+			<td><span th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span><input type="hidden" th:field="*{sharedDate}" th:value="${record.sharedDate}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{checkpointDate}" th:value="${record.checkpointDate}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{checkpointAddress}" th:value="${record.checkpointAddress}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{mediaName}" th:value="${record.mediaName}" /></td>
+		</tr>
+		<tr th:each="image, iterStat : ${record.imageName}">
+			<td>
+			<span th:text="${image.imageTagText}"></span>
+			<!-- <input type="hidden" th:field="*{imageName[__${iterStat.index}__]}" th:value="${image}" /> -->
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+			<span th:each="hash, iterStat : ${record.hashtag}" th:text="${hash.imageTagText}"></span>
+			<!-- <input type="hidden" th:field="*{hashtag[__${iterStat.index}__]}" th:value="${hash}" /> -->
+			</td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{recordText}" th:value="${record.recordText}" /></td>
+		</tr>
+	</table>
+	<ul>
+	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text="'다시작성'"></a></li>
+	<li><a th:href="@{/timeline/addVoiceToText}" th:text="'녹음하기'"></a></li>
+	<li><button type="submit" th:text="'작성완료'"></button></li>
+	</ul>
+	</form>
+</body>
 </html>

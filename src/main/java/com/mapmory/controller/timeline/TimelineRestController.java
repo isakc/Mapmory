@@ -1,6 +1,7 @@
 package com.mapmory.controller.timeline;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -8,10 +9,14 @@ import java.util.UUID;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
+import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.common.util.ObjectStorageUtil;
 
 import java.io.File;
@@ -45,15 +52,25 @@ import com.google.gson.Gson;
 @RequestMapping("timeline/rest/*")
 public class TimelineRestController {
 	@Autowired
+	@Qualifier("timelineService")
+	private TimelineService timelineService;
+	
+	@Autowired
 	ObjectStorageUtil objectStorageUtil;
 	
 	@Value("${speech.folderName}")
 	String speechFolderName;
 	
+	@PostMapping("addTimeline")
+	public Record addTimelineView(@RequestBody Record record) throws Exception,IOException {
+		int recordNo=timelineService.addTimeline(record);
+		return timelineService.getDetailTimeline(recordNo);
+	}
+	
 	@PostMapping("upload")
 	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
 		// 파일 저장 위치
-        String uploadDir = "tempfile/";
+        String uploadDir = "C:/workPJT/workspace/Mapmory/src/main/resources/static/temp/";
         File uploadDirFile = new File(uploadDir);
         if (!uploadDirFile.exists()) {
             uploadDirFile.mkdirs();  // 디렉토리가 없으면 생성
