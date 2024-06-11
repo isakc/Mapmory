@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+</head>
+<body>
+	<form th:action="@{/timeline/addTimecapsule}" th:object="${record}" method="post" enctype="multipart/form-data">
+	<input type="hidden" th:field="*{recordNo}" />
+	<input type="hidden" th:field="*{recordUserId}" />
+	<input type="hidden" th:field="*{latitude}" />
+	<input type="hidden" th:field="*{longitude}"  />
+	<input type="hidden" th:field="*{tempType}"  />
+	<input type="hidden" th:field="*{recordAddDate}"  />
+	<input type="hidden" th:field="*{d_DayDate}"  />
+	<input type="hidden" th:field="*{timecapsuleType}"  />
+	<table border=1>
+		<tr>
+			<td><input type="text" th:field="*{recordTitle}" /></td>
+			<td>
+			<select th:field="*{categoryNo}">
+				<option th:value="0" th:text="'없음'"/>
+				<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
+			</select>
+			</td>
+			<td><span th:text="${record.updateCount}+'번째 수정' "></span><input type="hidden" th:field="*{updateCount}" /></td>
+			<td><span th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span><input type="hidden" th:field="*{sharedDate}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{d_DayDate}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{checkpointAddress}" /></td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{mediaName}" /></td>
+		</tr>
+		<tr th:each="image, iterStat : ${record.imageName}">
+			<td>
+			<span th:text="${image.imageTagText}"></span>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+			<span th:each="hash, iterStat : ${record.hashtag}" th:text="${hash.imageTagText}"></span>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="text" th:field="*{recordText}" /></td>
+		</tr>
+	</table>
+	<span><a th:href="@{/timeline/addTimeline(recordNo=${record.recordNo})}" th:text="'다시작성'"></a></span>
+	<span><a th:href="@{/timeline/addVoiceToText}" th:text="'녹음하기'"></a></span>
+	<button type="submit" th:text="'작성완료'"></button>
+	
+	</form>
+</body>
+</html>

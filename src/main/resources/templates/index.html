@@ -9,8 +9,7 @@
 <body>
  <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <h1 th:text="${'Hello World'}"></h1>
-    <a href="/timeline/getDetailTimeline" th:text="${'getDetailTimeline'}"></a><br/>
-    <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
+    <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
     <a href="/timeline/addVoiceToText" th:text="${'addVoiceToText'}"></a><br/>
 	<a href="/community/getSharedRecordList" th:text="${'getSharedRecordList'}"></a><br/>
     <a href="/product/getProductList" th:text="${'getproductList'}"></a><br/>

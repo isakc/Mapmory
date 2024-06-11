@@ -5,6 +5,16 @@
 	<title>Insert title here</title>
 </head>
 <body>
-
+<table border='1'>
+		<thead>
+		</thead>
+		<tbody>
+			<tr>
+				<td th:each="category : ${categoryList}">
+					<span th:text="${category.categoryImoji}+'&nbsp'+${category.categoryName}"></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </body>	
 </html>

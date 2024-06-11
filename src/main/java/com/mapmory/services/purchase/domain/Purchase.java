@@ -19,7 +19,7 @@ public class Purchase {
 	private int purchaseNo;
 	private String userId;
 	private int productNo;
-	private int paymentMethod; // 0: 카드결제, 1: 카카오페이, 2: 페이코, 3: 토스페이
+	private int paymentMethod; // 1: 카드결제, 2: 카카오페이, 3: 페이코, 4: 토스페이
 	private String cardType;
 	private String lastFourDigits;
 	private LocalDateTime purchaseDate;

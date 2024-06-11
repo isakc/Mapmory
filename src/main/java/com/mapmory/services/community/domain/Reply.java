@@ -22,10 +22,15 @@ public class Reply {
 	private int replyNo;
 	private int recordNo;
 	private String userId;
+	private String nickname;
+	private String profileImageName;
+	private String subscriptionEndDate;
 	private String replyText;
 	private String replyImageName;
-	private LocalDateTime replyDate;
-	private LocalDateTime replyUpdateDate;
+	private String replyDate;
+	private String replyUpdateDate;
+	private Integer likeCount;
+	private Integer dislikeCount;
 	
 	//Constructor
 	

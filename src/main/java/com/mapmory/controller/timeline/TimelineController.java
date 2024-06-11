@@ -9,12 +9,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -26,14 +33,193 @@ public class TimelineController {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
-	@GetMapping({"getDetailTimeline"})
-	public void getDetailTimeline(Model model) throws Exception,IOException {
+	@Value("${default.time}")
+	private String defaultTime;
+	
+	@GetMapping("getTimelineList")
+	public String getTimelineList(Model model,
+			@RequestParam(value="userId", required = true) String userId,
+			@RequestParam(value="selectDay", required = false) Date selectDay) throws Exception,IOException{
+		if(selectDay==null) {
+//		LocalDate today = LocalDate.now();
+		LocalDate today = LocalDate.of(2024,5,29);
+		selectDay=Date.valueOf(today);
+		}
+		LocalDate tomorrow = selectDay.toLocalDate();
+		
+		Search search = Search.builder()
+				.userId(userId)
+				.selectDay1(selectDay+" "+defaultTime)
+				.selectDay2((Date.valueOf(tomorrow.plusDays(1)))+" "+defaultTime)
+				.timecapsuleType(0)
+				.build();
+		model.addAttribute("timelineList", timelineService.getTimelineList(search));
+		return "timeline/getTimelineList";
+	}
+	
+	@GetMapping("getTimecapsuleList")
+	public String getTimecapsuleList(Model model,
+			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException{
+		Search search = Search.builder()
+				.userId(userId)
+				.tempType(1)
+				.timecapsuleType(1)
+				.build();
+		model.addAttribute("timecapsuleList", timelineService.getTimelineList(search));
+		return "timeline/getTimecapsuleList";
+	}
+	
+	@GetMapping("getTempTimecapsuleList")
+	public String getTempTimecapsuleList(Model model,
+			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException{
+		Search search = Search.builder()
+				.userId(userId)
+				.tempType(0)
+				.timecapsuleType(1)
+				.build();
+		model.addAttribute("timecapsuleList", timelineService.getTimelineList(search));
+		return "timeline/getTempTimecapsuleList";
+	}
+	
+	@GetMapping("getSummaryRecord")
+	public String getSummaryRecord(Model model,
+			@RequestParam(value="userId", required = true) String userId,
+			@RequestParam(value="selectDate", required = false) Date selectDate) throws Exception,IOException{
+		if(selectDate==null) {
+//		LocalDate today = LocalDate.now();
+//		selectDate = Date.valueOf(today);
+		selectDate = Date.valueOf("2024-05-29");
+		}
+		Search search = Search.builder()
+				.userId(userId)
+				.selectDate(selectDate)
+				.build();
+		model.addAttribute("record", timelineService.getSummaryRecord(search));
+		return "timeline/getSummaryRecord";
+	}
+	
+	@GetMapping("getSimpleTimeline")
+	public String getSimpleTimeline(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		return "timeline/getSimpleTimeline";
+	}
+	
+	@GetMapping("getDetailTimeline")
+	public String getDetailTimeline(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		return "timeline/getDetailTimeline";
+	}
+	
+	@GetMapping("getDetailTimecapsule")
+	public String getDetailTimecapsule(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		return "timeline/getDetailTimecapsule";
+	}
+	
+	@GetMapping("updateTimeline")
+	public String updateTimelineView(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		model.addAttribute("category", timelineService.getCategoryList());
+		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		return "timeline/updateTimeline";
+	}
+	
+	@PostMapping("updateTimeline")
+	public String updateTimeline(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+		record.setUpdateCount(record.getUpdateCount()+1);
+		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
+			record.setTempType(1);
+		}else {
+			record.setTempType(0);
+		}
+		System.out.println("record.getImageName() : "+record.getImageName());
+		System.out.println("record.getHashtag() : "+record.getHashtag());
+		timelineService.updateTimeline(record);
+		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
+		return "timeline/getDetailTimeline";
+	}
+	
+	@GetMapping("addTimecapsule")
+	public String addTimecapsuleView(Model model,
+			@RequestParam(value="userId", required = false) String userId) throws Exception,IOException {
+		model.addAttribute("category", timelineService.getCategoryList());
+		model.addAttribute("userId",userId);
+		return "timeline/addTimecapsule";
+	}
+	
+	@PostMapping("addTimecapsule")
+	public String addTimecapsule(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+		System.out.println("record.getImageName() : "+record.getImageName());
+		System.out.println("record.getHashtag() : "+record.getHashtag());
+		timelineService.updateTimeline(record);
+		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
+		return "timeline/getDetailTimeline";
+	}
+	
+	@GetMapping("updateTimecapsule")
+	public String updateTimecapsuleView(Model model,
+			@RequestParam(value="recordNo", required = false) Integer recordNo) throws Exception,IOException {
+		model.addAttribute("category", timelineService.getCategoryList());
+		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		return "timeline/updateTimecapsule";
+	}
+	
+	@PostMapping("updateTimecapsule")
+	public String updateTimecapsule(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+		record.setUpdateCount(record.getUpdateCount()+1);
+		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
+			record.setTempType(1);
+		}else {
+			record.setTempType(0);
+		}
+		System.out.println("record.getImageName() : "+record.getImageName());
+		System.out.println("record.getHashtag() : "+record.getHashtag());
+		timelineService.updateTimeline(record);
+		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
+		return "timeline/getDetailTimeline";
+	}
+	
+	@GetMapping("addVoiceToText")
+	public String addVoiceToText() throws Exception,IOException {
+		return "timeline/addVoiceToText";
+	}
+	
+	@GetMapping("getUserCategoryList")
+	public String getUserCategoryList(Model model) throws Exception,IOException{
+		model.addAttribute("categoryList", timelineService.getCategoryList());
+		return "timeline/getUserCategoryList";
+	}
+	
+	@GetMapping("getAdminCategoryList")
+	public String getAdminCategoryList(Model model) throws Exception,IOException{
+		model.addAttribute("categoryList", timelineService.getCategoryList());
+		return "timeline/admin/getAdminCategoryList";
+	}
+	
+	@GetMapping("addCategory")
+	public String addCategoryView() throws Exception,IOException {
+		return "timeline/addCategory";
+	}
+	
+	@PostMapping("addCategory")
+	public String addCategory(Model model,Category category) throws Exception,IOException {
+		timelineService.addCategory(category);
+		model.addAttribute("category",timelineService.getCategoryList());
+		return "timeline/admin/getAdminCategoryList";
+	}
+	
+	
+	@GetMapping({"getDetailTimeline3"})
+	public void getDetailTimeline3(Model model) throws Exception,IOException {
 		model.addAttribute("record",timelineService.getDetailTimeline(1));
 		model.addAttribute("record2",timelineService.getDetailSharedRecord(1));
 	}
 	
 	@GetMapping({"getDetailTimeline2"})
-	public void getTimelineList(Model model) throws Exception,IOException {
+	public void getTimelineList2(Model model) throws Exception,IOException {
 //		List<Record> recordList=new ArrayList<Record>();
 		Search search=Search.builder()
 				.currentPage(1)
@@ -166,11 +352,6 @@ public class TimelineController {
 				.selectDate(Date.valueOf("2024-05-29"))
 				.build();
 		model.addAttribute("list16",timelineService.getSummaryRecord(search));
-	}
-	
-	@GetMapping({"addVoiceToText"})
-	public void addVoiceToText(Model model) throws Exception,IOException {
-		
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{

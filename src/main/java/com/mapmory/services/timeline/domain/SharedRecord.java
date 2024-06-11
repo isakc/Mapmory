@@ -1,7 +1,6 @@
 package com.mapmory.services.timeline.domain;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +35,8 @@ public class SharedRecord {
 	private long subscriptionEndDate;
 	private String categoryName;
 	private String categoryImoji;
+	private long likeCount;
+	private long dislikeCount;
 	private long replyCount;
 	private long logsCount;
 }

@@ -76,25 +76,25 @@ public class CommunityServiceTest {
 		System.out.println("delete 테스트 : ");	
 	}	
 	
-	//@Test
+	@Test
 	public void TestGetReplyList() throws Exception {
 		
 		Search search = new Search();
-		search.setLimit(1);
+		search.setLimit(10);
 		search.setOffset(0);
-		Map<String, Object> map = communityService.getReplyList(search, 1, 2);
+		Map<String, Object> map = communityService.getReplyList(search, 1);
 		
 		List<Reply> list = (List<Reply>)map.get("list");
 		
 		System.out.println("list 테스트 : "+list);
 		
 		Integer totalCount = (Integer)map.get("totalCount");
-		Integer likeCount = (Integer)map.get("likeCount");
-		Integer dislikeCount = (Integer)map.get("dislikeCount");
+//		Integer likeCount = (Integer)map.get("likeCount");
+//		Integer dislikeCount = (Integer)map.get("dislikeCount");
 	
 		System.out.println("기록에 작성된 댓글 : "+totalCount);
-		System.out.println("좋아요 수 : "+likeCount);
-		System.out.println("싫어요 수 : "+dislikeCount);
+//		System.out.println("좋아요 수 : "+likeCount);
+//		System.out.println("싫어요 수 : "+dislikeCount);
 		
 	}	
 	
