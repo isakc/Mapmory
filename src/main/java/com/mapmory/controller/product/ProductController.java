@@ -62,7 +62,7 @@ public class ProductController {
         List<String> uuidFileNames = new ArrayList<>();
         List<String> originalFileNames = new ArrayList<>();
         for (MultipartFile file : files) {
-            String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
+            String uuid = ImageFileUtil.getImageUUIDFileName(file.getOriginalFilename());
             String originalFilename = file.getOriginalFilename();
             objectStorageUtil.uploadFileToS3(file, uuid,folderName); // 파일 업로드 시 UUID 값 전달
             uuidFileNames.add(uuid);
@@ -119,7 +119,7 @@ public class ProductController {
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) { // 빈 파일이 아닌 경우에만 처리
-                    String uuid = ImageFileUtil.getProductImageUUIDFileName(file.getOriginalFilename());
+                    String uuid = ImageFileUtil.getImageUUIDFileName(file.getOriginalFilename());
                     String originalFilename = file.getOriginalFilename();
                     objectStorageUtil.uploadFileToS3(file, uuid, folderName); // 파일 업로드
                     uuidFileName.add(uuid);
