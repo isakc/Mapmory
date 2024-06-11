@@ -20,6 +20,9 @@ public interface PurchaseDao {
 	//selectList
 	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception;
 	
+	//delete
+	public int deletePurchase(int purchaseNo) throws Exception;
+	
 	//count
 	public int getPurchaseTotalCount(Search search) throws Exception;
 }

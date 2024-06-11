@@ -35,9 +35,12 @@
 			
 			getCurrentLocation();
 			
+			const requestData = { };
+			
 			/* $.ajax({
 				url : 'http://localhost:8000/timeline/getDetailTimeline2', // 요청을 보낼 URL을 입력
 				method : 'GET',
+				data: JSON.stringify(requestData),
 				success : function(response) {
 					console.log('Success:', response);
 				},
