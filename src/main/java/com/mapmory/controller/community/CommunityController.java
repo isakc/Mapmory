@@ -111,5 +111,17 @@ public class CommunityController {
 		return "community/getReplyList/"+recordNo;
 	}
 	
+	@PostMapping("/deleteReplyByRecord/{recordNo}")
+	public void deleteREplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+		communityService.deleteReplyByRecord(recordNo);
+		return;
+	}
+
+	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
+	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+		communityService.deleteCommunityLogsByRecord(recordNo);
+		return;
+	}	
+	
 	
 }

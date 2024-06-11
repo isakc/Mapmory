@@ -7,20 +7,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
-import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
-import com.mapmory.services.timeline.dao.TimelineDao;
-import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.dto.SharedRecordDto;
-import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 
 @Service("communityServiceImpl")
@@ -193,5 +187,15 @@ public class CommunityServiceImpl implements CommunityService {
 	public void deleteBlockedUser(String userId, String targetId) throws Exception {
 		communityDao.deleteBlockedUser(userId, targetId);
 		
+	}
+
+	@Override
+	public void deleteReplyByRecord(int recordNo) throws Exception {
+		communityDao.deleteReplyByRecord(recordNo);
+	}
+
+	@Override
+	public void deleteCommunityLogsByRecord(int recordNo) throws Exception {
+		communityDao.deleteCommunityLogsByRecord(recordNo);
 	}
 }
