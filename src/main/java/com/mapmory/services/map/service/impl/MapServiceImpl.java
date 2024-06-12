@@ -37,6 +37,9 @@ public class MapServiceImpl implements MapService {
 	@Value("${tmap.transit.URL}")
 	private String tmapTransitURL;
 	
+	@Value("${jsonTest}")
+	private String jsonTest;
+	
 	/// Constructor /////
 	
 	/// Method /////
@@ -87,7 +90,7 @@ public class MapServiceImpl implements MapService {
 	
 	@Override
 	public ResultRouter getCarRoute(SearchRouter searchRouter) throws Exception {
-		String resultJson = getRouteResultJson(searchRouter, tmapPedestrianURL);
+		String resultJson = getRouteResultJson(searchRouter, tmapCarURL);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
@@ -131,7 +134,8 @@ public class MapServiceImpl implements MapService {
 
 	@Override
 	public List<ResultTransitRouter> getTransitRoute(SearchTransitRouter searchTransitRouter) throws Exception {
-		String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
+		//String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
+		String resultJson = jsonTest;
 	    
 		List<ResultTransitRouter> ResultRouterList = new ArrayList<ResultTransitRouter>(); // 대중교통 경로 리스트
 		
@@ -148,30 +152,61 @@ public class MapServiceImpl implements MapService {
 		    			.mode(leg.path("mode").asText())
 		    			.route(leg.path("route").asText())
 		    			.startName(leg.path("start").path("name").asText())
-		    			.startLat(leg.path("start").path("lon").asDouble())
+		    			.startLat(leg.path("start").path("lat").asDouble())
 		    			.startLon(leg.path("start").path("lon").asDouble())
 		    			.endName(leg.path("end").path("name").asText())
 		    			.endLat(leg.path("end").path("lat").asDouble())
 		    			.endLon(leg.path("end").path("lon").asDouble())
 		    			.build(); // 단계들
-		    	
-		    	JsonNode steps = leg.path("steps");
 
     			List<Double> lineStringLat = new ArrayList<Double>();
     			List<Double> lineStringLon = new ArrayList<Double>();
 		    	
-		    	for(JsonNode step : steps) {
-		    		String[] lineStringArray = step.path("linestring").asText().split(" "); //lineString 파싱
-		    		
-		    		 for (String lineString : lineStringArray) {
-		    	            String[] coordinates = lineString.split(",");
-		    	            
-		    	            lineStringLon.add(Double.parseDouble(coordinates[0])); 
-		    	            lineStringLat.add(Double.parseDouble(coordinates[1])); 
-		    	            
-		    	      }// 위도, 경도 나누기
-		    		
-		    	}//step 중 " " 로 lineString 파싱
+    			if(resultDetailTransitRouter.getMode().equals("WALK")) {
+
+    		    	JsonNode steps = leg.path("steps");
+    		    	
+    		    	if(steps.size() == 0) {
+    		    		JsonNode lineStrings = leg.path("passShape").path("linestring");
+    		    		
+    		    		String[] lineStringArray = lineStrings.asText().split(" "); //lineString 파싱
+    		    		
+        				for (String lineString : lineStringArray) {
+        					String[] coordinates = lineString.split(",");
+        		    	            
+        					lineStringLon.add(Double.parseDouble(coordinates[0])); 
+        					lineStringLat.add(Double.parseDouble(coordinates[1])); 
+        		    	      
+        				}// 위도, 경도 나누기
+    		    	}else {
+    		    	
+    		    	for(JsonNode step : steps) {
+    		    		String[] lineStringArray = step.path("linestring").asText().split(" "); //lineString 파싱
+    		    		
+    		    		 for (String lineString : lineStringArray) {
+    		    	            String[] coordinates = lineString.split(",");
+    		    	            
+    		    	            lineStringLon.add(Double.parseDouble(coordinates[0])); 
+    		    	            lineStringLat.add(Double.parseDouble(coordinates[1])); 
+    		    	            
+    		    	      }// 위도, 경도 나누기
+    		    		
+    		    	}//step 중 " " 로 lineString 파싱
+    		    	
+    		    	}
+    			}else if(resultDetailTransitRouter.getMode().equals("BUS") || resultDetailTransitRouter.getMode().equals("SUBWAY")) {
+    				JsonNode lineStrings = leg.path("passShape").path("linestring");
+    		    	
+    				String[] lineStringArray = lineStrings.asText().split(" "); //lineString 파싱
+    		    		
+    				for (String lineString : lineStringArray) {
+    					String[] coordinates = lineString.split(",");
+    		    	            
+    					lineStringLon.add(Double.parseDouble(coordinates[0])); 
+    					lineStringLat.add(Double.parseDouble(coordinates[1])); 
+    		    	      
+    				}// 위도, 경도 나누기
+    			}
 		    	
 		    	resultDetailTransitRouter.setLineStringLat(lineStringLat);
 		    	resultDetailTransitRouter.setLineStringLon(lineStringLon);

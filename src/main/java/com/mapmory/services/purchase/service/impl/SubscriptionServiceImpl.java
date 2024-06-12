@@ -29,8 +29,6 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import com.siot.IamportRestClient.response.Schedule;
 
-import kotlin.jvm.Throws;
-
 @Service("subscriptionServiceImpl")
 @Transactional
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -73,14 +71,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }// addSubscription: 구독 DB에 저장
 
     @Override
-    public Subscription getDetailSubscription(String userId) {
-        try {
-        	
-            return subscriptionDao.getDetailSubscription(userId);
-            
-        } catch (Exception e) {
-            throw new SubscriptionException("구독 상세 정보 얻기 실패!!", e);
-        }
+    public Subscription getDetailSubscription(String userId) throws Exception{
+    	
+        return subscriptionDao.getDetailSubscription(userId);
     }// getDetailSubscription: 구독 상세 정보
 
     @Override
@@ -90,7 +83,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }// updatePaymentMethod: 구독 결제 수단 변경
 
     @Override
-    public boolean cancelSubscriptionPortOne(String userId) {
+    public boolean cancelSubscriptionPortOne(String userId) throws Exception{
 		Subscription subscription = getDetailSubscription(userId);
 		Map<String, Object> map = new HashMap<>();
 		map.put("customer_uid", subscription.getCustomerUid());
@@ -151,25 +144,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }// schedulePay: 정기결제 예약 등록하는 곳
 
     @Override
-    public List<Subscription> getTodaySubscriptionList() {
-        try {
-        	
-            return subscriptionDao.getTodaySubscriptionList();
-            
-        } catch (Exception e) {
-            throw new SubscriptionException("오늘 결제 목록 얻기 실패!", e);
-        }
+    public List<Subscription> getTodaySubscriptionList() throws Exception{
+    	
+        return subscriptionDao.getTodaySubscriptionList();
     }// getTodaySubscriptionList: 오늘 결제 목록
 
     @Override
-    public boolean deleteSubscription(int subscriptionNo) {
-        try {
-        	
-            return subscriptionDao.deleteSubscription(subscriptionNo) == 1;
-            
-        } catch (Exception e) {
-            throw new SubscriptionException("구독 삭제 실패!", e);
-        }
+    public boolean deleteSubscription(int subscriptionNo) throws Exception{
+    	
+        return subscriptionDao.deleteSubscription(subscriptionNo) == 1;
     }// deleteSubscription: 구독 삭제
 
 }
