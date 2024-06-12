@@ -61,8 +61,13 @@ public class TimelineRestController {
 	@Value("${speech.folderName}")
 	String speechFolderName;
 	
+	public TimelineRestController(){
+		System.out.println("TimelineRestController default Contrctor call : " + this.getClass());
+	}
+	
 	@PostMapping("addTimeline")
-	public ResponseEntity<String> addTimelineView(@RequestBody Record record) throws Exception,IOException {
+	public ResponseEntity<Map<String,Object>> addTimelineView(@RequestBody Record record,Map<String,Object> map) throws Exception,IOException {
+		map=new HashMap<String, Object>();
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
 		if(recordNo!=0) {
@@ -70,7 +75,8 @@ public class TimelineRestController {
 		}else {
 			text+="체크포인트 저장 안됨";
 		}
-		return ResponseEntity.ok(text);
+		map.put("text", text);
+		return ResponseEntity.ok(map);
 	}
 	
 	
