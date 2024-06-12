@@ -1,6 +1,10 @@
 package com.mapmory.services.user.service.impl;
 
+import java.io.IOException;
+
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,9 +24,9 @@ public class LoginServiceImpl implements LoginService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	/**
-	 * 비밀번호가 일치하면 true, 일치하지 않으면 false
-	 */
+	private static final long KEEP_LOGIN_DAY = 60 * 24 * 90;
+	
+	
 	public boolean login(Login loginData, String savedPassword) throws Exception{
 		
 		if( loginData.getUserId().isEmpty() || loginData.getUserPassword().isEmpty()) {
@@ -33,25 +37,38 @@ public class LoginServiceImpl implements LoginService {
 		}
 	}
 	
-	public boolean insertSession(Login loginData, byte role, String sessionId) {
+	public boolean setSession(Login loginData, byte role, String sessionId, boolean keepLogin) {
 		
 		SessionData sessionData = SessionData.builder()
 				.userId(loginData.getUserId())
 				.role(role)
 				.build();
 		
-		return redisUtil.insert(sessionId, sessionData);
+		if (keepLogin == false)
+			return redisUtil.insert(sessionId, sessionData);
+		
+		else
+			return redisUtil.insert(sessionId, sessionData, KEEP_LOGIN_DAY);
 	}
 	
-	/*
-	public boolean logout(String a) {
+	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
-		
-	}
-	*/
-	
-	public SessionData getSession(HttpServletRequest request) {
-		
-		return redisUtil.getSession(request);
+		Cookie[] cookies = request.getCookies();
+		for(Cookie cookie : cookies ) {
+			
+			if(cookie.getName().equals("JSESSIONID")) {
+				
+				System.out.println("session을 제거합니다.");
+				
+				redisUtil.delete(cookie.getValue());
+				
+				System.out.println("cookie getPath : "+ cookie.getPath());
+				
+				cookie.setMaxAge(0);
+				cookie.setPath("/");
+				response.addCookie(cookie);
+				response.sendRedirect("/user/login");
+			}
+		}
 	}
 }

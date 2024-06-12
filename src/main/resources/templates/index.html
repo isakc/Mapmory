@@ -1,308 +1,96 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>인덱스</title>
+    <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    
+    <script>
+ 		$(function() {
+ 			
+			$('#login').on('click', function() {
+        		
+        		$.ajax({
+                    type: "POST",
+                    url: "/user/rest/login",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userId: $("#username").val(),
+                        userPassword: $("#password").val()
+                    }),
+                    success: function(response) {
+                    	
+                    	// console.log("_"+response+"_");
+                    	console.log("server 응답 : "+ response);
+                        if (response == "true" || response == true) {
+                        	
+                        	console.log("로그인 성공!");
+                            // submitSession();
+                            console.log("cookie를 요청합니다...");
+                        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
+                        }
+                    },
+                    error: function(jqXHR) {
+                        alert("오류 발생: " + jqXHR.responseText);
+                    }
+                });
+        	});
+			
+			
+			$('#logout').on('click', function() {
+				
+				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+			});
+			
+			$('#mapView').on('click', function() {
+				
+				window.location.href="http://localhost:8000/map";
+			});
+			
+			$('#footerView').on('click', function() {
+				
+				window.location.href="http://localhost:8000/test";
+			});
+ 		});
+    </script>
 </head>
 <body>
- <div th:include="~{ 'common/chatbotModal.html' }"></div>
-    <h1 th:text="${'Hello World'}"></h1>
-    <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
-    <a th:href="@{/timeline/footer}" th:text="${'footer'}"></a><br/>
-    <a href="/timeline/addVoiceToText" th:text="${'addVoiceToText'}"></a><br/>
-	<a href="/community/getSharedRecordList" th:text="${'getSharedRecordList'}"></a><br/>
-    <a href="/product/getProductList" th:text="${'getproductList'}"></a><br/>
-    <a href="/product/addProduct" th:text="${'addProduct'}"></a><br/>
-    <a href="/notice/getNoticeList" th:text="${'getNoticeList'}"></a><br/>
-    <a href="/notice/getFaqList" th:text="${'getFaqList'}"></a><br/>
-    <button id="startRecording">녹음 시작</button>
-	<button id="stopRecording" disabled>녹음 종료</button>
-   <div id="captchaImageContainer">
-    <!-- 캡차 이미지가 표시될 곳 -->
-</div>
-        <input type="text" id="captcha-input" placeholder="Enter Captcha">
-        <button id="verify-button">확인</button>
-    </div>
+    <form id="loginForm">
     
-    <<div>
-    <input type="text" id="imageTagInput" placeholder="이미지 태그 입력">
-    <button id="convertButton">변환</button>
-</div>
-<div id="imageContainer"></div>
-    <div class="form-group">
-		<label for="email" class="col-sm-offset-1 col-sm-3 control-label">이메일</label>
-		<div class="col-sm-4">
-			<input type="text" class="form-control" id="email" name="email" placeholder="이메일">
-			<button type="button" class="btn btn-primary" id="emailAuth">인증하기</button>
-			<input type="text" class="form-control" id="authCode" name="authCode" placeholder="인증 코드 6자리를 입력해주세요.">
-			<span id="emailAuthWarn"></span>
-		</div>
-	</div>
-       <div class="container">
-    <div>
-        <input type="text" class="form-control" id="phone" name="phone" placeholder="번호">
-        <input type="button" id="memberPhoneCheck" class="btn active" value="인증번호 전송">
-    </div>
-    <div>
-        <input type="text" name="memberPhoneCertify" class="form-control phoneNum" placeholder="인증번호">
-        <input type="button" id="certifyCheck" class="btn" value="인증하기">
-    </div>
-    <input type="hidden" name="phone" th:value="${phone}">
-</div>
-    <div id="kakao"></div>
-		<a class="p-2" id = "kakao-login-btn" href="https://kauth.kakao.com/oauth/authorize?client_id=cec50764919801119a69066d40036533&redirect_uri=http://localhost:8000/user/kakaoLogin&response_type=code">
+        <input type="text" id="username" name="userId" placeholder="아이디">
+        <br/>
+        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
+        <br/>   
+        
+        <input type="checkbox" name="keepLogin" value="true"/>
+        <label for="keepLogin">로그인 유지</label>
+        
+        <button type="button" id="login">로그인</button>
+        <br/>
+        <br/>
+        <button type="button" id="logout">로그아웃</button>
+
+		<details>
+		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
+		  <ol>
+		    <li>
+		      'users' 테이블에서 `password` 열의 길이를 120으로 변경합니다. (또는 현재 데이터베이스를 삭제하고 개인용 스크립트를 다시 붙여넣어도 됩니다.)
+		    </li>
+		    <li>
+		      'UserController'의 `setupForTest()` [전) getLoginView()]에서 주석 처리된 `userService.setupForTest();` 부분을 활성화합니다.
+		    </li>
+		    <li>
+		      해당 URL로 접속합니다.
+		    </li>
+		  </ol>
+		  <br>
 		
-
-
-   
-
-<script th:inline="javascript">
-
-//캡차 ===========================================================================================================================================
-$(document).ready(function() {
-  var captchaKey;
-
-  function loadCaptcha() {
-    $.get("/api/captcha/nkey?code=0", function(response) {
-      captchaKey = JSON.parse(response).key;
-      var captchaImageUrl = "/api/captcha/image?key=" + captchaKey;
-      $("#captchaImageContainer").html($("<img>").attr("src", captchaImageUrl));
-    });
-  }
-
-  $("#verify-button").click(function() {
-    var captchaValue = $("#captcha-input").val();
-
-    $.ajax({
-      url: "/api/captcha/verify",
-      method: "GET",
-      data: {
-        key: captchaKey,
-        value: captchaValue
-      },
-      success: function(response) {
-        var result = JSON.parse(response);
-        if (result.result) {
-          alert("캡차 확인 성공!");
-        } else {
-          alert("캡차를 다시 확인해주세요.");
-          loadCaptcha(); // 새로운 캡차 이미지 로드
-        }
-      },
-      error: function(xhr, status, error) {
-        console.error("캡차 검증 실패:", error);
-        alert("캡차를 다시 확인해주세요.");
-        loadCaptcha(); // 새로운 캡차 이미지 로드
-      }
-    });
-  });
-
-  loadCaptcha(); // 페이지 로드 시 캡차 로드
-});
-//캡차 ===========================================================================================================================================
-	
-//카카오로그인 =======================================================================================================================================
-$(document).ready(function() {
-	Kakao.init('bde4d0b1dd558fcdac6b04e0ba243c20');
-	Kakao.Auth.createLoginButton({
-		container: '#kakao-login-btn',
-		success: function (authObj) {
-		},
-		fail: function (err) {
-			alert(JSON.stringify(err));
-		}
-	});
-});
-//카카오로그인 =======================================================================================================================================
-	
-//휴대폰인증 ==========================================================================================================================================
-$(document).ready(function() {
-    var checkNum; // 인증번호 저장 변수
-
-    // 휴대폰 번호 인증 요청
-    $('#memberPhoneCheck').click(function() {
-        var phone = $('#phone').val(); // 입력된 휴대폰 번호 가져오기
-
-        // 서버로 POST 요청 보내기
-        $.ajax({
-            url: "/user/memberPhoneCheck", // 요청할 URL
-            type: "POST", // POST 요청
-            data: { to: phone }, // 전송할 데이터
-            dataType: "json", // 응답 데이터 형식은 JSON으로 설정
-            success: function(data) {
-                if (data) { // 요청이 성공하면
-                    checkNum = data; // 전송된 인증번호 저장
-                    alert('인증번호를 전송했습니다.');
-                } else {
-                    alert('인증번호 전송에 실패했습니다. 다시 시도해주세요.');
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
-                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
-                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
-            }
-        });
-    });
-
-    // 인증번호 확인 버튼 클릭 시
-    $('#certifyCheck').click(function() {
-        var userNum = $('input[name="memberPhoneCertify"]').val(); // 입력된 인증번호 가져오기
-        if (checkNum == userNum) { // 입력된 인증번호와 서버에서 받은 인증번호가 일치하는지 확인
-            alert('인증 성공하였습니다.');
-        } else {
-            alert('인증 실패하였습니다. 다시 입력해주세요.');
-        }
-    });
-});
-//휴대폰인증 ==========================================================================================================================================
-	
-// 이메일 인증 =========================================================================================================================================
-$(document).ready(function(){ 
-	$("#emailAuth").click(function () {
-		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
-
-		//Ajax로 전송
-		$.ajax({
-			url : '/user/EmailAuth',
-			data : {
-				email : email
-			},
-			type : 'POST',
-			dataType : 'json',
-			success : function(result) {
-				console.log("result : " + result);
-				$("#authCode").attr("disabled", false);
-				code = result;
-				alert("인증 코드가 입력하신 이메일로 전송 되었습니다.");
-			}
-		}); //End Ajax
-	})
-	;
-
-	$("#authCode").on("focusout", function() {
-		const inputCode = $("#authCode").val(); //인증번호 입력 칸에 작성한 내용 가져오기
-
-		console.log("입력코드 : " + inputCode);
-		console.log("인증코드 : " + code);
-
-		if(Number(inputCode) === code){
-			$("#emailAuthWarn").html('인증번호가 일치합니다.');
-			$("#emailAuthWarn").css('color', 'green');
-			$('#emailAuth').attr('disabled', true);
-			$('#email').attr('readonly', true);
-			$("#Join").attr("disabled", false);
-		}else{
-			$("#emailAuthWarn").html('인증번호가 불일치 합니다. 다시 확인해주세요!');
-			$("#emailAuthWarn").css('color', 'red');
-			$("#Join").attr("disabled", true);
-		}
-	});
-});
-//이메일 인증 =========================================================================================================================================
-	
-// 이미지 태그 테스트 ====================================================================================================================================
-$("#convertButton").click(function() {
-        var imageTag = $("#imageTagInput").val();
-
-        if (imageTag.trim() === "") {
-            alert("이미지 태그를 입력해주세요.");
-            return;
-        }
-
-        $.ajax({
-            url: "/product/image",
-            method: "GET",
-            data: {
-                imageTag: imageTag
-            },
-            success: function(imageUrl) {
-                if (imageUrl.startsWith("http")) {
-                    $("#imageContainer").html('<img src="' + imageUrl + '">');
-                } else {
-                    alert(imageUrl);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("이미지 가져오기 실패:", error);
-                alert("이미지를 가져오는 중 오류가 발생했습니다.");
-            }
-        });
-    });
-//이미지 태그 테스트 ==========================================================================================================================================
-	
-//녹음하기 =================================================================================================================================================
-   /*  let mediaRecorder;
-    let recordedChunks = [];
-    let audioBlob;
-    
-    const requestMicrophoneAccess = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                document.getElementById('startRecording').disabled = false;
-                document.getElementById('startRecording').addEventListener('click', startRecording);
-            })
-            .catch(error => {
-                console.error('마이크 접근 권한 요청 실패:', error);
-                alert('마이크 접근 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
-            });
-    };
-    
-    const startRecording = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
-    
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    recordedChunks.push(event.data);
-                });
-    
-                document.getElementById('startRecording').disabled = true;
-                document.getElementById('stopRecording').disabled = false;
-            });
-    };
-    
-    const stopRecording = () => {
-        mediaRecorder.stop();
-    
-        mediaRecorder.addEventListener("stop", () => {
-            audioBlob = new Blob(recordedChunks, { type: 'audio/mp3' });
-            
-            const formData = new FormData();
-            formData.append('audioFile', audioBlob, 'recording.mp3');
-    
-            fetch('/recommend/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('녹음 파일 업로드 성공');
-                    alert('녹음 파일 업로드 성공');
-                } else {
-                    console.error('녹음 파일 업로드 실패:', data.message);
-                    alert('녹음 파일 업로드 실패: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('녹음 파일 업로드 중 오류 발생:', error);
-                alert('녹음 파일 업로드 중 오류 발생');
-            });
-    
-            recordedChunks = [];
-            document.getElementById('startRecording').disabled = false;
-            document.getElementById('stopRecording').disabled = true;
-        });
-    };
-    
-    requestMicrophoneAccess();
-    document.getElementById('stopRecording').addEventListener('click', stopRecording); */
-</script>
-
-
-
+		  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 `user1`, `user2` 변경 코드를 비활성화하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
+		</details>
+         
+        <br/>
+        <br/>
+        <button type="button" id="mapView">map으로 바로 이동</button>
+        <button type="button" id="footerView">footer 실험실로 이동</button>
+    </form> 
 </body>
 </html>

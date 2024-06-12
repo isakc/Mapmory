@@ -9,8 +9,8 @@ import com.mapmory.services.call.domain.CallResponse;
 import com.mapmory.services.call.domain.IceCandidate;
 import com.mapmory.services.call.domain.SdpAnswer;
 import com.mapmory.services.call.domain.SdpOffer;
-import com.mapmory.services.call.domain.UserJM;
 import com.mapmory.services.call.service.CallService;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserServiceJM;
 
 @Service("callServiceImpl")
@@ -22,16 +22,15 @@ public class CallServiceImpl implements CallService {
 	@Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-	public CallResponse requestCall(String fromUserId, String toUserId) throws Exception {
-        UserJM toUser = userService.findByUserId(toUserId);
+	public CallResponse requestCall(String fromUserId, String toUserId, boolean isOnline) throws Exception {
+        User toUser = userService.findByUserId(toUserId);
         CallRequest callRequest = new CallRequest(fromUserId, toUser.getUserId(), System.currentTimeMillis());
         messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/call", callRequest);
-
-        return new CallResponse(toUser.getUserId(), toUser.isOnline());
+        return new CallResponse(toUser.getUserId(), isOnline);
     }
 
     public SdpAnswer handleOffer(SdpOffer sdpOffer) throws Exception{
-    	UserJM toUser = userService.findByUserId(sdpOffer.getToUser());
+    	User toUser = userService.findByUserId(sdpOffer.getToUser());
         SdpAnswer sdpAnswer = new SdpAnswer(
                 sdpOffer.getFromUser(),
                 toUser.getUserId(),
@@ -43,7 +42,7 @@ public class CallServiceImpl implements CallService {
     }
 
     public void handleIceCandidate(IceCandidate iceCandidate) throws Exception{
-    	UserJM toUser = userService.findByUserId(iceCandidate.getToUser());
+    	User toUser = userService.findByUserId(iceCandidate.getToUser());
         messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/candidate", iceCandidate);
     }
 }

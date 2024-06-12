@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mapmory.services.call.domain.UserJM;
 import com.mapmory.services.user.dao.UserDaoJM;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserServiceJM;
@@ -176,11 +175,8 @@ public class UserServiceImplJM implements UserServiceJM {
 	}
 	
 	//==========================화상통화==================================================
-	public UserJM findByUserId(String userId) throws Exception{
+	public User findByUserId(String userId) throws Exception{
         return userDaoJM.findByUserId(userId);
     }
 
-    public void updateOnlineStatus(String userId, boolean isOnline) throws Exception {
-    	userDaoJM.updateOnlineStatus(userId, isOnline);
-    }
 }

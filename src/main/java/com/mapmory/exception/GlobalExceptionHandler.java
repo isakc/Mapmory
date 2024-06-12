@@ -26,10 +26,12 @@ public class GlobalExceptionHandler {
 		
 	}// handlePaymentValidationException: 구매 중 에러
 
-	@ExceptionHandler(Exception.class)
+	// @ExceptionHandler(Exception.class)
 	public String handleGeneralException(Exception e, Model model) {
-		model.addAttribute("errorMessage", "예기치 않은 오류가 발생했습니다. 관리자에게 문의하세요.");
+		// model.addAttribute("errorMessage", "예기치 않은 오류가 발생했습니다. 관리자에게 문의하세요.");
+		model.addAttribute("errorMessage", e.getMessage());
 		
+		System.out.println(e.getMessage());
 		return "common/error"; // 공통 에러 페이지
 	}// handleGeneralException: 공통 예외 처리
 }
