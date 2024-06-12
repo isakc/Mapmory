@@ -16,6 +16,7 @@ import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
@@ -42,14 +43,10 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.insertTimeline(record);
 		System.out.println(record);
 		map.put("recordNo",record.getRecordNo());
-//		System.out.println("record.getImageTagList():"+record.getImageTagList());
 		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
-//		map.put("imageName",record.getImageName());
-//		map.put("hashtag",record.getHashtag());
+
 		
-		timelineDao.insertImageTag(map);
-//		timelineDao.insertImageName(map);
-//		timelineDao.insertHashtag(map);
+//		timelineDao.insertImageTag(map);
 		return record.getRecordNo();
 	}
 	
@@ -71,6 +68,11 @@ public class TimelineServiceImpl implements TimelineService {
 	public void updateTimeline(Record record) throws Exception {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.updateTimeline(record);
+		timelineDao.deleteImageTag(ImageTag
+				.builder()
+				.recordNo(record.getRecordNo())
+				.imageTagType(0)
+				.build());
 		if(record.getImageName()!=null ||record.getHashtag()!=null) {
 			map.put("recordNo",record.getRecordNo());
 			map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
@@ -80,9 +82,10 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public void deleteTimeline(int recordNo) throws Exception {
-//		timelineDao.deleteHashtag(recordNo);
-//		timelineDao.deleteImageToRecordNo(recordNo);
-		timelineDao.deleteImageTag(recordNo);
+		timelineDao.deleteImageTag(ImageTag
+				.builder()
+				.recordNo(recordNo)
+				.build());
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
@@ -94,9 +97,8 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	//Category CRUD
 	@Override
-	public int addCategory(Category category) throws Exception {
+	public void addCategory(Category category) throws Exception {
 		timelineDao.insertCategory(category);
-		return category.getCategoryNo();
 	}
 
 	@Override

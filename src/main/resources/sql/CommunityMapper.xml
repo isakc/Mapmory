@@ -68,7 +68,7 @@
 		SELECT *,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID),
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID),
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END,
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
 			(SELECT user_id FROM users u WHERE u.user_id = r2.user_id)
 		FROM reply r2
 		WHERE r2.user_id = #{userId}
@@ -76,15 +76,19 @@
 	</select>
 
 	<!-- 댓글 작성 -->
-	<insert id="addReply" parameterType="reply">
+	<insert id="addReply" parameterType="reply" useGeneratedKeys="true" keyProperty="replyNo">
 		INSERT INTO reply (record_no, user_id, reply_text, reply_image_name)
 		VALUES(#{recordNo}, #{userId}, #{replyText}, #{replyImageName})
 	</insert>
 	
-	<!-- 댓글 선택 -->
+	<!-- 댓글 선택 reply_no, record_no, user_id, reply_text, reply_image_name, reply_date, reply_update_date -->
 	<select id="getReply" parameterType="int" resultMap="replySelectMap">
-		SELECT reply_no, record_no, user_id, reply_text, reply_image_name, reply_date, reply_update_date
-		FROM reply
+	SELECT *,
+			(SELECT nickname FROM users u WHERE u.USER_ID = r.USER_ID),
+			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r.USER_ID),
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
+			(SELECT user_id FROM users u WHERE u.user_id = r.user_id)
+		FROM reply r
 		WHERE reply_no = #{replyNo}
 	</select>
 	
@@ -103,6 +107,12 @@
 	<delete id="deleteReply" parameterType="reply">
 		DELETE FROM reply
 		WHERE user_id = #{userId:VARCHAR} AND reply_no = #{replyNo}
+	</delete>	
+	
+	<!-- 기록 삭제 시 댓글 삭제 -->	
+	<delete id="deleteReplyByRecord" parameterType="reply">
+		DELETE FROM reply
+		WHERE record_no = #{recordNo}
 	</delete>	
 	
 	<!-- 기록에 작성된 댓글 Count -->
@@ -143,6 +153,12 @@
 	<delete id="deleteCommunityLogs" parameterType="communityLogs">
 		DELETE FROM community_logs
 		WHERE community_logs_no = #{communityLogsNo} AND user_id = #{userId} 
+	</delete>
+
+	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
+	<delete id="deleteCommunityLogsByRecord" parameterType="communityLogs">
+		DELETE FROM community_logs
+		WHERE record_no = #{recordNo} 
 	</delete>
 
 	<!-- 커뮤니티 활동 목록 조회 -->

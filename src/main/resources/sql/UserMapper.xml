@@ -51,6 +51,16 @@
 	 		<result property="reason" column="reason"/>
 	 	</collection>
 	 </resultMap>
+	 
+	 <resultMap id="selectLoginDailyMap" type="com.mapmory.services.user.domain.LoginDailyLog">
+	 	<result property="hour" column="hour" />
+	 	<result property="count" column="count" />
+	 </resultMap>
+	 
+	 <resultMap id="selectLoginMonthlyMap" type="com.mapmory.services.user.domain.LoginMonthlyLog">
+	 	<result property="day" column="day" />
+	 	<result property="count" column="count" />
+	 </resultMap>
 
 	<insert id="insertUser" parameterType="user">
 		INSERT INTO
@@ -96,15 +106,14 @@
 				SELECT
 				*
 				FROM users
-				WHERE 
-				<if test="searchCondition == 0">user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
-				<if test="searchCondition == 1">nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition == 0">WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition == 1">WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
 				ORDER BY reg_date DESC
 				) origin, 
 				(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum};
+		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}
 	</select>
 	
 	<select id="getUserListTotalCount" parameterType="search" resultType="integer">
@@ -125,7 +134,7 @@
 			(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		WHERE temp.n BETWEEN 1 AND 5;
+		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}
 	</select>
 	
 	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">
@@ -174,11 +183,33 @@
 		<if test="limit != 0 and currentPage != 0"> LIMIT #{limit} OFFSET #{offset} </if>
 	</select>
 	
-	<!-- 
-	<select id="selectUserLoginList" parameterType="search" resultMap="">
-	
+	<select id="selectUserLoginDailyList" parameterType="search" resultMap="selectLoginDailyMap">
+		SELECT
+		    SUBSTRING(login_date, 12, 2) AS hour,
+		    COUNT(*) AS count
+		FROM suspension_login_log
+		WHERE DATE(login_date) = #{selectLoginDate}
+		GROUP BY SUBSTRING(login_date, 12, 2)
+		ORDER BY hour
 	</select>
-	 -->
+	
+	<select id="selectUserLoginMonthlyList" parameterType="search" resultMap="selectLoginMonthlyMap">
+		SELECT
+		  EXTRACT(DAY FROM login_date) AS day,
+		  COUNT(*) AS count
+		FROM suspension_login_log
+		WHERE login_date IS NOT NULL
+			AND EXTRACT(YEAR FROM login_date) = #{year} AND EXTRACT(MONTH FROM login_date)  = #{month}
+		GROUP BY day
+		ORDER BY day;
+	</select>
+	
+	<select id="selectPassword" parameterType="string" resultType="string">
+		SELECT
+		user_password
+		FROM users
+		WHERE user_id = #{value}
+	</select>
 	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT
@@ -227,6 +258,13 @@
 		UPDATE users
 		SET set_secondary_auth = set_secondary_auth ^ 1
 		WHERE user_id = #{userId}
+	</update>
+	
+	<update id="updatePassword" parameterType="com.mapmory.services.user.domain.Login">
+	
+		UPDATE users
+		SET user_password = #{userPassword}
+		WHERE user_id=#{userId}
 	</update>
 	
 	<delete id="deleteFollow" parameterType="followBlock">

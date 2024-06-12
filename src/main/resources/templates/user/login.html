@@ -1,0 +1,77 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html>
+<head>
+    <title>로그인</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+ 		$(function() {
+ 			
+			$('#login').on('click', function() {
+        		
+        		$.ajax({
+                    type: "POST",
+                    url: "/user/rest/login",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userId: $("#username").val(),
+                        userPassword: $("#password").val()
+                    }),
+                    success: function(response) {
+                    	
+                    	// console.log("_"+response+"_");
+                    	console.log("server 응답 : "+ response);
+                        if (response == "true" || response == true) {
+                        	
+                        	console.log("로그인 성공!");
+                            // submitSession();
+                            console.log("cookie를 요청합니다...");
+                        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
+                        }
+                    },
+                    error: function(jqXHR) {
+                        alert("오류 발생: " + jqXHR.responseText);
+                    }
+                });
+        	});
+			
+			/*
+			$('#logout').on('click', function() {
+				
+				$.ajax({
+					
+					type: 'post',
+					url: ''
+				});
+			});
+			*/
+			
+			$('#test').on('click', function() {
+				
+				
+			});
+ 		});
+    </script>
+</head>
+<body>
+    <form id="loginForm">
+    
+        <input type="text" id="username" name="userId" placeholder="아이디">
+        <br/>
+        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
+        <br/>   
+        
+        <input type="checkbox" name="keepLogin" />
+        <label for="keepLogin">로그인 유지</label>
+        
+        <button type="button" id="login">로그인</button>
+        <br/>
+        <br/>
+        <button type="button" id="logout">로그아웃</button>
+        <br/>
+        <br/>
+        <button type="button" id="test">session test</button>
+    </form> 
+</body>
+</html>

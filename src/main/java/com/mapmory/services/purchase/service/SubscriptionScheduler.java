@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.mapmory.services.product.service.ProductService;
 import com.mapmory.services.purchase.domain.Subscription;
 
 @Component
 public class SubscriptionScheduler {
 	@Autowired
 	private SubscriptionService subscriptionService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Scheduled(cron = "0 0 0 * * *") //매일 자정에 실행
 	public void processSubscriptions() throws Exception {
@@ -22,7 +26,7 @@ public class SubscriptionScheduler {
 			try {
 				Subscription updatedSubscription = updateSubscription(subscription);
 				
-                subscriptionService.schedulePay(updatedSubscription);
+                subscriptionService.schedulePay(updatedSubscription, productService.getSubscription());
                 subscriptionService.addSubscription(updatedSubscription);
                 
 			} catch (Exception e) {

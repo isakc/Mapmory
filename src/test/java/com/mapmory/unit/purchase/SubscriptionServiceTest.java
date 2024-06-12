@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.mapmory.services.product.service.ProductService;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
 
@@ -19,6 +20,10 @@ public class SubscriptionServiceTest {
 	@Autowired
 	@Qualifier("subscriptionServiceImpl")
 	private SubscriptionService subscriptionService;
+	
+	@Autowired
+	@Qualifier("productServiceImpl")
+	private ProductService productService;
 	
 	//@Test
 	public void testAddSubscription() throws Exception{
@@ -77,11 +82,11 @@ public class SubscriptionServiceTest {
 	}
 	
 	//@Test
-	public void testDeleteSubscription() throws Exception{
+	public void testCancleSubscription() throws Exception{
 			
 		String userId = "user1";
 		
-		subscriptionService.deleteSubscription(userId);
+		subscriptionService.cancelSubscription(userId);
 
 		Subscription subscription = subscriptionService.getDetailSubscription(userId);
 		
@@ -97,7 +102,7 @@ public class SubscriptionServiceTest {
 									.merchantUid("subscription_user7_"+LocalDateTime.now())
 									.build();
 		
-		boolean flag = subscriptionService.requestSubscription(subscription);
+		boolean flag = subscriptionService.requestSubscription(subscription, productService.getSubscription());
 		
 		Assert.assertEquals(flag, true);
 	}
@@ -111,7 +116,7 @@ public class SubscriptionServiceTest {
 									.nextSubscriptionPaymentDate(LocalDateTime.of(2024, 6, 28, 0, 0, 0))
 									.build();
 
-		Assert.assertEquals(true, subscriptionService.schedulePay(subscription));
+		Assert.assertEquals(true, subscriptionService.schedulePay( subscription, productService.getSubscription()) );
 	}
 	
 	//@Test

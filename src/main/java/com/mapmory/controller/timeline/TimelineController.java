@@ -19,9 +19,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.TextToImage;
+import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -33,8 +40,26 @@ public class TimelineController {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
+	@Autowired
+	private TimelineUtil timelineUtil;
+	
+	@Autowired
+	private TextToImage textToImage;
+	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
+    @Autowired
+    private ObjectStorageUtil objectStorageUtil;
+	
 	@Value("${default.time}")
 	private String defaultTime;
+	
+	@Value("${object.timeline.image}")
+	private String imageFileFolder;
+	
+	@Value("${object.timeline.media}")
+	private String mediaFileFolder;
 	
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
@@ -108,35 +133,69 @@ public class TimelineController {
 	@GetMapping("getDetailTimeline")
 	public String getDetailTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		Record record=timelineService.getDetailTimeline(recordNo);
+		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
+	}
+	
+	@GetMapping("deleteTimeline")
+	public void deleteTimeline(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo,
+			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
+		timelineService.deleteTimeline(recordNo);
+		timelineService.deleteImage(recordNo);
+		getTimelineList(model, userId, null);
 	}
 	
 	@GetMapping("getDetailTimecapsule")
 	public String getDetailTimecapsule(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		Record record=timelineService.getDetailTimeline(recordNo);
+		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("record",record);
 		return "timeline/getDetailTimecapsule";
 	}
 	
 	@GetMapping("updateTimeline")
 	public String updateTimelineView(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
+		record=timelineUtil.mediaNameToUrl(record);
+		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		model.addAttribute("record",record);
 		return "timeline/updateTimeline";
 	}
 	
 	@PostMapping("updateTimeline")
-	public String updateTimeline(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+	public String updateTimeline(Model model,
+			@ModelAttribute("record") Record record,
+			@ModelAttribute("hashtagText") String hashtagText,
+			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
+			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile) throws Exception,IOException {
+		
+//		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
+//			return null;
+//		}
+		record = timelineUtil.imageFileUpload(record, imageFile);
+		record = timelineUtil.mediaFileUpload(record, mediaFile);
+		
+		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
+		
 		record.setUpdateCount(record.getUpdateCount()+1);
+		
 		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
+			if(record.getRecordAddDate()==null) {
+				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " "));
+			}
 			record.setTempType(1);
 		}else {
 			record.setTempType(0);
 		}
-		System.out.println("record.getImageName() : "+record.getImageName());
-		System.out.println("record.getHashtag() : "+record.getHashtag());
+		
+//		System.out.println("record.getImageName() : "+record.getImageName());
+//		System.out.println("record.getHashtag() : "+record.getHashtag());
 		timelineService.updateTimeline(record);
 		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
 		return "timeline/getDetailTimeline";
@@ -168,7 +227,7 @@ public class TimelineController {
 	}
 	
 	@PostMapping("updateTimecapsule")
-	public String updateTimecapsule(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+	public String updateTimecapsule(Model model,@ModelAttribute Record record) throws Exception,IOException {
 		record.setUpdateCount(record.getUpdateCount()+1);
 		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
 			record.setTempType(1);
@@ -201,13 +260,13 @@ public class TimelineController {
 	
 	@GetMapping("addCategory")
 	public String addCategoryView() throws Exception,IOException {
-		return "timeline/addCategory";
+		return "timeline/admin/addCategory";
 	}
 	
 	@PostMapping("addCategory")
-	public String addCategory(Model model,Category category) throws Exception,IOException {
+	public String addCategory(Model model,@ModelAttribute Category category) throws Exception,IOException {
 		timelineService.addCategory(category);
-		model.addAttribute("category",timelineService.getCategoryList());
+		model.addAttribute("categoryList",timelineService.getCategoryList());
 		return "timeline/admin/getAdminCategoryList";
 	}
 	

@@ -7,20 +7,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
-import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
-import com.mapmory.services.timeline.dao.TimelineDao;
-import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.dto.SharedRecordDto;
-import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 
 @Service("communityServiceImpl")
@@ -30,20 +24,8 @@ public class CommunityServiceImpl implements CommunityService {
 	@Qualifier("communityDao")
 	private CommunityDao communityDao;
 	
-	@Autowired
-	@Qualifier("timelineService")
-	private TimelineService timelineService;
-	
-	@Autowired
-	@Qualifier("timelineDao")
-	private TimelineDao timelineDao;
-	
 	public void setCommunityDao(CommunityDao communityDao) {
 		this.communityDao = communityDao;
-	}
-	
-	public void setTimelineDao(TimelineDao timelineDao) {
-		this.timelineDao = timelineDao;
 	}
 	
 	public CommunityServiceImpl() {
@@ -54,15 +36,10 @@ public class CommunityServiceImpl implements CommunityService {
 	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
 		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
-//		int likeCount = communityDao.getReactionLikeTotalCount(search, replyNo);
-//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(search, replyNo);
-
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
-//		map.put("likeCount", Integer.valueOf(likeCount));
-//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
 		
 		return map;
 	}
@@ -96,17 +73,18 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Reply getReply(int replyNo) throws Exception {
-//		int likeCount = communityDao.getReactionLikeTotalCount(replyNo);
-//		int dislikeCount = communityDao.getReactionDisLikeTotalCount(replyNo);
-//		map.put("likeCount", Integer.valueOf(likeCount));
-//		map.put("dislikeCount", Integer.valueOf(dislikeCount));
 		return communityDao.getReply(replyNo);
 	}	
 	
 	@Override
 	public void updateReply(Reply reply) throws Exception {
-		reply.getReplyNo();
-		communityDao.updateReply(reply);
+		
+		if(ContentFilterUtil.checkBadWord(reply.getReplyText())) {
+			throw new Exception("비속어가 포함된 댓글은 등록할 수 없음");
+		} else {
+			communityDao.updateReply(reply);
+		}
+	
 	}
 
 	@Override
@@ -214,5 +192,15 @@ public class CommunityServiceImpl implements CommunityService {
 	public void deleteBlockedUser(String userId, String targetId) throws Exception {
 		communityDao.deleteBlockedUser(userId, targetId);
 		
+	}
+
+	@Override
+	public void deleteReplyByRecord(int recordNo) throws Exception {
+		communityDao.deleteReplyByRecord(recordNo);
+	}
+
+	@Override
+	public void deleteCommunityLogsByRecord(int recordNo) throws Exception {
+		communityDao.deleteCommunityLogsByRecord(recordNo);
 	}
 }
