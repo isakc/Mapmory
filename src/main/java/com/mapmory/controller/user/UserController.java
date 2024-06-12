@@ -54,10 +54,9 @@ public class UserController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 
-	
-	// 이 메소드는 MainController에 GetMapping("/")에 위치하도록 옮겨줘야 한다. 그리고 로그인 화면 이름은 "index.html"로 변경할 것.
-	@GetMapping("/getLoginView")
-	public void getLoginView() {
+	// test용
+	@GetMapping("/setupForTest")
+	public void setupForTest() {
 		
 		// db script 사용 이후 최초 로그인 시 반드시 사용할 것(암호화 로직을 적용하여 user password를 갈아엎음)
 		// userService.setupForTest();
@@ -105,19 +104,7 @@ public class UserController {
 	@GetMapping("/getSignUpView")
 	public void getSignUpView() {
 		
-	}
-	
-	// test 이후 삭제할 예정
-	@GetMapping("/test")
-	public void testSession(HttpServletRequest request) {
-		
-		SessionData temp = redisUtil.getSession(request);
-		System.out.println(temp);
-		
-		System.out.println("_"+userService.getDetailUser(temp.getUserId())+"_"); 
-	}
-	
-	
+	}	
 	
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(Model model) throws Exception {
