@@ -139,7 +139,14 @@
 		FROM community_logs
 		WHERE community_logs_no = #{communityLogsNo}
 	</select>
+	
+	<!--  커뮤니티 활동 로그 전체 선택 -->
+	<select id="getAllCommunityLogs" parameterType="int" resultMap="communityLogsSelectMap">
+		SELECT *
+		FROM community_logs
 
+	</select>	
+	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
 		UPDATE community_logs
@@ -152,7 +159,10 @@
 	<!-- 커뮤니티 활동 삭제 -->
 	<delete id="deleteCommunityLogs" parameterType="communityLogs">
 		DELETE FROM community_logs
-		WHERE community_logs_no = #{communityLogsNo} AND user_id = #{userId} 
+		WHERE 
+			( user_id = #{userId} ) 
+		OR
+			( reply_no = #{replyNo} )	
 	</delete>
 
 	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
@@ -169,19 +179,21 @@
 	</select>
 	
 	<!-- 좋아요 Count -->			
-	<select id="getReactionLikeTotalCount" parameterType="search" resultType = "int">
-		    SELECT COUNT(*)
-		    FROM community_logs
-		    WHERE (record_no = #{recordNo} AND reply_no IS NULL OR reply_no = #{replyNo} )
-		    AND logs_type = 2
+	<select id="getReactionLikeTotalCount" parameterType="map" resultType = "int">
+		SELECT COUNT(*)
+		FROM community_logs
+		WHERE record_no = #{recordNo}
+		AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+		AND logs_type = 2    
 	</select>	
 	
 	<!-- 싫어요 Count -->			
-	<select id="getReactionDisLikeTotalCount" parameterType="search" resultType = "int">
+	<select id="getReactionDisLikeTotalCount" parameterType="map" resultType = "int">
 		    SELECT COUNT(*)
-		    FROM community_logs
-		    WHERE (record_no = #{recordNo} AND reply_no IS NULL OR reply_no = #{replyNo} )
-		    AND logs_type = 3
+			FROM community_logs
+			WHERE record_no = #{recordNo}
+			AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+			AND logs_type = 3  
 	</select>	
 		
 	<!-- 신고 정보 가져오기 -->

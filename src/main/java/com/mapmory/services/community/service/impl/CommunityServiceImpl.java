@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -23,6 +24,9 @@ public class CommunityServiceImpl implements CommunityService {
 	@Autowired
 	@Qualifier("communityDao")
 	private CommunityDao communityDao;
+	
+	@Autowired
+	private ContentFilterUtil contentFIlterUtil;
 	
 	public void setCommunityDao(CommunityDao communityDao) {
 		this.communityDao = communityDao;
@@ -78,13 +82,19 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public void updateReply(Reply reply) throws Exception {
-		
-		if(ContentFilterUtil.checkBadWord(reply.getReplyText())) {
+		Reply newReply = Reply.builder()
+				.recordNo(reply.getRecordNo())
+				.replyNo(reply.getReplyNo())
+				.userId(reply.getUserId())
+				.replyText(reply.getReplyText())
+				.replyImageName(reply.getReplyImageName())
+				.build();
+	
+		if(contentFIlterUtil.checkBadWord(newReply.getReplyText())) {
 			throw new Exception("비속어가 포함된 댓글은 등록할 수 없음");
 		} else {
-			communityDao.updateReply(reply);
+			communityDao.updateReply(newReply);	
 		}
-	
 	}
 
 	@Override
@@ -94,8 +104,14 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception {
-		communityDao.addCommunityLogs(communityLogs);
 		
+		CommunityLogs newCommunityLogs = CommunityLogs.builder()
+				.userId(communityLogs.getUserId())
+				.recordNo(communityLogs.getRecordNo())
+				.replyNo(communityLogs.getReplyNo())
+				.logsType(communityLogs.getLogsType())
+				.build();
+		communityDao.addCommunityLogs(communityLogs);
 	}	
 	
 	@Override
@@ -109,8 +125,8 @@ public class CommunityServiceImpl implements CommunityService {
 	}	
 	
 	@Override
-	public void deleteCommunityLogs(int communityLogsNo, String userId) throws Exception {
-		communityDao.deleteCommunityLogs(communityLogsNo, userId);
+	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception {
+		communityDao.deleteCommunityLogs(userId, recordNo, replyNo);
 	}
 
 	@Override
