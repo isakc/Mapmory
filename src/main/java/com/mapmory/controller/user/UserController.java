@@ -1,5 +1,6 @@
 package com.mapmory.controller.user;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.LoginService;
@@ -37,6 +40,8 @@ public class UserController {
 	@Autowired
 	private LoginService loginService;
 	
+	@Autowired
+	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
 	@Qualifier("objectStorageUtil")
@@ -88,39 +93,51 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public void postLogin(@ModelAttribute Login login, HttpServletResponse response) throws Exception{
-		// @RequestParam boolean keepLogin, 
-		// System.out.println("로그인 유지 여부 : " + keepLogin);
-
+	public void postLogin(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
 		
+		System.out.println("flag" + keepLogin);
+		
+		/*
 		if ( !loginService.login(login, userService.getPassword(login.getUserId())) )
 			throw new Exception("아이디 또는 비밀번호가 잘못되었습니다.");
+		*/
+
+		boolean keep;
+		
+		if(keepLogin == null)
+			keep = false;
+		else
+			keep = true;
 
 		String userId = login.getUserId();
 		byte role = userService.getDetailUser(userId).getRole();
 		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.insertSession(login, role, sessionId))
+		System.out.println("sessionId : " + sessionId);
+		if ( !loginService.setSession(login, role, sessionId, keep))
 			throw new Exception("redis에 값이 저장되지 않음.");
 		
 		Cookie cookie = createCookie(sessionId);
 		response.addCookie(cookie);
 		
 		if(role == 1)
-			response.sendRedirect("/map/map");  // 성문님께서 구현되는대로 적용 예정
+			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
 		else
 			response.sendRedirect("/user/admin/adminMain");
 	}
 	
 	@PostMapping("/logout")
-	public void logout() {
-		
-		
+	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		loginService.logout(request, response);
 	}
 	
 	@GetMapping("/test")
 	public void testSession(HttpServletRequest request) {
 		
-		loginService.getSession(request);
+		SessionData temp = redisUtil.getSession(request);
+		System.out.println(temp);
+		
+		System.out.println("_"+userService.getDetailUser(temp.getUserId())+"_"); 
 	}
 
 	private Cookie createCookie(String sessionId) {
@@ -130,6 +147,7 @@ public class UserController {
 		// cookie.setDomain("mapmory.life");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
+		cookie.setMaxAge(30 * 60);
 		
 		return cookie;
 	}

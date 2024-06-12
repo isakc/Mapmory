@@ -33,13 +33,25 @@ public class RedisUtilTest {
 		Assertions.assertThat(result.getUserId()).isEqualTo("hong");
 	}
 	
-	// @Test
+	@Test
 	public void testDelete() {
 		
 		String key = "test";
+		
+		SessionData s = SessionData.builder()
+				.userId("hong")
+				.role(1)
+				.build();
+		
+		redisUtil.insert(key, s);
+		SessionData result = redisUtil.select(key, SessionData.class);
+		System.out.println(result);
+		Assertions.assertThat(result.getUserId()).isEqualTo("hong");
+		
 		redisUtil.delete(key);
 		
-		SessionData result = redisUtil.select(key, SessionData.class);
+		// String userId = redisUtil.select(key, SessionData.class).getUserId();
+		result = redisUtil.select(key, SessionData.class);
 		System.out.println(result);
 		Assertions.assertThat(result).isNull();
 	}

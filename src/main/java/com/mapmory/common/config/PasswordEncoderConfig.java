@@ -15,7 +15,7 @@ public class PasswordEncoderConfig {
 		final int hashLength = 32;
 		final int parallelism = Runtime.getRuntime().availableProcessors();
 		final int memory = 65536;
-		final int iterations = 16;
+		final int iterations = 2;
 		
 		return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
 	}
