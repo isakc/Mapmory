@@ -1,6 +1,5 @@
 package com.mapmory.controller.community;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,16 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
@@ -100,9 +97,9 @@ public class CommunityRestController {
 		
 	}	
 	
-	@PostMapping("/rest/deleteReply")
-	public String deleteReply(Reply reply, MultipartFile replyImageName, String userId, int recordNo) throws Exception {
-		communityService.deleteReply(userId, recordNo);
+	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
+	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo) throws Exception {
+		communityService.deleteReply(userId, replyNo);
 		return "redirect: community/getReplyList";
 		
 	}	

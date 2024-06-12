@@ -89,4 +89,11 @@
     		user_id = #{searchKeyword}
 		LIMIT #{limit} OFFSET #{offset}
 	</select>
+	
+	<delete id="deletePurchase" parameterType="int">
+		DELETE FROM 
+			purchase
+		WHERE 
+			purchase_no = #{purchaseNo}
+	</delete>
 </mapper>

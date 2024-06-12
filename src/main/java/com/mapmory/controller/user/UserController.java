@@ -3,6 +3,7 @@ package com.mapmory.controller.user;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -84,13 +85,13 @@ public class UserController {
 	public void getLogin() {
 		
 		// userService.setupForTest();
-		System.out.println("login test");
 	}
 	
 	@PostMapping("/login")
-	public void postLogin(@ModelAttribute Login login, HttpSession session, HttpServletResponse response) throws Exception{
-		
-		System.out.println("cookie 요청");
+	public void postLogin(@ModelAttribute Login login, HttpServletResponse response) throws Exception{
+		// @RequestParam boolean keepLogin, 
+		// System.out.println("로그인 유지 여부 : " + keepLogin);
+
 		
 		if ( !loginService.login(login, userService.getPassword(login.getUserId())) )
 			throw new Exception("아이디 또는 비밀번호가 잘못되었습니다.");
@@ -98,19 +99,38 @@ public class UserController {
 		String userId = login.getUserId();
 		byte role = userService.getDetailUser(userId).getRole();
 		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.insertSessionInRedis(login, role, sessionId))
+		if ( !loginService.insertSession(login, role, sessionId))
 			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		Cookie cookie = createCookie(sessionId);
+		response.addCookie(cookie);
+		
+		if(role == 1)
+			response.sendRedirect("/map/map");  // 성문님께서 구현되는대로 적용 예정
+		else
+			response.sendRedirect("/user/admin/adminMain");
+	}
+	
+	@PostMapping("/logout")
+	public void logout() {
+		
+		
+	}
+	
+	@GetMapping("/test")
+	public void testSession(HttpServletRequest request) {
+		
+		loginService.getSession(request);
+	}
+
+	private Cookie createCookie(String sessionId) {
 		
 		Cookie cookie = new Cookie("JSESSIONID", sessionId);
 		cookie.setPath("/");
 		// cookie.setDomain("mapmory.life");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
-		response.addCookie(cookie);
 		
-		if(role == 1)
-			response.sendRedirect("/map/map");
-		else
-			response.sendRedirect("/user/admin/adminMain");
+		return cookie;
 	}
 }

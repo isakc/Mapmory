@@ -76,6 +76,8 @@
 
 				console.log("replyData : " + JSON.stringify(replyData));
 				
+				var recordNo = replyData.recordNo;
+				var replyNo = replyData.replyNo;
 				var userId = replyData.userId;
 				var nickname = replyData.nickname;
 				var profileImageName = replyData.profileImageName;
@@ -96,13 +98,15 @@
 					'<td>' + replyDate + '</td>' +
 					'<td style="text-align: center;">' + likeCount + '</td>' +
 					'<td style="text-align: center;">' + dislikeCount + '</td>' +
+					'<td class="recordNo" style="display:none;">'+recordNo+'</td>'+
+					'<td class="replyNo" style="display:none;">'+replyNo+'</td>'+					
 			        '<td>' +
-			            '<button onclick="openModal()">더보기</button>' +
+			            '<button type="button" onclick="openModal()">더보기</button>' +
 			            '<div id="myModal" class="modal" style="display:none;">' +
 			                '<div class="modal-content">' +
-			                    '<button id="update">수정</button>' +
-			                    '<button id="delete">삭제</button>' +
-			                    '<button id="report">신고</button>' +
+			                    '<button type="button" id="update">수정</button>' +
+			                    '<button type="button" id="delete">삭제</button>' +
+			                    '<button type="button" id="report">신고</button>' +
 			                    '<span class="close" onclick="closeModal()">&times;</span>' +
 			                '</div>' +
 			            '</div>' +
@@ -133,7 +137,25 @@
 
 	<!-- 댓글 삭제 시작 -->
 	<script type ="text/javascript">
-
+	$(function() {
+		$('#delete').on("click", function() {		
+			var userId = "user5"
+			var replyNo = $(this).closest('tr').find('.replyNo').text();
+			
+			$.ajax({
+				type : 'DELETE',
+				url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
+				success : function(data) {
+					console.log('댓글 삭제 완료 :', data);
+					closeModal();
+				},
+				error : function(xhr, status, error) {
+					console.error('댓글 삭제 실패 : ', error);
+				}
+			});
+			
+		});
+	});
 	
 	</script>
 	<!-- 댓글 삭제 종료 -->
@@ -201,8 +223,7 @@
 				<td th:text="${reply.replyDate}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
-				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}"></td>
-				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}"></td>
+				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
 				<td>
 				<button type="button" onclick="openModal()">더보기</button>
 				<div id="myModal" class="modal">

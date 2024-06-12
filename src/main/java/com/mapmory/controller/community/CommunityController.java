@@ -95,6 +95,7 @@ public class CommunityController {
 		System.out.println("/community/addReply : POST 시작");
 		
         String uuid = ImageFileUtil.getImageUUIDFileName(replyImageName.getOriginalFilename());
+        
         String originalFilename = replyImageName.getOriginalFilename();
 
         objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder); 
@@ -109,6 +110,18 @@ public class CommunityController {
 		communityService.addReply(reply);
 		return "community/getReplyList/"+recordNo;
 	}
+	
+	@PostMapping("/deleteReplyByRecord/{recordNo}")
+	public void deleteREplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+		communityService.deleteReplyByRecord(recordNo);
+		return;
+	}
+
+	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
+	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+		communityService.deleteCommunityLogsByRecord(recordNo);
+		return;
+	}	
 	
 	
 }

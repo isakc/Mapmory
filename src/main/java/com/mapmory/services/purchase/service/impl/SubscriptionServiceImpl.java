@@ -1,7 +1,6 @@
 package com.mapmory.services.purchase.service.impl;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -12,17 +11,14 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.exception.purchase.SubscriptionException;
 import com.mapmory.services.product.domain.Product;
-import com.mapmory.services.product.service.ProductService;
 import com.mapmory.services.purchase.dao.SubscriptionDao;
-import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
-import com.mapmory.services.purchase.service.PurchaseService;
 import com.mapmory.services.purchase.service.SubscriptionService;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.request.AgainPaymentData;
@@ -32,6 +28,8 @@ import com.siot.IamportRestClient.request.UnscheduleData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import com.siot.IamportRestClient.response.Schedule;
+
+import kotlin.jvm.Throws;
 
 @Service("subscriptionServiceImpl")
 @Transactional
@@ -43,14 +41,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	
 	@Autowired
 	private SubscriptionDao subscriptionDao;
-	
-	@Autowired
-	@Qualifier("purchaseServiceImpl")
-	private PurchaseService purchaseService;
-	
-	@Autowired
-	@Qualifier("productServiceImpl")
-	private ProductService productService;
 	
 	@Value("${portOne.imp_key}")
 	private String portOneImpkey;
@@ -66,115 +56,120 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	///// Method /////
 	
-	@Override
-	public boolean addSubscription(Subscription subscription) throws Exception {
-		
-		Product sub = productService.getSubscription();
-		
-		Purchase purchase = Purchase.builder()
-							.price(sub.getPrice())
-							.paymentMethod(subscription.getNextSubscriptionPaymentMethod())
-							.cardType(subscription.getNextSubscriptionCardType())
-							.lastFourDigits(subscription.getNextSubscriptionLastFourDigits())
-							.userId(subscription.getUserId())
-							.purchaseDate(subscription.getSubscriptionStartDate())
-							.productNo(sub.getProductNo())
-							.build();
-		
-		purchaseService.addPurchase(purchase);
-		
-	    if(subscription.getNextSubscriptionPaymentMethod() != 1) {
-	    	purchase.setCardType(null);
-	    	purchase.setLastFourDigits(null);
-	    }
-	    
-		return subscriptionDao.addSubscription(subscription) == 1 ? true : false; // DB에 구독 정보 저장
-	}// addSubscription: 구독 DB에 저장
+    @Override
+    public boolean addSubscription(Subscription subscription) throws Exception{
+    	
+    	if (getDetailSubscription(subscription.getUserId()) == null) {
+    		
+    		if(subscriptionDao.addSubscription(subscription) == 1 ) {
+    			
+    			return true;
+    		}else {
+                throw new SubscriptionException("결제 중 에러 발생");
+    		}
+    	} else {
+            throw new SubscriptionException("이미 구독 중입니다");
+    	}
+    }// addSubscription: 구독 DB에 저장
 
-	@Override
-	public Subscription getDetailSubscription(String userId) throws Exception {
-		Subscription subscription = subscriptionDao.getDetailSubscription(userId);
-		
-		return subscription;
-	}// getDetailSubscription
+    @Override
+    public Subscription getDetailSubscription(String userId) {
+        try {
+        	
+            return subscriptionDao.getDetailSubscription(userId);
+            
+        } catch (Exception e) {
+            throw new SubscriptionException("구독 상세 정보 얻기 실패!!", e);
+        }
+    }// getDetailSubscription: 구독 상세 정보
 
-	@Override
-	public boolean updatePaymentMethod(Subscription subscription) throws Exception {
-		
-		Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
-		
-		subscription.setSubscriptionStartDate(currentSubscription.getSubscriptionStartDate());
-		subscription.setSubscriptionEndDate(currentSubscription.getSubscriptionEndDate());
-		subscription.setNextSubscriptionPaymentDate(currentSubscription.getNextSubscriptionPaymentDate());
-		
-		UnscheduleData unscheduleData = new UnscheduleData("user7"); 
-		IamportResponse<List<Schedule>> reponse = iamportClient.unsubscribeSchedule(unscheduleData);
-		
-		if(reponse.getCode() == 0) {
-			subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
-	        
-			if(schedulePay(subscription)) {
-				return subscriptionDao.updatePaymentMethod(subscription) == 1 ? true : false;
-			}
-		}
-		
-		return false;
-		
-	}// updatePaymentMethod
+    @Override
+    public boolean updatePaymentMethod(Subscription subscription) throws Exception{
+    	
+    	return subscriptionDao.updatePaymentMethod(subscription) == 1;
+    }// updatePaymentMethod: 구독 결제 수단 변경
 
-	@Override
-	public boolean deleteSubscription(String userId) throws Exception {
-		
+    @Override
+    public boolean cancelSubscriptionPortOne(String userId) {
 		Subscription subscription = getDetailSubscription(userId);
 		Map<String, Object> map = new HashMap<>();
 		map.put("customer_uid", subscription.getCustomerUid());
-		
-		UnscheduleData unscheduleData = new UnscheduleData("user7"); 
-		IamportResponse<List<Schedule>> scheduleResponse = iamportClient.unsubscribeSchedule(unscheduleData);
-		
-		if(scheduleResponse.getCode() == 0) {
-			return subscriptionDao.deleteSubscription(userId) == 1 ? true : false;
-		}else {
-			return false;
-		}
-		
-	}// deleteSubscription
-	
-	@Override
-	public boolean requestSubscription(Subscription subscription) throws Exception {
-		
-		Product sub = productService.getSubscription();
-		
-		AgainPaymentData againPaymentData = new AgainPaymentData( subscription.getCustomerUid(), subscription.getMerchantUid(), BigDecimal.valueOf(sub.getPrice()) ); 
-		againPaymentData.setName(sub.getProductTitle());
-		IamportResponse<Payment> againPayment = iamportClient.againPayment(againPaymentData);
-		
-		return againPayment.getCode() == 0 ? true : false;
-		
-	}// requestSubscription: 첫 구독 시 결제 요청
-	
-	public boolean schedulePay(Subscription subscription) throws Exception {
-		Product sub = productService.getSubscription();
-		
-		LocalDateTime localDateTime = LocalDateTime.now().plusMonths(1);
-		Instant instant = localDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant(); //한국시간으로 변경
-		
-		ScheduleData scheduleData = new ScheduleData(subscription.getCustomerUid());
-		ScheduleEntry scheduleEntry = new ScheduleEntry(subscription.getMerchantUid(), Date.from(instant), BigDecimal.valueOf(sub.getPrice()) );
-		scheduleEntry.setName(sub.getProductTitle());
-		scheduleData.addSchedule(scheduleEntry);
-		
-		IamportResponse<List<Schedule>> subscribeSchedule = iamportClient.subscribeSchedule(scheduleData);
-		
-		return subscribeSchedule.getCode() == 0 ? true : false; 
-		
-	}// schedulePay: 정기결제 예약 등록하는 곳
 
-	@Override
-	public List<Subscription> getTodaySubscriptionList() throws Exception {
-		
-		return subscriptionDao.getTodaySubscriptionList();
-		
-	}// getTodaySubscriptionList: 오늘 결제일 유저 리스트
-	
+		try {
+			UnscheduleData unscheduleData = new UnscheduleData("user7");
+			IamportResponse<List<Schedule>> scheduleResponse = iamportClient.unsubscribeSchedule(unscheduleData);
+
+			return scheduleResponse.getCode() == 0;
+		} catch (Exception e) {
+			throw new SubscriptionException("구독 해지 실패!!", e);
+		}
+    }// cancelSubscription: 구독 해지
+    
+    @Override
+    public boolean cancelSubscription(String userId) throws Exception{
+    	
+    	return subscriptionDao.cancelSubscription(userId) == 1;
+    }// updatePaymentMethod: 구독 결제 수단 변경
+
+    @Override
+    public boolean requestSubscription(Subscription subscription, Product product) throws Exception{
+    	
+    	AgainPaymentData againPaymentData = new AgainPaymentData(
+    			subscription.getCustomerUid(),
+                subscription.getMerchantUid(),
+                BigDecimal.valueOf(product.getPrice()) );
+    	
+    	againPaymentData.setName(product.getProductTitle());
+    	
+    	try {
+        	IamportResponse<Payment> againPayment = iamportClient.againPayment(againPaymentData);
+        	
+        	return againPayment.getCode() == 0;
+    	}catch(Exception e) {
+            return false;
+    	}
+
+    }// requestSubscription: 첫 구독 시 결제 요청
+
+    public boolean schedulePay(Subscription subscription, Product product) {
+		ScheduleData scheduleData = new ScheduleData(subscription.getCustomerUid());
+
+		ScheduleEntry scheduleEntry = new ScheduleEntry(subscription.getMerchantUid(),
+				Date.from(LocalDateTime.now().plusMonths(1).atZone(ZoneId.of("Asia/Seoul")).toInstant()),
+				BigDecimal.valueOf(product.getPrice()) );
+		scheduleEntry.setName(product.getProductTitle());
+		scheduleData.addSchedule(scheduleEntry);
+
+		try {
+			IamportResponse<List<Schedule>> subscribeSchedule = iamportClient.subscribeSchedule(scheduleData);
+			
+			return subscribeSchedule.getCode() == 0;
+		}
+		catch (Exception e) {
+			throw new SubscriptionException();
+		}
+    }// schedulePay: 정기결제 예약 등록하는 곳
+
+    @Override
+    public List<Subscription> getTodaySubscriptionList() {
+        try {
+        	
+            return subscriptionDao.getTodaySubscriptionList();
+            
+        } catch (Exception e) {
+            throw new SubscriptionException("오늘 결제 목록 얻기 실패!", e);
+        }
+    }// getTodaySubscriptionList: 오늘 결제 목록
+
+    @Override
+    public boolean deleteSubscription(int subscriptionNo) {
+        try {
+        	
+            return subscriptionDao.deleteSubscription(subscriptionNo) == 1;
+            
+        } catch (Exception e) {
+            throw new SubscriptionException("구독 삭제 실패!", e);
+        }
+    }// deleteSubscription: 구독 삭제
+
 }
