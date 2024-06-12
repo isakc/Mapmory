@@ -14,6 +14,7 @@ import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
+import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
@@ -79,9 +80,21 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/checkDuplication")
-	public ResponseEntity<Boolean> checkDuplication() {
+	public ResponseEntity<Boolean> checkDuplication(@RequestBody CheckDuplicationDto dto) throws Exception {
 		
-		return ResponseEntity.ok(true);
+		boolean result = false;
+		
+		if(dto.getType() == 0) {
+			result = userService.checkDuplicationById(dto.getValue());
+		} else if(dto.getType() == 1) {
+			result = userService.checkDuplicationByNickname(dto.getValue()); 
+		} else {
+			throw new Exception("잘못된 type");
+		}
+		
+		result = !result;  
+		
+		return ResponseEntity.ok(result);
 	}
 	
 	///////////////////////////////////////////////////////////////////////

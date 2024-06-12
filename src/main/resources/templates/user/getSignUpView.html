@@ -1,10 +1,107 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+    <title>회원가입</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+	<script src="/javascript/user/validationSignUp.js"></script>
+	<script>
+		$(function() {
+			
+			$('#idDuplicationCheck').on('click', function() {
+				
+				$.ajax({
+					
+					url : "/user/rest/checkDuplication",
+					method : "post",
+					dataType : "json",
+					headers : {
+						"accept" : "application/json",
+						"content-type" : "application/json"
+					},
+					data : JSON.stringify({
+						type : 0,
+						value : $('#userId').val()
+					}),
+					success : function(responseBody, httpStatus) {
+
+						if (responseBody === true) {
+
+							$('#userIdMsg').text('사용 가능한 아이디입니다.').css('color', 'green').show();
+							
+						} else {
+
+							$('#userIdMsg').text('중복되는 아이디입니다.').css('color', 'red').show();
+						}
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						
+						alert('오류 발생 : ' + jqXHR.responseText);
+					}
+				});
+			});
+			
+			
+		});
+	</script>
+
 </head>
 <body>
-
-</body>	
+    <h1>회원가입</h1>
+    <form th:action="@{/user/signup}" th:object="${user}" method="post">
+        <div>
+            <label for="userId">아이디</label>
+            <input type="text" id="userId" th:field="*{userId}" placeholder="아이디 (5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능)" required/>
+            <button type="button" id="idDuplicationCheck">중복체크</button>
+            <p id="userIdMsg" style="display: none;"/>
+        </div>
+        <div>
+            <label for="userPassword">비밀번호</label>
+            <input type="password" id="userPassword" th:field="*{userPassword}" placeholder="비밀번호 (8~16자의 영문 대/소문자, 숫자, 특수문자)" required/>
+        </div>
+        <div>
+            <label for="userName">이름</label>
+            <input type="text" id="userName" th:field="*{userName}" placeholder="이름 (최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능)" required/>
+        </div>
+        <div>
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임 (최소 2자 최대 18자의 한글 및 영문 사용만 가능)" required/>
+            <button type="button" id="nicknameDuplicationCheck">중복체크</button>
+        </div>
+        <div>
+            <label for="birthday">생년월일</label>
+            <input type="date" id="birthday" th:field="*{birthday}" placeholder="생년월일 (YYYY-MM-DD)" required/>
+        </div>
+        <div>
+            <label for="sex">성별</label>
+            <select id="sex" th:field="*{sex}" required>
+                <option value="0">비공개</option>
+                <option value="1">남성</option>
+                <option value="2">여성</option>
+            </select>
+        </div>
+        <div>
+            <label for="email">이메일</label>
+            <input type="email" id="email" th:field="*{email}" placeholder="이메일 (예: test@test.com)" required/>
+            <button type="button" id="sendAuthEmail">인증번호 발송</button>
+        </div>
+        <div>
+            <label for="phoneNumber">휴대전화번호</label>
+            <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
+            <button type="button" id="sendAuthPhoneNum">인증번호 발송</button>
+        </div>
+        <div>
+            <label for="emailAuthNum">이메일 인증번호</label>
+            <input type="number" id="emailAuthNum" placeholder="이메일 인증번호"/>
+        </div>
+        <div>
+            <label for="phoneNumberAuthNum">휴대전화번호 인증번호</label>
+            <input type="number" id="phoneNumberAuthNum" placeholder="휴대전화번호 인증번호"/>
+        </div>
+        <div>
+            <label for="flag">캡챠</label>
+        </div>
+        <button type="submit">회원가입 완료하기</button>
+    </form>
+</body>
 </html>

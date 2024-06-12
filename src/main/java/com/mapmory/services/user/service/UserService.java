@@ -155,14 +155,14 @@ public interface UserService {
 	public boolean checkSecondaryAuth(String userId);
 	
 	/**
-	 * false : 중복됨, true : 사용 가능
+	 * false : 사용 가능, true : 중복됨
 	 * @param userId
 	 * @return
 	 */
 	public boolean checkDuplicationById(String userId);
 	
 	/**
-	 * false : 중복됨, true : 사용 가능
+	 * false : 사용 가능, true : 중복됨
 	 * @param nickname
 	 * @return
 	 */
