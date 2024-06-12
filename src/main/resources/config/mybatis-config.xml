@@ -42,7 +42,6 @@
 		<typeAlias alias="productImage" type="com.mapmory.services.product.domain.ProductImage"/>
 		<typeAlias alias="recommend" type="com.mapmory.services.recommend.domain.Recommend" />
 		<typeAlias alias="followMap" type="com.mapmory.services.user.domain.FollowMap" />
-		<typeAlias alias="userJM" type="com.mapmory.services.call.domain.UserJM"/>
 	</typeAliases>
 	
 	 <!-- SQL Definition :: file include -->
