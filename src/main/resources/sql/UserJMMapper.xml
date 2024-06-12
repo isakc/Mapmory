@@ -8,9 +8,4 @@
         WHERE user_id = #{userId}
     </select>
 
-    <update id="updateOnlineStatus">
-        UPDATE users
-        SET is_online = #{isOnline}
-        WHERE user_id = #{userId}
-    </update>
 </mapper>
