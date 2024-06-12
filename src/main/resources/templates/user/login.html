@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,16 +35,11 @@
                 });
         	});
 			
-			/*
+			
 			$('#logout').on('click', function() {
 				
-				$.ajax({
-					
-					type: 'post',
-					url: ''
-				});
+				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
 			});
-			*/
 			
 			$('#test').on('click', function() {
 				
@@ -62,7 +56,7 @@
         <input type="password" id="password" name="userPassword" placeholder="비밀번호">
         <br/>   
         
-        <input type="checkbox" name="keepLogin" />
+        <input type="checkbox" name="keepLogin" value="true"/>
         <label for="keepLogin">로그인 유지</label>
         
         <button type="button" id="login">로그인</button>
