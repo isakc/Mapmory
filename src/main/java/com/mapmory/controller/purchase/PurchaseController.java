@@ -2,6 +2,7 @@ package com.mapmory.controller.purchase;
 
 import java.time.LocalDateTime;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.domain.SessionData;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.service.ProductService;
 import com.mapmory.services.purchase.domain.Purchase;
@@ -29,6 +32,9 @@ import com.mapmory.services.user.domain.User;
 public class PurchaseController {
 	
 	///// Field /////
+	
+	@Autowired
+	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
 	@Qualifier("purchaseServiceImpl")
@@ -72,15 +78,17 @@ public class PurchaseController {
 	}// addPurchase: 구매 검증 후 추가 메소드
 	
 	@GetMapping("/getPurchaseList")
-	public String getPurchaseList(@ModelAttribute(value = "search") Search search, Model model, HttpSession session) throws Exception {
+	public String getPurchaseList(@ModelAttribute(value = "search") Search search, Model model, HttpServletRequest request) throws Exception {
 		
 		if (search.getCurrentPage() == 0) {
 			search.setCurrentPage(1);
 		}
 		
-		User user = (User) session.getAttribute("user");
-		search.setSearchKeyword("user1");//@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		//search.setSearchKeyword(user.getUserId()); 
+		//SessionData s = redisUtil.getSession(request);
+		//s.getUserId();
+		
+		//search.setSearchKeyword(s.getUserId());//@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		search.setSearchKeyword("user7");//@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		search.setLimit(3);//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
 		model.addAttribute("purchaseList", purchaseService.getPurchaseList(search));
