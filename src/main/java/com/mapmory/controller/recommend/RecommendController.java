@@ -1,5 +1,6 @@
 package com.mapmory.controller.recommend;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.service.RecommendService;
+import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.service.TimelineService;
 
 @Controller
 @RequestMapping("/recommend/*")
@@ -24,6 +27,10 @@ public class RecommendController {
 	@Autowired
 	@Qualifier("recommendServiceImpl")
 	private RecommendService recommendService;
+	
+	@Autowired
+	@Qualifier("timelineService")
+	private TimelineService timelineService;
     
 //    @PostMapping("/test")
 //    public String test(@RequestBody Map<String, String> requestPayload) throws Exception{
@@ -59,5 +66,36 @@ public class RecommendController {
 		System.out.println(map);
 	
 	}
+	
+	@PostMapping("/updaterecommend")
+	public String updateTimeline(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
+		record.setUpdateCount(record.getUpdateCount()+1);
+		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
+			record.setTempType(1);
+		}else {
+			record.setTempType(0);
+		}
+		System.out.println("record.getImageName() : "+record.getImageName());
+		System.out.println("record.getHashtag() : "+record.getHashtag());
+		timelineService.updateTimeline(record);
+		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
+		
+		///////추천 추가된 부분//////
+		/* 맨 위에 추가할 것
+		@Autowired
+		@Qualifier("recommendServiceImpl")
+		private RecommendService recommendService;
+		*/
+		recommendService.addSearchData(record);
+		Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
+		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		recommendService.updateDataset(recommend);
+		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867");
+		System.out.println(recommend.toString());
+		
+		return "timeline/getDetailTimeline";
+	}
+	
+
 	
 }

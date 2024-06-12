@@ -24,4 +24,6 @@ public class ChattingRestController {
 		return mongoURL;
 	}
 	
+	//프로필, 팔로워/우 목록등에서 접근용
+	
 }

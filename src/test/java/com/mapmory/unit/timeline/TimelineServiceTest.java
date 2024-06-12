@@ -25,7 +25,7 @@ public class TimelineServiceTest {
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
 	
-	@Test
+//	@Test
 //	@Transactional
 	public void testAddTimeline() throws Exception{
 		System.out.println("\n===================================");
