@@ -13,14 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.Reply;
-import com.mapmory.services.community.domain.Reply.ReplyBuilder;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -88,31 +86,8 @@ public class CommunityController {
 		return "community/getReplyList";
     }	
 	
-	@PostMapping("/addReply")
-	public String addReply(@RequestParam("userId") String userId, @RequestParam("replyText") String replyText, 
-							@RequestParam("replyImageName") MultipartFile replyImageName, @RequestParam("recordNo") int recordNo) throws Exception{
-		
-		System.out.println("/community/addReply : POST 시작");
-		
-        String uuid = ImageFileUtil.getImageUUIDFileName(replyImageName.getOriginalFilename());
-        
-        String originalFilename = replyImageName.getOriginalFilename();
-
-        objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder); 
-        
-		Reply reply = Reply.builder()
-				.recordNo(recordNo)
-				.userId("user3")
-				.replyText(replyText)
-				.replyImageName(uuid)
-				.build();
-	
-		communityService.addReply(reply);
-		return "community/getReplyList/"+recordNo;
-	}
-	
 	@PostMapping("/deleteReplyByRecord/{recordNo}")
-	public void deleteREplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
 		communityService.deleteReplyByRecord(recordNo);
 		return;
 	}
