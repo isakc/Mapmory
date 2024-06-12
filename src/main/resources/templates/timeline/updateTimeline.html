@@ -28,17 +28,28 @@
 			<td><span th:text="*{sharedDate!=null ? '공유됨' : '비공유'}"></span><input type="hidden" th:name="sharedDateType" th:value="*{sharedDate}" /></td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{checkpointDate}" disabled="disabled"/></td>
+			<td><input type="text" th:field="*{checkpointDate}" readonly="readonly"/></td>
 		</tr>
 		<tr>
 			<td><input type="text" th:field="*{checkpointAddress}" /></td>
 		</tr>
 		<tr>
-			<td><input type="text" th:field="*{mediaName}" /></td>
+			<td>
+			<video width="320" height="240" controls>
+        		<source th:src="${record.mediaName}" type="video/mp4">
+    		</video>
+				<button type="button" th:text="x"></button>
+				<span th:text="${record.mediaName}"></span>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="file" th:name="mediaFile" />
+			</td>
 		</tr>
 		<tr th:each="image : *{imageName}">
 			<td>
-				<img src="/images/uploadFiles/${image.imageTagText}" height="200" />
+				<img th:src="${image.imageTagText}" />
 				<span th:text="${image.imageTagText}"></span>
 				<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
 				<button type="button" th:text="x"></button>

@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
@@ -35,6 +37,18 @@ public class TimelineUtil {
 	
 	@Value("${timeline.coolsms.fromphonenumber}")
 	private String FROM_PHONE_NUMBER;
+	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
+	
+    @Autowired
+    private ObjectStorageUtil objectStorageUtil;
+	
+	@Value("${object.timeline.image}")
+	private String imageFileFolder;
+	
+	@Value("${object.timeline.media}")
+	private String mediaFileFolder;
 	
 	//map을 record로 묶어주는 기능
 		public static Record mapToRecord(Map<String, Object> map) {
@@ -171,6 +185,68 @@ public class TimelineUtil {
 						.build());
 			}
 			return hashtagList;
+		}
+		
+		public Record imageNameToUrl(Record record) {
+			if (!(record.getImageName() == null)) {
+				List<ImageTag> imageName = new ArrayList<ImageTag>();
+				for (ImageTag image : record.getImageName()) {
+					image.setImageTagText(objectStorageUtil.getImageUrl(image.getImageTagText(), imageFileFolder));
+					imageName.add(image);
+				}
+				record.setImageName(imageName);
+			}
+			return record;
+		}
+
+		public Record mediaNameToUrl(Record record) {
+			if (!(record.getMediaName() == null)) {
+				record.setMediaName(objectStorageUtil.getImageUrl(record.getMediaName(), mediaFileFolder));
+			}
+			return record;
+		}
+		
+		public Record imageFileUpload(Record record,List<MultipartFile> imageFile) throws Exception {
+			List<ImageTag> imageName=new ArrayList<ImageTag>();
+			if( imageFile!=null && !imageFile.isEmpty() ) {
+				
+			System.out.println("List<MultipartFile> imageFile : "+imageFile);
+			
+			for (MultipartFile image : imageFile) {
+				if (image.isEmpty() || image.getOriginalFilename() == null || image.getOriginalFilename().isEmpty()) {
+	            System.out.println("Invalid file name: " + image.getOriginalFilename());
+	            continue;
+				}
+				if (contentFilterUtil.checkBadImage(image) == false) {
+					System.out.println("이미지 검사 통과");
+					String uuid = ImageFileUtil.getImageUUIDFileName(image.getOriginalFilename());
+					objectStorageUtil.uploadFileToS3(image, uuid, imageFileFolder);
+					imageName.add(
+							ImageTag.builder().recordNo(record.getRecordNo()).imageTagType(1).imageTagText(uuid).build());
+				} else {
+					System.out.println(image.getOriginalFilename() + " 유해 이미지, 차단");
+				}
+			}
+		}
+			record.setImageName(imageName);
+			
+			return record;
+			
+		}
+		
+		public Record mediaFileUpload(Record record,MultipartFile mediaFile) throws Exception {
+
+			if (mediaFile.isEmpty() || mediaFile.getOriginalFilename() == null
+					|| mediaFile.getOriginalFilename().isEmpty()) {
+				System.out.println("Invalid file name: " + mediaFile.getOriginalFilename());
+				return record;
+			}
+			String uuid = ImageFileUtil.getImageUUIDFileName(mediaFile.getOriginalFilename());
+			objectStorageUtil.uploadFileToS3(mediaFile, uuid, mediaFileFolder);
+			record.setMediaName(uuid);
+
+			return record;
+			
 		}
 		
 	    public SingleMessageSentResponse sendOne(String toPhoneNumber, String text) {

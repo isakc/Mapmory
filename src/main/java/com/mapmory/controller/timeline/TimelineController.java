@@ -41,6 +41,9 @@ public class TimelineController {
 	private TimelineService timelineService;
 	
 	@Autowired
+	private TimelineUtil timelineUtil;
+	
+	@Autowired
 	private TextToImage textToImage;
 	
 	@Autowired
@@ -157,8 +160,8 @@ public class TimelineController {
 	@GetMapping("updateTimeline")
 	public String updateTimelineView(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		Record record = timelineService.getDetailTimeline(recordNo);
-		
+		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
+		record=timelineUtil.mediaNameToUrl(record);
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
 		model.addAttribute("record",record);
@@ -169,27 +172,14 @@ public class TimelineController {
 	public String updateTimeline(Model model,
 			@ModelAttribute("record") Record record,
 			@ModelAttribute("hashtagText") String hashtagText,
-			@RequestParam("imageNameText") List<String> imageNameText,
-			@RequestParam("imageFile") List<MultipartFile> imageFile) throws Exception,IOException {
-		List<ImageTag> imageName=new ArrayList<ImageTag>();
-		if( !(imageFile==null) ) {
+			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
+			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile) throws Exception,IOException {
 		
-		System.out.println("List<String> imageNameText : "+imageNameText);
-		System.out.println("List<MultipartFile> imageFile : "+imageFile);
-		
-		for (MultipartFile image : imageFile) {
-			if (contentFilterUtil.checkBadImage(image) == false) {
-				System.out.println("이미지 검사 통과");
-				String uuid = ImageFileUtil.getImageUUIDFileName(image.getOriginalFilename());
-				objectStorageUtil.uploadFileToS3(image, uuid, imageFileFolder);
-				imageName.add(
-						ImageTag.builder().recordNo(record.getRecordNo()).imageTagType(1).imageTagText(uuid).build());
-			} else {
-				System.out.println(image.getOriginalFilename() + " 번째 이미지, 차단");
-			}
-		}
-	}
-		record.setImageName(imageName);
+//		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
+//			return null;
+//		}
+		record = timelineUtil.imageFileUpload(record, imageFile);
+		record = timelineUtil.mediaFileUpload(record, mediaFile);
 		
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
@@ -204,8 +194,8 @@ public class TimelineController {
 			record.setTempType(0);
 		}
 		
-		System.out.println("record.getImageName() : "+record.getImageName());
-		System.out.println("record.getHashtag() : "+record.getHashtag());
+//		System.out.println("record.getImageName() : "+record.getImageName());
+//		System.out.println("record.getHashtag() : "+record.getHashtag());
 		timelineService.updateTimeline(record);
 		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
 		return "timeline/getDetailTimeline";
