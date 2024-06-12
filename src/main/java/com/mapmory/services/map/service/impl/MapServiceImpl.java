@@ -37,8 +37,8 @@ public class MapServiceImpl implements MapService {
 	@Value("${tmap.transit.URL}")
 	private String tmapTransitURL;
 	
-	@Value("${jsonTest}")
-	private String jsonTest;
+//	@Value("${jsonTest}")
+//	private String jsonTest;
 	
 	/// Constructor /////
 	
@@ -134,8 +134,8 @@ public class MapServiceImpl implements MapService {
 
 	@Override
 	public List<ResultTransitRouter> getTransitRoute(SearchTransitRouter searchTransitRouter) throws Exception {
-		//String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
-		String resultJson = jsonTest;
+		String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
+		//String resultJson = jsonTest;
 	    
 		List<ResultTransitRouter> ResultRouterList = new ArrayList<ResultTransitRouter>(); // 대중교통 경로 리스트
 		
