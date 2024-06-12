@@ -9,26 +9,26 @@
 	
 	<!-- 더보기 창 -->
 	<script>
-		function openModal() {
-			var modal = document.getElementById("myModal");
-		 	var updateBtn = document.getElementById("update"); 
-		    var deleteBtn = document.getElementById("delete");
-		    var reportBtn = document.getElementById("report"); 
-			modal.style.display = "block";
-	        updateBtn.style.display = "block";
-	        deleteBtn.style.display = "block"; 
-	        reportBtn.style.display = "none"; 
-		}
+// 		function openModal() {
+// 			var modal = document.getElementById("myModal");
+// 		 	var updateBtn = document.getElementById("update"); 
+// 		    var deleteBtn = document.getElementById("delete");
+// 		    var reportBtn = document.getElementById("report"); 
+// 			modal.style.display = "block";
+// 	        updateBtn.style.display = "block";
+// 	        deleteBtn.style.display = "block"; 
+// 	        reportBtn.style.display = "none"; 
+// 		}
 
-		function closeModal() {
-			var modal = document.getElementById("myModal");
-			modal.style.display = "none";
-		}		
+// 		function closeModal() {
+// 			var modal = document.getElementById("myModal");
+// 			modal.style.display = "none";
+// 		}		
 	</script>
 	<!-- 더보기 창 -->	
 	
 	
-	<!-- 댓글 작성 시작 -->
+<!-- 댓글 작성 시작 -->
 	<script type ="text/javascript">
 	$(document).ready(function() {
 		$('#replyForm').submit(function(event) {
@@ -50,7 +50,8 @@
 			var reply = {
 				recordNo : recordNo,
 				userId : "user5",
-				replyText : replyText
+				replyText : replyText,
+				replyImageName : replyImageName
 			};
 
 			formData.append("reply", JSON.stringify(reply));
@@ -70,7 +71,7 @@
 					console.error('댓글 작성 실패 : ', error);
 				}
 			});
-            
+			
 			// 댓글 목록에 새로운 댓글 추가 함수
 			function updateReplyList(replyData) {
 
@@ -99,17 +100,9 @@
 					'<td style="text-align: center;">' + likeCount + '</td>' +
 					'<td style="text-align: center;">' + dislikeCount + '</td>' +
 					'<td class="recordNo" style="display:none;">'+recordNo+'</td>'+
-					'<td class="replyNo" style="display:none;">'+replyNo+'</td>'+					
+		            '<td class="replyNo" style="display:none;" data-replyno="' + replyNo + '"></td>' +				
 			        '<td>' +
 			            '<button type="button" onclick="openModal()">더보기</button>' +
-			            '<div id="myModal" class="modal" style="display:none;">' +
-			                '<div class="modal-content">' +
-			                    '<button type="button" id="update">수정</button>' +
-			                    '<button type="button" id="delete">삭제</button>' +
-			                    '<button type="button" id="report">신고</button>' +
-			                    '<span class="close" onclick="closeModal()">&times;</span>' +
-			                '</div>' +
-			            '</div>' +
 		        	'</td>' +
 					'</tr>';            	
             	                        
@@ -122,43 +115,83 @@
         });
     }); 
 	</script>
-	<!-- 댓글 작성 종료 -->	
+	<!-- 댓글 작성 종료 -->
+		
 
-
-	<!-- 댓글 수정 시작 -->
+	<!-- 댓글 수정, 삭제 시작 -->
 	<script type ="text/javascript">
+	var currentRow = null;
+	
+	function openModal(row) {
+		currentRow = row;
+		document.getElementById("moreModal").style.display = "block";	
+	}
+	
+	function closeModal() {
+		document.getElementById("moreModal").style.display = "none";
+	}
 	
 	
-	</script>
-	<!-- 댓글 수정 종료 -->
-
-
-
-
-	<!-- 댓글 삭제 시작 -->
-	<script type ="text/javascript">
 	$(function() {
-		$('#delete').on("click", function() {		
-			var userId = "user5"
-			var replyNo = $(this).closest('tr').find('.replyNo').text();
-			
-			$.ajax({
-				type : 'DELETE',
-				url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
-				success : function(data) {
-					console.log('댓글 삭제 완료 :', data);
-					closeModal();
-				},
-				error : function(xhr, status, error) {
-					console.error('댓글 삭제 실패 : ', error);
-				}
-			});
-			
+		$('table').on("click", ".moreBtn", function() {
+			var $row = $(this).closest('tr');
+			openModal($row);
 		});
+		
+		//댓글 수정
+		$('#moreModal').on("click", "#update", function() {
+			if(currentRow) {
+				var userId = "user5"
+				var replyNo = currentRow.find('.replyNo').text();
+				
+				$.ajax({
+					type : 'PUT',
+					url : '/community/rest/updateReply/'+userId+'/'+replyNo,
+					success : function(data) {
+						console.log('댓글 수정 완료 :', data);
+						closeModal();
+					},
+					error : function(xhr, status, error) {
+						
+					}
+				});
+			}
+		})
+		
+		//댓글 삭제
+		$('#moreModal').on("click", "#delete", function() {
+			if(currentRow) {
+				var userId = "user5";
+				var replyNo = currentRow.find('.replyNo').text();
+
+				$.ajax({
+					type : 'DELETE',
+					url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
+					success : function(data) {
+						console.log('댓글 삭제 완료 :', data);
+						closeModal();
+						currentRow.remove();
+					},
+					error : function(xhr, status, error) {
+						console.error('댓글 삭제 실패 : ', error);
+					}
+				});				
+			}
+		});	
+				
+		$('.close').on("click", function() {
+			closeModal();
+		});
+		
+        $(window).on("click", function(event) {
+            var modal = document.getElementById("moreModal");
+            if (event.target == modal) {
+                closeModal();
+            }		
+        });
 	});
-	
 	</script>
-	<!-- 댓글 삭제 종료 -->
+	<!-- 댓글 수정, 삭제 종료 -->
 	
 	<style>
 		.modal {
@@ -199,7 +232,6 @@
 	
 </head>
 <body>
-	<form id="replyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 	<h1>댓글 목록</h1>
 	<table>
 		<tbody>
@@ -225,19 +257,23 @@
 				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
 				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
 				<td>
-				<button type="button" onclick="openModal()">더보기</button>
-				<div id="myModal" class="modal">
-				  <div class="modal-content">
-				    <button type="button" id="update">수정</button>
-				    <button type="button" id="delete">삭제</button>
-				    <button type="button" id="report">신고</button>
-				    <span class="close" onclick="closeModal()">&times;</span>
-				  </div>
-				</div>
+				<button type="button" class="moreBtn">더보기</button>
 				</td>
 			</tr>
 		</tbody>
 	</table>
+	
+	<div id="moreModal" class="modal">
+		<div class="modal-content">
+			<button type="button" id="update">수정</button>
+			<button type="button" id="delete">삭제</button>
+			<button type="button" id="report">신고</button>
+			<span class="close" onclick="closeModal()">&times;</span>
+		</div>
+	</div>
+
+
+	<form id="replyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">	
 		<label for="replyText">댓글 내용</label><br> 
 		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
 		<label for="replyImageName">사진 첨부</label>
