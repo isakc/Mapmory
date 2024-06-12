@@ -1,6 +1,5 @@
 package com.mapmory.services.user.service;
 
-import com.mapmory.services.call.domain.UserJM;
 import com.mapmory.services.user.domain.User;
 
 public interface UserServiceJM {
@@ -11,7 +10,5 @@ public interface UserServiceJM {
 	
 	public String PhoneNumberCheck(String to) throws Exception;
 	
-	public void updateOnlineStatus(String userId, boolean isOnline) throws Exception;
-	
-	public UserJM findByUserId(String userId) throws Exception;
+	public User findByUserId(String userId) throws Exception;
 }

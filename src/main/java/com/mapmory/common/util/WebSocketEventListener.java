@@ -28,9 +28,11 @@ public class WebSocketEventListener {
         HttpServletRequest request = ((ServletServerHttpRequest) headerAccessor.getMessageHeaders().get("simpConnectMessage")).getServletRequest();
         
         SessionData sessionData = redisUtil.getSession(request);
-        String userId = sessionData.getUserId(); // 회원 아이디 가져오기
+        String userId = sessionData.getUserId();
         
-        userService.updateOnlineStatus(userId, true);
+        // Redis에 세션 정보가 존재하는지 확인 (온라인 상태 판단)
+        boolean isOnline = redisUtil.select(userId, SessionData.class) != null;
+        System.out.println("WebSocket connected - User: " + userId + ", Online: " + isOnline);
     }
     
     @EventListener
@@ -39,8 +41,10 @@ public class WebSocketEventListener {
         HttpServletRequest request = ((ServletServerHttpRequest) headerAccessor.getMessageHeaders().get("simpConnectMessage")).getServletRequest();
         
         SessionData sessionData = redisUtil.getSession(request);
-        String userId = sessionData.getUserId(); // 회원 아이디 가져오기
+        String userId = sessionData.getUserId();
         
-        userService.updateOnlineStatus(userId, false);
+        // Redis에서 세션 정보 삭제
+        redisUtil.delete(userId);
+        System.out.println("WebSocket disconnected - User: " + userId);
     }
 }
