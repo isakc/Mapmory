@@ -112,7 +112,7 @@
 	<!-- 기록 삭제 시 댓글 삭제 -->	
 	<delete id="deleteReplyByRecord" parameterType="reply">
 		DELETE FROM reply
-		WHERE record_no = #{recordyNo}
+		WHERE record_no = #{recordNo}
 	</delete>	
 	
 	<!-- 기록에 작성된 댓글 Count -->

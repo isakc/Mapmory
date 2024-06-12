@@ -78,8 +78,13 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public void updateReply(Reply reply) throws Exception {
-		reply.getReplyNo();
-		communityDao.updateReply(reply);
+		
+		if(ContentFilterUtil.checkBadWord(reply.getReplyText())) {
+			throw new Exception("비속어가 포함된 댓글은 등록할 수 없음");
+		} else {
+			communityDao.updateReply(reply);
+		}
+	
 	}
 
 	@Override

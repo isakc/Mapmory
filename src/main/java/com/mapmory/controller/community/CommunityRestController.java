@@ -6,10 +6,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,13 +92,37 @@ public class CommunityRestController {
 	        System.out.println("댓글 목록이 비어 있습니다.");
 	        return ResponseEntity.noContent().build(); 
 	    }
-	}    
+	}  		
 
-	@PostMapping("/rest/updateReply")
-	public String updateReply(Reply reply, MultipartFile replyImageName, int recordNo) throws Exception {
-		communityService.updateReply(reply);
-		return "redirect: community/getReplyList";
-		
+	@PutMapping("/rest/updateReply/{userId}/{replyNo}")
+	public ResponseEntity<Reply> updateReply(@ModelAttribute Reply reply, @RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName,
+												@RequestParam("userId") String userId, @RequestParam("replyNo") int replyNo, @RequestParam("replyText") String replyText, Search search) throws Exception {
+
+	    try {
+	        // 이미지가 업데이트되었는지 확인하고 업데이트된 경우 새로운 이미지를 업로드합니다.
+	        if (replyImageName != null && !replyImageName.isEmpty()) {
+	            if (!contentFilterUtil.checkBadImage(replyImageName)) {
+	                String uuid = ImageFileUtil.getImageUUIDFileName(replyImageName.getOriginalFilename());
+	                objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder);
+	                reply.setReplyImageName(uuid);
+	            } else {
+	                // 유해 이미지가 감지된 경우 예외를 던집니다.
+	                throw new Exception("유해 이미지가 감지되어 댓글을 수정할 수 없습니다.");
+	            }
+	        }
+
+	        reply.setReplyNo(replyNo);
+	        reply.setReplyText(replyText);
+
+	        // 댓글을 업데이트합니다.
+	        communityService.updateReply(reply);
+
+	        // 수정된 댓글을 응답합니다.
+	        return ResponseEntity.ok(reply);
+	    } catch (Exception e) {
+	        // 예외가 발생한 경우 예외 메시지를 응답합니다.
+	    	return ResponseEntity.noContent().build();
+	    }
 	}	
 	
 	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
