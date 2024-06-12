@@ -17,7 +17,7 @@ public class MainController {
 	}
 	
 	// test용
-	@GetMapping("/common/footer")
+	@GetMapping("/test")
 	public void getFooter() {
 		
 	}

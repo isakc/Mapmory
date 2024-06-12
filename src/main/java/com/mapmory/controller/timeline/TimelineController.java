@@ -61,6 +61,10 @@ public class TimelineController {
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
 	
+	public TimelineController(){
+		System.out.println("TimelineController default Contrctor call : " + this.getClass());
+	}
+	
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
 			@RequestParam(value="userId", required = true) String userId,
@@ -268,6 +272,11 @@ public class TimelineController {
 		timelineService.addCategory(category);
 		model.addAttribute("categoryList",timelineService.getCategoryList());
 		return "timeline/admin/getAdminCategoryList";
+	}
+	
+	@GetMapping("footer")
+	public String footer() throws Exception,IOException {
+		return "common/footer";
 	}
 	
 	
