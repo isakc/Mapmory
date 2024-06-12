@@ -15,4 +15,10 @@ public class MainController {
 	public void getMenu() {
 		
 	}
+	
+	// test용
+	@GetMapping("/common/footer")
+	public void getFooter() {
+		
+	}
 }

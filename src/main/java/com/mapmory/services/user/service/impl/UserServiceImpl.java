@@ -316,7 +316,9 @@ public class UserServiceImpl implements UserService {
 			
 			for (Path filePath : files) {
 				
+				System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
+				System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
@@ -331,10 +333,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public TermsAndConditions getDetailTermsAndConditions(String fileName) throws Exception {
+	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception {
 		// TODO Auto-generated method stub
 
-		String filePath = tacDirectoryPath + "/" + fileName;
+		// String filePath = tacDirectoryPath + "/" + fileName;
 		
 		try {
 		
@@ -624,6 +626,8 @@ public class UserServiceImpl implements UserService {
 	
 	/**
 	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
+	 * 현재 user1과 user2만 갈아엎도록 설정되어 있다. 
+	 * 만약 test data(최대 100개까지 지원) 모두를 갈아엎고 싶다면 userServiceImpl에 직접 찾아와서 주석 처리된 부분을 해제하고 기존 코드를 주석 처리하라.
 	 */
 	public void setupForTest() {
 
@@ -648,6 +652,9 @@ public class UserServiceImpl implements UserService {
 		
 		String userId="user1";
 		String userPassword="password1";
+		updatePassword(userId, userPassword);
+		userId="user2";
+		userPassword="password2";
 		updatePassword(userId, userPassword);
 	}
 
