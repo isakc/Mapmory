@@ -68,6 +68,25 @@
         <br/>
         <br/>
         <button type="button" id="logout">로그아웃</button>
+
+		<details>
+		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
+		  <ol>
+		    <li>
+		      'users' 테이블에서 `password` 열의 길이를 120으로 변경합니다. (또는 현재 데이터베이스를 삭제하고 개인용 스크립트를 다시 붙여넣어도 됩니다.)
+		    </li>
+		    <li>
+		      'UserController'의 `setupForTest()` [전) getLoginView()]에서 주석 처리된 `userService.setupForTest();` 부분을 활성화합니다.
+		    </li>
+		    <li>
+		      해당 URL로 접속합니다.
+		    </li>
+		  </ol>
+		  <br>
+		
+		  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 `user1`, `user2` 변경 코드를 비활성화하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
+		</details>
+         
         <br/>
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
