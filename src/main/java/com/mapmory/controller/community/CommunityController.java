@@ -94,7 +94,7 @@ public class CommunityController {
 		
 		System.out.println("/community/addReply : POST 시작");
 		
-        String uuid = ImageFileUtil.getProductImageUUIDFileName(replyImageName.getOriginalFilename());
+        String uuid = ImageFileUtil.getImageUUIDFileName(replyImageName.getOriginalFilename());
         String originalFilename = replyImageName.getOriginalFilename();
 
         objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder); 

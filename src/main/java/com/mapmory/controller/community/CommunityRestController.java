@@ -66,7 +66,7 @@ public class CommunityRestController {
 		if (replyImageName != null && !replyImageName.isEmpty()) {
 			if(contentFilterUtil.checkBadImage(replyImageName) == false) {
 				System.out.println("이미지 검사 통과");
-				String uuid = ImageFileUtil.getProductImageUUIDFileName(replyImageName.getOriginalFilename());
+				String uuid = ImageFileUtil.getImageUUIDFileName(replyImageName.getOriginalFilename());
 				objectStorageUtil.uploadFileToS3(replyImageName, uuid, replyFolder);		
 				reply.setReplyImageName(uuid);
 			} else {

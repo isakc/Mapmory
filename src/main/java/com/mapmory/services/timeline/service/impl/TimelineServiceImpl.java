@@ -43,14 +43,10 @@ public class TimelineServiceImpl implements TimelineService {
 		timelineDao.insertTimeline(record);
 		System.out.println(record);
 		map.put("recordNo",record.getRecordNo());
-//		System.out.println("record.getImageTagList():"+record.getImageTagList());
 		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
-//		map.put("imageName",record.getImageName());
-//		map.put("hashtag",record.getHashtag());
+
 		
-		timelineDao.insertImageTag(map);
-//		timelineDao.insertImageName(map);
-//		timelineDao.insertHashtag(map);
+//		timelineDao.insertImageTag(map);
 		return record.getRecordNo();
 	}
 	

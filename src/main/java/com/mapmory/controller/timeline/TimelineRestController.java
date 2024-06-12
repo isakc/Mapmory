@@ -62,10 +62,18 @@ public class TimelineRestController {
 	String speechFolderName;
 	
 	@PostMapping("addTimeline")
-	public Record addTimelineView(@RequestBody Record record) throws Exception,IOException {
+	public ResponseEntity<String> addTimelineView(@RequestBody Record record) throws Exception,IOException {
+		String text="";
 		int recordNo=timelineService.addTimeline(record);
-		return timelineService.getDetailTimeline(recordNo);
+		if(recordNo!=0) {
+			text+="체크포인트가 저장 완료 WHYNOT!"+timelineService.getDetailTimeline(recordNo);
+		}else {
+			text+="체크포인트 저장 안됨";
+		}
+		return ResponseEntity.ok(text);
 	}
+	
+	
 	
 	@PostMapping("upload")
 	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
