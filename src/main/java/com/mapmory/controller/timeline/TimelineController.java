@@ -68,11 +68,16 @@ public class TimelineController {
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
 			@RequestParam(value="userId", required = true) String userId,
-			@RequestParam(value="selectDay", required = false) Date selectDay) throws Exception,IOException{
+			@RequestParam(value="selectDay", required = false) Date selectDay,
+			@RequestParam(value="plus", required = false) Integer plus
+			) throws Exception,IOException{
 		if(selectDay==null) {
 //		LocalDate today = LocalDate.now();
 		LocalDate today = LocalDate.of(2024,5,29);
 		selectDay=Date.valueOf(today);
+		}
+		if( !(plus==null) ) {
+			selectDay=(Date.valueOf(selectDay.toLocalDate().plusDays(plus)));
 		}
 		LocalDate tomorrow = selectDay.toLocalDate();
 		
@@ -83,6 +88,7 @@ public class TimelineController {
 				.timecapsuleType(0)
 				.build();
 		model.addAttribute("timelineList", timelineService.getTimelineList(search));
+		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
 	}
 	
@@ -149,7 +155,7 @@ public class TimelineController {
 			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
 		timelineService.deleteImage(recordNo);
-		getTimelineList(model, userId, null);
+//		getTimelineList(model, userId, null);
 	}
 	
 	@GetMapping("getDetailTimecapsule")
@@ -401,10 +407,11 @@ public class TimelineController {
 		search=Search.builder()
 				.latitude(37.56789)
 	 			.longitude(127.345678)
-	 			.radius(110)
+	 			.radius(1100)
 	 			.limit(10)
 	 			.userId("user1")
 	 			.currentPage(1)
+	 			.privateType(1)
 				.build();
 		model.addAttribute("list14",timelineService.getMapRecordList(search));
 		search=Search.builder()

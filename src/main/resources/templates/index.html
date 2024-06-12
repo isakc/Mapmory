@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -84,13 +84,13 @@
 		  </ol>
 		  <br>
 		
-		  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 `user1`, `user2` 변경 코드를 비활성화하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
-		</details>
-         
+		  <p>**번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 `user1`, `user2` 변경 코드를 비활성화하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.</p>
+		  </details>
         <br/>
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
         <button type="button" id="footerView">footer 실험실로 이동</button>
     </form> 
+    <div th:include="common/footer::defaultFooter"></div>
 </body>
 </html>
