@@ -86,17 +86,17 @@ public class CommunityController {
 		return "community/getReplyList";
     }	
 	
-	@PostMapping("/deleteReplyByRecord/{recordNo}")
-	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-		communityService.deleteReplyByRecord(recordNo);
-		return;
-	}
-
-	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
-	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-		communityService.deleteCommunityLogsByRecord(recordNo);
-		return;
-	}	
+//	@PostMapping("/deleteReplyByRecord/{recordNo}")
+//	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+//		communityService.deleteReplyByRecord(recordNo);
+//		return;
+//	}
+//
+//	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
+//	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+//		communityService.deleteCommunityLogsByRecord(recordNo);
+//		return;
+//	}	
 	
 	
 }

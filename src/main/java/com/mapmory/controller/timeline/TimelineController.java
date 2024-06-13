@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,20 +14,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
-import com.mapmory.common.util.ContentFilterUtil;
-import com.mapmory.common.util.ImageFileUtil;
-import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
+import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.domain.Category;
-import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -39,6 +33,10 @@ public class TimelineController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
+	
+	@Autowired
+	@Qualifier("communityServiceImpl")
+	private CommunityService communityService;
 	
 	@Autowired
 	private TimelineUtil timelineUtil;
@@ -143,17 +141,9 @@ public class TimelineController {
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
 		Record record=timelineService.getDetailTimeline(recordNo);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
-	}
-	
-	@GetMapping("deleteTimeline")
-	public void deleteTimeline(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo,
-			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
-		timelineService.deleteTimeline(recordNo);
-		timelineService.deleteImage(recordNo);
-//		getTimelineList(model, userId, null);
 	}
 	
 	@GetMapping("getDetailTimecapsule")
@@ -207,6 +197,14 @@ public class TimelineController {
 		timelineService.updateTimeline(record);
 		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
 		return "timeline/getDetailTimeline";
+	}
+
+	@GetMapping("deleteTimeline")
+	public String deleteTimeline(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo,
+			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
+		timelineService.deleteTimeline(recordNo);
+		return getTimelineList(model, userId, null, null);
 	}
 	
 	@GetMapping("addTimecapsule")
@@ -376,70 +374,74 @@ public class TimelineController {
 //		model.addAttribute("list11",timelineService.getTimelineList(search));
 //		
 		//성문 지원===========================================
+//		search=Search.builder()
+//	 			.latitude(33.450701)
+//	 			.longitude(126.570667)
+//	 			.radius(110)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.followType(1)
+//				.build();
+//		model.addAttribute("mapList1",timelineService.getMapRecordList(search));
+//		search=Search.builder()
+//				.latitude(33.450701)
+//	 			.longitude(126.570667)
+//	 			.radius(110)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.sharedType(1)
+//	 			.searchKeyword("22")
+//				.build();
+//		model.addAttribute("mapList2",timelineService.getMapRecordList(search));
+//		search=Search.builder()
+//				.latitude(37.56789)
+//	 			.longitude(127.345678)
+//	 			.radius(1100)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.privateType(1)
+//				.build();
+//		model.addAttribute("mapList3",timelineService.getMapRecordList(search));
+//		search=Search.builder()
+//				.latitude(37.56789)
+//	 			.longitude(127.345678)
+//	 			.radius(1100)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.privateType(1)
+//	 			.searchKeyword("나가")
+//				.build();
+//		model.addAttribute("mapList3_2",timelineService.getMapRecordList(search));
+//		search=Search.builder()
+//				.latitude(37.56789)
+//	 			.longitude(127.345678)
+//	 			.radius(1100)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.privateType(1)
+//	 			.searchKeyword("나가")
+//	 			.categoryNo(2)
+//				.build();
+//		model.addAttribute("mapList3_3",timelineService.getMapRecordList(search));
+//		search=Search.builder()
+//				.latitude(37.56789)
+//	 			.longitude(127.345678)
+//	 			.radius(1100)
+//	 			.limit(10)
+//	 			.userId("user1")
+//	 			.privateType(1)
+//	 			.categoryNo(3)
+//				.build();
+//		model.addAttribute("mapList3_4",timelineService.getMapRecordList(search));
 		search=Search.builder()
-	 			.latitude(33.450701)
-	 			.longitude(126.570667)
-	 			.radius(110)
-	 			.limit(10)
-	 			.userId("user1")
-	 			.followType(1)
-				.build();
-		model.addAttribute("mapList1",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(33.450701)
-	 			.longitude(126.570667)
-	 			.radius(110)
-	 			.limit(10)
-	 			.userId("user1")
+				.latitude(37.4794143)
+	 			.longitude(127.020817)
+//	 			.privateType(1)
+//	 			.followType(1)
 	 			.sharedType(1)
-	 			.searchKeyword("22")
-				.build();
-		model.addAttribute("mapList2",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(37.56789)
-	 			.longitude(127.345678)
-	 			.radius(1100)
-	 			.limit(10)
 	 			.userId("user1")
-	 			.privateType(1)
-				.build();
-		model.addAttribute("mapList3",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(37.56789)
-	 			.longitude(127.345678)
-	 			.radius(1100)
-	 			.limit(10)
-	 			.userId("user1")
-	 			.privateType(1)
-	 			.searchKeyword("나가")
-				.build();
-		model.addAttribute("mapList3_2",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(37.56789)
-	 			.longitude(127.345678)
-	 			.radius(1100)
-	 			.limit(10)
-	 			.userId("user1")
-	 			.privateType(1)
-	 			.searchKeyword("나가")
-	 			.categoryNo(2)
-				.build();
-		model.addAttribute("mapList3_3",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(37.56789)
-	 			.longitude(127.345678)
-	 			.radius(1100)
-	 			.limit(10)
-	 			.userId("user1")
-	 			.privateType(1)
-	 			.categoryNo(3)
-				.build();
-		model.addAttribute("mapList3_4",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(33.450701)
-	 			.longitude(126.570667)
-	 			.radius(110)
-	 			.limit(5)
+	 			.radius(4)
+	 			.limit(100)
 				.build();
 		model.addAttribute("mapList4",timelineService.getMapRecordList(search));
 //		//===========================================

@@ -23,11 +23,11 @@
 <img th:name="체크포인트" th:src="'https://bcuacdphgdfn24694507.cdn.ntruss.com/checkpoint_image.png'" style="height: 50px;"/>
 <!-- <a href="#" th:text="체크포인트"></a> -->
 </div>
-<input type="hidden" th:name="recordUserId" th:value="'user2'"/>
-<input type="hidden" th:name="recordTitle" th:value="null"/>
-<input type="hidden" th:name="latitude" th:value="33.450701"/>
-<input type="hidden" th:name="longitude" th:value="126.570667"/>
-<input type="hidden" th:name="checkpointAddress" th:value="'서울시 강남구'"/>
+<input type="hidden" th:name="recordUserIdOfFooter" th:value="'user2'"/>
+<input type="hidden" th:name="recordTitleOfFooter" th:value="null"/>
+<input type="hidden" th:name="latitudeOfFooter" th:value="33.450701"/>
+<input type="hidden" th:name="longitudeOfFooter" th:value="126.570667"/>
+<input type="hidden" th:name="checkpointAddressOfFooter" th:value="'서울시 강남구'"/>
 
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
@@ -37,11 +37,11 @@ $(function() {
 		self.location = "/timeline/getTimelineList?userId=user1";
 	});
 	
-	let recordUserId = $('input[name="recordUserId"]').val();
-	let recordTitle = $('input[name="recordTitle"]').val();
-	let latitude = $('input[name="latitude"]').val();
-	let longitude = $('input[name="longitude"]').val();
-	let checkpointAddress = $('input[name="checkpointAddress"]').val();
+	let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
+	let recordTitle = $('input[name="recordTitleOfFooter"]').val();
+	let latitude = $('input[name="latitudeOfFooter"]').val();
+	let longitude = $('input[name="longitudeOfFooter"]').val();
+	let checkpointAddress = $('input[name="checkpointAddressOfFooter"]').val();
 	/* $("a[href='#']:contains('체크포인트')").on("click", function() { */
 	$("img[name='체크포인트']").on("click", function() {
 			$.ajax("/timeline/rest/addTimeline",{
