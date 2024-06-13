@@ -17,7 +17,7 @@
 			var replyText = $('#replyText').val().trim();
 			
 			if(replyText === '') {
-				alert('댓글 내용을 입력하세요');
+				alert('댓글 내용을 입력해주세요');
 				return;
 			}
 
@@ -103,7 +103,7 @@
 	<!-- 댓글 작성 종료 -->
 		
 
-	<!-- 댓글 수정, 삭제 시작 -->
+	<!-- 더보기 모달창 처리 -->
 	<script type ="text/javascript">
 	var currentRow = null;
 	var replyText = "";
@@ -143,20 +143,25 @@
 		$('#moreModal').on("click", "#update", function() {
 			if(currentRow) {
 				var replyText = currentRow.find('.replyText').text();
+				$('#updateReplyText').val(replyText);
 				$('.updateReplyForm').val(replyText);
 			}
 			openUpdateModal();
 			closeModal();
-
+			
 			$('#updateReplyForm').submit(function(event) {
 				event.preventDefault();
 	   
-
 	        	var formData = new FormData(this);
 				var updatedReplyText = $('#updateReplyText').val().trim();	        
 				var recordNo = $('#recordNo').val();
 				console.log("12 : "+recordNo);
-				
+
+				if(updatedReplyText === '') {
+					alert('댓글 내용을 입력해주세요');
+					return;
+				}
+			
 				formData.append("recordNo", recordNo);
 				formData.append("userId", "user5");
 
@@ -211,11 +216,36 @@
 						console.error('댓글 삭제 실패 : ', error);
 					}
 				});				
-			}
+			}			
 		});	
+		
+		//댓글 신고
+		$('#moreModal').on("click", "#addReport", function() {
+			console.log(1);
+			if(currentRow) {
+				var userId = currentRow.find('.userId').text();
+				var replyNo = currentRow.find('.replyNo').text();
+				var replyText = currentRow.find('#replyText').text();
+				var reportData = {
+					targetUserId : userId,
+					replyNo : replyNo,
+					replyText : replyText
+				}; 
+				console.log(reportData);
+				
+				sessionStorage.setItem('reportData', JSON.stringify(reportData));
+				
+				window.location.href = '/community/addReport';
+				closeModal();
+			}
+		});
 				
 		$('.close').on("click", function() {
 			closeModal();
+		});
+		
+		$('.close2').on("click", function() {
+			closeUpdateModal();
 		});
 		
         $(window).on("click", function(event) {
@@ -337,6 +367,9 @@
 	</script>
 	<!-- 댓글 싫어요 -->	
 	
+
+	
+	
 	<style>
 		.modal {
 		  display: none; /* 모달 숨기기 */
@@ -431,7 +464,7 @@
 				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
 				<td th:text="${reply.profileImageName}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
-				<td th:text="${reply.replyText}"></td>
+				<td id="replyText" th:text="${reply.replyText}"></td>
 				<td th:text="${reply.replyImageName}"></td>
 				<td th:text="${reply.replyDate}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
@@ -440,6 +473,7 @@
 				<td><button type="button" id="dislikeButton">싫어요</button></td>
 				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></td>
 				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
+				<td class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></td>
 				<td>
 				<button type="button" class="moreBtn">더보기</button>
 				</td>
@@ -451,29 +485,29 @@
 		<div class="modal-content">
 			<button type="button" id="update">수정</button>
 			<button type="button" id="delete">삭제</button>
-			<button type="button" id="report">신고</button>
-			<span class="close" onclick="closeModal()">&times;</span>
+			<button type="button" id="addReport">댓글신고하기</button>
+			<span class="close">&times;</span>
 		</div>
 	</div>
 
 	<div id="updateModal" class="updateModal">
 		<div class="modal-content2">
 			<h4>댓글 수정</h4>
-				<form id="updateReplyForm" th:action="@{/community/rest/addReply}" method="put" enctype="multipart/form-data">	
+				<form id="updateReplyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">	
 					<label for="updateReplyText">댓글 내용</label><br> 
-					<textarea id="updateReplyText" name="updateReplyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
+					<textarea id="updateReplyText" name="updateReplyText" rows="4" cols="50" placeholder ="댓글을 입력해주세요"></textarea><br/><br/>
 					<label for="updateReplyImageName">사진 첨부</label>
 					<input type = "file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
 					<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">		
-					<button type ="submut" id="updateBtn">댓글수정</button>
+					<button type ="submit" id="updateBtn">댓글수정</button>
 				</form>
-			<span class="close2" onclick="closeUpdateModal()">&times;</span>
+			<span class="close2">&times;</span>
 		</div>
 	</div>
 
 	<form id="replyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">	
 		<label for="replyText">댓글 내용</label><br> 
-		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
+		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력해주세요"></textarea><br/><br/>
 		<label for="replyImageName">사진 첨부</label>
 		<input type = "file" id="replyImageName" name="replyImageName" class="form-control">
 		<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">		
