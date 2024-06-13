@@ -2,9 +2,135 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>신고하기</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+	<!-- 신고 폼에 데이터 넣기 -->
+    <script type="text/javascript">
+    	$(document).ready(function() {
+    	
+    	    var storedData = sessionStorage.getItem('reportData');
+    	    if (storedData) {
+    	        var storedReportData = JSON.parse(storedData);
+    	        console.log(storedReportData);
+    	    }
+			var recordNo = storedReportData.recordNo;
+    	    var recordTitle = storedReportData.recordTitle;
+			var replyNo = storedReportData.replyNo;
+    	    var replyText = storedReportData.replyText;
+
+			$('#reporter').val('user3');
+    	    $('#target').val(storedReportData.targetUserId);
+			$('#recordNo').val(storedReportData.recordNo);
+			$('#recordTitle').val(storedReportData.recordTitle);
+			$('#replyText').val(storedReportData.replyText);
+			$('#replyNo').val(storedReportData.replyNo);
+            
+			console.log(recordTitle);
+			console.log(replyText);
+			
+		    if (recordTitle !== null && recordTitle !== '' && recordTitle !== undefined) {
+		        document.getElementById('recordTitleField').style.display = 'block';
+		    } else {
+		        document.getElementById('recordTitleField').style.display = 'none';
+		    }
+
+		    if (replyText !== null && replyText !== '' && replyText !== undefined) {
+		        document.getElementById('replyTextField').style.display = 'block';
+		    } else {
+		        document.getElementById('replyTextField').style.display = 'none';
+		    }
+		}) 
+    </script>
+	<!-- 신고 폼에 데이터 넣기 -->
+	
+	<!-- 신고하기 -->
+	<script type="text/javascript">
+	$(function() {
+		$('#doReport').on("click", function() {
+			event.preventDefault();
+			var reportTitle = $('#reportTitle').val();
+			var reportText = $('#reportText').val();
+			var reporter = $('#reporter').val();
+			var target = $('#target').val();
+			var recordNo = $('#recordNo').val();
+			var replyNo = $('#replyNo').val();
+
+			var data = {
+				reportTitle : reportTitle,
+				reportText : reportText,
+				userId : reporter,
+				targetUserId : target,
+				recordNo : recordNo,
+				replyNo : replyNo
+			};
+			
+			console.log(data);
+			
+			$.ajax({
+				type : 'POST',
+				url : "/community/rest/doReport",
+				contentType : "application/json",
+				data : JSON.stringify(data),
+				success : function(response) {
+					console.log("신고 완료");
+					$('#reportConfirm').show();
+	                $('#doRepot').find('input, textarea, button').attr('disabled', 'disabled');
+	                var now = new Date();
+	                var options = { year : 'numeric' , month : '2-digit', day: '2-digit',
+	                				hour : '2-digit' , minute : '2-digit'};
+	                var formattedTime = now.toLocaleDateString('ko-KR', options);
+	                
+	                $('#reportDate').text(`신고 일시 : ${formattedTime}`);
+	                
+	                $('#backButton').on("click", function() {
+	                	window.history.back();
+	                })
+				}, error : function(xhr, status, error) {
+					console.error("에러 발생");
+				}
+			});	
+		});
+	});
+	</script>
+	<!-- 신고하기 -->
+
 </head>
 <body>
-
+	<h2>신고하기</h2>
+	
+	<form id="doRepot" th:action="@{/community/rest/addReply}" method="post">
+		<label for="reportTitle">신고제목</label><br> 
+		<input type="text" id="reportTitle" name="reportTitle" placeholder ="신고제목을 입력해주세요"><br/>
+		<label for="reporter">신고자</label>
+		<input type="text" id="reporter" name="reporter" readonly><br/>
+		<label for="target">신고대상</label>
+		<input type="text" id="target" name="target" readonly><br/>
+		<div id="recordTitleField">
+			<label for="recordTitle">기록제목</label>
+			<input type="text" id="recordTitle" name="recordTitle" readonly><br/>
+			<input type="hidden" id="recordNo" name="recordNo" readonly><br/>
+		</div>	
+		<div id="replyTextField">
+			<label for="replyText">댓글내용</label>
+			<input type="text" id="replyText" name="replyText" readonly><br/>
+			<input type="hidden" id="replyNo" name="replyNo" readonly><br/>
+		</div>
+		<label for="reportText">신고내용</label>
+		<textarea id="reportText" name="reportText" rows="4" cols="50" placeholder="신고내용을 입력해주세요."></textarea>
+		<button type ="submit" id = "doReport">신고하기</button>	
+	</form>
+	
+	<br/><br/><br/>
+	<div id="reportConfirm" style="display:none;">
+		<p id="reportDate"></p>
+		<p>위의 내용과 같이 신고가 완료되었습니다.</p>
+		<p>관리자가 내용 검토 후 처리할 예정입니다.</p>
+		<p>신고 진행 상황은 신고내용 진행상황에서 조회가능합니다.</p>
+		<button id="backButton">돌아가기</button>
+	</div>
+	
 </body>	
 </html>

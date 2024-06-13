@@ -21,16 +21,16 @@ public interface ProductService {
     public void deleteProduct(int productNo,String folderName) throws Exception;
 
     public Product getProductByName(String productTitle) throws Exception;
-
-    public Map<String,Object> getProductImages(int productNo) throws Exception;
     
     public void deleteImage(String uuid,String folderName) throws Exception;
     
     public String getImageUrlByImageTag(String imageTag,String folderName) throws Exception;
     
-    public void processImageWithTag(String imageTag) throws Exception;
-    
     ProductImage getImageByTag(String imageTag) throws Exception;
 
     public Product getSubscription() throws Exception;
+    
+    public byte[] getImageBytes(String uuid, String folderName) throws Exception;
+
+	public byte[] getImageBytesByImageTag(String imageTag, String folderName)throws Exception;
 }
