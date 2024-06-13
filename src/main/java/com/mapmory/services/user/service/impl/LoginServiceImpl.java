@@ -40,7 +40,8 @@ public class LoginServiceImpl implements LoginService {
 				.role(role)
 				.build();
 		
-		return redisUtil.insert(sessionId, sessionData);
+//		return redisUtil.insert(sessionId, sessionData);
+		return redisUtil.insert(sessionId, sessionData, 120);
 	}
 	
 	/*

@@ -84,7 +84,7 @@ public class UserController {
 	@GetMapping("/login")
 	public void getLogin() {
 		
-		// userService.setupForTest();
+//		 userService.setupForTest();
 	}
 	
 	@PostMapping("/login")
@@ -130,6 +130,7 @@ public class UserController {
 		// cookie.setDomain("mapmory.life");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
+		cookie.setMaxAge(7200);
 		
 		return cookie;
 	}

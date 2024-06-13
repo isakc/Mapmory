@@ -112,6 +112,9 @@ public class RedisUtil<T> {
 		String sessionId = null;
 		
 		Cookie[] cookies = request.getCookies();
+		if(cookies == null) {
+			System.out.println("asdf");
+		}
 		for(Cookie cookie : cookies ) {
 			
 			if(cookie.getName().equals("JSESSIONID")) {

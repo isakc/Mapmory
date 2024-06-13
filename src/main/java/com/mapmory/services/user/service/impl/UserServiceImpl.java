@@ -649,6 +649,9 @@ public class UserServiceImpl implements UserService {
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
+		userId="user2";
+		userPassword="password2";	
+		updatePassword(userId, userPassword);
 	}
 
 	private boolean intToBool(int result) {
