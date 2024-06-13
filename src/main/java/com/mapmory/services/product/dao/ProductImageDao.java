@@ -14,8 +14,6 @@ public interface ProductImageDao {
     
     public List<String> getProductImageList(int productNo) throws Exception;
     
-    public void updateProductImage(ProductImage productImage) throws Exception;
-    
     public void deleteProductImage(int productNo) throws Exception;
     
     public void deleteImage(String uuid) throws Exception;

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -49,12 +50,12 @@ public class ProductController {
 		System.out.println(this.getClass());
 	}
 
-    @GetMapping("/addProduct")
+    @GetMapping("/addProduct")  //상품 추가 
     public String addProduct() {
         return "product/admin/addProduct";
     }
     
-    @PostMapping("/addProduct")
+    @PostMapping("/addProduct") //상품 추가
     public String addProduct(@ModelAttribute("product") Product product,
                              @RequestParam("uploadFile") List<MultipartFile> files,
                              @RequestParam("imageTag") List<String> imageTag) throws Exception {
@@ -72,7 +73,7 @@ public class ProductController {
         return "redirect:/product/getProductList";
     }
     
-    @GetMapping("/getProductList")
+    @GetMapping("/getProductList") //상품 목록 조회 
     public String getProductList(@ModelAttribute("search") Search search, Model model) throws Exception {
     	
     	if(search.getCurrentPage() == 0) {
@@ -83,6 +84,7 @@ public class ProductController {
 		
         Map<String, Object> map = productService.getProductList(search);
         List<Product> productList = (List<Product>) map.get("productList");
+        
         
         int totalCount = (int) map.get("productTotalCount");
         
@@ -95,7 +97,7 @@ public class ProductController {
         return "product/getProductList";
     }
     
-    @GetMapping("/getDetailProduct/{productNo}")
+    @GetMapping("/getDetailProduct/{productNo}") //상품 상세보기
     public String getDetailProduct(@PathVariable int productNo, Model model) throws Exception {
     	System.out.println("GetDetailProduct Start......");
     	
@@ -105,7 +107,7 @@ public class ProductController {
     }
     
     
-    @PostMapping("/updateProduct/{productNo}")
+    @PostMapping("/updateProduct/{productNo}") //상품 업데이트 
     public String updateProduct(@ModelAttribute("update") Product product,
                                 @PathVariable int productNo,
                                 @RequestParam(value = "uploadFile", required = false) List<MultipartFile> files,
@@ -141,20 +143,20 @@ public class ProductController {
         return "redirect:/product/getProductList";
     }
     
-    @GetMapping("/updateProduct/{productNo}")
+    @GetMapping("/updateProduct/{productNo}") //상품 업데이트 
     public String showUpdateProductForm(@PathVariable int productNo, Model model) throws Exception {
         Product product = productService.getDetailProduct(productNo);
         model.addAttribute("product", product);
         return "product/admin/updateProduct"; // 상품 수정 페이지로 이동
     }
     
-    @GetMapping("/deleteProduct/{productNo}")
+    @GetMapping("/deleteProduct/{productNo}") //상품 삭제
     public String deleteProduct(@PathVariable int productNo) throws Exception {
         productService.deleteProduct(productNo,folderName);
         return "redirect:/product/getProductList";
     }
     
-    @PostMapping("/deleteImage/{uuid}")
+    @PostMapping("/deleteImage/{uuid}")  //이미지 삭제
     @ResponseBody
     public ResponseEntity<String> deleteImage(@PathVariable String uuid) {
         try {
@@ -165,12 +167,12 @@ public class ProductController {
         }
     }
     
-    //상품 이미지 주소 가리기 위한 컨트롤러
+ // 상품 이미지 주소 가리기 위한 컨트롤러
     @GetMapping("/image/{uuid}")
     @ResponseBody
     public byte[] getImage(@PathVariable String uuid) throws Exception {
-        byte[] bytes = objectStorageUtil.getImageBytes(uuid, folderName);
-        System.out.println("바이트 입니다 ::::::::::::::::::::::" + bytes);
+        byte[] bytes = productService.getImageBytes(uuid, folderName);
+        System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
         return bytes;
     }
    
