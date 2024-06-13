@@ -3,10 +3,14 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+<style type="text/css">
+a{
+	color: blue;
+}
+</style>
 </head>
 <body>
-	<a th:href="@{/timeline/getSimpleTimeline(recordNo=1)}"
-		th:text="${'getSimpleTimeline'}"></a>
+<div th:name="getKakaoMap" th:data-recordno="${record.recordNo}" th:include="timeline/component/map::kakaoMap"></div>
 	<br />
 	<table border=1>
 		<tr>
@@ -37,7 +41,36 @@
 			<td th:utext="${record.recordText}"></td>
 		</tr>
 	</table>
-	<span><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text=" '수정' "></a></span>
-	<span><a th:href="@{/timeline/deleteTimeline(recordNo=1,userId=${record.recordUserId})}" th:text=" '삭제' "></a></span>
+	<span><a th:name="updateTimeline" th:text=" '수정' "></a></span>
+	<span><a th:name="deleteTimeline" th:text=" '삭제' "></a></span>
+	<input type="hidden" th:name="recordNo" th:value="${record.recordNo}"/>
+	<input type="hidden" th:name="recordUserId" th:value="${record.recordUserId}"/>
+<script type="text/javascript">
+$(function() {
+	$("a").mouseenter(function() {
+	$(this).css("color", "red");
+	}).mouseleave(function() {
+	$(this).css("color", "blue");
+	})
+	
+	let recordNo=$('input[name="recordNo"]').val();
+	let recordUserId=$('input[name="recordUserId"]').val();
+	
+	$("div[name='getKakaoMap']").click(function() {
+		uri="?recordNo="+recordNo;
+		self.location.replace("/timeline/getSimpleTimeline"+uri);
+	})
+	
+	$("a[name='updateTimeline']").click(function() {
+		uri="?recordNo="+recordNo;
+		self.location="/timeline/updateTimeline"+uri;
+	})
+	
+	$("a[name='deleteTimeline']").click(function() {
+		uri="?recordNo="+recordNo+"&userId="+recordUserId;
+		self.location="/timeline/deleteTimeline"+uri;
+	})
+})
+</script>
 </body>
 </html>

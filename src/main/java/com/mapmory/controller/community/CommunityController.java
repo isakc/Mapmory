@@ -5,11 +5,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +21,7 @@ import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.Reply;
+import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -86,17 +89,23 @@ public class CommunityController {
 		return "community/getReplyList";
     }	
 	
-	@PostMapping("/deleteReplyByRecord/{recordNo}")
-	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-		communityService.deleteReplyByRecord(recordNo);
-		return;
-	}
+	@GetMapping("/addReport")
+	public String addReport(Model model) throws Exception {
+		return "community/addReport";
 
-	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
-	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-		communityService.deleteCommunityLogsByRecord(recordNo);
-		return;
-	}	
+	}
+	
+//	@PostMapping("/deleteReplyByRecord/{recordNo}")
+//	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+//		communityService.deleteReplyByRecord(recordNo);
+//		return;
+//	}
+//
+//	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
+//	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
+//		communityService.deleteCommunityLogsByRecord(recordNo);
+//		return;
+//	}
 	
 	
 }

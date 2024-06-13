@@ -68,7 +68,7 @@
 	</select>
 	
 	<select id="getRecordList" resultMap="recordResultMapList">
-		SELECT LATITUDE, LONGITUDE FROM record
+		SELECT LATITUDE, LONGITUDE, CHECKPOINT_ADDRESS FROM record
 		WHERE record_no IN
 		<foreach item="recordNo" index="index" collection="recordNo" open="(" separator="," close=")">
 			#{recordNo}

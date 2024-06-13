@@ -3,17 +3,19 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+<style type="text/css">
+</style>
 </head>
 <body>
-<h1 th:text="${'getSimpleTimeline'}"></h1>
-    <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
-	<table>
+<!-- <h1 th:text="${'getSimpleTimeline'}"></h1> -->
+
+	<div th:name="getKakaoMap" th:data-userid="${record.recordUserId}" th:include="timeline/component/map::kakaoMap"></div>
+	<table th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" border=1>
 		<tr>
 			<td>
-			<a th:href="@{}" th:text="${record.recordTitle}"></a>
-			<a th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="'&nbsp ' + ${record.recordTitle} + '&nbsp '"></a>
+			<span th:text="${record.recordTitle}"></span>
 			</td>
-			<td th:text="${record.categoryNo}"></td>
+			<td><img/><span th:text="${record.categoryName}"></span></td>
 		</tr>
 		<tr>
 			<td th:text="${record.checkpointDate}"></td>
@@ -23,16 +25,24 @@
 		</tr>
 	</table>
 	
+	<div th:include="common/footer::defaultFooter"></div>
+	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->	
 
 <script type="text/javascript">
-$(function() {	
-	$("a[name='getSimpleTimeline']").click(function() {
+$(function() {
+	
+	$("table[name='getSimpleTimeline']").click(function() {
 		let recordNo=$(this).data('recordno');
-		/* alert(recordNo); */
 		uri="?recordNo="+recordNo;
-		self.location="/timeline/getDetailTimeline"+uri;
+		self.location.replace("/timeline/getDetailTimeline"+uri);
+	})
+	
+	$("div[name='getKakaoMap']").click(function() {
+		let userId=$(this).data('userid');
+		uri="?userId="+userId;
+		self.location.replace("/timeline/getTimelineList"+uri);
 	})
 })
 </script>

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.service.RecommendService;
 import com.mapmory.services.recommend.service.impl.RecommendServiceImpl;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
@@ -29,7 +30,7 @@ public class RecommendServiceTest {
 
 	@Autowired
 	@Qualifier("recommendServiceImpl")
-	RecommendServiceImpl recommendServiceImpl;
+	RecommendService recommendService;
 	
 	@Test
 	public void addSearchData() throws Exception{
@@ -62,11 +63,11 @@ public class RecommendServiceTest {
 				.timecapsuleType(0)
 				.build();
 		
-		recommendServiceImpl.addSearchData(record);
-		Recommend recommend = recommendServiceImpl.getRecordData(record, record.getRecordNo());
-		recommend.setPositive(recommendServiceImpl.getPositive(record.getRecordText()));
-		recommendServiceImpl.updateDataset(recommend);
-		recommendServiceImpl.saveDatasetToCSV(recommend, "aitems-8982956307867");
+		recommendService.addSearchData(record);
+		Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
+		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		recommendService.updateDataset(recommend);
+		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867");
 		
 		System.out.println(recommend.toString());
 
@@ -87,10 +88,10 @@ public class RecommendServiceTest {
 //	@Test
 	public void getRecordList() throws Exception{
 		
-		List<String> result = recommendServiceImpl.getRecommendData("user1");
+		List<String> result = recommendService.getRecommendData("user1");
 		System.out.println("==========getRecommendDataOver==========");
 		System.out.println("result: "+result);
-		Map<String, Object> map = recommendServiceImpl.getRecordList(result);	
+		Map<String, Object> map = recommendService.getRecordList(result);	
 		System.out.println(map);
 	}
 		

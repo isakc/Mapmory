@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -35,21 +35,16 @@
                 });
         	});
 			
-			$('#signUp').on('click', function() {
-				
-				window.location.href="http://localhost:8000/user/getAgreeTermsAndConditionsList";
-			});
 			
 			$('#logout').on('click', function() {
 				
 				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
 			});
-
-			$('#getProfile').on('click', function() {
-				
-				window.location.href="/user/getProfile";
-			});
 			
+			$('#signUp').on('click', function() {
+				
+				window.location.href="http://localhost:8000/user/getAgreeTermsAndConditionsList";
+			});
  		});
  		
  		$(function(){
@@ -80,13 +75,9 @@
         
         <button type="button" id="login">로그인</button>
         <button type="button" id="signUp">회원가입</button>
-        <hr>
-        <hr>
-        <hr>
-        <button type="button" id="getProfile">내 프로필로 이동</button>
-      	<button type="button" id="logout">로그아웃</button>
-        
-
+        <br/>
+        <br/>
+        <button type="button" id="logout">로그아웃</button>
 
 		<details>
 		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
@@ -107,7 +98,9 @@
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
         <button type="button" id="footerView">footer 실험실로 이동</button>
- 
-    </form> 
+    </form>
+    
+	<div th:include="common/footer::defaultFooter"></div>
+	
 </body>
 </html>

@@ -59,7 +59,7 @@
 		FROM 
 			subscription
 		WHERE 
-			user_id = #{userId} 
+			user_id = #{userId}
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>

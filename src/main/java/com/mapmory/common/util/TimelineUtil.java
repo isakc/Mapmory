@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 
@@ -66,6 +67,8 @@ public class TimelineUtil {
 					.imageName(listToImage(imageTagList))
 					.hashtag(listToHashtag(imageTagList))
 					.categoryNo((Integer)map.get("categoryNo"))
+					.categoryName((String)map.get("categoryName"))
+					.categoryImoji((String)map.get("categoryImoji"))
 					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
 					.tempType((Integer)map.get("tempType"))
 					.recordAddDate((String)map.get("recordAddDate"))
@@ -104,13 +107,45 @@ public class TimelineUtil {
 					.subscriptionEndDate((long)map.get("subscriptionEndDate"))
 					.categoryName((String)map.get("categoryName"))
 					.categoryImoji((String)map.get("categoryImoji"))
-//					.bookmark((long)map.get("bookmark"))
+					.bookmark((long)map.get("bookmark"))
 					.likeCount((long)map.get("likeCount"))
 					.dislikeCount((long)map.get("dislikeCount"))
 					.replyCount((long)map.get("replyCount"))
 					.logsCount((long)map.get("logsCount"))
 					.build();
 			return sharedRecord;
+		}
+		
+		public static MapRecord mapToMapRecord(Map<String, Object> map) {
+//			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
+			
+			MapRecord mapRecord=MapRecord.builder()
+					.recordNo((int)map.get("recordNo"))
+					.recordUserId((String)map.get("recordUserId"))
+					.nickName((String)map.get("nickName"))
+					.profileImageName((String)map.get("profileImageName"))
+					.recordTitle((String)map.get("recordTitle"))
+					.latitude((Double)map.get("latitude"))
+					.longitude((Double)map.get("longitude"))
+					.checkpointAddress((String)map.get("checkpointAddress"))
+					.checkpointDate((String)map.get("checkpointDate"))
+					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
+//					.imageName(listToImage(imageTagList))
+//					.hashtag(listToHashtag(imageTagList))
+					.imageName((List<ImageTag>) map.get("imageName"))
+					.hashtag((List<ImageTag>) map.get("hashtag"))
+					.categoryNo((Integer)map.get("categoryNo"))
+					.categoryName((String)map.get("categoryName"))
+					.categoryImoji((String)map.get("categoryImoji"))
+					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
+					.tempType((Integer)map.get("tempType"))
+					.recordAddDate((String)map.get("recordAddDate"))
+					.sharedDate((String)map.get("sharedDate"))
+					.updateCount((Integer)map.get("updateCount"))
+					.d_DayDate((Date)map.get("d_DayDate"))
+					.timecapsuleType((Integer)map.get("timecapsuleType"))
+					.build();
+			return mapRecord;
 		}
 		
 		public static List<ImageTag> listToImage (List<Map<String, Object>> imageTagList) {

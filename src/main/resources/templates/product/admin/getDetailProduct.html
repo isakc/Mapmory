@@ -12,7 +12,7 @@
         <h2 th:text="${product.productTitle}">상품 제목</h2>
         <p th:text="${product.price}">가격</p>
         <div>
-            <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{'https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/' + ${uuid}}" alt="상품 이미지" width="300" height="300">
+            <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" width="300" height="300">
         </div>
         <a th:href="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}">수정</a>
         <a th:href="@{/product/deleteProduct/{productNo}(productNo=${product.productNo})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>

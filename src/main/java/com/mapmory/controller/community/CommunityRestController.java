@@ -3,6 +3,7 @@ package com.mapmory.controller.community;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
+import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 
 @RestController
@@ -102,7 +104,7 @@ public class CommunityRestController {
 	}  		
 
 	@PostMapping("/rest/updateReply/{replyNo}")
-	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, @RequestParam("updateReplyText") String updateReplyText, @RequestParam("recordNo") int recordNo,
+	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, String userId, String updateReplyText, int recordNo, 
 												@RequestParam(value = "replyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
 
 		Reply reply = new Reply();
@@ -137,28 +139,45 @@ public class CommunityRestController {
 		
 		communityService.deleteReply(userId, replyNo);
 		return "redirect: community/getReplyList";
-		
 	}	
 
+	@PostMapping("/rest/getReplyTotalCount")
+	public ResponseEntity<Integer> getReplyTotalCount(Search search, int recordNo) throws Exception {
+		int replyCount = communityDao.getReplyTotalCount(search, recordNo);	
+		return ResponseEntity.ok(replyCount);
+	}
+	
+	@PostMapping("/rest/getReplyUserTotalCount")
+	public ResponseEntity<Integer> getReplyUserTotalCount(Search search, String userId) throws Exception {
+		int userReplyCount = communityDao.getReplyUserTotalCount(search, userId);
+		return ResponseEntity.ok(userReplyCount);
+	}	
+	
+	
 	@PostMapping("/rest/addCommunityLogs")
 	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs) throws Exception {
 			communityService.addCommunityLogs(communityLogs);
 		return ResponseEntity.ok(communityLogs);
 	}
-		
+	
 	@PostMapping("/rest/getReactionLikeTotalCount")
 	public ResponseEntity<Integer> getReactionLikeTotalCount(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
-			int likeCount = communityDao.getReactionLikeTotalCount(communityLogs);
+		int likeCount = communityDao.getReactionLikeTotalCount(communityLogs);
 		return ResponseEntity.ok(likeCount);
 	}	
 	
 	@PostMapping("/rest/getReactionDisLikeTotalCount")
 	public ResponseEntity<Integer> getReactionDisLikeTotalCount(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo ) throws Exception {
-			int dislikeCount = communityDao.getReactionDisLikeTotalCount(communityLogs);
+		int dislikeCount = communityDao.getReactionDisLikeTotalCount(communityLogs);
 		return ResponseEntity.ok(dislikeCount);
 	}	
 	
-	
+	@PostMapping("/rest/doReport")
+	public ResponseEntity<Report> doReport(@RequestBody Report report) throws Exception {
+		communityService.doReport(report);
+		return ResponseEntity.ok(report);
+
+	}
 	
 
 	
