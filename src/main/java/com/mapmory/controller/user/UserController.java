@@ -104,7 +104,8 @@ public class UserController {
 		loginService.logout(request, response);
 	}
 	
-	@GetMapping("/getSignUpView")
+	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
+	@PostMapping("/getSignUpView")
 	public void getSignUpView(Model model) {
 		
 		model.addAttribute("user", User.builder().build());
@@ -126,15 +127,15 @@ public class UserController {
 	
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
-	public String getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
+	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
 		
 
 		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
 	
-		int role = redisUtil.getSession(request).getRole();
+		// int role = redisUtil.getSession(request).getRole();
 
 		// 관리자는 redirect, 사용자는 forward시키고 싶은데, 현재로써는 방법을 모르겠다.
-
+		/*
 		if (role == 0) {
 			
 			model.addAttribute("tacList", tacList);
@@ -143,17 +144,21 @@ public class UserController {
 			model.addAttribute("tacList", tacList);
 			return "/user/getAgreeTermsAndConditionsList";	
 		}
+		*/
+		
+		model.addAttribute("tacList", tacList);
 	}
 	
 	
-	@GetMapping("/getDetailAgreeTermsAndConditions")
-	public String getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
+	@GetMapping("/getUserDetailTermsAndConditions")
+	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
 		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
 		
+		/*
 		int role = redisUtil.getSession(request).getRole();
 		
-		
+
 		if(role == 0) {
 			
 			model.addAttribute("tac", tac);
@@ -163,8 +168,12 @@ public class UserController {
 			model.addAttribute("tac", tac);
 			return "/user/getUserDetailTermsAndConditions";
 		}
-			
+		*/
+		
+		model.addAttribute("tac", tac);
 	}
+	
+	
 	
 	@GetMapping("/getPersonalSecurityMenu")
 	public void getPersonalSecurityMenu() {
@@ -304,6 +313,29 @@ public class UserController {
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
+	}
+	
+	@GetMapping("/admin/getDetailTermsAndConditions")
+	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		
+		/*
+		int role = redisUtil.getSession(request).getRole();
+		
+
+		if(role == 0) {
+			
+			model.addAttribute("tac", tac);
+			return "/user/admin/getAdminDetailTermsAndConditions";
+		} else {
+			
+			model.addAttribute("tac", tac);
+			return "/user/getUserDetailTermsAndConditions";
+		}
+		*/
+			
+		model.addAttribute("tac", tac);
 	}
 	
 	@GetMapping("/admin/getAdminUserList")
