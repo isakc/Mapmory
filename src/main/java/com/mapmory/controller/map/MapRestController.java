@@ -18,7 +18,9 @@ import com.mapmory.services.map.domain.ResultTransitRouter;
 import com.mapmory.services.map.domain.SearchRouter;
 import com.mapmory.services.map.domain.SearchTransitRouter;
 import com.mapmory.services.map.service.MapService;
+import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @RestController
@@ -61,15 +63,20 @@ public class MapRestController {
 		return resultTransitRouterList;
 	}// getTransitRouteList: 대중교통 경로 요청
 	
-//	@ResponseBody
-//	@PostMapping(value="rest/test")
-//	public List<Record> test(@RequestBody Search search) throws Exception {
-//		
-//		search.setLimit(10);
-//		search.setUserId("user1");
-//		search.setFollowType(0);
-//		search.setCurrentPage(1);
-//		
-//		return timelineService.getMapRecordList(search);
-//	}
+	@ResponseBody
+	@PostMapping(value="rest/getMapRecordList")
+	public List<MapRecord> getMapRecordList(@RequestBody Search search) throws Exception {
+		
+		search.setLimit(10);
+		search.setCurrentPage(1);
+		
+		return timelineService.getMapRecordList(search);
+	}
+
+	@ResponseBody
+	@PostMapping(value="rest/getDetailRecord")
+	public Record getDetailRecord(@RequestBody Record record) throws Exception {
+		System.out.println(record);
+		return timelineService.getDetailTimeline(record.getRecordNo());
+	}
 }
