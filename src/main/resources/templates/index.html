@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -98,6 +98,9 @@
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
         <button type="button" id="footerView">footer 실험실로 이동</button>
-    </form> 
+    </form>
+    
+	<div th:include="common/footer::defaultFooter"></div>
+	
 </body>
 </html>
