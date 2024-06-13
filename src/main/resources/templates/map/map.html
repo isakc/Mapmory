@@ -71,7 +71,7 @@
 
 			$.ajax({
 				//url: "http://localhost:8000/map/rest/getMapRecordList", // 요청을 보낼 URL을 입력
-				url: "https://www.mapmory.co.kr/map/rest/getMapRecordList", // 요청을 보낼 URL을 입력
+				url: "https://mapmory.co.kr/map/rest/getMapRecordList", // 요청을 보낼 URL을 입력
 				contentType: 'application/json', // Content-Type을 JSON으로 설정
 				method: 'POST',
 				data: JSON.stringify(requestData),
@@ -217,7 +217,7 @@
 	            method: "POST",
 	            contentType: 'application/json; charset=utf-8',
 	            //url: "http://localhost:8000/map/rest/" + urlParameter,
-	            url: "https://www.mapmory.co.kr/map/rest/" + urlParameter,
+	            url: "https://mapmory.co.kr/map/rest/" + urlParameter,
 	            data: JSON.stringify(requestData),
 
 	            success: function(response) {
@@ -286,7 +286,7 @@
 	            contentType: "application/json; charset=utf-8",
 	            Accept: "application/json; charset=utf-8",
 	            //url: "http://localhost:8000/map/rest/getTransitRouteList", // 대중교통
-	            url: "https://www.mapmory.co.kr/map/rest/getTransitRouteList", // 대중교통
+	            url: "https://mapmory.co.kr/map/rest/getTransitRouteList", // 대중교통
 	            data: JSON.stringify(requestData),
 
 	            success: function(response) {
