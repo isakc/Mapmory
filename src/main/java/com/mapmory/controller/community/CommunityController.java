@@ -94,6 +94,22 @@ public class CommunityController {
 		return "community/addReport";
 
 	}
+
+	@GetMapping("/getUserReportList")
+	public String getUserReportListt(Search search, String userId, Model model) throws Exception {
+		if(search == null) {
+			search = Search.builder()
+					.currentPage(1)
+					.limit(10)
+					.build();
+		}
+		Map<String, Object> reportList = communityService.getUserReplyList(search, userId);
+		model.addAttribute("reportList",  reportList.get("list"));
+		model.addAttribute("totalCount", reportList.get("totalCount"));
+		
+		return "community/getUserReportList";
+
+	}	
 	
 //	@PostMapping("/deleteReplyByRecord/{recordNo}")
 //	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
@@ -105,7 +121,7 @@ public class CommunityController {
 //	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
 //		communityService.deleteCommunityLogsByRecord(recordNo);
 //		return;
-//	}
+//	}	
 	
 	
 }

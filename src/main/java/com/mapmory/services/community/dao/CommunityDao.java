@@ -38,8 +38,11 @@ public interface CommunityDao {
 	//커뮤니티 활동 추가
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
-	//중복검사 위한 커뮤니티 전체 리스트
+	//커뮤니티 로그 전체 선택
 	public List<CommunityLogs> getAllCommunityLogs() throws Exception;	
+	
+	//커뮤니티 로그 중복체크
+	public int checkDuplicatieLogs(String userId, int recordNo, Integer replyNo, int logsType) throws Exception;
 	
 	//커뮤니티 활동 로그 선택
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
