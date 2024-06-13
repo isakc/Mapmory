@@ -67,7 +67,7 @@ public class LoginServiceImpl implements LoginService {
 				cookie.setMaxAge(0);
 				cookie.setPath("/");
 				response.addCookie(cookie);
-				response.sendRedirect("/user/login");
+				response.sendRedirect("/");
 			}
 		}
 	}
