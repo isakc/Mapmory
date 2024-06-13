@@ -70,8 +70,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Map<String,Object> getProductList(Search search) throws Exception {
     	
-    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
-        search.setPageSize(search.getPageSize());
+    	 int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+    	 search.setOffset(offset);
         
     	List<Product> productList = productDao.getProductList(search);
     	int totalCount = productDao.getProductTotalCount(search);
@@ -83,7 +83,7 @@ public class ProductServiceImpl implements ProductService {
             product.setUuid(imageUuidList);
         }
     	
-    	Map<String,Object> map = new HashMap<String, Object>();
+    	Map<String,Object> map = new HashMap<>();
     	map.put("productList",productList);
     	map.put("productTotalCount", new Integer(totalCount));
         
@@ -133,12 +133,6 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductByName(String productTitle) throws Exception {
         return productDao.getProductByName(productTitle);
     }
-
-
-    @Override
-    public Map<String,Object> getProductImages(int productNo) throws Exception {
-        return (Map<String, Object>) productImageDao.getProductImageList(productNo);
-    }
     
     public String getImageUrl(ByteArrayResource imageResource) {
         return cdnUrl + "productImage/" + imageResource.getDescription();
@@ -187,4 +181,19 @@ public class ProductServiceImpl implements ProductService {
     	System.out.println("서비스 임플에서의 프로덕트입니다. : : : : :" + product);
     	return product; // 이미지 정보를 포함한 상품 정보 반환
     }
+    
+    public byte[] getImageBytesByImageTag(String imageTag, String folderName) throws Exception {
+        ProductImage productImage = productImageDao.getImageByTag(imageTag);
+        if (productImage != null) {
+            String uuid = productImage.getUuid();
+            return objectStorageUtil.getImageBytes(uuid, folderName);
+        } else {
+            return null;
+        }
+    }
+    
+    public byte[] getImageBytes(String uuid, String folderName) throws Exception {
+        return objectStorageUtil.getImageBytes(uuid, folderName);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.mapmory.controller.recommend;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -70,6 +71,18 @@ public class RecommendRestController {
 	    	
 	    	return result;
 	    }
+	    
+	    @GetMapping("/rest/recommend")
+		public Map<String, Object> getRecommendPlace(@RequestParam String userId) throws Exception{
+			
+			List<String> values = recommendService.getRecommendData(userId);
+			Map<String, Object> map = recommendService.getRecordList(values);
+			System.out.println(map);
+			
+			
+			return map;
+		
+		}
 	    
 	    
 

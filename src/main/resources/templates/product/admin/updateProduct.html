@@ -42,7 +42,7 @@
         </div>
         <div>
             <div th:each="uuid, iterStat : ${product.uuid}">
-                <img th:src="@{'https://bcuacdphgdfn24694507.cdn.ntruss.com/productImage/' + ${uuid}}" alt="상품 이미지" width="300" height="300">
+                <img th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" width="300" height="300">
                 <button type="button" class="delete-image" th:data-uuid="${uuid}">X</button>
 
             </div>

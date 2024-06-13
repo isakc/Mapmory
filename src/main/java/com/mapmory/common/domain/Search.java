@@ -40,10 +40,20 @@ public class Search {
 	private Integer followType;
 	private Integer privateType;
 
-	public int getOffset() {
-		return (getCurrentPage() - 1) * getLimit();
+	public void setPageSize(int paseSize) {
+		this.pageSize = paseSize;
 	}
 	
+	public void setCurrentPage(int currentPage) {
+		this.currentPage = currentPage;
+	}
+	
+	public int getOffset() {
+		return (getCurrentPage() - 1) * getPageSize();
+	}
+	public void setOffset(int offset) {
+        this.offset = offset;
+    }
 	public int getEndRowNum() {
 		return getCurrentPage() * getPageSize();
 	}

@@ -17,6 +17,7 @@ import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
@@ -146,7 +147,7 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 
 	@Override
-	public List<Record> getMapRecordList(Search search) throws Exception {
+	public List<MapRecord> getMapRecordList(Search search) throws Exception {
 		SearchDto searchDto=GeoUtil.calculateRadius(search.getLatitude(), search.getLongitude(), search.getRadius());
 		searchDto.setUserId(search.getUserId() );
 		searchDto.setFollowType(search.getFollowType() );
@@ -158,11 +159,11 @@ public class TimelineServiceImpl implements TimelineService {
 		searchDto.setPrivateType(search.getPrivateType());
 		searchDto.setSearchKeyword(search.getSearchKeyword());
 		searchDto.setCategoryNo(search.getCategoryNo());
-		List<Record> recordList=new ArrayList<Record>();
+		List<MapRecord> recordList=new ArrayList<MapRecord>();
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
-			Record record =TimelineUtil.mapToRecord(tempMap);
-			record.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), record.getLatitude(), record.getLongitude()));
-			recordList.add(record);
+			MapRecord mapRecord =TimelineUtil.mapToMapRecord(tempMap);
+			mapRecord.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), mapRecord.getLatitude(), mapRecord.getLongitude()));
+			recordList.add(mapRecord);
 		}
 		GeoUtil.sortByDistance(recordList);
 		return recordList;

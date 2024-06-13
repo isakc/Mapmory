@@ -13,6 +13,60 @@
             padding: 5px;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        let currentPage = 1;
+        let loading = false;
+        $(window).scroll(function() {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (!loading) {
+                    loading = true;
+                    currentPage++;
+                    loadMoreProducts();
+                }
+            }
+        });
+
+        function loadMoreProducts() {
+            $.ajax({
+                url: '/rest/products/getProductList',
+                method: 'GET',
+                data: {
+                    currentPage: currentPage
+                },
+                success: function(response) {
+                    let html = '';
+                    response.forEach(function(product) {
+                        html += '<tr>';
+                        html += '<td><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></td>';
+                        html += '<td>' + product.price + '</td>';
+                        html += '<td>';
+                        if (product.uuid && product.uuid.length > 0) {
+                            html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" width="300" height="300">';
+                        }
+                        html += '</td>';
+                        html += '<td>' + formatDate(product.productRegDate) + '</td>';
+                        html += '<td><a href="http://192.168.0.228:8000/purchase/addPurchaseView">구매</a></td>';
+                        html += '</tr>';
+                    });
+                    $('.product-list').append(html);
+                    loading = false;
+                },
+                error: function() {
+                    console.log('Error occurred while loading more products.');
+                    loading = false;
+                }
+            });
+        }
+        
+        function formatDate(timestamp) {
+        	  const date = new Date(timestamp);
+        	  const year = String(date.getFullYear()).slice(-4);
+        	  const month = String(date.getMonth() + 1).padStart(2, '0');
+        	  const day = String(date.getDate()).padStart(2, '0');
+        	  return `${year}-${month}-${day}`;
+        	}
+    </script>
 </head>
 
 <body>
@@ -27,19 +81,18 @@
                 <th>구매</th>
             </tr>
         </thead>
-<tbody>
-    <tr th:each="product : ${productList}">
-        <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
-        <td th:text="${product.price}"></td>
-        <td>
-            <img th:if="${not #lists.isEmpty(product.uuid)}" th:src="@{/product/image/{uuid}(uuid=${product.uuid[0]})}" alt="상품 이미지" width="300" height="300">
-        </td>
-        <td th:text="${product.productRegDate}"></td>
-        <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>
-    </tr>
-</tbody>
+        <tbody class="product-list">
+            <tr th:each="product : ${productList}">
+                <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
+                <td th:text="${product.price}"></td>
+                <td>
+                    <img th:if="${not #lists.isEmpty(product.uuid)}" th:src="@{/product/image/{uuid}(uuid=${product.uuid[0]})}" alt="상품 이미지" width="300" height="300">
+                </td>
+                <td th:text="${product.productRegDate}"></td>
+                <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>
+            </tr>
+        </tbody>
     </table>
-
     <div>
         <p>총 상품 수: <span th:text="${totalCount}"></span></p>
     </div>

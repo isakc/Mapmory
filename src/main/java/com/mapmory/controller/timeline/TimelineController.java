@@ -46,11 +46,8 @@ public class TimelineController {
 	@Autowired
 	private TextToImage textToImage;
 	
-	@Autowired
-	private ContentFilterUtil contentFilterUtil;
-	
-    @Autowired
-    private ObjectStorageUtil objectStorageUtil;
+	@Value("${timeline.kakaomap.apiKey}")
+	private String kakaoMapApiKey;
 	
 	@Value("${default.time}")
 	private String defaultTime;
@@ -136,6 +133,7 @@ public class TimelineController {
 	@GetMapping("getSimpleTimeline")
 	public String getSimpleTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
 		return "timeline/getSimpleTimeline";
 	}

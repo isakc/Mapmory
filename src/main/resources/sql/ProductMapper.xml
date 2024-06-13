@@ -80,6 +80,7 @@
     </if>
     <if test="searchCondition == 1">
         AND p.PRICE = CAST(#{searchKeyword} AS DECIMAL)
+
     </if>
 	</if>
 	</where>

@@ -64,7 +64,7 @@
     <li th:each="item : ${mapList3_4}" th:text=" '성문 private only category : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${mapList4}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
+    <li th:each="item : ${mapList4}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}+',  nickName : '+${item.nickName}+',  '+${item.profileImageName}+',  category : '+${item.categoryName}+',  '+${item.categoryImoji}+',  '+${item.imageName}+',  '+${item.hashtag}"></li>
 </ul>
 <!-- <ul>
     <li th:each="item : ${list16}" th:text=" '날짜선택 list : '+${item}"></li>
