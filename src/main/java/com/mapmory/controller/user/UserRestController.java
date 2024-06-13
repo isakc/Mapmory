@@ -1,15 +1,19 @@
 package com.mapmory.controller.user;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
@@ -27,6 +31,9 @@ public class UserRestController {
 	
 	@Autowired
 	private LoginService loginService;
+	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
 	
 	@PostMapping("/login")
 	public ResponseEntity<Boolean> login(@RequestBody Login loginData) throws Exception {
@@ -95,6 +102,14 @@ public class UserRestController {
 		result = !result;  
 		
 		return ResponseEntity.ok(result);
+	}
+	
+	@PostMapping(path="/checkBadWord")
+	public ResponseEntity<Boolean> checkBadWord(@RequestBody Map<String, String> value) {
+		
+		String s = value.get("value");
+		System.out.println("value : " + s);
+		return ResponseEntity.ok(!contentFilterUtil.checkBadWord(s));
 	}
 	
 	///////////////////////////////////////////////////////////////////////

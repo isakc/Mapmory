@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.exception.purchase.PaymentValidationException;
-import com.mapmory.exception.purchase.SubscriptionException;
 import com.mapmory.services.purchase.dao.PurchaseDao;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.dto.PurchaseDTO;
@@ -76,31 +75,21 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}// getDetailPurchase: 결제 상세 정보
 
 	@Override
-	public List<PurchaseDTO> getPurchaseList(Search search) {
-		try {
-			List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception {
+		List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-			for (PurchaseDTO purchase : purchaseList) {
-				purchase.setPurchaseDateString(purchase.getPurchaseDate().format(formatter));
-			}
-
-			return purchaseList;
-			
-		} catch (Exception e) {
-			throw new SubscriptionException("구매 목록 가져오기 실패!!", e);
+		for (PurchaseDTO purchase : purchaseList) {
+			purchase.setPurchaseDateString(purchase.getPurchaseDate().format(formatter));
 		}
-	}// getPurchaseList: 구매 목록 가져오기 실패
+
+		return purchaseList;
+	}// getPurchaseList: 구매 목록 가져오기
 
 	@Override
-	public int getPurchaseTotalCount(Search search) {
-		try {
-			
-			return purchaseDao.getPurchaseTotalCount(search);
-			
-		} catch (Exception e) {
-			throw new SubscriptionException("구매 총 개수 가져오기 실패!!", e);
-		}
+	public int getPurchaseTotalCount(Search search) throws Exception {
+
+		return purchaseDao.getPurchaseTotalCount(search);
 	}// getPurchaseTotalCount: 구매 총 개수
 
 	@Override
@@ -120,13 +109,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 	}// validatePurchase: 구매 검증
 
 	@Override
-	public boolean deletePurchase(int purchaseNo) {
-		try {
-			
-			return purchaseDao.deletePurchase(purchaseNo) == 1;
-			
-		} catch (Exception e) {
-			throw new SubscriptionException("구매 삭제 실패!!", e);
-		}
+	public boolean deletePurchase(int purchaseNo) throws Exception{
+		
+		return purchaseDao.deletePurchase(purchaseNo) == 1;
 	}// deletePurchase: 구매 삭제
 }

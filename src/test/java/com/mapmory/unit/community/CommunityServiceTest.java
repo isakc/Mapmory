@@ -151,7 +151,7 @@ public class CommunityServiceTest {
 	//@Test
 	public void TestDeleteCommunityLogs() throws Exception {
 
-		communityService.deleteCommunityLogs(23, "user4");		
+		communityService.deleteCommunityLogs("user4", 22, 0);		
 		System.out.println("delete 테스트 : ");	
 	}	
 	

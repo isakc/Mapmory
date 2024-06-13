@@ -155,6 +155,7 @@ public class TimelineServiceImpl implements TimelineService {
 		searchDto.setLimit(search.getLimit() );
 		searchDto.setSharedType(search.getSharedType() );
 		searchDto.setOffset(search.getOffset() );
+		searchDto.setPrivateType(search.getPrivateType());
 		List<Record> recordList=new ArrayList<Record>();
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
 			Record record =TimelineUtil.mapToRecord(tempMap);

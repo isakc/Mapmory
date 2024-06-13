@@ -30,6 +30,8 @@ import com.mapmory.common.util.ObjectStorageUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +68,9 @@ public class TimelineRestController {
 	}
 	
 	@PostMapping("addTimeline")
-	public ResponseEntity<Map<String,Object>> addTimelineView(@RequestBody Record record,Map<String,Object> map) throws Exception,IOException {
+	public ResponseEntity<Map<String,Object>> addTimelineView(
+			@RequestBody Record record,
+			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
@@ -78,8 +82,6 @@ public class TimelineRestController {
 		map.put("text", text);
 		return ResponseEntity.ok(map);
 	}
-	
-	
 	
 	@PostMapping("upload")
 	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {

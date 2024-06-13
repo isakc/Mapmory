@@ -21,6 +21,7 @@ public class SearchDto {
 	private Double minLongitude;
 	private Double maxLongitude;
 	private Integer followType;
+	private Integer privateType;
 	
 	private Date selectDate;
 	private String checkpointTime;//06:00:00 형식으로
