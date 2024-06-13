@@ -15,7 +15,7 @@ import com.mapmory.common.domain.SessionData;
  * Redis에 대한 CRUD를 이 utility class로 쉽게 처리하세요!
  * @author 김대민
  *
- * @param <T>  :: 본인이 CRUD하고자 할 객체 type을 넣어주시면 됩니다.
+ * @param <T>  :: 본인이 CRUD하고자 할 객체 type을 넣어주시면 됩니다. 오직 session만 발급받으실 분이라면 SessionData를 넣고 쓰시면 됩니다.
  */
 @Component
 public class RedisUtil<T> {
@@ -70,6 +70,8 @@ public class RedisUtil<T> {
 	 */
 	public T select(String keyName, Class<T> clazz) {
 		
+		System.out.println("flag");
+		System.out.println(redisTemplate.opsForValue().get(keyName));
 		return redisTemplate.opsForValue().get(keyName);
 	}
 	
@@ -106,7 +108,11 @@ public class RedisUtil<T> {
 		redisTemplate.delete(keyName);
 	}
 	
-	
+	/**
+	 * HttpSession의 getSession() 기능과 동일한 역할을 합니다!
+	 * @param request
+	 * @return
+	 */
 	public SessionData getSession(HttpServletRequest request) {
 		
 		String sessionId = null;

@@ -9,7 +9,10 @@
     <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
 	<table>
 		<tr>
-			<td><a th:href="@{/timeline/getDetailTimeline(recordNo=${record.recordNo})}" th:text="${record.recordTitle}"></a></td>
+			<td>
+			<a th:href="@{}" th:text="${record.recordTitle}"></a>
+			<a th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="'&nbsp ' + ${record.recordTitle} + '&nbsp '"></a>
+			</td>
 			<td th:text="${record.categoryNo}"></td>
 		</tr>
 		<tr>
@@ -19,5 +22,19 @@
 			<td th:text="${record.checkpointAddress}"></td>
 		</tr>
 	</table>
+	
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->	
+
+<script type="text/javascript">
+$(function() {	
+	$("a[name='getSimpleTimeline']").click(function() {
+		let recordNo=$(this).data('recordno');
+		/* alert(recordNo); */
+		uri="?recordNo="+recordNo;
+		self.location="/timeline/getDetailTimeline"+uri;
+	})
+})
+</script>
 </body>	
 </html>

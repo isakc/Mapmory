@@ -316,7 +316,9 @@ public class UserServiceImpl implements UserService {
 			
 			for (Path filePath : files) {
 				
+				// System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
+				// System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
@@ -652,6 +654,9 @@ public class UserServiceImpl implements UserService {
 		userId="user2";
 		userPassword="password2";	
 		updatePassword(userId, userPassword);
+		userId="admin";
+		userPassword="admin";
+		updatePassword(userId, userPassword);
 	}
 
 	private boolean intToBool(int result) {
@@ -661,6 +666,4 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
-	
-	
 }

@@ -61,14 +61,23 @@ public class TimelineController {
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
 	
+	public TimelineController(){
+		System.out.println("TimelineController default Contrctor call : " + this.getClass());
+	}
+	
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
 			@RequestParam(value="userId", required = true) String userId,
-			@RequestParam(value="selectDay", required = false) Date selectDay) throws Exception,IOException{
+			@RequestParam(value="selectDay", required = false) Date selectDay,
+			@RequestParam(value="plus", required = false) Integer plus
+			) throws Exception,IOException{
 		if(selectDay==null) {
 //		LocalDate today = LocalDate.now();
 		LocalDate today = LocalDate.of(2024,5,29);
 		selectDay=Date.valueOf(today);
+		}
+		if( !(plus==null) ) {
+			selectDay=(Date.valueOf(selectDay.toLocalDate().plusDays(plus)));
 		}
 		LocalDate tomorrow = selectDay.toLocalDate();
 		
@@ -79,6 +88,7 @@ public class TimelineController {
 				.timecapsuleType(0)
 				.build();
 		model.addAttribute("timelineList", timelineService.getTimelineList(search));
+		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
 	}
 	
@@ -145,7 +155,7 @@ public class TimelineController {
 			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
 		timelineService.deleteImage(recordNo);
-		getTimelineList(model, userId, null);
+//		getTimelineList(model, userId, null);
 	}
 	
 	@GetMapping("getDetailTimecapsule")
@@ -270,6 +280,11 @@ public class TimelineController {
 		return "timeline/admin/getAdminCategoryList";
 	}
 	
+	@GetMapping("footer")
+	public String footer() throws Exception,IOException {
+		return "common/footer";
+	}
+	
 	
 	@GetMapping({"getDetailTimeline3"})
 	public void getDetailTimeline3(Model model) throws Exception,IOException {
@@ -279,96 +294,90 @@ public class TimelineController {
 	
 	@GetMapping({"getDetailTimeline2"})
 	public void getTimelineList2(Model model) throws Exception,IOException {
-//		List<Record> recordList=new ArrayList<Record>();
-		Search search=Search.builder()
-				.currentPage(1)
-				.limit(3)
-				.build();
-		model.addAttribute("list",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(1)
-				.limit(3)
-				.sharedType(1)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
-		model.addAttribute("list2",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(1)
-				.limit(3)
-				.sharedType(0)
-				.tempType(0)
-				.timecapsuleType(0)
-				.build();
-//		for(Record record:timelineService.getTimelineList(search)) {
-//			if(record != null)
-//			recordList.add(record);
-//		}
-//		System.out.println("recordList : "+recordList);
-//		model.addAttribute("list3",recordList);
-		model.addAttribute("list3",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(3)
-				.limit(3)
-				.sharedType(0)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
-		model.addAttribute("list4",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(3)
-				.limit(3)
-				.sharedType(1)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
-		model.addAttribute("list5",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(1)
-				.limit(5)
-				.sharedType(0)
-				.tempType(0)
-				.timecapsuleType(1)
-				.build();
-		model.addAttribute("list6",timelineService.getTimelineList(search));
-		//d_day보다 현재 날짜가 위에 있으면 갖고오는 조건식
-		search=Search.builder()
-				.currentPage(1)
-				.limit(3)
-				.sharedType(0)
-				.tempType(1)
-				.timecapsuleType(1)
-				.build();
-		model.addAttribute("list7",timelineService.getTimelineList(search));
-		//대민 지원
-		search=Search.builder()
-				.userId(" user2 ").
-				currentPage(1)
-				.limit(5)
-				.sharedType(1)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
-		model.addAttribute("list8",timelineService.getTimelineList(search));
-		//재용 지원
-		search=Search.builder()
-				.currentPage(1)
-				.limit(5)
-				.build();
-		model.addAttribute("list9",timelineService.getSharedRecordList(search));
-		search=Search.builder()
-				.currentPage(2)
-				.limit(5)
-				.build();
-		model.addAttribute("list10",timelineService.getSharedRecordList(search));
-		search=Search.builder()
-				.timecapsuleType(0)
-				.selectDay1("2024-06-04 00:00:00")
-				.selectDay2("2024-06-05 00:00:00")
-				.build();
-		model.addAttribute("list11",timelineService.getTimelineList(search));
-		
-		//성문 지원
+		Search search;
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(3)
+//				.build();
+//		model.addAttribute("list",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(3)
+//				.sharedType(1)
+//				.tempType(1)
+//				.timecapsuleType(0)
+//				.build();
+//		model.addAttribute("list2",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(3)
+//				.sharedType(0)
+//				.tempType(0)
+//				.timecapsuleType(0)
+//				.build();
+//		model.addAttribute("list3",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(3)
+//				.limit(3)
+//				.sharedType(0)
+//				.tempType(1)
+//				.timecapsuleType(0)
+//				.build();
+//		model.addAttribute("list4",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(3)
+//				.limit(3)
+//				.sharedType(1)
+//				.tempType(1)
+//				.timecapsuleType(0)
+//				.build();
+//		model.addAttribute("list5",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(5)
+//				.sharedType(0)
+//				.tempType(0)
+//				.timecapsuleType(1)
+//				.build();
+//		model.addAttribute("list6",timelineService.getTimelineList(search));
+//		//d_day보다 현재 날짜가 위에 있으면 갖고오는 조건식
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(3)
+//				.sharedType(0)
+//				.tempType(1)
+//				.timecapsuleType(1)
+//				.build();
+//		model.addAttribute("list7",timelineService.getTimelineList(search));
+//		//대민 지원
+//		search=Search.builder()
+//				.userId(" user2 ").
+//				currentPage(1)
+//				.limit(5)
+//				.sharedType(1)
+//				.tempType(1)
+//				.timecapsuleType(0)
+//				.build();
+//		model.addAttribute("list8",timelineService.getTimelineList(search));
+//		//재용 지원
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(5)
+//				.build();
+//		model.addAttribute("list9",timelineService.getSharedRecordList(search));
+//		search=Search.builder()
+//				.currentPage(2)
+//				.limit(5)
+//				.build();
+//		model.addAttribute("list10",timelineService.getSharedRecordList(search));
+//		search=Search.builder()
+//				.timecapsuleType(0)
+//				.selectDay1("2024-06-04 00:00:00")
+//				.selectDay2("2024-06-05 00:00:00")
+//				.build();
+//		model.addAttribute("list11",timelineService.getTimelineList(search));
+//		
+		//성문 지원===========================================
 		search=Search.builder()
 	 			.latitude(33.450701)
 	 			.longitude(126.570667)
@@ -376,9 +385,8 @@ public class TimelineController {
 	 			.limit(10)
 	 			.userId("user1")
 	 			.followType(1)
-	 			.currentPage(1)
 				.build();
-		model.addAttribute("list12",timelineService.getMapRecordList(search));
+		model.addAttribute("mapList1",timelineService.getMapRecordList(search));
 		search=Search.builder()
 				.latitude(33.450701)
 	 			.longitude(126.570667)
@@ -386,31 +394,62 @@ public class TimelineController {
 	 			.limit(10)
 	 			.userId("user1")
 	 			.sharedType(1)
-	 			.currentPage(1)
+	 			.searchKeyword("22")
 				.build();
-		model.addAttribute("list13",timelineService.getMapRecordList(search));
+		model.addAttribute("mapList2",timelineService.getMapRecordList(search));
 		search=Search.builder()
 				.latitude(37.56789)
 	 			.longitude(127.345678)
-	 			.radius(110)
+	 			.radius(1100)
 	 			.limit(10)
 	 			.userId("user1")
-	 			.currentPage(1)
+	 			.privateType(1)
 				.build();
-		model.addAttribute("list14",timelineService.getMapRecordList(search));
+		model.addAttribute("mapList3",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(37.56789)
+	 			.longitude(127.345678)
+	 			.radius(1100)
+	 			.limit(10)
+	 			.userId("user1")
+	 			.privateType(1)
+	 			.searchKeyword("나가")
+				.build();
+		model.addAttribute("mapList3_2",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(37.56789)
+	 			.longitude(127.345678)
+	 			.radius(1100)
+	 			.limit(10)
+	 			.userId("user1")
+	 			.privateType(1)
+	 			.searchKeyword("나가")
+	 			.categoryNo(2)
+				.build();
+		model.addAttribute("mapList3_3",timelineService.getMapRecordList(search));
+		search=Search.builder()
+				.latitude(37.56789)
+	 			.longitude(127.345678)
+	 			.radius(1100)
+	 			.limit(10)
+	 			.userId("user1")
+	 			.privateType(1)
+	 			.categoryNo(3)
+				.build();
+		model.addAttribute("mapList3_4",timelineService.getMapRecordList(search));
 		search=Search.builder()
 				.latitude(33.450701)
 	 			.longitude(126.570667)
 	 			.radius(110)
 	 			.limit(5)
-	 			.currentPage(1)
 				.build();
-		model.addAttribute("list15",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.userId("user1")
-				.selectDate(Date.valueOf("2024-05-29"))
-				.build();
-		model.addAttribute("list16",timelineService.getSummaryRecord(search));
+		model.addAttribute("mapList4",timelineService.getMapRecordList(search));
+//		//===========================================
+//		search=Search.builder()
+//				.userId("user1")
+//				.selectDate(Date.valueOf("2024-05-29"))
+//				.build();
+//		model.addAttribute("list16",timelineService.getSummaryRecord(search));
 	}
 	
 	public void updateTimeline(Model model) throws Exception,IOException{

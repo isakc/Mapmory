@@ -443,10 +443,14 @@ SELECT
 FROM 
     record
 <trim prefix="where" prefixOverrides="AND||OR">
-	<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
-	AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
-	<if test="!(followType==null)">
+<if test="!(searchKeyword==null or searchKeyword=='')">
+<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
+</if>
+	<if test="!(userId==null or followType==null)">
 		<if test="followType==1">
+			(
+			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
 			AND record_user_id IN 
 			(
 			SELECT 
@@ -456,23 +460,71 @@ FROM
 				AND FB_TYPE=0
 			)
 			AND shared_date IS NOT NULL
+			AND temp_type=1
+			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0 
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
+			)
 		</if>
 	</if>
-	<if test="!(sharedType==null)">
+	<if test="!(userId==null or sharedType==null)">
 		<if test="sharedType==1">
+			OR (
+			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
 			AND shared_date IS NOT NULL
 			AND NOT record_user_id=#{userId}
+			AND temp_type=1
+			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0 
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
+			)
 		</if>
 	</if>
-	<if test="!(userId==null)">
-		<if test="sharedType==null and followType==null">
-		AND record_user_id=#{userId}
+	<if test="!(userId==null or privateType==null)">
+		<if test="privateType==1">
+			OR (
+			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
+			AND record_user_id=#{userId}
+			AND temp_type=1
+			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
+			)
 		</if>
 	</if>
-	AND temp_type=1
-	AND timecapsule_type=0
 </trim>
-ORDER BY rand() limit 30
 </sql>
 	
 <select id="selectMapRecordList" parameterType="searchDto" resultMap="recordResultMap">
@@ -482,7 +534,8 @@ FROM
 	(
 	<include refid="selectMapRecordListUnit" />
 	) inner_table
-LIMIT #{limit} OFFSET #{offset}
+ORDER BY rand()
+LIMIT #{limit}
 </select>
 
 <!-- 미사용 -->

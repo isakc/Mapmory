@@ -38,6 +38,7 @@ public class Search {
 	private Double latitude;
 	private Double longitude;
 	private Integer followType;
+	private Integer privateType;
 
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getLimit();

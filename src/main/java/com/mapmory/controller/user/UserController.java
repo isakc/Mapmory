@@ -1,17 +1,21 @@
 package com.mapmory.controller.user;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +41,8 @@ public class UserController {
 	@Autowired
 	private LoginService loginService;
 	
+	@Autowired
+	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
 	@Qualifier("objectStorageUtil")
@@ -47,7 +53,26 @@ public class UserController {
 	
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
+	
+	
+	// test용
+	@GetMapping("/setupForTest")
+	public void setupForTest() {
+		
+		// db script 사용 이후 최초 로그인 시 반드시 사용할 것(암호화 로직을 적용하여 user password를 갈아엎음)
+		userService.setupForTest();
+		System.out.println("\n\n암호화 적용 성공! template error는 무시해주세요~~");
+	}
+	
+	@PostMapping("/login")
+	public void login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
 
+		boolean keep;
+		
+		if(keepLogin == null)
+			keep = false;
+		else
+			keep = true;
 
 	@GetMapping("/testUpdateProfile")
 	public void testGetUpdateProfile(Model model) throws Exception {
@@ -62,8 +87,25 @@ public class UserController {
 		
 	}
 	
-	@PostMapping("/testUpdateProfile")
-	public void testPostUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model) throws Exception {
+	@GetMapping("/getUpdateSecondaryAuthView")
+	public void getUpdateSecondaryAuthView() {
+		
+	}
+	
+	@GetMapping("/getUpdatePasswordView")
+	public void getUpdatePasswordView() {
+		
+	}
+	
+	@GetMapping("/getSocialLoginLinkedView")
+	public void getSocialLoginLinkedView() {
+		
+	}
+
+	
+	
+	@PostMapping("/updateProfile")
+	public void postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model) throws Exception {
 		
 		String userId = "user1";
 		
@@ -80,48 +122,36 @@ public class UserController {
 		
 		model.addAttribute("profileImage", cdnPath);
 	}
+
 	
-	@GetMapping("/login")
-	public void getLogin() {
+	@GetMapping("/updatePasswordView")
+	public void updatePasswordView() {
 		
 //		 userService.setupForTest();
 	}
 	
-	@PostMapping("/login")
-	public void postLogin(@ModelAttribute Login login, HttpServletResponse response) throws Exception{
-		// @RequestParam boolean keepLogin, 
-		// System.out.println("로그인 유지 여부 : " + keepLogin);
-
-		
-		if ( !loginService.login(login, userService.getPassword(login.getUserId())) )
-			throw new Exception("아이디 또는 비밀번호가 잘못되었습니다.");
-
-		String userId = login.getUserId();
-		byte role = userService.getDetailUser(userId).getRole();
-		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.insertSession(login, role, sessionId))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createCookie(sessionId);
-		response.addCookie(cookie);
-		
-		if(role == 1)
-			response.sendRedirect("/map/map");  // 성문님께서 구현되는대로 적용 예정
-		else
-			response.sendRedirect("/user/admin/adminMain");
-	}
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// admin ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
 	
-	@PostMapping("/logout")
-	public void logout() {
-		
+	
+	@GetMapping("/admin/getAdminMain")
+	public void getAdminMain() {
 		
 	}
 	
-	@GetMapping("/test")
-	public void testSession(HttpServletRequest request) {
+	@GetMapping("/admin/getAdminUserList")
+	public void getAdminUserList() {
 		
-		loginService.getSession(request);
 	}
+	
+	@GetMapping("/admin/getAdminDetailUser")
+	public void getAdminDetailUser() {
+		
+	}
+	
 
 	private Cookie createCookie(String sessionId) {
 		

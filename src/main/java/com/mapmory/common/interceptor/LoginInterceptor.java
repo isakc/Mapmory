@@ -6,12 +6,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.RedisUtil;
-import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.service.LoginService;
 
 public class LoginInterceptor implements HandlerInterceptor {
@@ -34,12 +32,25 @@ public class LoginInterceptor implements HandlerInterceptor {
 		String requestURI = request.getRequestURI();
 		System.out.println("requestURI : " + requestURI);
 		
+		/// white list
+		if(requestURI.equals("/user/login"))
+			return true;
+		
 		Cookie[] cookies = request.getCookies();
+		if(cookies == null) {
+			
+			System.out.println("로그인 쿠키가 존재하지 않습니다.");
+			response.sendRedirect(loginPath);
+			
+			return false;
+		}
+		
 		for(Cookie cookie : cookies ) {
 			
 			if(cookie.getName().equals("JSESSIONID")) {
 				
 				String sessionId = cookie.getValue();
+				System.out.println("sessionId : " + sessionId);
 				SessionData temp = redisUtil.select(sessionId, SessionData.class);
 				if( temp == null ) {
 					

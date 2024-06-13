@@ -2,9 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>이용약관 상세 조회</title>
 </head>
 <body>
+	<h2>사용자 페이지</h2>
+
+	
+		<div>
+			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
+		</div>
+		<div>
+			[[${tac.title}]]
+		</div>
+		<div>
+			[[${tac.contents}]]
+		</div>
 
 </body>	
 </html>

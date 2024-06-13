@@ -8,7 +8,7 @@
 </head>
 <body>
 	<h1 th:text="${'getDetailTimeline2'}"></h1>
-	<ul>
+	<!-- <ul>
     <li th:each="item : ${list}" th:text="${item}"></li>
 </ul>
 <ul>
@@ -30,8 +30,6 @@
 <ul>
     <li th:each="item : ${list6}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
-	
-<!-- <h3 th:text="${' 기록된 타임캡슐 기록 '}"></h3> -->
 <ul>
     <li th:each="item : ${list7}" th:text="${' 기록된 타임캡슐 기록 : '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.d_DayDate}"></li>
 </ul>
@@ -46,33 +44,30 @@
 </ul>
 <ul>
     <li th:each="item : ${list11}" th:text="${' 타임라인 날짜 지정 : '+item}"></li>
-</ul>
-<!-- <ul>
-    <li th:each="item : ${list12}" th:text="' 성문 follow : '+${item}"></li>
-</ul>
-<ul>
-    <li th:each="item : ${list13}" th:text="${' 성문 public : '+item}"></li>
-</ul>
-<ul>
-    <li th:each="item : ${list14}" th:text="${' 성문 private : '+item}"></li>
-</ul>
-<ul>
-    <li th:each="item : ${list15}" th:text="${' 성문 랜덤 테스트 : '+item}"></li>
 </ul> -->
 <ul>
-    <li th:each="item : ${list12}" th:text=" '성문 follow : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+    <li th:each="item : ${mapList1}" th:text=" '성문 follow : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list13}" th:text=" '성문 public : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+    <li th:each="item : ${mapList2}" th:text=" '성문 public : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list14}" th:text=" '성문 private : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+    <li th:each="item : ${mapList3}" th:text=" '성문 private no keyword, no category : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
-    <li th:each="item : ${list15}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}"></li>
+    <li th:each="item : ${mapList3_2}" th:text=" '성문 private only keyword : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
+    <li th:each="item : ${mapList3_3}" th:text=" '성문 private keyword, category : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${mapList3_4}" th:text=" '성문 private only category : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${mapList4}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
+</ul>
+<!-- <ul>
     <li th:each="item : ${list16}" th:text=" '날짜선택 list : '+${item}"></li>
-</ul>
+</ul> -->
 </body>
 </html>

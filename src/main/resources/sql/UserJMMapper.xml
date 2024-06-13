@@ -2,15 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mapmory.services.user.UserDaoJM">
-    <select id="findByUserId" parameterType="String" resultType="userJM">
+    <select id="findByUserId" parameterType="String" resultType="user">
         SELECT *
         FROM users
         WHERE user_id = #{userId}
     </select>
 
-    <update id="updateOnlineStatus">
-        UPDATE users
-        SET is_online = #{isOnline}
-        WHERE user_id = #{userId}
-    </update>
 </mapper>
