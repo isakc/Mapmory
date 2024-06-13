@@ -2,9 +2,177 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<title>프로필</title>
+	
+	<script th:inline="javascript">
+	
+		$(function(){
+			
+			const myProfile = [[${myProfile}]];
+			const isFollow = [[${isFollow}]];
+			
+			console.log("myProfile : " + myProfile);
+			console.log("isFollow : " + isFollow);
+			
+			if(myProfile == true || myProfile == "true") {
+
+				$('#updateProfile').css('display','block');
+				$('#myChatList').css('display','block');
+					
+			} else {
+				
+				$('#voiceChat').css('display','block');
+				$('#chat').css('display','block');
+				
+				if (isFollow == true || isFollow == "true") {
+					
+					$('#deleteFollow').css('display','block');
+					
+				} else {
+					
+					$('#addFollow').css('display','block');
+					
+				}
+			}
+
+		});
+	
+		$(function() {
+			
+			const userId = [[${profile.user.userId}]];
+			console.log(userId);
+			$('#back').on('click', function() {
+				
+				window.location.href="/timeline/getTimelineList?userId="+userId;
+			});
+			
+			$('#follow-list').on('click', function() {
+				
+				window.location.href="/user/getFollowList?userId="+userId;
+			});
+			
+			$('#follower-list').on('click', function() {
+				
+				window.location.href="/user/getFollowerList?userId="+userId;
+			});
+			
+			$('#updateProfile').on('click', function() {
+				
+				window.location.href="/user/getUpdateProfileView?userId="+userId;
+			});
+			
+			$('#voiceChat').on('click', function() {
+				
+				window.location.href="/video-call/"+userId;
+			});
+						
+			$('#deleteFollow').on('click', function() {
+				
+				$.ajax({
+			      url: "/user/rest/deleteFollow",
+			      method: "POST",
+			      data: {
+			        targetId: userId
+			      },
+			      success: function(response) {
+			        
+					if(response == true) {
+						
+						$('#deleteFollow').attr('display', 'none');
+						$('#addFollow').attr('display', 'none');
+						
+					} else {
+						
+					}
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			      }
+			    });
+		    });
+		
+			$('#addFollow').on('click', function() {
+				
+				window.location.href="/user/getFollowerList?userId="+userId;
+			});
+			
+			$('#myChatList').on('click', function() {
+				
+				window.location.href="http://192.168.0.45:3000/chat/chatList";
+			});
+			
+			$('#chat').on('click', function() {
+				
+				const sessionId = [[${sessionId}]];
+				
+				$.ajax({
+			      url: "http://192.168.0.45:3001/mongo/findOneChatRoom",
+			      method: "POST",
+			      data: JSON.stringify({
+			    	userId: sessionId,
+			        opponent: "user1"
+			      }),
+			      success: function(response) {
+			        
+					if(response == true) {
+
+						console.log("채팅서버 응답 : " + response);
+						
+					} else {
+						
+						console.log("실패");
+						
+					}
+					
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			      }
+			    });
+				
+				// window.location.href="/user/getFollowerList?userId="+userId;
+
+			});
+		});
+	</script>
+	
 </head>
 <body>
+	<!-- <a th:href="@{/timeline/getTimelineList(userId=${profile.user.userId})}">뒤로가기</a>  --> 
+	<button type="button" id="back">뒤로 가기</button>
+	
+	<button type="button" id="toggle">=</button>
+	
+	<img alt="" src="@{profile.user.profileImageName}">
+	
+	<ul class="profile-info">
+	  <li id="shared-list">
+	    <span class="label">공유기록 수</span>
+	    <span class="value" th:text="${profile.totalSharedListCount}"></span>
+	  </li>
+	  <li id="follow-list">
+	    <span class="label">팔로워</span>
+	    <span class="value" th:text="${profile.totalFollowCount}"></span>
+	  </li>
+	  <li id="follower-list">
+	    <span class="label">팔로잉</span>
+	    <span class="value" th:text="${profile.totalFollowerCount}"></span>
+	  </li>
+	</ul>
+	
+	<h3>자기소개</h3>
+	<p th:text="${profile.user.introduction}"></p>
 
+	
+	<button type="button" id="updateProfile" style="display:none;">내 프로필 수정</button>
+	<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
+	<button type="button" id="addFollow" style="display:none;">팔로우</button>
+	
+	<button type="button" id="myChatList" style="display:none;">내 채팅 목록으로 이동</button>
+	<button type="button" id="voiceChat" style="display:none;">화상통화</button>
+	<button type="button" id="chat" style="display:none;">메세지 보내기</button>
 </body>	
 </html>

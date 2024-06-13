@@ -60,7 +60,6 @@
 			subscription
 		WHERE 
 			user_id = #{userId} 
-			AND NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>

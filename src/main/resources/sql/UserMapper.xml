@@ -151,6 +151,7 @@
 			JOIN users u ON fb.target_id = u.user_id
 		WHERE
 			fb.user_id = #{userId}
+			AND fb_type=0
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
 		LIMIT #{limit} OFFSET #{offset}
@@ -163,9 +164,50 @@
 			JOIN users u ON fb.target_id = u.user_id
 		WHERE
 			fb.user_id = #{userId}
+			AND fb_type=0
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
+		<if test="limit != 0 and currentPage != 0"> 
+		ORDER BY fb.FB_NO DESC 
+		LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="selectFollowerList" parameterType="search" resultMap="selectFollowMap">
+		SELECT
+		fb.target_id as user_id, u.user_name, u.nickname, u.profile_image_name, u.hide_profile 
+		FROM follow_block fb
+			JOIN users u ON fb.user_id = u.user_id
+		WHERE
+			fb.target_id = #{userId}
+			AND fb_type=0
+			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
 		LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="getFollowerListTotalCount" parameterType="search" resultType="integer">
+		SELECT
+		COUNT(*) 
+		FROM follow_block fb
+			JOIN users u ON fb.user_id = u.user_id
+		WHERE
+			fb.target_id = #{userId}
+			AND fb_type=0
+			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
+		<if test="limit != 0 and currentPage != 0"> 
+		ORDER BY fb.FB_NO DESC 
+		LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="isFollow" parameterType="com.mapmory.services.user.domain.FollowBlock" resultType="integer">
+		SELECT
+		COUNT(*)
+		FROM follow_block
+		WHERE
+			user_id = #{userId}
+			AND target_id=#{targetId}
+			AND fb_type=0
 	</select>
 	
 	<select id="selectSuspensionList" parameterType="search" resultMap="selectSuspensionLogMap">

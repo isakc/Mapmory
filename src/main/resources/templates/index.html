@@ -35,16 +35,21 @@
                 });
         	});
 			
+			$('#signUp').on('click', function() {
+				
+				window.location.href="http://localhost:8000/user/getAgreeTermsAndConditionsList";
+			});
 			
 			$('#logout').on('click', function() {
 				
 				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
 			});
-			
-			$('#signUp').on('click', function() {
+
+			$('#getProfile').on('click', function() {
 				
-				window.location.href="http://localhost:8000/user/getAgreeTermsAndConditionsList";
+				window.location.href="/user/getProfile";
 			});
+			
  		});
  		
  		$(function(){
@@ -75,9 +80,13 @@
         
         <button type="button" id="login">로그인</button>
         <button type="button" id="signUp">회원가입</button>
-        <br/>
-        <br/>
-        <button type="button" id="logout">로그아웃</button>
+        <hr>
+        <hr>
+        <hr>
+        <button type="button" id="getProfile">내 프로필로 이동</button>
+      	<button type="button" id="logout">로그아웃</button>
+        
+
 
 		<details>
 		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
@@ -98,6 +107,7 @@
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
         <button type="button" id="footerView">footer 실험실로 이동</button>
+ 
     </form> 
 </body>
 </html>

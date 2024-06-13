@@ -218,13 +218,146 @@ $(function() {
 	});
 });
 
+////////////////////////////// captcha //////////////////////////////
+$(function() {
+	
+	  let captchaKey;	
+
+	  function loadCaptcha() {
+	    $.get("/user/rest/nkey?code=0", function(response) {
+	      captchaKey = JSON.parse(response).key;
+	      var captchaImageUrl = "/user/rest/image?key=" + captchaKey;
+	      $("#captchaImageContainer").html($("<img>").attr("src", captchaImageUrl));
+	    });
+	  }
+	
+	  $("#verify-button").click(function() {
+	    var captchaValue = $("#captcha-input").val();
+	
+	    $.ajax({
+	      url: "/user/rest/verify",
+	      method: "GET",
+	      data: {
+	        key: captchaKey,
+	        value: captchaValue
+	      },
+	      success: function(response) {
+	        var result = JSON.parse(response);
+	        if (result.result) {
+	          alert("캡차 확인 성공!");
+	        } else {
+	          alert("캡차를 다시 확인해주세요.");
+	          loadCaptcha(); // 새로운 캡차 이미지 로드
+	        }
+	      },
+	      error: function(xhr, status, error) {
+	        console.error("캡차 검증 실패:", error);
+	        alert("캡차를 다시 확인해주세요.");
+	        loadCaptcha(); // 새로운 캡차 이미지 로드
+	      }
+	    });
+	  });
+	
+	  loadCaptcha(); // 페이지 로드 시 캡차 로드
+});
 
 
+////////////////////////////// phone 인증 //////////////////////////////
+$(function() {
+	
+	var checkNum; // 인증번호 저장 변수
 
+    // 휴대폰 번호 인증 요청
+    $('#sendAuthPhoneNum').click(function() {
+        var phone = $('#phoneNumber').val(); // 입력된 휴대폰 번호 가져오기
 
+        // 서버로 POST 요청 보내기
+        $.ajax({
+            url: "/user/rest/userPhoneNumberCheck", // 요청할 URL
+            type: "POST", // POST 요청
+            data: { to: phone }, // 전송할 데이터
+            dataType: "json", // 응답 데이터 형식은 JSON으로 설정
+            success: function(data) {
+                if (data) { // 요청이 성공하면
+                    checkNum = data; // 전송된 인증번호 저장
+                    
+                    $('#phoneAuthCode').attr("type", "number");
+                    alert('인증번호를 전송했습니다.');
+                } else {
+                    alert('인증번호 전송에 실패했습니다. 다시 시도해주세요.');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
+                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
+                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        });
+    });
 
+    // 인증번호 확인 버튼 클릭 시
+    $('#phoneAuthCode').on('input',function() {
+		
+		$('#phoneNumberMsg').show();
+        var userNum = $('input[name="phoneAuthCode"]').val(); // 입력된 인증번호 가져오기
+        if (checkNum == userNum) { // 입력된 인증번호와 서버에서 받은 인증번호가 일치하는지 확인
+            
+            $('#phoneNumberMsg').text("인증번호가 일치합니다.").css('color', 'green');
+            $('#phoneNumber').attr('readonly', true);
+            $('#sendAuthPhoneNum').attr('disabled', true);
+            $('#phoneAuthCode').attr('type', 'hidden');
+            $('#phoneNumberChecked').text('true');
+        } else {
+            
+            $('#phoneNumberMsg').text("인증번호가 일치하지 않습니다.").css('color', 'red');
+        }
+    });
+})
 
+////////////////////////////// email 인증 //////////////////////////////
+$(function() {
+	
+	$("#sendAuthEmail").click(function () {
+		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
+		
+		$('#emailAuthCode').attr("type", "number");
 
+		//Ajax로 전송
+		$.ajax({
+			url : '/user/rest/emailAuth',
+			data : {
+				email : email
+			},
+			type : 'POST',
+			dataType : 'json',
+			success : function(result) {
+				console.log("result : " + result);
+				// $("#authCode").attr("disabled", false);
+				code = result;
+				alert("인증 코드가 입력하신 이메일로 전송 되었습니다.");
+			}
+		}); //End Ajax
+	});
+
+	$("#emailAuthCode").on("input", function() {
+		const inputCode = $("#emailAuthCode").val(); //인증번호 입력 칸에 작성한 내용 가져오기
+
+		console.log("입력코드 : " + inputCode);
+		console.log("인증코드 : " + code);
+
+		$('#emailMsg').show();
+		if(Number(inputCode) === code){
+
+			$("#emailMsg").text('인증번호가 일치합니다.').css('color', 'green');
+			$('#sendAuthEmail').attr('disabled', true);
+			$('#email').attr('readonly', true);
+			$('#emailAuthCode').attr('type', 'hidden');
+			$('emailChecked').text("true");
+		}else{
+
+			$("#emailMsg").text('인증번호가 불일치합니다.').css('color', 'red');
+		}
+	});
+});
 
 
 
