@@ -3,18 +3,54 @@
 <head>
 	<meta charset="UTF-8">
 	<title>이용약관</title>
+	
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	
+	<script>
+		$(function() {
+			
+			let allChecked = true;
+			$('button').on('click', function() {
+				
+				$('input[type=checkbox]').each(function(){
+					
+					if($(this).closest('div').find('span').text()==='필수' && !$(this).is(':checked')) {
+						allChecked = false;
+						alert("모든 필수 이용약관에 동의해주셔야 합니다.");
+						return false;
+					}
+				});
+				
+				if(allChecked) {
+					
+					console.log('flag');
+					$('form').attr('method', 'post').attr('action', '/user/getSignUpView').submit();
+				}
+			});
+		});
+	</script>
 </head>
 <body>
-	<div th:each="tac : ${tacList}">
-		<div>
-			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
+
+	<h2>사용자 페이지</h2>
+	
+	<form>
+		<div th:each="tac, state : ${tacList}">
+			<div>
+				<input type="checkbox" th:name="'check'+'${state.count}'">
+				[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
+			</div>
+			<div>
+				[[${tac.title}]]
+			</div>
+			<div>
+				<a th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
+			</div>
 		</div>
-		<div>
-			[[${tac.title}]]
-		</div>
-		<div>
-			
-		</div>
-	</div>
+	</form>
+	
+	<br/>
+	<br/>
+	<button type="button" id="next">다음</button>
 </body>	
 </html>

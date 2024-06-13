@@ -3,14 +3,22 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+<style type="text/css">
+a{
+	color: blue;
+}
+</style>
 </head>
 <body>
 <h1 th:text="${'getSimpleTimeline'}"></h1>
-    <a th:href="@{/timeline/getTimelineList(userId='user1')}" th:text="${'getTimelineList'}"></a><br/>
-	<table>
+
+	<div th:name="getTimelineList" th:data-userid="${record.recordUserId}" th:include="timeline/component/map::kakaoMap"></div>
+	<table border=1>
 		<tr>
-			<td><a th:href="@{/timeline/getDetailTimeline(recordNo=${record.recordNo})}" th:text="${record.recordTitle}"></a></td>
-			<td th:text="${record.categoryNo}"></td>
+			<td>
+			<a th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
+			</td>
+			<td><img/><span th:text="${record.categoryName}"></span></td>
 		</tr>
 		<tr>
 			<td th:text="${record.checkpointDate}"></td>
@@ -19,5 +27,34 @@
 			<td th:text="${record.checkpointAddress}"></td>
 		</tr>
 	</table>
+	
+	<div th:include="common/footer::defaultFooter"></div>
+	
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->	
+
+<script type="text/javascript">
+$(function() {
+	$("a").mouseenter(function() {
+		$(this).css("color", "red");
+	}).mouseleave(function() {
+		$(this).css("color", "blue");
+	})
+	
+	$("a[name='getSimpleTimeline']").click(function() {
+		let recordNo=$(this).data('recordno');
+		/* alert(recordNo); */
+		uri="?recordNo="+recordNo;
+		self.location="/timeline/getDetailTimeline"+uri;
+	})
+	
+	$("div[name='getTimelineList']").click(function() {
+		let userId=$(this).data('userid');
+		/* alert(recordNo); */
+		uri="?userId="+userId;
+		self.location="/timeline/getTimelineList"+uri;
+	})
+})
+</script>
 </body>	
 </html>

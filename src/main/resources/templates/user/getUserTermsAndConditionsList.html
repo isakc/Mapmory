@@ -2,9 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>이용약관</title>
+	
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	
+	<script>
+	
+		$(function() {
+			
+			$('button').on('click', function(){
+				
+				window.location.href="/user/getPersonalSecurityMenu";
+			});
+		});
+		
+	</script>
 </head>
 <body>
 
+	<h2>사용자 페이지</h2>
+
+	<div th:each="tac, state : ${tacList}">
+		<div>
+			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
+		</div>
+		<div>
+			[[${tac.title}]]
+		</div>
+		<div>
+			<a th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
+		</div>
+	</div>
+	
+	<button type="button" id="back">확인</button>
 </body>	
 </html>

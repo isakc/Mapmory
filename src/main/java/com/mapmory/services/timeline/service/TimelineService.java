@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
@@ -45,7 +46,7 @@ public interface TimelineService {
 	
 	public List<SharedRecordDto> getSharedRecordList(Search search) throws Exception;
 	
-	public List<Record> getMapRecordList(Search searchMarker) throws Exception;
+	public List<MapRecord> getMapRecordList(Search search) throws Exception;
 	
 	
 

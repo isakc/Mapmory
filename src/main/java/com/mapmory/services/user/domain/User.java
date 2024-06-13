@@ -15,7 +15,7 @@ import lombok.ToString;
 public class User {
 	
 	private String userId;               // user_id VARCHAR(20) NOT NULL
-    private String userPassword;         // user_password VARCHAR(16) NOT NULL
+    private String userPassword;         // user_password VARCHAR(120) NOT NULL
     private Byte role;                   // role TINYINT NOT NULL
     private String userName;             // user_name VARCHAR(18) NOT NULL
     private String nickname;             // nickname VARCHAR(10) NOT NULL UNIQUE

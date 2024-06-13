@@ -3,6 +3,7 @@ package com.mapmory.services.community.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.community.domain.CommunityLogs;
@@ -37,6 +38,9 @@ public interface CommunityDao {
 	//커뮤니티 활동 추가
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
+	//중복검사 위한 커뮤니티 전체 리스트
+	public List<CommunityLogs> getAllCommunityLogs() throws Exception;	
+	
 	//커뮤니티 활동 로그 선택
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
 	
@@ -44,7 +48,7 @@ public interface CommunityDao {
 	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
 	//커뮤니티 활동 삭제
-	public void deleteCommunityLogs(int communityLogsNo, String userId) throws Exception;	
+	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception;	
 	
 	//기록 삭제 시 커뮤니티 활동 삭제
 	public void deleteCommunityLogsByRecord(int recordNo) throws Exception;	
@@ -89,10 +93,10 @@ public interface CommunityDao {
 	public int getReplyUserTotalCount(Search search, String userId) throws Exception;
 		
 	//좋아요 개수
-	public int getReactionLikeTotalCount(Search search, int replyNo) throws Exception;
+	public int getReactionLikeTotalCount(@RequestBody CommunityLogs communityLogs) throws Exception;
 	
 	//싫어요 개수
-	public int getReactionDisLikeTotalCount(Search search, int replyNo) throws Exception;
+	public int getReactionDisLikeTotalCount(@RequestBody CommunityLogs communityLogs) throws Exception;
 		
 	//사용자 신고 총 개수
 	public int getUserReportTotalCount(Search search, String userId) throws Exception;

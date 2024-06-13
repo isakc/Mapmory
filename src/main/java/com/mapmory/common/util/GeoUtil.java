@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.SearchDto;
 
@@ -76,10 +77,10 @@ public class GeoUtil {
         return distance;
 	}
 
-    public static void sortByDistance(List<Record> recordList) {
-        Collections.sort(recordList, new Comparator<Record>() {
+    public static void sortByDistance(List<MapRecord> recordList) {
+        Collections.sort(recordList, new Comparator<MapRecord>() {
             @Override
-            public int compare(Record record1, Record record2) {
+            public int compare(MapRecord record1, MapRecord record2) {
                 // record1과 record2의 거리를 비교하여 정렬
                 return Double.compare(record1.getDistance(), record2.getDistance());
             }

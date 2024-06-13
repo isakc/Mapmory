@@ -9,6 +9,8 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class SearchDto {	
 	private String userId;
+	private String searchKeyword;
+	private int categoryNo;
 	private int limit;
 	private int offset;
 	

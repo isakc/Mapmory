@@ -35,7 +35,7 @@ public interface CommunityService {
 	
 	//커뮤니티 활동 추가
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception;
-	
+		
 	//커뮤니티 활동 로그 선택
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
 		
@@ -43,15 +43,15 @@ public interface CommunityService {
 	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
 
 	//커뮤니티 활동 삭제
-	public void deleteCommunityLogs(int communityLogsNo, String userId) throws Exception;
+	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception;
 	
 	//기록 삭제 시 커뮤니티 활동 삭제
 	public void deleteCommunityLogsByRecord(int recordNo) throws Exception;
-		
+	
 	//커뮤니티 로그 목록 조회
 	public Map<String, Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception;	
 	
-	//신고 정보 가져오기? controller에서 진행 예정
+	//신고 정보 가져가지
 	public void addReport(Report report) throws Exception;
 	
 	//신고하기 제출

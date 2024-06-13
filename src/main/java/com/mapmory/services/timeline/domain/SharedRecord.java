@@ -35,6 +35,7 @@ public class SharedRecord {
 	private long subscriptionEndDate;
 	private String categoryName;
 	private String categoryImoji;
+	private long bookmark;
 	private long likeCount;
 	private long dislikeCount;
 	private long replyCount;
