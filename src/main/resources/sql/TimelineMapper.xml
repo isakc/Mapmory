@@ -16,6 +16,8 @@
     <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
     <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
     <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="categoryName" column="category_name" jdbcType="VARCHAR"/>
+    <result property="categoryImoji" column="category_imoji" jdbcType="VARCHAR"/>
     <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
     <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
     <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
@@ -65,6 +67,31 @@
     </collection>
 </resultMap>
 
+<resultMap id="mapRecordResultMap" type="java.util.HashMap">
+    <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+    <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
+    <result property='nickName' column='nickname' jdbcType='VARCHAR'/>
+    <result property='profileImageName' column='profile_image_name' jdbcType='VARCHAR'/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
+    <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+    <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
+    <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
+    <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
+    <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="categoryName" column="category_name" jdbcType="VARCHAR"/>
+    <result property="categoryImoji" column="category_imoji" jdbcType="VARCHAR"/>
+    <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
+    <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
+    <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
+    <result property="sharedDate" column="shared_date" jdbcType="TIMESTAMP"/>
+    <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
+    <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
+    <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
+    <collection property="imageName" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectImage"/>
+    <collection property="hashtag" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectHashtag"/>
+</resultMap>
+
 <resultMap id="recordResultMap2" type="com.mapmory.services.timeline.domain.Record2">
     <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
@@ -100,6 +127,8 @@
        DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
        a1.media_name AS media_name,
        a1.category_no AS category_no,
+       a3.category_name AS category_name,
+       a3.category_imoji AS category_imoji,
        a1.record_text AS record_text,
        a1.temp_type AS temp_type,
        DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
@@ -113,6 +142,7 @@
    FROM 
        record a1
    JOIN image_tag a2 ON a1.record_no = a2.record_no
+   JOIN category a3 ON a1.category_no = a3.category_no
    WHERE 
        a1.record_no = #{value}
 </select>
@@ -135,7 +165,7 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
 </insert>
 
 <select id='selectDetailTimeline' resultMap='recordResultMap' parameterType='Integer'>
-    SELECT 
+     SELECT 
        a1.record_no AS record_no,
        a1.record_user_id AS record_user_id,
        a1.record_title AS record_title,
@@ -145,6 +175,8 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
        DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
        a1.media_name AS media_name,
        a1.category_no AS category_no,
+       a3.category_name AS category_name,
+       a3.category_imoji AS category_imoji,
        a1.record_text AS record_text,
        a1.temp_type AS temp_type,
        DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
@@ -157,7 +189,8 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
        a2.image_tag_text AS image_tag_text
    FROM 
        record a1
-   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+   JOIN image_tag a2 ON a1.record_no = a2.record_no
+   JOIN category a3 ON a1.category_no = a3.category_no
    WHERE 
        a1.record_no = #{value}
 </select>
@@ -423,25 +456,31 @@ LIMIT #{limit} OFFSET #{offset}
 </select>
 
 <sql id="selectMapRecordListUnit" >
-SELECT 
-    record_no,
-    record_user_id,
-    record_title,
-    latitude,
-    longitude,
-    checkpoint_address,
-    DATE_FORMAT(checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
-    media_name,
-    category_no,
-    record_text,
-    temp_type,
-    DATE_FORMAT(record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
-    DATE_FORMAT(shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
-    update_count,
-    d_day_date,
-    timecapsule_type
-FROM 
-    record
+	SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a4.nickname AS nickname,
+       a4.profile_image_name AS profile_image_name,
+       a1.record_title AS record_title,
+       a1.latitude AS latitude,
+       a1.longitude AS longitude,
+       a1.checkpoint_address AS checkpoint_address,
+       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
+       a1.media_name AS media_name,
+       a1.category_no AS category_no,
+       a3.category_name AS category_name,
+       a3.category_imoji AS category_imoji,
+       a1.record_text AS record_text,
+       a1.temp_type AS temp_type,
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
+       a1.update_count AS update_count,
+       a1.d_day_date AS d_day_date,
+       a1.timecapsule_type AS timecapsule_type
+   FROM 
+       record a1
+   JOIN category a3 ON a1.category_no = a3.category_no
+   JOIN users a4 ON a1.record_user_id = a4.user_id
 <trim prefix="where" prefixOverrides="AND||OR">
 <if test="!(searchKeyword==null or searchKeyword=='')">
 <bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
@@ -449,9 +488,9 @@ FROM
 	<if test="!(userId==null or followType==null)">
 		<if test="followType==1">
 			(
-			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
-			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
-			AND record_user_id IN 
+			<![CDATA[a1.latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[a1.longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
+			AND a1.record_user_id IN 
 			(
 			SELECT 
 				target_id
@@ -459,20 +498,20 @@ FROM
 				WHERE user_id=#{userId}
 				AND FB_TYPE=0
 			)
-			AND shared_date IS NOT NULL
-			AND temp_type=1
-			AND timecapsule_type=0
+			AND a1.shared_date IS NOT NULL
+			AND a1.temp_type=1
+			AND a1.timecapsule_type=0
 			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-				AND (record_text LIKE #{searchKeyword} 
-				OR record_title LIKE #{searchKeyword} 
-            	OR record_no IN (
+				AND (a1.record_text LIKE #{searchKeyword} 
+				OR a1.record_title LIKE #{searchKeyword} 
+            	OR a1.record_no IN (
             	SELECT record_no 
             	FROM image_tag 
             	WHERE IMAGE_TAG_TYPE = 0 
             	AND image_tag_text LIKE #{searchKeyword}))
             </if>
             <if test="!(categoryNo==null or categoryNo==0)">
-            	AND category_no=#{categoryNo}
+            	AND a1.category_no=#{categoryNo}
             </if>
 			)
 		</if>
@@ -480,23 +519,23 @@ FROM
 	<if test="!(userId==null or sharedType==null)">
 		<if test="sharedType==1">
 			OR (
-			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
-			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
-			AND shared_date IS NOT NULL
-			AND NOT record_user_id=#{userId}
-			AND temp_type=1
-			AND timecapsule_type=0
+			<![CDATA[a1.latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[a1.longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
+			AND a1.shared_date IS NOT NULL
+			AND NOT a1.record_user_id=#{userId}
+			AND a1.temp_type=1
+			AND a1.timecapsule_type=0
 			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-				AND (record_text LIKE #{searchKeyword} 
-				OR record_title LIKE #{searchKeyword} 
-            	OR record_no IN (
+				AND (a1.record_text LIKE #{searchKeyword} 
+				OR a1.record_title LIKE #{searchKeyword} 
+            	OR a1.record_no IN (
             	SELECT record_no 
             	FROM image_tag 
             	WHERE IMAGE_TAG_TYPE = 0 
             	AND image_tag_text LIKE #{searchKeyword}))
             </if>
             <if test="!(categoryNo==null or categoryNo==0)">
-            	AND category_no=#{categoryNo}
+            	AND a1.category_no=#{categoryNo}
             </if>
 			)
 		</if>
@@ -504,22 +543,22 @@ FROM
 	<if test="!(userId==null or privateType==null)">
 		<if test="privateType==1">
 			OR (
-			<![CDATA[latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
-			AND <![CDATA[longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
-			AND record_user_id=#{userId}
-			AND temp_type=1
-			AND timecapsule_type=0
+			<![CDATA[a1.latitude BETWEEN #{minLatitude} AND #{maxLatitude}]]>
+			AND <![CDATA[a1.longitude BETWEEN #{minLongitude} AND #{maxLongitude}]]>
+			AND a1.record_user_id=#{userId}
+			AND a1.temp_type=1
+			AND a1.timecapsule_type=0
 			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-				AND (record_text LIKE #{searchKeyword} 
-				OR record_title LIKE #{searchKeyword} 
-            	OR record_no IN (
+				AND (a1.record_text LIKE #{searchKeyword} 
+				OR a1.record_title LIKE #{searchKeyword} 
+            	OR a1.record_no IN (
             	SELECT record_no 
             	FROM image_tag 
             	WHERE IMAGE_TAG_TYPE = 0
             	AND image_tag_text LIKE #{searchKeyword}))
             </if>
             <if test="!(categoryNo==null or categoryNo==0)">
-            	AND category_no=#{categoryNo}
+            	AND a1.category_no=#{categoryNo}
             </if>
 			)
 		</if>
@@ -527,7 +566,7 @@ FROM
 </trim>
 </sql>
 	
-<select id="selectMapRecordList" parameterType="searchDto" resultMap="recordResultMap">
+<select id="selectMapRecordList" parameterType="searchDto" resultMap="mapRecordResultMap">
 SELECT
 inner_table.*
 FROM
@@ -538,7 +577,45 @@ ORDER BY rand()
 LIMIT #{limit}
 </select>
 
+
+
+<select id="selectImage" resultType="imageTag" parameterType="integer">
+  SELECT
+  	image_tag_order,
+  	record_no,
+  	image_tag_type,
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=1
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC;
+</select>
+
+<select id="selectHashtag" resultType="imageTag" parameterType="integer">
+SELECT
+  	image_tag_order,
+  	record_no,
+  	image_tag_type,
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=0
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC;
+</select>
+
 <!-- 미사용 -->
+
+
 
 <!-- <delete id="deleteHashtag" parameterType="Integer">
     DELETE FROM image_tag WHERE record_no = #{recordNo} AND image_tag_type=0
@@ -638,34 +715,6 @@ FROM
     record
 WHERE 
     record_no = #{value}
-</select>
-
-<select id="selectImage2" resultType="string" parameterType="integer">
-  SELECT
-	image_tag_text
-FROM
-	image_tag
-WHERE
-	record_no=#{value} 
-AND
-	image_tag_type=1
-ORDER BY 
-    image_tag_order IS NULL ASC, 
-    image_tag_order ASC;
-</select>
-
-<select id="selectHashtag2" resultType="string" parameterType="integer">
-SELECT
-	image_tag_text
-FROM
-	image_tag
-WHERE
-	record_no=#{value} 
-AND
-	image_tag_type=0
-ORDER BY 
-    image_tag_order IS NULL ASC, 
-    image_tag_order ASC;
-</select> -->
+</select>-->
     
 </mapper>

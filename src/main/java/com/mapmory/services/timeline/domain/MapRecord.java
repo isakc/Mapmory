@@ -21,9 +21,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Record {
+public class MapRecord {
 	private int recordNo;
 	private String recordUserId;
+	private String nickName;
+	private String profileImageName;
 	private String recordTitle;
 	private Double latitude;
 	private Double longitude;

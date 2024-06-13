@@ -61,15 +61,15 @@ public class MapRestController {
 		return resultTransitRouterList;
 	}// getTransitRouteList: 대중교통 경로 요청
 	
-	@ResponseBody
-	@PostMapping(value="rest/test")
-	public List<Record> test(@RequestBody Search search) throws Exception {
-		
-		search.setLimit(10);
-		search.setUserId("user1");
-		search.setFollowType(0);
-		search.setCurrentPage(1);
-		
-		return timelineService.getMapRecordList(search);
-	}
+//	@ResponseBody
+//	@PostMapping(value="rest/test")
+//	public List<Record> test(@RequestBody Search search) throws Exception {
+//		
+//		search.setLimit(10);
+//		search.setUserId("user1");
+//		search.setFollowType(0);
+//		search.setCurrentPage(1);
+//		
+//		return timelineService.getMapRecordList(search);
+//	}
 }
