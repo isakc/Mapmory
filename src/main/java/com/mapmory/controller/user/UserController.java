@@ -1,7 +1,9 @@
 package com.mapmory.controller.user;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -13,17 +15,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
@@ -53,24 +60,19 @@ public class UserController {
 	
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
-
+	
+	
 	// test용
 	@GetMapping("/setupForTest")
 	public void setupForTest() {
 		
 		// db script 사용 이후 최초 로그인 시 반드시 사용할 것(암호화 로직을 적용하여 user password를 갈아엎음)
-		// userService.setupForTest();
+		userService.setupForTest();
+		System.out.println("\n\n암호화 적용 성공! template error는 무시해주세요~~");
 	}
 	
 	@PostMapping("/login")
-	public void postLogin(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
-		
-		System.out.println("flag" + keepLogin);
-		
-		/*
-		if ( !loginService.login(login, userService.getPassword(login.getUserId())) )
-			throw new Exception("아이디 또는 비밀번호가 잘못되었습니다.");
-		*/
+	public void login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
 
 		boolean keep;
 		
@@ -81,8 +83,9 @@ public class UserController {
 
 		String userId = login.getUserId();
 		byte role = userService.getDetailUser(userId).getRole();
+		// System.out.println("role : " + role);
 		String sessionId = UUID.randomUUID().toString();
-		System.out.println("sessionId : " + sessionId);
+		// System.out.println("sessionId : " + sessionId);
 		if ( !loginService.setSession(login, role, sessionId, keep))
 			throw new Exception("redis에 값이 저장되지 않음.");
 		
@@ -102,33 +105,65 @@ public class UserController {
 	}
 	
 	@GetMapping("/getSignUpView")
-	public void getSignUpView() {
+	public void getSignUpView(Model model) {
+		
+		model.addAttribute("user", User.builder().build());
 		
 	}	
 	
+	@PostMapping("/signUp")
+	public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
+		
+		if( !isDone) {
+			
+			throw new Exception("회원가입에 실패했습니다.");
+		}
+		
+		return "redirect:/";
+	}
+	
+
 	@GetMapping("/getAgreeTermsAndConditionsList")
-	public void getAgreeTermsAndConditionsList(Model model) throws Exception {
+	public String getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
 		
-		/**
-		 * 아니다, metadata에 file 경로를 명시한 후, numbering을 통해 matching을 시키도록 하자.
-		 * 어차피 파일 경로를 노출하는 것이 보안 상 좋지 않을 뿐더러, 지금 체제에서 refactoring하고 싶지도 않기 때문이다.
-		 * 
-		 * 1. getTermsAndConditionsList()에서 List와 filePath가 담긴 map을 받는다.
-		 * 2. 둘 다 view에 명시해둔다.
-		 * 2. 사용자가 '자세히 보기'를 누른다.
-		 * 3. 해당 경로에 대한 filePath를 받아서 getDetailAgreeTermsAndConditions()를 호출한다.
-		 */
-		
+
 		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
-		
-		model.addAttribute("tacList", tacList);
+	
+		int role = redisUtil.getSession(request).getRole();
+
+		// 관리자는 redirect, 사용자는 forward시키고 싶은데, 현재로써는 방법을 모르겠다.
+
+		if (role == 0) {
+			
+			model.addAttribute("tacList", tacList);
+			return "/user/admin/getAdminTermsAndConditionsList";
+		} else {
+			model.addAttribute("tacList", tacList);
+			return "/user/getAgreeTermsAndConditionsList";	
+		}
 	}
 	
 	
 	@GetMapping("/getDetailAgreeTermsAndConditions")
-	public void getDetailAgreeTermsAndConditions() {
+	public String getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		
+		int role = redisUtil.getSession(request).getRole();
 		
 		
+		if(role == 0) {
+			
+			model.addAttribute("tac", tac);
+			return "/user/admin/getAdminDetailTermsAndConditions";
+		} else {
+			
+			model.addAttribute("tac", tac);
+			return "/user/getUserDetailTermsAndConditions";
+		}
+			
 	}
 	
 	@GetMapping("/getPersonalSecurityMenu")

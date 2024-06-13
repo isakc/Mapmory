@@ -5,7 +5,10 @@
 	<title>이용약관</title>
 </head>
 <body>
-	<div th:each="tac : ${tacList}">
+
+	<h2>사용자 페이지</h2>
+
+	<div th:each="tac, state : ${tacList}">
 		<div>
 			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
 		</div>
@@ -13,8 +16,9 @@
 			[[${tac.title}]]
 		</div>
 		<div>
-			
+			<a th:href="@{/user/getDetailAgreeTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
 		</div>
 	</div>
+
 </body>	
 </html>

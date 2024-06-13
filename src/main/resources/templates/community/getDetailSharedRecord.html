@@ -3,6 +3,117 @@
 <head>
 	<meta charset="UTF-8">
 	<title>공유 기록 상세 보기</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	
+	<!-- 기록 좋아요 -->
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(document).on("click", '#likeButton', function() {
+			var userId = "user5"
+			var row = $(this).closest('tr')
+			var recordNo = row.find('.recordNo').text();
+			var replyNo = "";
+			var logsType = 2;
+			var data = {
+					userId : userId,
+					recordNo : recordNo,
+					replyNo : replyNo,
+					logsType : logsType
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url  : '/community/rest/addCommunityLogs',
+				contentType : 'application/json',
+				data : JSON.stringify(data),
+				success : function(response) {
+					console.log('좋아요 성공');
+					updateLikes(row, recordNo, replyNo, logsType);
+				},
+				error : function(xhr, status, error) {
+					console.error('좋아요 실패');
+				}
+			});
+		});
+	});
+	function updateLikes(row, recordNo, replyNo, logsType) {
+		var data = {
+			recordNo : recordNo,
+			replyNo : replyNo,
+			logsType : logsType
+		};
+		$.ajax({
+			type : 'POST',
+			url : '/community/rest/getReactionLikeTotalCount',
+			contentType: 'application/json',
+			data : JSON.stringify(data),
+			success : function(likeCount) {
+				row.find('td').eq(19).text(likeCount);
+			},
+			error : function(xhr, status, error) {
+				console.log("데이터 가져오기 실패");
+			}
+		});	
+	}
+	</script>
+	<!-- 기록 좋아요 -->
+	
+	<!-- 기록 싫어요 -->
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(document).on("click", '#dislikeButton', function() {
+			var userId = "user5"
+			var row = $(this).closest('tr');
+			var recordNo = row.find('.recordNo').text();
+			var replyNo = "";
+			var logsType = 3;
+			var data = {
+					userId : userId,
+					recordNo : recordNo,
+					replyNo : replyNo,
+					logsType : logsType
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url  : '/community/rest/addCommunityLogs',
+				contentType : 'application/json',
+				data : JSON.stringify(data),
+				success : function(response) {
+					console.log('싫어요 성공');
+					updateDislikes(row, recordNo, replyNo, logsType);
+				},
+				error : function(xhr, status, error) {
+					console.error('싫어요 실패');
+				}
+			});
+		});
+	});
+	
+	function updateDislikes(row, recordNo, replyNo, logsType) {
+		var data = {
+			recordNo : recordNo,
+			replyNo : replyNo,
+			logsType : logsType
+		}; 
+		$.ajax({
+			type : 'POST',
+			url : '/community/rest/getReactionDisLikeTotalCount',
+			contentType: 'application/json',
+			data : JSON.stringify(data),			
+			success : function(dislikeCount) {
+				row.find('td').eq(21).text(dislikeCount);
+			},
+			error : function(xhr, status, error) {
+				console.log("데이터 가져오기 실패");
+			}
+		});			
+	}
+	</script>
+	<!-- 기록 싫어요 -->
+	
 </head>
 <body>
 	<h1>공유기록상세보기</h1>
@@ -24,13 +135,18 @@
 				<th>카테고리</th>
 				<th>카테고리이름</th>
 				<th>카테고리이모지</th>
+				<th>즐겨찾기코드</th>
+				<th>즐겨찾기</th>
 				<th>댓글수</th>
 				<th>좋아요수</th>
+				<th></th>
 				<th>싫어요수</th>
+				<th></th>
 				<th>수정횟수</th>
 			</tr>
 			<tr>
 				<td><a th:href="@{'/user/getProfile/' + ${record.recordUserId}}" th:text="${record.nickname}"></a></td>	
+				<td class="recordNo" style=display:none; th:text="${record.recordNo}" data-replyno = "${redcord.recordNo"></td>
 				<td th:text="${record.profileImageName}"></td>
 				<td th:text="${record.recordTitle}"></td>
 				<td th:text="${record.latitude}"></td>
@@ -45,17 +161,21 @@
 				<td th:style="'text-align: center;'" th:text="${record.categoryNo}"></td>
 				<td th:text="${record.categoryName}"></td>
 				<td th:text="${record.categoryImoji}"></td>
+				<td th:style="'text-align: center;'" th:text="${record.bookmark}"></td>
+				<td><button type="button" id="bookmark">즐겨찾기</button></td>
 				<td th:style="'text-align: center;'" th:text="${record.replyCount}"></td>
-				<td th:style="'text-align: center;'" th:text="${record.likeCount}"></td>		
-				<td th:style="'text-align: center;'" th:text="${record.dislikeCount}"></td>										
+				<td th:style="'text-align: center;'" th:text="${record.likeCount}"></td>
+				<td><button type="button" id="likeButton">좋아요</button></td>					
+				<td th:style="'text-align: center;'" th:text="${record.dislikeCount}"></td>	
+				<td><button type="button" id="dislikeButton">싫어요</button></td>													
 				<td th:style="'text-align: center;'" th:text="${record.updateCount}"></td>			
 			</tr> 
 		</tbody>
 	</table>
 	<br/>
-	<div>
-		<p th:text="${'상세내용 : ' +record}"></p>
-	</div>
+<!-- 	<div> -->
+<!-- 		<p th:text="${'상세내용 : ' +record}"></p> -->
+<!-- 	</div> -->
 
     <h1>댓글 목록</h1>
     <table>
@@ -86,7 +206,7 @@
     </table>
 
     <br/><br/>
-    <p th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index < 5}" th:text="${'댓글 내용 : ' + reply}"></p>
+<!--     <p th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index < 5}" th:text="${'댓글 내용 : ' + reply}"></p> -->
 
     <div>
         <a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>

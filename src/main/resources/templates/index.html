@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html>
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -41,6 +41,14 @@
 				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
 			});
 			
+			$('#signUp').on('click', function() {
+				
+				window.location.href="http://localhost:8000/user/getSignUpView";
+			});
+ 		});
+ 		
+ 		$(function(){
+ 			
 			$('#mapView').on('click', function() {
 				
 				window.location.href="http://localhost:8000/map";
@@ -51,6 +59,7 @@
 				window.location.href="http://localhost:8000/test";
 			});
  		});
+
     </script>
 </head>
 <body>
@@ -65,6 +74,7 @@
         <label for="keepLogin">로그인 유지</label>
         
         <button type="button" id="login">로그인</button>
+        <button type="button" id="signUp">회원가입</button>
         <br/>
         <br/>
         <button type="button" id="logout">로그아웃</button>
@@ -76,21 +86,18 @@
 		      'users' 테이블에서 `password` 열의 길이를 120으로 변경합니다. (또는 현재 데이터베이스를 삭제하고 개인용 스크립트를 다시 붙여넣어도 됩니다.)
 		    </li>
 		    <li>
-		      'UserController'의 `setupForTest()` [전) getLoginView()]에서 주석 처리된 `userService.setupForTest();` 부분을 활성화합니다.
-		    </li>
-		    <li>
-		      해당 URL로 접속합니다.
+		      "/user/setupForTest" URL로 접속합니다. template error가 발생할텐데, 이것은 무시하셔도 됩니다! (view가 없어서 당연히 발생함)
 		    </li>
 		  </ol>
 		  <br>
 		
-		  <p>**번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 `user1`, `user2` 변경 코드를 비활성화하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.</p>
-		  </details>
+		  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 기존 코드를 주석처리하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
+		</details>
+         
         <br/>
         <br/>
         <button type="button" id="mapView">map으로 바로 이동</button>
         <button type="button" id="footerView">footer 실험실로 이동</button>
     </form> 
-    <div th:include="common/footer::defaultFooter"></div>
 </body>
 </html>

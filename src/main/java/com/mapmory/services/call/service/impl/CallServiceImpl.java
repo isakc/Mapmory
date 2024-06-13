@@ -25,7 +25,7 @@ public class CallServiceImpl implements CallService {
 	public CallResponse requestCall(String fromUserId, String toUserId, boolean isOnline) throws Exception {
         User toUser = userService.findByUserId(toUserId);
         CallRequest callRequest = new CallRequest(fromUserId, toUser.getUserId(), System.currentTimeMillis());
-        messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/call", callRequest);
+        messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/incoming-call", callRequest);
         return new CallResponse(toUser.getUserId(), isOnline);
     }
 
