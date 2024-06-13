@@ -443,6 +443,9 @@ SELECT
 FROM 
     record
 <trim prefix="where" prefixOverrides="AND||OR">
+<if test="!(searchKeyword==null or searchKeyword=='')">
+<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
+</if>
 	<if test="!(userId==null or followType==null)">
 		<if test="followType==1">
 			(
@@ -459,6 +462,18 @@ FROM
 			AND shared_date IS NOT NULL
 			AND temp_type=1
 			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0 
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
 			)
 		</if>
 	</if>
@@ -471,6 +486,18 @@ FROM
 			AND NOT record_user_id=#{userId}
 			AND temp_type=1
 			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0 
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
 			)
 		</if>
 	</if>
@@ -482,6 +509,18 @@ FROM
 			AND record_user_id=#{userId}
 			AND temp_type=1
 			AND timecapsule_type=0
+			<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+				AND (record_text LIKE #{searchKeyword} 
+				OR record_title LIKE #{searchKeyword} 
+            	OR record_no IN (
+            	SELECT record_no 
+            	FROM image_tag 
+            	WHERE IMAGE_TAG_TYPE = 0
+            	AND image_tag_text LIKE #{searchKeyword}))
+            </if>
+            <if test="!(categoryNo==null or categoryNo==0)">
+            	AND category_no=#{categoryNo}
+            </if>
 			)
 		</if>
 	</if>
