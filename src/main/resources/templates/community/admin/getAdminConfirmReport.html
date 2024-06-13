@@ -2,9 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>신고처리</title>
 </head>
 <body>
+	<h1>신고처리</h1>
+	
+	<form id="getConfirmReport">
+		<label for="reportTitle">신고제목</label>
+		<input type="text" id="reportTitle" readonly>
+		<label for="reporText">신고내용</label>
+		<input type="text" id="reportText" readonly>
+		<label for="reporter">신고자 ID</label>
+		<input type="text" id="reporter" readonly>
+		<label for="target">피신고자 ID</label>
+		<input type="text" id="target" readonly>
+		<label for="recordTitle">기록 제목</label>
+		<input type="text" id="recordTitle" readonly>				
+		<label for="replyText">댓글 내용</label>
+		<input type="text" id="replyText" readonly>
+	
+	</form>
 
 </body>	
 </html>

@@ -107,7 +107,13 @@
 	<delete id="deleteReply" parameterType="reply">
 		DELETE FROM reply
 		WHERE user_id = #{userId:VARCHAR} AND reply_no = #{replyNo}
-	</delete>
+	</delete>	
+	
+	<!-- 기록 삭제 시 댓글 삭제 -->	
+	<delete id="deleteReplyByRecord" parameterType="reply">
+		DELETE FROM reply
+		WHERE record_no = #{recordNo}
+	</delete>	
 	
 	<!-- 기록에 작성된 댓글 Count -->
 	<select id="getReplyTotalCount" parameterType="search" resultType="int">
@@ -138,8 +144,18 @@
 	<select id="getAllCommunityLogs" parameterType="int" resultMap="communityLogsSelectMap">
 		SELECT *
 		FROM community_logs
-
 	</select>	
+	
+	<!-- 커뮤니티 로그 중복 체크 -->
+	<select id="checkDuplicatieLogs" resultType= "int" parameterType="map">
+		SELECT COUNT(*)
+		FROM community_logs
+		WHERE user_id = #{userId}
+		AND record_no = #{recordNo}
+		AND logs_type = #{logsType}
+		AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+	</select>
+	
 	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
@@ -157,6 +173,12 @@
 			( user_id = #{userId} ) 
 		OR
 			( reply_no = #{replyNo} )	
+	</delete>
+
+	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
+	<delete id="deleteCommunityLogsByRecord" parameterType="communityLogs">
+		DELETE FROM community_logs
+		WHERE record_no = #{recordNo} 
 	</delete>
 
 	<!-- 커뮤니티 활동 목록 조회 -->
@@ -278,15 +300,5 @@
 		DELETE FROM follow_block
 		WHERE user_id = #{userId} AND target_id = #{targetId}	
 	</delete>
-
-	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
-	<!-- <delete id="deleteCommunityLogsByRecord" parameterType="int">
-	DELETE FROM community_logs WHERE REPLY_NO IN (SELECT REPLY_NO FROM reply WHERE RECORD_NO = #{recordNo} );
-	</delete>	 -->
-	
-	<!-- 기록 삭제 시 댓글 삭제 -->	
-	<!-- <delete id="deleteReplyByRecord" parameterType="int">
-		DELETE FROM reply WHERE RECORD_NO = #{recordNo}
-	</delete>	 -->
 
 </mapper>
