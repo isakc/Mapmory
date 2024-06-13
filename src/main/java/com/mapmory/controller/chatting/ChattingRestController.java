@@ -32,6 +32,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.common.domain.SessionData;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.user.service.LoginService;
 
 @CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000"},allowCredentials = "true")
@@ -49,7 +50,7 @@ public class ChattingRestController {
     private String aitems_Secret_Key;
 	
 	@Autowired
-	private LoginService loginService;
+	private RedisUtil<SessionData> redisUtil;
 	
 	public ChattingRestController() {
 		System.out.println(this.getClass());
@@ -66,7 +67,7 @@ public class ChattingRestController {
 	public String getUser(HttpServletRequest request) throws Exception{
 		System.out.println("json/getUser");
 		try {
-			SessionData sessionData =loginService.getSession(request);
+			SessionData sessionData =redisUtil.getSession(request);
 			String userId = sessionData.getUserId();
 			System.out.println("+_+_+_+_+_+"+userId+"_+_+_+_+_+_+");
 			return userId;

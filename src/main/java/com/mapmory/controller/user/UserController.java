@@ -22,10 +22,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.Login;
+import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
@@ -74,8 +81,175 @@ public class UserController {
 		else
 			keep = true;
 
-	@GetMapping("/testUpdateProfile")
-	public void testGetUpdateProfile(Model model) throws Exception {
+		String userId = login.getUserId();
+		byte role = userService.getDetailUser(userId).getRole();
+		// System.out.println("role : " + role);
+		String sessionId = UUID.randomUUID().toString();
+		// System.out.println("sessionId : " + sessionId);
+		if ( !loginService.setSession(login, role, sessionId, keep))
+			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		Cookie cookie = createCookie(sessionId);
+		response.addCookie(cookie);
+		
+		if(role == 1)
+			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
+		else
+			response.sendRedirect("/user/admin/adminMain");
+	}
+	
+	@PostMapping("/logout")
+	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		loginService.logout(request, response);
+	}
+	
+	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
+	@PostMapping("/getSignUpView")
+	public void getSignUpView(Model model) {
+		
+		model.addAttribute("user", User.builder().build());
+		
+	}	
+	
+	@PostMapping("/signUp")
+	public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
+		
+		if( !isDone) {
+			
+			throw new Exception("회원가입에 실패했습니다.");
+		}
+		
+		return "redirect:/";
+	}
+	
+
+	@GetMapping("/getAgreeTermsAndConditionsList")
+	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
+		
+
+		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
+	
+		// int role = redisUtil.getSession(request).getRole();
+
+		// 관리자는 redirect, 사용자는 forward시키고 싶은데, 현재로써는 방법을 모르겠다.
+		/*
+		if (role == 0) {
+			
+			model.addAttribute("tacList", tacList);
+			return "/user/admin/getAdminTermsAndConditionsList";
+		} else {
+			model.addAttribute("tacList", tacList);
+			return "/user/getAgreeTermsAndConditionsList";	
+		}
+		*/
+		
+		model.addAttribute("tacList", tacList);
+	}
+	
+	
+	@GetMapping("/getUserDetailTermsAndConditions")
+	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		
+		/*
+		int role = redisUtil.getSession(request).getRole();
+		
+
+		if(role == 0) {
+			
+			model.addAttribute("tac", tac);
+			return "/user/admin/getAdminDetailTermsAndConditions";
+		} else {
+			
+			model.addAttribute("tac", tac);
+			return "/user/getUserDetailTermsAndConditions";
+		}
+		*/
+		
+		model.addAttribute("tac", tac);
+	}
+	
+	
+	
+	@GetMapping("/getPersonalSecurityMenu")
+	public void getPersonalSecurityMenu() {
+		
+	}
+	
+	@GetMapping("/getIdView")
+	public void getIdView() {
+		
+	}
+	
+	@PostMapping("/getId")
+	public void postIdView() {
+		
+		
+	}
+	
+	@GetMapping("/getPasswordView")
+	public void getPasswordView() {
+		
+	}
+	
+	@GetMapping("/getGoogleLoginView")
+	public void getGoogleLoginView() {
+		
+		
+	}
+	
+	@GetMapping("/getNaverLoginView")
+	public void getNaverLoginView() {
+		
+	}
+	
+	@GetMapping("/getKakaoLoginView")
+	public void getKakaoLoginView() {
+		
+	}
+	
+	@GetMapping("/getUserInfo")
+	public void getUserInfo() {
+		
+	}
+	
+	@GetMapping("/getProfile")
+	public void getProfile() {
+		
+	}
+	
+	@GetMapping("/getFollowList")
+	public void getFollowList() {
+		
+	}
+	
+	@GetMapping("/getFollowerList")
+	public void getFollowerList() {
+		
+	}
+	
+	
+	@GetMapping("/getLeaveAccountView")
+	public void getLeaveAccountView() {
+		
+	}
+	
+	@GetMapping("/getRecoverAccountView")
+	public void getRecoverAccountView() {
+		
+	}
+	
+	@GetMapping("/getUpdateUserInfoView")
+	public void getUpdateUserInfoView() {
+		
+	}
+
+	@GetMapping("/getUpdateProfileView")
+	public void getUpdateProfileView(Model model) throws Exception {
 		
 		String userId = "user1";
 		
@@ -127,7 +301,6 @@ public class UserController {
 	@GetMapping("/updatePasswordView")
 	public void updatePasswordView() {
 		
-//		 userService.setupForTest();
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -140,6 +313,29 @@ public class UserController {
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
+	}
+	
+	@GetMapping("/admin/getDetailTermsAndConditions")
+	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		
+		/*
+		int role = redisUtil.getSession(request).getRole();
+		
+
+		if(role == 0) {
+			
+			model.addAttribute("tac", tac);
+			return "/user/admin/getAdminDetailTermsAndConditions";
+		} else {
+			
+			model.addAttribute("tac", tac);
+			return "/user/getUserDetailTermsAndConditions";
+		}
+		*/
+			
+		model.addAttribute("tac", tac);
 	}
 	
 	@GetMapping("/admin/getAdminUserList")
@@ -160,7 +356,7 @@ public class UserController {
 		// cookie.setDomain("mapmory.life");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
-		cookie.setMaxAge(7200);
+		cookie.setMaxAge(30 * 60);
 		
 		return cookie;
 	}
