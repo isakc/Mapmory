@@ -4,19 +4,16 @@
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
 <style type="text/css">
-a{
-	color: blue;
-}
 </style>
 </head>
 <body>
-<h1 th:text="${'getSimpleTimeline'}"></h1>
+<!-- <h1 th:text="${'getSimpleTimeline'}"></h1> -->
 
-	<div th:name="getTimelineList" th:data-userid="${record.recordUserId}" th:include="timeline/component/map::kakaoMap"></div>
-	<table border=1>
+	<div th:name="getKakaoMap" th:data-userid="${record.recordUserId}" th:include="timeline/component/map::kakaoMap"></div>
+	<table th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" border=1>
 		<tr>
 			<td>
-			<a th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
+			<span th:text="${record.recordTitle}"></span>
 			</td>
 			<td><img/><span th:text="${record.categoryName}"></span></td>
 		</tr>
@@ -35,24 +32,17 @@ a{
 
 <script type="text/javascript">
 $(function() {
-	$("a").mouseenter(function() {
-		$(this).css("color", "red");
-	}).mouseleave(function() {
-		$(this).css("color", "blue");
-	})
 	
-	$("a[name='getSimpleTimeline']").click(function() {
+	$("table[name='getSimpleTimeline']").click(function() {
 		let recordNo=$(this).data('recordno');
-		/* alert(recordNo); */
 		uri="?recordNo="+recordNo;
-		self.location="/timeline/getDetailTimeline"+uri;
+		self.location.replace("/timeline/getDetailTimeline"+uri);
 	})
 	
-	$("div[name='getTimelineList']").click(function() {
+	$("div[name='getKakaoMap']").click(function() {
 		let userId=$(this).data('userid');
-		/* alert(recordNo); */
 		uri="?userId="+userId;
-		self.location="/timeline/getTimelineList"+uri;
+		self.location.replace("/timeline/getTimelineList"+uri);
 	})
 })
 </script>

@@ -83,10 +83,6 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public void deleteTimeline(int recordNo) throws Exception {
-		timelineDao.deleteImageTag(ImageTag
-				.builder()
-				.recordNo(recordNo)
-				.build());
 		timelineDao.deleteTimeline(recordNo);
 	}
 	

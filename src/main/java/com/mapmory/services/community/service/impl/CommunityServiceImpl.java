@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
@@ -19,6 +20,7 @@ import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.user.domain.FollowBlock;
 
 @Service("communityServiceImpl")
+@Transactional
 public class CommunityServiceImpl implements CommunityService {
 
 	@Autowired
@@ -210,13 +212,14 @@ public class CommunityServiceImpl implements CommunityService {
 		
 	}
 
-	@Override
-	public void deleteReplyByRecord(int recordNo) throws Exception {
-		communityDao.deleteReplyByRecord(recordNo);
-	}
-
-	@Override
-	public void deleteCommunityLogsByRecord(int recordNo) throws Exception {
-		communityDao.deleteCommunityLogsByRecord(recordNo);
-	}
+//	@Override
+//	public void deleteReplyByRecord(int recordNo) throws Exception {
+//		communityDao.deleteReplyByRecord(recordNo);
+//	}
+//
+//	@Override
+//	public void deleteCommunityLogsByRecord(int recordNo) throws Exception {
+//		communityDao.deleteCommunityLogsByRecord(recordNo);
+//		communityDao.deleteReplyByRecord(recordNo);
+//	}
 }
