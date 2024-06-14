@@ -3,6 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="/javascript/common/modalScreen.js"></script>
+	<link rel="stylesheet" href="/css/common/modalScreen.css">
 	<title>프로필</title>
 	
 	<style>
@@ -17,11 +19,10 @@
 	
 		$(function(){
 			
+			console.log([[${profile.user.profileImageName}]])
+			
 			const myProfile = [[${myProfile}]];
 			const isFollow = [[${isFollow}]];
-			
-			console.log("myProfile : " + myProfile);
-			console.log("isFollow : " + isFollow);
 			
 			if(myProfile == true || myProfile == "true") {
 				
@@ -117,7 +118,7 @@
 				const sessionId = [[${sessionId}]];
 				
 				$.ajax({
-			      url: "http://192.168.0.45:3001/mongo/findOneChatRoom",
+			      url: "http://mapmory.co.kr/chatting/findOneChatRoom",
 			      method: "POST",
 			      data: JSON.stringify({
 			    	userId: sessionId,
@@ -128,6 +129,7 @@
 					if(response == true) {
 
 						console.log("채팅서버 응답 : " + response);
+						window.location.href="/user/getFollowerList/"+response;
 						
 					} else {
 						
@@ -146,17 +148,25 @@
 
 			});
 		});
+		
+		$(function() {
+			
+			$('#toggle').on('click', function() {
+				
+				openModal();
+				
+			});
+			
+		});
 	</script>
 	
 </head>
 <body>
-	<!-- <a th:href="@{/timeline/getTimelineList(userId=${profile.user.userId})}">뒤로가기</a>  --> 
+	
 	<button type="button" id="back">뒤로 가기</button>
 	
 	<button type="button" id="toggle">=</button>
-	
-	<img alt="" src="@{profile.user.profileImageName}">
-	
+
 	<ul class="profile-info">
 	  <li id="shared-list" class="showBlock">
 	    <span class="label">공유기록 수</span>
@@ -187,5 +197,7 @@
 		<button type="button" id="voiceChat">화상통화</button>
 		<button type="button" id="chat">메세지 보내기</button>
 	</div>
+	
+	<img alt="" th:src="${profile.user.profileImageName}">
 </body>	
 </html>

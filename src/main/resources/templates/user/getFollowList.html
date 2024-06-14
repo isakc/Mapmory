@@ -20,10 +20,12 @@
 			
 			$(document).on('click', '.follow', function() {
 				
+				/*
 				$.ajax({
 					
 					
 				});
+				*/
 			});
 		});
 	</script>
@@ -39,6 +41,10 @@
 	<form>
 		<input type="text" name="search" />
 	</form>
+	
+	<!-- test for chat -->
+	<a href="/user/getProfile?userId=user2">user2</a>
+	
 	
 	<div th:each="user : ${followList}">
 		<div>
