@@ -44,6 +44,7 @@
 		<div>
 			<img th:src="|${profileFolder}${profileImageName}|">
 			<p th:text="${nickname}"></p>
+			
 			<button type="button" th:text="${} ? '팔로우' : '언팔로우'"></button>
 			<p style="display:none;" th:text="${hideProfile}"></p>
 		</div>
