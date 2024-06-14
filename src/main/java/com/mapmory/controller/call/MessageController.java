@@ -18,11 +18,11 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
-    @GetMapping
+    @GetMapping("message")
     public String getMessages(Model model, @AuthenticationPrincipal User user) throws Exception{
         String userId = user.getUserId(); // 사용자 아이디 가져오기
         List<Message> messages = messageService.getMessagesForUser(userId);
         model.addAttribute("messages", messages);
-        return "message";
+        return "messaging";
     }
 }

@@ -93,8 +93,16 @@
 			    	$('#phoneNumberMsg').css('display', 'none');
 			    	
 			    }
+			    if ($('#captchaChecked').text() === 'false') {
+			    	alert('캡차 인증을 완료해야 합니다.');
+		            event.preventDefault();
+		            return;
+		        } else {
+
+			    }
 			    
-			    $('form').attr('method', 'post').attr('action', '/user/signUp').submit();
+			    
+			    $('form#signupForm').submit();
 			    
 			    /*
 			    $.ajax({
@@ -126,7 +134,7 @@
     <h1>회원가입</h1>
     <button type="button" id="back">뒤로가기</button>
     
-    <form th:object="${user}" id="signupForm">
+    <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
         <div>
             <label for="userId">아이디</label>
             <input type="text" id="userId" th:field="*{userId}" placeholder="아이디" required/>
@@ -187,7 +195,8 @@
 		    </div>
 		    <div>
 			    <input type="text" id="captcha-input" placeholder="Enter Captcha">
-	        	<button type="submit" id="verify-button">확인</button>
+	        	<button type="button" id="verify-button">확인</button>
+	        	<p id="captchaChecked" style="display: none;">false</p>
 			</div>
 		</div>
         <button type="button" id="submitForm">회원가입 완료하기</button>

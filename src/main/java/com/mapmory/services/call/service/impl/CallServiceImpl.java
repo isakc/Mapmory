@@ -44,14 +44,16 @@ public class CallServiceImpl implements CallService {
         return new CallResponse(toUser.getUserId(), isOnline);
     }
 
-    public SdpAnswer handleOffer(SdpOffer sdpOffer) throws Exception {
+	public SdpAnswer handleOffer(SdpOffer sdpOffer) throws Exception {
+        User fromUser = userService.findByUserId(sdpOffer.getFromUser());
         User toUser = userService.findByUserId(sdpOffer.getToUser());
-        SdpAnswer sdpAnswer = new SdpAnswer(sdpOffer.getFromUser(), toUser.getUserId(), sdpOffer.getSdp());
-        messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/answer", sdpAnswer);
+        SdpAnswer sdpAnswer = new SdpAnswer(toUser.getUserId(), fromUser.getUserId(), sdpOffer.getSdp());
+        messagingTemplate.convertAndSendToUser(fromUser.getUserId(), "/queue/answer", sdpAnswer);
         return sdpAnswer;
     }
 
     public void handleIceCandidate(IceCandidate iceCandidate) throws Exception {
+        User fromUser = userService.findByUserId(iceCandidate.getFromUser());
         User toUser = userService.findByUserId(iceCandidate.getToUser());
         messagingTemplate.convertAndSendToUser(toUser.getUserId(), "/queue/candidate", iceCandidate);
     }
