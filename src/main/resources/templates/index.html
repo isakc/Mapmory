@@ -43,7 +43,12 @@
 			
 			$('#signUp').on('click', function() {
 				
-				window.location.href="http://localhost:8000/user/getAgreeTermsAndConditionsList";
+				window.location.href="/user/getAgreeTermsAndConditionsList";
+			});
+			
+			$('#getProfile').on('click', function() {
+				
+				window.location.href="/user/getProfile";
 			});
  		});
  		
@@ -51,12 +56,12 @@
  			
 			$('#mapView').on('click', function() {
 				
-				window.location.href="http://localhost:8000/map";
+				window.location.href="/map";
 			});
 			
 			$('#footerView').on('click', function() {
 				
-				window.location.href="http://localhost:8000/test";
+				window.location.href="/test";
 			});
  		});
 
@@ -75,8 +80,10 @@
         
         <button type="button" id="login">로그인</button>
         <button type="button" id="signUp">회원가입</button>
-        <br/>
-        <br/>
+        <hr>
+        <hr>
+        <hr>
+        <button type="button" id="getProfile">내 프로필로 이동</button>
         <button type="button" id="logout">로그아웃</button>
 
 		<details>

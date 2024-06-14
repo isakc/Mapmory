@@ -209,5 +209,5 @@ public interface UserService {
 	
 	public String getKakaoUserInfo (String access_Token) throws Exception;
 	
-	public String PhoneNumberCheck(String to) throws Exception;
+	public int PhoneNumberCheck(String to) throws Exception;
 }

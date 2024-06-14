@@ -26,25 +26,41 @@
 		            $('#userIdMsg').text('아이디를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#userIdMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#passwordChecked').text() === 'false') {
 		            $('#passwordMsg').text('비밀번호를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#passwordMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#userNameChecked').text() === 'false') {
 		            $('#userNameMsg').text('이름을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#userNameMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#nicknameChecked').text() === 'false') {
 		            $('#nicknameMsg').text('닉네임을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#nicknameMsg').css('display', 'none');
+			    	
+			    }
 				
 				const birthday = document.getElementById('birthday').value;
 			    if (!birthday) {
@@ -52,21 +68,56 @@
 			    	$('#birthdayMsg').text('생년월일을 선택해주세요.').css('color', 'red').show();
 			        event.preventDefault();
 			        return;
+			    } else {
+			    	
+			    	$('#birthdayMsg').css('display', 'none');
+			    	
 			    }
 			    
 			    if ($('#emailChecked').text() === 'false') {
 		            $('#emailMsg').text('이메일을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#emailMsg').css('display', 'none');
+			    	
+			    }
 			    
 			    if ($('#phoneNumberChecked').text() === 'false') {
 		            $('#phoneNumberMsg').text('휴대전화번호를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#phoneNumberMsg').css('display', 'none');
+			    	
+			    }
 			    
-			    $(this).submit();
+			    $('form').submit();
+			    
+			    /*
+			    $.ajax({
+			    	type : 'post',
+					url : '/user/rest/signUp',
+					data : $('form').serialize(),
+					success : function(response){
+						
+						alert('회원가입에 성공하였습니다!');
+						window.location.href="/";
+
+					},
+					error: function(xhr, status, error){
+						alert(error);
+					},
+					complete: function() {
+						
+						alert('회원가입에 성공하였습니다! (complete)');
+						window.location.href="/";
+						
+					}
+			    });
+			    */
 			});
 		});
 	</script>
@@ -75,7 +126,7 @@
     <h1>회원가입</h1>
     <button type="button" id="back">뒤로가기</button>
     
-    <form th:action="@{/user/signup}" th:object="${user}" method="post" id="signupForm">
+    <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
         <div>
             <label for="userId">아이디</label>
             <input type="text" id="userId" th:field="*{userId}" placeholder="아이디" required/>

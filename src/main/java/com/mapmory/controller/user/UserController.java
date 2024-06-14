@@ -25,6 +25,7 @@ import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -102,6 +103,9 @@ public class UserController {
 		Cookie cookie = createCookie(sessionId, keep);
 		response.addCookie(cookie);
 		
+		boolean isLog = userService.addLoginLog(userId);
+		System.out.println("로그인 로그 등록 여부 : " + isLog);
+		
 		if(role == 1)
 			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
 		else
@@ -118,6 +122,7 @@ public class UserController {
 	@PostMapping("/getSignUpView")
 	public void getSignUpView(Model model) {
 		
+		// model.addAttribute("user", User.builder().build());
 		model.addAttribute("user", User.builder().build());
 		
 	}	
@@ -132,9 +137,14 @@ public class UserController {
 			throw new Exception("회원가입에 실패했습니다.");
 		}
 		
-		return "redirect:/";
+		return "forward:/user/ok";
 	}
 	
+	@RequestMapping("/ok")
+	public void signUpOk() {
+		
+		
+	}
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
@@ -194,7 +204,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo() {
+	public void getUserInfo() { 
 		
 	}
 	
@@ -420,7 +430,19 @@ public class UserController {
 		User user = userService.getDetailUser(userId);
 		user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
 		
-		boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
+		// boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
+		boolean isSubscribed;
+		Subscription subscription = subscriptionService.getDetailSubscription(userId);
+		if(subscription == null || subscription.isSubscribed() == false) {
+			
+			isSubscribed = false;
+			
+		} else {
+			
+			isSubscribed = true;
+			
+		}
+		
 		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0);
 		int totalFollowerCount = userService.getFollowerListTotalCount(userId, null, 0, 0);
 		
