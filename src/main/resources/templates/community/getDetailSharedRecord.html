@@ -52,8 +52,8 @@
 	<script type="text/javascript">
 	$(document).ready(function() {
 		$(document).on("click", '#likeButton', function() {
-			var userId = "user5"
-			var row = $(this).closest('tr')
+			var row = $(this).closest('tr');
+			var userId = userId;
 			var recordNo = row.find('.recordNo').text();
 			var replyNo = "";
 			var logsType = 2;

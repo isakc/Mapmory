@@ -3,20 +3,39 @@
 <head>
 	<meta charset="UTF-8">
 	<title>신고진행상황</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+		
 </head>
 <body>
 	<h1>신고진행상황조회</h1>
-				<div>
-					<p>신고 : 건</p>
-				</div>
+		<div>
+			<p>신고 : <span th:text="${totalCount}"></span> 건</p>
+		</div>	
 		<table>
 			<thead>
 				<tr>
+					<th>신고제목</th>
+					<th>신고내용</th>
+					<th>신고대상</th>
+					<th>신고진행상황</th>
+					<th>신고일시</th>
 				</tr>
-				
 			</thead>
 			<tbody>
-				<tr>
+				<tr th:each="report, rowStat : ${reportList}">
+					<td th:text="${report.reportTitle}"></td>
+					<td th:text="${report.reportText}"></td>
+					<td th:text="${report.targetUserId}"></td>
+					<td th:style="'text-align: center;'">
+						<span th:switch="${report.reportStatus}">
+							<span th:case="'1'">신고완료</span>
+							<span th:case="'2'">처리중</span>
+							<span th:case="'3'">처리완료</span>
+						</span>
+					</td>
+					<td th:text="${report.reportDate}"></td>
 				</tr>
 			</tbody>
 		</table>
