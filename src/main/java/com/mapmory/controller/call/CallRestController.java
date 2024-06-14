@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.call.domain.CallRequest;
 import com.mapmory.services.call.domain.CallResponse;
 import com.mapmory.services.call.domain.IceCandidate;
 import com.mapmory.services.call.domain.SdpAnswer;
@@ -31,16 +32,16 @@ public class CallRestController {
 	@Autowired
 	private RedisUtil<SessionData> redisUtil;
 	
+	// CallRestController.java
 	@PostMapping
-    public ResponseEntity<CallResponse> requestCall(@RequestParam("toUserId") String toUserId) throws Exception {
-        String fromUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        SessionData sessionData = redisUtil.select(toUserId, SessionData.class);
-        boolean isOnline = sessionData != null;
-        CallResponse callResponse = callService.requestCall(fromUserId, toUserId, isOnline);
-        return ResponseEntity.ok(callResponse);
-    
-    }
-
+	public ResponseEntity<CallResponse> requestCall(@RequestParam("toUserId") String toUserId) throws Exception {
+	    String fromUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+	    SessionData sessionData = redisUtil.select(toUserId, SessionData.class);
+	    boolean isOnline = sessionData != null;
+	    CallRequest callRequest = new CallRequest(fromUserId, toUserId, System.currentTimeMillis());
+	    CallResponse callResponse = callService.requestCall(callRequest);
+	    return ResponseEntity.ok(callResponse);
+	}
 
 
     @PostMapping("/offer")
