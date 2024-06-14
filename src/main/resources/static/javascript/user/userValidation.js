@@ -272,7 +272,7 @@ $(function() {
 		
 		var phone = $('#phoneNumber').val(); // 입력된 휴대폰 번호 가져오기
 		
-		const phoneRegex = /^\010-\d{3,4}-\d{4}$/;
+		const phoneRegex = /^(?:(010)|(01[1|6|7|8|9]))-\d{3,4}-(\d{4})$/;
 		
 		if( !phoneRegex.test(phone)) {
 			

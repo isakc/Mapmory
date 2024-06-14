@@ -94,8 +94,9 @@
 			    	
 			    }
 			    
-			    // $('form').submit();
+			    $('form').submit();
 			    
+			    /*
 			    $.ajax({
 			    	type : 'post',
 					url : '/user/rest/signUp',
@@ -108,8 +109,15 @@
 					},
 					error: function(xhr, status, error){
 						alert(error);
+					},
+					complete: function() {
+						
+						alert('회원가입에 성공하였습니다! (complete)');
+						window.location.href="/";
+						
 					}
 			    });
+			    */
 			});
 		});
 	</script>
@@ -118,7 +126,7 @@
     <h1>회원가입</h1>
     <button type="button" id="back">뒤로가기</button>
     
-    <form th:action="@{/user/rest/signUp}" th:object="${user}" method="post" id="signupForm">
+    <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
         <div>
             <label for="userId">아이디</label>
             <input type="text" id="userId" th:field="*{userId}" placeholder="아이디" required/>

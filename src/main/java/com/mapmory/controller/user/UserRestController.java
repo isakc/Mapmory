@@ -108,6 +108,7 @@ public class UserRestController {
 		}
 	}
 
+	/*
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> postSignUpView(@ModelAttribute User user, Model model) throws Exception {
 		
@@ -120,6 +121,7 @@ public class UserRestController {
 		
 		return ResponseEntity.ok(true);
 	}
+	*/
 	
 	@GetMapping("/getSharedList")
 	public ResponseEntity<List<Record>> getSharedList(@RequestBody Map<String, String> value) throws Exception {

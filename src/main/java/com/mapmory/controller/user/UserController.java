@@ -126,6 +126,25 @@ public class UserController {
 		model.addAttribute("user", User.builder().build());
 		
 	}	
+	
+	@PostMapping("/signUp")
+	public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
+		
+		if( !isDone) {
+			
+			throw new Exception("회원가입에 실패했습니다.");
+		}
+		
+		return "forward:/user/ok";
+	}
+	
+	@RequestMapping("/ok")
+	public void signUpOk() {
+		
+		
+	}
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
