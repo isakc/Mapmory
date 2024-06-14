@@ -92,7 +92,8 @@
 					'</tr>';            	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('table tbody').append(newRow);		
+				$('table tbody').append(newRow);	
+				
 				// 입력 필드 초기화
 				$('#replyText').val('');
 				$('#replyImageName').val('');
@@ -143,7 +144,7 @@
 		$('#moreModal').on("click", "#update", function() {
 			if(currentRow) {
 				var replyText = currentRow.find('.replyText').text();
-				$('.updateReplyForm').val(replyText);
+				$('#updateReplyText').val(replyText);
 			}
 			openUpdateModal();
 			closeModal();
@@ -154,6 +155,7 @@
 	        	var formData = new FormData(this);
 				var updatedReplyText = $('#updateReplyText').val().trim();	        
 				var recordNo = $('#recordNo').val();
+				
 				console.log("12 : "+recordNo);
 
 				if(updatedReplyText === '') {
@@ -186,6 +188,9 @@
 						data : formData, 
 						success : function(data) {
 							console.log('댓글 수정 완료 :', data);
+							
+							currentRow.find('.replyText').text(data	.replyText);
+							
 							closeUpdateModal();
 						},
 						error : function(xhr, status, error) {
@@ -194,6 +199,8 @@
 						}
 					});
 				}
+				$('#replyText').val('');
+				$('#replyImageName').val('');
 			});
 		})
 		
@@ -219,7 +226,8 @@
 		});	
 		
 		//댓글 신고
-		$('#moreModal').on("click", "addReport", function() {
+		$('#moreModal').on("click", "#addReport", function() {
+			console.log(1);
 			if(currentRow) {
 				var userId = currentRow.find('.userId').text();
 				var replyNo = currentRow.find('.replyNo').text();
@@ -228,21 +236,25 @@
 					targetUserId : userId,
 					replyNo : replyNo,
 					replyText : replyText
-				};
+				}; 
 				console.log(reportData);
 				
 				sessionStorage.setItem('reportData', JSON.stringify(reportData));
-			
+				
 				window.location.href = '/community/addReport';
 				closeModal();
 			}
-		})
+		});
 		
 		$('.close').on("click", function() {
+			$('#replyText').val('');
+			$('#replyImageName').val('');
 			closeModal();
 		});
 		
 		$('.close2').on("click", function() {
+			$('#replyText').val('');
+			$('#replyImageName').val('');
 			closeUpdateModal();
 		});		
 		
@@ -271,6 +283,7 @@
 					replyNo : replyNo,
 					logsType : logsType
 			};
+			console.log(data);
 			
 			$.ajax({
 				type : 'POST',
@@ -459,7 +472,7 @@
 				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
 				<td th:text="${reply.profileImageName}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
-				<td th:text="${reply.replyText}"></td>
+				<td class="replyText" th:text="${reply.replyText}"></td>
 				<td th:text="${reply.replyImageName}"></td>
 				<td th:text="${reply.replyDate}"></td>
 				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
@@ -468,6 +481,7 @@
 				<td><button type="button" id="dislikeButton">싫어요</button></td>
 				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></td>
 				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
+				<td class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></td>
 				<td>
 				<button type="button" class="moreBtn">더보기</button>
 				</td>
@@ -487,7 +501,7 @@
 		<div class="modal-content">
 			<button type="button" id="update">수정</button>
 			<button type="button" id="delete">삭제</button>
-			<button type="button" id="report">댓글신고하기</button>
+			<button type="button" id="addReport">댓글신고하기</button>
 			<span class="close">&times;</span>
 		</div>
 	</div>
