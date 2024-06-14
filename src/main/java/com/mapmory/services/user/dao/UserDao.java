@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.FollowSearch;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
@@ -34,11 +35,11 @@ public interface UserDao {
 	
 	public List<User> selectUserList(Search search);
 	
-	public List<FollowMap> selectFollowList(Search search);
+	public List<FollowMap> selectFollowList(FollowSearch search);
 	
 	public int selectFollowListTotalCount(Search search);
 	
-	public List<FollowMap> selectFollowerList(Search search);
+	public List<FollowMap> selectFollowerList(FollowSearch search);
 	
 	public int selectFollowerListTotalCount(Search search);
 	
@@ -94,5 +95,5 @@ public interface UserDao {
 	
 	public int getUserListTotalCount(Search search);
 	
-	public int getFollowListTotalCount(Search search);
+	public int getFollowListTotalCount(FollowSearch search);
 }

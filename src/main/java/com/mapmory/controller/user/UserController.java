@@ -28,7 +28,6 @@ import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
-import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.FollowMap;
@@ -54,7 +53,7 @@ public class UserController {
 	private TimelineService timelineService;
 	
 	@Autowired
-	private RedisUtil redisUtil;
+	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
 	private SubscriptionService subscriptionService;
@@ -220,7 +219,7 @@ public class UserController {
 		String myUserId = redisUtil.getSession(request).getUserId();
 
 		Profile profile;
-		if( userId == null ) {
+		if( userId.equals(myUserId) ) {
 			
 			profile = setProfileViewData(myUserId);
 			model.addAttribute("myProfile", true);
@@ -252,22 +251,26 @@ public class UserController {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followList = userService.getFollowList(userId, null, 1, pageSize);
+		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, true);
 		
 		model.addAttribute("type", 0);
-		model.addAttribute("followList", followList);
+		model.addAttribute("list", followList);
 		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public void getFollowerList(@RequestParam String userId, Model model) {
+	public String getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
+		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followerList = userService.getFollowerList(userId, null, 1, pageSize);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, false);
 		
 		
 		model.addAttribute("type", 1);
-		model.addAttribute("followList", followerList);
+		model.addAttribute("list", followerList);
+		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		
+		return "forward:/user/getFollowList";
 	}
 	
 	
@@ -462,8 +465,8 @@ public class UserController {
 			
 		}
 		
-		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0);
-		int totalFollowerCount = userService.getFollowerListTotalCount(userId, null, 0, 0);
+		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, true);
+		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, false);
 		
 		Search search=Search.builder()
 				.userId(userId).

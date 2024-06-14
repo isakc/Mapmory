@@ -41,6 +41,7 @@ import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.FollowSearch;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginLog;
@@ -291,10 +292,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit) {
+	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow) {
 		// TODO Auto-generated method stub
 		
-		Search search = Search.builder()
+		FollowSearch search = FollowSearch.builder()
+						.myUserId(myUserId)
+						.selectFollow(selectFollow)
 						.userId(userId)
 						.searchKeyword(searchKeyword)
 						.currentPage(currentPage)
@@ -305,9 +308,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit) {
+	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow) {
 		
-		Search search = Search.builder()
+		FollowSearch search = FollowSearch.builder()
+				.selectFollow(selectFollow)
 				.userId(userId)
 				.searchKeyword(searchKeyword)
 				.currentPage(currentPage)
@@ -317,11 +321,13 @@ public class UserServiceImpl implements UserService {
 		return userDao.getFollowListTotalCount(search);
 	}
 	
+	/*
 	@Override
-	public List<FollowMap> getFollowerList(String userId, String searchKeyword, int currentPage, int limit) {
+	public List<FollowMap> getFollowerList(String myUserId, String userId, String searchKeyword, int currentPage, int limit) {
 		// TODO Auto-generated method stub
 		
-		Search search = Search.builder()
+		FollowSearch search = FollowSearch.builder()
+						.myUserId(myUserId)
 						.userId(userId)
 						.searchKeyword(searchKeyword)
 						.currentPage(currentPage)
@@ -343,6 +349,7 @@ public class UserServiceImpl implements UserService {
 		
 		return userDao.getFollowListTotalCount(search);
 	}
+	*/
 
 	@Override
 	public List<SuspensionLogList> getSuspensionLogList(String userId, Integer currentPage, Integer limit) {

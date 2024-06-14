@@ -228,6 +228,7 @@ public class UserServiceTest {
 		Assertions.assertThat(listUser.size()).isEqualTo(count);
 	}
 	
+	/*
 	// @Test
 	public void testGetFollowList() {
 		
@@ -242,6 +243,7 @@ public class UserServiceTest {
 		boolean result = nickname.contains(searchKeyword) || userName.contains(searchKeyword);
 		Assertions.assertThat(result).isTrue();
 	}
+	*/
 	
 	// @Test
 	public void testGetSuspensionLogList() {
@@ -433,6 +435,7 @@ public class UserServiceTest {
 		Assertions.assertThat(result).isTrue();
 	}
 	
+	/*
 	// @Test
 	public void testDeleteFollow() {
 		
@@ -456,6 +459,7 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(flag).isTrue();
 	}
+	*/
 	
 	// @Test
 	public void testDeleteSuspendUser() {
