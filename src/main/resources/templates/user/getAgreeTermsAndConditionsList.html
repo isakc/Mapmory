@@ -37,7 +37,7 @@
 	<form>
 		<div th:each="tac, state : ${tacList}">
 			<div>
-				<input type="checkbox" th:name="'check'+'${state.count}'">
+				<input type="checkbox" name="checked" th:value="${state.count}">
 				[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
 			</div>
 			<div>

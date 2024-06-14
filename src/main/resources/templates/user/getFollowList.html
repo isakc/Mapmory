@@ -2,9 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>팔로우/팔로워 목록</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	
+	<script>
+		$(function() {
+			
+			$('#back').on('click', function() {
+				
+				History.back();
+			});
+			
+			$('input').on('input', function() {
+				
+				// 입력할 때마다 리스트 최신화
+			});
+			
+			$(document).on('click', '.follow', function() {
+				
+				$.ajax({
+					
+					
+				});
+			});
+		});
+	</script>
+	
+	
+	
 </head>
 <body>
 
+	<button type="button" id="back">◀</button>
+	<h1 th:text="${type == 0} ? '팔로우 목록' : '팔로워 목록'"></h1>
+	
+	<form>
+		<input type="text" name="search" />
+	</form>
+	
+	<div th:each="user : ${followList}">
+		<div>
+			<img th:src="|${profileFolder}${profileImageName}|">
+			<p th:text="${nickname}"></p>
+			
+			<button type="button" th:text="${} ? '팔로우' : '언팔로우'"></button>
+			<p style="display:none;" th:text="${hideProfile}"></p>
+		</div>
+		<hr/>
+	</div>
+	
 </body>	
 </html>

@@ -39,6 +39,7 @@ import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
@@ -84,6 +85,9 @@ public class UserRestController {
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
+	@Value("${page.Size}")
+	private int pageSize;
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -122,6 +126,33 @@ public class UserRestController {
 		return ResponseEntity.ok(true);
 	}
 	*/
+	
+	
+	@PostMapping("/getFollowList")
+	public List<FollowMap> getFollowList(@ModelAttribute Search search) {
+		
+		String userId = search.getUserId();
+		String keyword = search.getSearchKeyword();
+		int currentPage = search.getCurrentPage();
+		
+		List<FollowMap> followList = userService.getFollowList(userId, keyword, currentPage, pageSize);
+		
+		return followList;
+	}
+	
+	@PostMapping("/getFollowerList")
+	public void getFollowerList(@ModelAttribute Search search) {
+		
+		Integer currentPage = search.getCurrentPage();
+		/*
+		if(currentPage == null)
+			currentPage = 1;
+		*/
+		
+		List<FollowMap> followList = userService.getFollowList(search.getUserId(), null, currentPage, pageSize);
+		
+
+	}
 	
 	@GetMapping("/getSharedList")
 	public ResponseEntity<List<Record>> getSharedList(@RequestBody Map<String, String> value) throws Exception {
