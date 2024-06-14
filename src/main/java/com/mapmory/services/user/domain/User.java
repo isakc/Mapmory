@@ -3,6 +3,8 @@ package com.mapmory.services.user.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +21,7 @@ public class User {
     private Byte role;                   // role TINYINT NOT NULL
     private String userName;             // user_name VARCHAR(18) NOT NULL
     private String nickname;             // nickname VARCHAR(10) NOT NULL UNIQUE
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private LocalDate birthday;          // birthday DATE NOT NULL
     private String email;                // email VARCHAR(254) NOT NULL
     private String phoneNumber;          // phone_number VARCHAR(13) NOT NULL

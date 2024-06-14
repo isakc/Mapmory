@@ -1,6 +1,7 @@
 package com.mapmory.controller.user;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -67,6 +69,9 @@ public class UserController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
+	@Value("${page.Size}")
+	private int pageSize;
+	
     
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -102,6 +107,9 @@ public class UserController {
 		Cookie cookie = createCookie(sessionId, keep);
 		response.addCookie(cookie);
 		
+		boolean isLog = userService.addLoginLog(userId);
+		System.out.println("로그인 로그 등록 여부 : " + isLog);
+		
 		if(role == 1)
 			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
 		else
@@ -116,8 +124,11 @@ public class UserController {
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
 	@PostMapping("/getSignUpView")
-	public void getSignUpView(Model model) {
+	public void getSignUpView(Model model, @RequestParam String[] checked) {
 		
+		// refactoring 필요... -> 무엇이 check되었는지를 파악해야 함
+		System.out.println("checked : "+ Arrays.asList(checked));
+		// model.addAttribute("user", User.builder().build());
 		model.addAttribute("user", User.builder().build());
 		
 	}	
@@ -132,9 +143,14 @@ public class UserController {
 			throw new Exception("회원가입에 실패했습니다.");
 		}
 		
-		return "redirect:/";
+		return "forward:/user/ok";
 	}
 	
+	@RequestMapping("/ok")
+	public void signUpOk() {
+		
+		
+	}
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
@@ -194,7 +210,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo() {
+	public void getUserInfo() { 
 		
 	}
 	
@@ -232,13 +248,26 @@ public class UserController {
 	}
 	
 	@GetMapping("/getFollowList")
-	public void getFollowList(@RequestParam String userId) {
+	public void getFollowList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
+		String myUserId = redisUtil.getSession(request).getUserId();
+		
+		List<FollowMap> followList = userService.getFollowList(userId, null, 1, pageSize);
+		
+		model.addAttribute("type", 0);
+		model.addAttribute("followList", followList);
+		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public void getFollowerList(@RequestParam String userId) {
+	public void getFollowerList(@RequestParam String userId, Model model) {
 		
+		
+		List<FollowMap> followerList = userService.getFollowerList(userId, null, 1, pageSize);
+		
+		
+		model.addAttribute("type", 1);
+		model.addAttribute("followList", followerList);
 	}
 	
 	
@@ -420,7 +449,19 @@ public class UserController {
 		User user = userService.getDetailUser(userId);
 		user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
 		
-		boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
+		// boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
+		boolean isSubscribed;
+		Subscription subscription = subscriptionService.getDetailSubscription(userId);
+		if(subscription == null || subscription.isSubscribed() == false) {
+			
+			isSubscribed = false;
+			
+		} else {
+			
+			isSubscribed = true;
+			
+		}
+		
 		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0);
 		int totalFollowerCount = userService.getFollowerListTotalCount(userId, null, 0, 0);
 		

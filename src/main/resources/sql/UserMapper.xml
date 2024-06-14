@@ -86,6 +86,14 @@
 		VALUES (#{userId}, #{suspensionDetail.startSuspensionDate}, #{suspensionDetail.reason}, 1)
 	</insert>
 	
+
+	<insert id="insertLoginLog" parameterType="string">
+		INSERT INTO
+		suspension_login_log (user_id, login_date, log_type)
+		VALUES (#{value}, NOW(), 0)
+	</insert>
+
+	
 	<select id="selectUser" parameterType="string" resultMap="userSelectMap">
 		SELECT
 		*
@@ -154,7 +162,9 @@
 			AND fb_type=0
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
+		<if test="limit != 0 and currentPage != 0"> 
 		LIMIT #{limit} OFFSET #{offset}
+		</if>
 	</select>
 	
 	<select id="getFollowListTotalCount" parameterType="search" resultType="integer">
