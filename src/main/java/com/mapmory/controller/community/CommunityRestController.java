@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -103,6 +104,19 @@ public class CommunityRestController {
 	    }
 	}  		
 
+	@GetMapping("/rest/getReplyList/{recordNo}")
+	public ResponseEntity<Map<String, Object>> getReplyList(Search search, @PathVariable int recordNo) throws Exception {
+		if(search == null) {
+		search = Search.builder()
+				.currentPage(1)
+				.limit(10)
+				.build();
+		}
+		Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+		return ResponseEntity.ok(replyData);
+	}
+	
+	
 	@PostMapping("/rest/updateReply/{replyNo}")
 	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, String userId, String updateReplyText, int recordNo, 
 												@RequestParam(value = "replyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
