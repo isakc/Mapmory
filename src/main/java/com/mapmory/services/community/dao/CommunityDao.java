@@ -69,13 +69,13 @@ public interface CommunityDao {
 	public List<Object> getUSerReportList(Search search, String userId) throws Exception;
 	
 	//전체 신고 목록 조회(관리자)
-	public List<Object> getAdminReportList(Search search, int role) throws Exception;
+	public List<Object> getAdminReportList(Search search) throws Exception;
 	
 	//신고 내용 상세 조회
 	public Report getReport(int reportNo) throws Exception;
 	
 	//신고 처리(관리자)
-	public void confirmReport(int reportNo) throws Exception;
+	public void confirmReport(Report report) throws Exception;
 		
 	//사용자 차단
 	public void addBlockUser(FollowBlock followBlock) throws Exception;

@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
@@ -27,6 +29,12 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Autowired
 	private ContentFilterUtil contentFIlterUtil;
+	
+	@Value("{page.unit")
+	private String pageUnit;
+	
+	@Value("${page.size}")
+	private String pageSize;
 	
 	public void setCommunityDao(CommunityDao communityDao) {
 		this.communityDao = communityDao;
@@ -153,8 +161,8 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Map<String, Object> getUserReportList(Search search, String userId) throws Exception {
-		List<Object> list = communityDao.getUSerReportList(search, userId);
-		int totalCount = communityDao.getUserReportTotalCount(search, userId);
+		List<Object> list = communityDao.getUSerReportList(search, "user5");
+		int totalCount = communityDao.getUserReportTotalCount(search, "user5");
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
@@ -164,8 +172,12 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public Map<String, Object> getAdminReportList(Search search, int role) throws Exception {
-		List<Object> list = communityDao.getAdminReportList(search, role);
+	public Map<String, Object> getAdminReportList(Search search) throws Exception {
+		
+    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
+        search.setPageSize(search.getPageSize());		
+		
+		List<Object> list = communityDao.getAdminReportList(search);
 		int totalCount = communityDao.getAdminReportTotalCount(search);
 		int unConfirmCount = communityDao.getUnConfirmReportTotalCount(search);
 		
@@ -182,8 +194,8 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 	
 	@Override
-	public void confirmReport(int reportNo) throws Exception {
-		communityDao.confirmReport(reportNo);
+	public void confirmReport(Report report) throws Exception {
+		communityDao.confirmReport(report);
 	}
 
 	@Override

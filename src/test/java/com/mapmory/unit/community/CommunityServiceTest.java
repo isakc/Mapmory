@@ -222,7 +222,7 @@ public class CommunityServiceTest {
 		search.setOffset(0);
 
 
-		Map<String, Object> map = communityService.getAdminReportList(search, 1);
+		Map<String, Object> map = communityService.getAdminReportList(search);
 		List<Report> list = (List<Report>)map.get("list");
 		
 		System.out.println("총 신고 list 테스트 : "+list);	

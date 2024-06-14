@@ -16,12 +16,13 @@
     	        var storedReportData = JSON.parse(storedData);
     	        console.log(storedReportData);
     	    }
-			var recordNo = storedReportData.recordNo;
+			var userId = storedReportData.userId;
+    	    var recordNo = storedReportData.recordNo;
     	    var recordTitle = storedReportData.recordTitle;
 			var replyNo = storedReportData.replyNo;
     	    var replyText = storedReportData.replyText;
 
-			$('#reporter').val('user3');
+			$('#reporter').val(storedReportData.userId);
     	    $('#target').val(storedReportData.targetUserId);
 			$('#recordNo').val(storedReportData.recordNo);
 			$('#recordTitle').val(storedReportData.recordTitle);
