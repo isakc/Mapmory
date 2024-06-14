@@ -1,7 +1,6 @@
 package com.mapmory.services.user.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -36,6 +35,14 @@ public interface UserDao {
 	public List<User> selectUserList(Search search);
 	
 	public List<FollowMap> selectFollowList(Search search);
+	
+	public int selectFollowListTotalCount(Search search);
+	
+	public List<FollowMap> selectFollowerList(Search search);
+	
+	public int selectFollowerListTotalCount(Search search);
+	
+	public int isFollow(FollowBlock fb);
 	
 	public List<SocialLoginInfo> selectSocialIdList(String userId);
 	

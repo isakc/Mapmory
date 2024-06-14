@@ -70,16 +70,6 @@
 			});
 		});
 	</script>
-	<!-- 
-        <div>
-            <label for="emailAuthNum">이메일 인증번호</label>
-            <input type="number" id="emailAuthNum" placeholder="이메일 인증번호"/>
-        </div>
-        <div>
-            <label for="phoneNumberAuthNum">휴대전화번호 인증번호</label>
-            <input type="number" id="phoneNumberAuthNum" placeholder="휴대전화번호 인증번호"/>
-        </div>
-         -->
 </head>
 <body>
     <h1>회원가입</h1>
@@ -107,7 +97,6 @@
         <div>
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임" required/>
-            <button type="button" id="nicknameDuplicationCheck">중복체크</button>
             <p id="nicknameMsg" style="display: none;"/>
             <p id="nicknameChecked" style="display: none;">false</p>
         </div>
@@ -125,23 +114,31 @@
                 <option value="2">여성</option>
             </select>
         </div>
-        <div>
+        <div id="emailDiv">
             <label for="email">이메일</label>
             <input type="email" id="email" th:field="*{email}" placeholder="이메일 (예: test@test.com)" required/>
             <button type="button" id="sendAuthEmail">인증번호 발송</button>
+            <input type="hidden" class="form-control" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
             <p id="emailMsg" style="display: none;"/>
-            <p id="emailChecked" style="display: none;">false</p>
+            <p id="emailChecked" style="display: none;">false</p>		
         </div>
         <div>
             <label for="phoneNumber">휴대전화번호</label>
             <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
             <button type="button" id="sendAuthPhoneNum">인증번호 발송</button>
+            <input type="hidden" class="form-control" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
             <p id="phoneNumberMsg" style="display: none;"/>
             <p id="phoneNumberChecked" style="display: none;">false</p>
         </div>
         <div>
-            <label for="flag">캡챠</label>
-        </div>
+	        <div id="captchaImageContainer">
+			    <!-- 캡차 이미지가 표시될 곳 -->
+		    </div>
+		    <div>
+			    <input type="text" id="captcha-input" placeholder="Enter Captcha">
+	        	<button type="submit" id="verify-button">확인</button>
+			</div>
+		</div>
         <button type="button" id="submitForm">회원가입 완료하기</button>
         
     </form>

@@ -72,6 +72,13 @@ public interface UserService {
 	
 	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit);
 	
+	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit);
+	
+	public List<FollowMap> getFollowerList(String userId, String searchKeyword, int currentPage, int limit);
+	
+	public int getFollowerListTotalCount(String userId, String searchKeyword, int currentPage, int limit);
+	
+	public boolean checkFollow(String myUserId, String targetUserId);
 	
 	/**
 	 * LIKE 검색
@@ -191,4 +198,16 @@ public interface UserService {
 	public boolean checkHideProfile(String userId);
 	
 	public void setupForTest();
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// jaemin ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	public String getKakaoAccessToken (String authorize_code);
+	
+	public String getKakaoUserInfo (String access_Token) throws Exception;
+	
+	public String PhoneNumberCheck(String to) throws Exception;
 }
