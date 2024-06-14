@@ -9,8 +9,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +23,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +43,7 @@ import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
@@ -74,8 +79,10 @@ public class UserRestController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
-	private ContentFilterUtil contentFilterUtil;
+	private RedisUtil<Integer> redisUtilAuthCode;
 	
+	@Autowired
+	private ContentFilterUtil contentFilterUtil;
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -101,6 +108,19 @@ public class UserRestController {
 		}
 	}
 
+	@PostMapping("/signUp")
+	public ResponseEntity<Boolean> postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
+		
+		if( !isDone) {
+			
+			throw new Exception("회원가입에 실패했습니다.");
+		}
+		
+		return ResponseEntity.ok(true);
+	}
+	
 	@GetMapping("/getSharedList")
 	public ResponseEntity<List<Record>> getSharedList(@RequestBody Map<String, String> value) throws Exception {
 		
@@ -228,26 +248,36 @@ public class UserRestController {
 	///////////////////////////////////////////////////////////////////////
 	
 	
-	@PostMapping("/userPhoneNumberCheck")
-	public @ResponseBody String memberPhoneCheck(@RequestParam(value="to") String to) throws Exception {
-
-		return userService.PhoneNumberCheck(to);
+	@PostMapping("/sendPhoneNumberAuthNum")
+	public ResponseEntity<Boolean> sendPhoneNumberAuthNum(@RequestParam(value="to") String to, HttpServletResponse response) throws Exception {
+		int codeValue = userService.PhoneNumberCheck(to);
+		
+		String codeKey = "p-"+UUID.randomUUID().toString();
+		// authMap.put(codeKey, codeValue);
+		
+		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
+		
+		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey);
+		
+		response.addCookie(cookie);
+		
+		return ResponseEntity.ok(true);
 	}
 	
-	@PostMapping("/emailAuth")
+	@PostMapping("/sendEmailAuthNum")
 	@ResponseBody
-	public int emailAuth(String email) {
+	public ResponseEntity<Boolean> sendEmailAuthNum(String email, HttpServletResponse response) {
 
 
 		//난수의 범위 111111 ~ 999999 (6자리 난수)
 		Random random = new Random();
-		int checkNum = random.nextInt(888888)+111111;
+		int codeValue = random.nextInt(888888)+111111;
 
 		//이메일 보낼 양식
 		String setFrom = emailId; //2단계 인증 x, 메일 설정에서 POP/IMAP 사용 설정에서 POP/SMTP 사용함으로 설정o
 		String toMail = email;
 		String title = "회원가입 인증 이메일";
-		String content = "인증 코드 : " + checkNum;
+		String content = "인증 코드 : " + codeValue;
 
 		try {
 			MimeMessage message = mailSender.createMimeMessage(); //Spring에서 제공하는 mail API
@@ -261,8 +291,31 @@ public class UserRestController {
 			e.printStackTrace();
 		}
 
-		System.out.println("발급된 인증번호 : " +checkNum);
-		return checkNum;
+		System.out.println("발급된 인증번호 : " +codeValue);
+		
+		String codeKey = "e-"+UUID.randomUUID().toString();
+		
+		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
+		
+		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey);
+		
+		response.addCookie(cookie);
+		
+		return ResponseEntity.ok(true);
+	}
+	
+	
+	@PostMapping("/checkAuthNum")
+	public ResponseEntity<Boolean> checkAuthNum(@RequestBody Map<String, String> value) {
+		
+		String codeKey = value.get("codeKey");
+		int codeValue = Integer.parseInt(value.get("codeValue"));
+		
+		System.out.println(redisUtilAuthCode.select(codeKey, Integer.class));
+		if( codeValue == redisUtilAuthCode.select(codeKey, Integer.class))
+			return ResponseEntity.ok(true);
+		else
+			return ResponseEntity.ok(false);
 	}
 	
 	@GetMapping("/nkey")
@@ -352,4 +405,15 @@ public class UserRestController {
         }
     }
 	
+    private Cookie createCookie(String codeKeyName, String codeKey) {
+		
+		Cookie cookie = new Cookie(codeKeyName, codeKey);
+		cookie.setPath("/user/getSignUpView");
+		// cookie.setDomain("mapmory.co.kr");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(false);
+		cookie.setMaxAge(3 * 60);
+		
+		return cookie;
+	}
 }

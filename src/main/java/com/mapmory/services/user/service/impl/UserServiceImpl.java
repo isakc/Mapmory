@@ -43,6 +43,7 @@ import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
+import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
@@ -230,9 +231,9 @@ public class UserServiceImpl implements UserService {
 	public boolean addLoginLog(String userId) {
 		// TODO Auto-generated method stub
 		
+		int result = userDao.insertLoginLog(userId);
 		
-		
-		return false;
+		return intToBool(result);
 	}
 	
 	@Override
@@ -404,10 +405,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public TermsAndConditions getDetailTermsAndConditions(String fileName) throws Exception {
+	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception {
 		// TODO Auto-generated method stub
 
-		String filePath = tacDirectoryPath + "/" + fileName;
+		// String filePath = tacDirectoryPath + "/" + fileName;
 		
 		try {
 		
@@ -853,17 +854,14 @@ public class UserServiceImpl implements UserService {
         return kakaoId; // 예외 발생 시 null 반환
     }
 	
-	public String PhoneNumberCheck(String to) throws Exception {
-		String smsProvider = "https://api.coolsms.co.kr";
-		DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
+	public int PhoneNumberCheck(String to) throws Exception {
+		// String smsProvider = "https://api.coolsms.co.kr";
+		// DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
 
-		Random rand = new Random();
-		String numStr = "";
-		for(int i=0; i<4; i++) {
-			String ran = Integer.toString(rand.nextInt(10));
-			numStr += ran;
-		}
+		Random random = new Random();
+		int codeValue = random.nextInt(888888)+111111; 
 
+		/*
 		Message message = new Message();
 		message.setFrom(phoneNum);    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
 		message.setTo(to);    				// 수신전화번호 (ajax로 view 화면에서 받아온 값으로 넘김)
@@ -871,8 +869,9 @@ public class UserServiceImpl implements UserService {
 
 		SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
 		SingleMessageSentResponse response = messageService.sendOne(request); // 메시지 전송
-
-		return numStr;
+		*/
+		
+		return codeValue;
 	}
 
 	private boolean intToBool(int result) {

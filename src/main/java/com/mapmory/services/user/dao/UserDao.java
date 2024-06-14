@@ -22,7 +22,7 @@ public interface UserDao {
 
 	public int insertUser(User user);
 	
-	public int insertLoginLog(LoginLog log);
+	public int insertLoginLog(String userId);
 	
 	public int insertFollow(FollowBlock follow);
 	

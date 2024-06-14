@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script src="/javascript/user/userValidation.js"></script>
+	<script>
+		$(function() {
+			
+			const today = new Date().toISOString().split('T')[0];
+			$('#birthday').attr('max', today);
+			
+			$('#back').on('click', function() {
+				
+				const result = confirm('뒤로가기를 누르시면 약관 동의를 다시 진행하셔야 합니다. 계속 하시겠습니까?');
+				
+				if(result)
+					window.location.href = "/user/getAgreeTermsAndConditionsList";
+				
+			});
+			
+			$('#submitForm').on('click', function() {
+				
+				if ($('#userIdChecked').text() === 'false') {
+		            $('#userIdMsg').text('아이디를 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#userIdMsg').css('display', 'none');
+			    	
+			    }
+				
+				if ($('#passwordChecked').text() === 'false') {
+		            $('#passwordMsg').text('비밀번호를 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#passwordMsg').css('display', 'none');
+			    	
+			    }
+				
+				if ($('#userNameChecked').text() === 'false') {
+		            $('#userNameMsg').text('이름을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#userNameMsg').css('display', 'none');
+			    	
+			    }
+				
+				if ($('#nicknameChecked').text() === 'false') {
+		            $('#nicknameMsg').text('닉네임을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#nicknameMsg').css('display', 'none');
+			    	
+			    }
+				
+				const birthday = document.getElementById('birthday').value;
+			    if (!birthday) {
+			        
+			    	$('#birthdayMsg').text('생년월일을 선택해주세요.').css('color', 'red').show();
+			        event.preventDefault();
+			        return;
+			    } else {
+			    	
+			    	$('#birthdayMsg').css('display', 'none');
+			    	
+			    }
+			    
+			    if ($('#emailChecked').text() === 'false') {
+		            $('#emailMsg').text('이메일을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#emailMsg').css('display', 'none');
+			    	
+			    }
+			    
+			    if ($('#phoneNumberChecked').text() === 'false') {
+		            $('#phoneNumberMsg').text('휴대전화번호를 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#phoneNumberMsg').css('display', 'none');
+			    	
+			    }
+			    
+			    $('form').submit();
+			});
+		});
+	</script>
+</head>
+<body>
+	<form th:action="@{/user/testSignUp}" th:object="${user}" method="post" id="signupForm">
+		<div>
+            <label for="birthday">생년월일</label>
+            <input type="date" id="birthday" th:field="*{birthday}" placeholder="생년월일 (YYYY-MM-DD)" required/>
+            <p id="birthdayMsg" style="display: none;"/>
+            
+        </div>
+        
+        <button type="summit">출력</button>
+	</form>
+</body>
+</html>
