@@ -162,7 +162,9 @@
 			AND fb_type=0
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
+		<if test="limit != 0 and currentPage != 0"> 
 		LIMIT #{limit} OFFSET #{offset}
+		</if>
 	</select>
 	
 	<select id="getFollowListTotalCount" parameterType="search" resultType="integer">

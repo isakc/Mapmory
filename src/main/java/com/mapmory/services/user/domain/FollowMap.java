@@ -14,4 +14,6 @@ public class FollowMap {
     private String nickname;     
     private String profileImageName;
     private Byte hideProfile;  
+    private boolean isSubscribed;
+    private boolean isFollow;
 }

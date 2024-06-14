@@ -94,7 +94,7 @@
 			    	
 			    }
 			    
-			    $('form').submit();
+			    $('form').attr('method', 'post').attr('action', '/user/signUp').submit();
 			    
 			    /*
 			    $.ajax({
@@ -126,7 +126,7 @@
     <h1>회원가입</h1>
     <button type="button" id="back">뒤로가기</button>
     
-    <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
+    <form th:object="${user}" id="signupForm">
         <div>
             <label for="userId">아이디</label>
             <input type="text" id="userId" th:field="*{userId}" placeholder="아이디" required/>
