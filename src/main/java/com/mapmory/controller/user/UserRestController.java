@@ -96,20 +96,34 @@ public class UserRestController {
 	@PostMapping("/login")
 	public ResponseEntity<Boolean> login(@RequestBody Login loginData) throws Exception {
 		
-		if(loginData.getUserId().isEmpty())
+		String userId = loginData.getUserId();
+		
+		if(userId.isEmpty())
 			throw new Exception("아이디가 비어있습니다.");
 		
 		if(loginData.getUserPassword().isEmpty())
 			throw new Exception("비밀번호가 비어있습니다.");
 		
 		
-		String savedPassword = userService.getPassword(loginData.getUserId());
+		String savedPassword = userService.getPassword(userId);
 		boolean isValid = loginService.login(loginData, savedPassword);
 		
 		if( !isValid) {
+
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+			
 		} else {
-			return ResponseEntity.ok(true);
+			
+			boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
+			if(!result) {
+			
+				return ResponseEntity.ok(false);  // 비밀번호 변경을 권장하기 위한 표시
+				
+			} else {
+
+				return ResponseEntity.ok(true);
+				
+			}	
 		}
 	}
 

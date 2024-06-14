@@ -86,7 +86,7 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public void login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
+	public String login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin, @RequestParam String changePassword, HttpServletResponse response) throws Exception{
 
 		boolean keep;
 		
@@ -109,10 +109,25 @@ public class UserController {
 		boolean isLog = userService.addLoginLog(userId);
 		System.out.println("로그인 로그 등록 여부 : " + isLog);
 		
-		if(role == 1)
-			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
-		else
-			response.sendRedirect("/user/admin/adminMain");
+		boolean wantToChangePassword = Boolean.valueOf(changePassword); 
+		if(wantToChangePassword) {
+			
+			return "redirect:/user/getUpdatePasswordView";
+			
+		} else {
+			
+			if(role == 1) {
+				
+				// response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
+				return "redirect:/map";
+				
+			} else {
+				
+				// response.sendRedirect("/user/admin/adminMain");
+				return "redirect:/user/admin/adminMain";
+				
+			}
+		}
 	}
 	
 	@PostMapping("/logout")
@@ -205,6 +220,8 @@ public class UserController {
 	
 	@GetMapping("/getKakaoLoginView")
 	public void getKakaoLoginView() {
+		
+		
 		
 	}
 	

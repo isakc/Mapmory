@@ -3,6 +3,7 @@
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     
     <script th:inline="javascript">
  		$(function() {
@@ -26,16 +27,21 @@
                         userPassword: $("#password").val()
                     }),
                     success: function(response) {
-                    	
-                    	// console.log("_"+response+"_");
+
                     	console.log("server 응답 : "+ response);
-                        if (response == "true" || response == true) {
+                    	
+                    	if(response == "false" || response == false) {
+                    		
+                    		const result = confirm("비밀번호 변경 권장 기한을 넘어섰습니다. 비밀번호를 변경하시겠습니까?");
+                        	if(result) {
+                        		
+                        		$('input[name="changePassword"]').val(true);	
+                        		
+                        	} 
                         	
-                        	console.log("로그인 성공!");
-                            // submitSession();
-                            console.log("cookie를 요청합니다...");
                         	$('form').attr('method', 'post').attr('action', '/user/login').submit();
-                        }
+                    		
+                    	}
                     },
                     error: function(jqXHR) {
                         alert("오류 발생: " + jqXHR.responseText);
@@ -88,8 +94,13 @@
 	        <input type="checkbox" name="keepLogin" value="true"/>
 	        <label for="keepLogin">로그인 유지</label>
 	        
+	        <input type="hidden" name="changePassword" value="false"/>
+	        
 	        <button type="button" id="login">로그인</button>
 	        <button type="button" id="signUp">회원가입</button>
+	        
+	        <div id="kakao"></div>
+			<a class="p-2" id = "kakao-login-btn" href="https://kauth.kakao.com/oauth/authorize?client_id=cec50764919801119a69066d40036533&redirect_uri=/user/kakaoLogin&response_type=code">
         </div>
         <div id="userDiv" style="display:none;">
 	        <button type="button" id="getProfile">내 프로필로 이동</button>

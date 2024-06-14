@@ -86,12 +86,15 @@
 			      },
 			      success: function(response) {
 			        
-					if(response == true) {
+					if(response == true || response == "true") {
 						
 						$('#deleteFollow').attr('display', 'none');
-						$('#addFollow').attr('display', 'none');
+						$('#addFollow').attr('display', 'block');
 						
 					} else {
+						
+						console.log('false');
+						alert('변경 실패...');
 						
 					}
 			      },
@@ -104,12 +107,35 @@
 		
 			$('#addFollow').on('click', function() {
 				
-				window.location.href="/user/getFollowerList?userId="+userId;
+				$.ajax({
+			      url: "/user/rest/deleteFollow",
+			      method: "POST",
+			      data: {
+			        targetId: userId
+			      },
+			      success: function(response) {
+			        
+					if(response == true || response == "true") {
+						
+						$('#deleteFollow').attr('display', 'block');
+						$('#addFollow').attr('display', 'none');
+						
+					} else {
+						
+						console.log('false');
+						alert('변경 실패...');
+						
+					}
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			      }
+			    });
 			});
 			
 			$('#myChatList').on('click', function() {
 				
-				// window.location.href="http://192.168.0.45:3000/chat/chatList";
 				window.location.href="https://mapmory.co.kr/video-call/chatlist";
 			});
 			
@@ -118,40 +144,31 @@
 				const sessionId = [[${sessionId}]];
 				
 				$.ajax({
-			      url: "https://mapmory.co.kr/chatting/findOneChatRoom",
-			      method: "POST",
-			      data: JSON.stringify({
-			    	userId: sessionId,
-			        opponent: userId
-			      }),
-			      success: function(response) {
-			        
-					if(response == true) {
-
-						console.log("채팅서버 응답 : " + response);
-						window.location.href="/user/getFollowerList/"+response;
-						
-					} else {
-						
-						console.log("실패");
-						
-					}
-					
-			      },
-			      error: function(xhr, status, error) {
-			        console.error("네트워크 오류:", error);
-			        alert("네트워크 오류");
-			      }
-			    });
-				
-				// window.location.href="/user/getFollowerList?userId="+userId;
-
+	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
+	               method: "POST",
+	               data: JSON.stringify({
+	                userId: sessionId,
+	                 opponent: userId
+	               }),
+	               success: function(response) {
+	                 
+	               if(response != null) {
+	
+	                  console.log("채팅서버 응답 : " + response);
+	                  window.location.href="/video-call/chatroom/"+response;
+	                  
+	               } else {
+	                  
+	                  console.log("실패");
+	                  
+	               }
+               }
 			});
 		});
 		
 		$(function() {
 			
-			$('#toggle').on('click', function() {
+			$('#toggleButton').on('click', function() {
 				
 				openModal();
 				
@@ -165,7 +182,7 @@
 	
 	<button type="button" id="back">뒤로 가기</button>
 	
-	<button type="button" id="toggle">=</button>
+	<button type="button" id="toggleButton">=</button>
 
 	<ul class="profile-info">
 	  <li id="shared-list" class="showBlock">
@@ -196,6 +213,11 @@
 		</div>
 		<button type="button" id="voiceChat">화상통화</button>
 		<button type="button" id="chat">메세지 보내기</button>
+	</div>
+	
+	<div id="toggle" class="modal">
+		
+	
 	</div>
 	
 	<img alt="" th:src="${profile.user.profileImageName}">
