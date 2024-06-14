@@ -245,14 +245,17 @@ $(function() {
 	        var result = JSON.parse(response);
 	        if (result.result) {
 	          alert("캡차 확인 성공!");
+	          $('#captchaChecked').text('true');
 	        } else {
 	          alert("캡차를 다시 확인해주세요.");
+	          $('#captchaChecked').text('false');
 	          loadCaptcha(); // 새로운 캡차 이미지 로드
 	        }
 	      },
 	      error: function(xhr, status, error) {
 	        console.error("캡차 검증 실패:", error);
 	        alert("캡차를 다시 확인해주세요.");
+	        $('#captchaChecked').text('false');
 	        loadCaptcha(); // 새로운 캡차 이미지 로드
 	      }
 	    });
