@@ -23,7 +23,7 @@
 				<th>공유기록제목</th>
 			</tr>		
 			<tr th:each="sharedRecord : ${sharedRecordlist}">
-				<td><a th:href="@{'/user/getProfile/' + ${sharedRecord.recordUserId}}" th:text="${sharedRecord.nickname}"></a></td>
+				<td><a th:href="@{'/user/getProfile/?userId=' + ${sharedRecord.recordUserId}}" th:text="${sharedRecord.nickname}"></a></td>
 				<td th:text="${sharedRecord.profileImageName}"></td>
 				<td th:text="${sharedRecord.subscriptionEndDate}"></td>
 				<td th:text="${sharedRecord.sharedDate}"></td>
@@ -39,9 +39,5 @@
 	</table>
 	
 	<br/><br/>
-	<table>
-		<tr th:each="sharedRecord : ${sharedRecordlist}" th:text="${'공유기록내용 : ' + sharedRecord}">
-	</table>
-
 </body>	
 </html>

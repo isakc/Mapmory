@@ -3,9 +3,17 @@
 <head>
 	<meta charset="UTF-8">
 	<title>전체신고목록</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
 	<h1>전체신고목록</h1>
+	<div>
+		<p>전체 신고 : <span th:text="${totalCount}"></span> 건</p>
+		<p>미처리 신고 : <span th:text="${unConfirmCount}"></span> 건 </p>
+	</div>
+	
 	<table>
 		<thead>
 			<tr>
@@ -17,11 +25,22 @@
 		</thead>
 		
 		<tbody>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>												
+			<tr th:each="report, rowStat : ${allReportList}">
+				<td><a th:href="@{'/community/admin/getAdminConfirmReport/' + ${report.reportNo}}"th:text="${report.reportTitle}"></a></td>
+				<td>
+					<span th:switch="${report.reportStatus}">
+						<span th:case="'1'">신고완료</span>
+						<span th:case="'2'">처리완료</span>	
+					</span>
+				</td>
+				<td>
+					<span th:switch="${report.reportResult}">
+						<span th:case="'0'">미처리</span>
+						<span th:case="'1'">승인</span>
+						<span th:case="'2'">반려</span>
+					</span>
+				</td>
+				<td th:text="${report.reportDate}"></td>												
 			</tr>
 		</tbody>
 	</table>

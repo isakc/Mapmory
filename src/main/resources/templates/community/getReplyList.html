@@ -67,13 +67,15 @@
 				var replyDate = replyData.replyDate;
 				var likeCount = replyData.likeCount;
 				var dislikeCount = replyData.dislikeCount;
-			    
+				
+				console.log("2. replyNo :", replyNo);
+				
 				// 새로운 댓글을 추가할 행을 생성
 				var newRow = '<tr>' +
 					'<td><a href="/user/getProfile/' + userId + '">' + nickname + '</a></td>' +
 					'<td>' + profileImageName + '</td>' +
 					'<td style="text-align: center;">' + subscriptionEndDate + '</td>' +
-					'<td>' + replyText + '</td>' +
+					'<td class="replyText">' + replyText + '</td>' +
 					'<td>' + replyImageName + '</td>' +
 					'<td>' + replyDate + '</td>' +
 					'<td style="text-align: center;">' + likeCount + '</td>' +
@@ -85,11 +87,14 @@
 						'<button type="button" id="dislikeButton">싫어요</button>'+
 					'</td>'+
 					'<td class="recordNo" style="display:none;">'+recordNo+'</td>'+
-		            '<td class="replyNo" style="display:none;" data-replyno="' + replyNo + '"></td>' +				
+		            '<td class="replyNo" style="display:none;">' +replyNo +'</td>' +
+		        	'<td class="userId" style="display:none;">'+userId+'</td>'+
 			        '<td>' +
-			            '<button type="button" onclick="openModal()">더보기</button>' +
+			            '<button type="button" class="moreBtn">더보기</button>' +
 		        	'</td>' +
 					'</tr>';            	
+					
+				console.log(newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
 				$('table tbody').append(newRow);	
@@ -103,14 +108,18 @@
 	</script>
 	<!-- 댓글 작성 종료 -->
 		
-
 	<!-- 더보기 모달창 처리-->
 	<script type ="text/javascript">
 	var currentRow = null;
 	var replyText = "";
 	
+	console.log(currentRow);
+	
 	function openModal(row) {
 		currentRow = row;
+		
+		console.log(currentRow);
+		
         var replyText = currentRow.find('.replyText').text();
         $('#replyText').val(replyText);
         
@@ -145,6 +154,8 @@
 			if(currentRow) {
 				var replyText = currentRow.find('.replyText').text();
 				$('#updateReplyText').val(replyText);
+				var replyNo = currentRow.find('.replyNo').text();
+				console.log("replyNo :", replyNo);
 			}
 			openUpdateModal();
 			closeModal();
@@ -206,10 +217,13 @@
 		
 		//댓글 삭제
 		$('#moreModal').on("click", "#delete", function() {
+			
 			if(currentRow) {
 				var userId = "user5";
 				var replyNo = currentRow.find('.replyNo').text();
 
+				console.log(replyNo);
+				
 				$.ajax({
 					type : 'DELETE',
 					url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
@@ -223,6 +237,8 @@
 					}
 				});				
 			}
+			$('#replyText').val('');
+			$('#replyImageName').val('');
 		});	
 		
 		//댓글 신고

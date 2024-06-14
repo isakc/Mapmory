@@ -66,10 +66,9 @@
 	<!-- 내가 쓴 댓글 목록 조회 -->
 	<select id="getUserReplyList" parameterType="search" resultMap="replySelectMap">
 		SELECT *,
-			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID),
-			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID),
+			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
+			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
 			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
-			(SELECT user_id FROM users u WHERE u.user_id = r2.user_id)
 		FROM reply r2
 		WHERE r2.user_id = #{userId}
 		ORDER BY reply_date
@@ -82,10 +81,10 @@
 	</insert>
 	
 	<!-- 댓글 선택 reply_no, record_no, user_id, reply_text, reply_image_name, reply_date, reply_update_date -->
-	<select id="getReply" parameterType="int" resultMap="replySelectMap">
+	<select id="getReply" parameterType="reply" resultMap="replySelectMap">
 	SELECT *,
-			(SELECT nickname FROM users u WHERE u.USER_ID = r.USER_ID),
-			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r.USER_ID),
+			(SELECT nickname FROM users u WHERE u.USER_ID = r.USER_ID) AS nickname,
+			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r.USER_ID) AS profileImageName,
 			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
 			(SELECT user_id FROM users u WHERE u.user_id = r.user_id)
 		FROM reply r
@@ -232,6 +231,8 @@
 	<select id="getAdminReportList" parameterType="search" resultMap="reportSelectMap">
 		SELECT *
 		FROM report
+		ORDER BY report_date DESC
+		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
 	<!-- 사용자의 신고 Count -->
@@ -251,7 +252,6 @@
 		WHERE report_result = 0
 	</select>
 
-
 	<!-- 신고 조회 -->			
 	<select id="getReport" parameterType="int" resultMap="reportSelectMap">
 		SELECT *
@@ -263,7 +263,7 @@
 	<update id="confirmReport" parameterType="report">
 		UPDATE report
 		<set>
-			report_status = #{reportStatus}
+			report_status = #{reportStatus},
 			report_result = #{reportResult}
 		</set>
 		WHERE report_no = #{reportNo}
