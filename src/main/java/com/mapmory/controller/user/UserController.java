@@ -320,9 +320,9 @@ public class UserController {
 	
 	
 	@PostMapping("/updateProfile")
-	public void postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model) throws Exception {
+	public String postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
 		
-		String userId = "user1";
+		String userId = redisUtil.getSession(request).getUserId();
 		
 		if(contentFilterUtil.checkBadImage(file)) {
 			System.out.println("부적절한 이미지입니다.");
@@ -331,11 +331,15 @@ public class UserController {
 		boolean result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
 		System.out.println(result);
 		
+		/*
 		User user = userService.getDetailUser(userId);
 		
 		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
 		model.addAttribute("profileImage", cdnPath);
+		*/
+		
+		return "redirect:/user/getProfile?userId="+userId;
 	}
 
 	

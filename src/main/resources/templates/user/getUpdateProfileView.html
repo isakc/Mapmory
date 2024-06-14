@@ -2,9 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>내 프로필 수정</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	
+	<script th:inline="javascript">
+	$( function() {
+		
+		console.log([[${profileImage}]])
+		
+		$('#back').on('click', function() {
+			
+			history.back();
+		});
+		
+		$('#submitButton').on('click', function() {
+			
+			$('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
+		});
+	});
+	</script>
 </head>
 <body>
-
+	<button type="button" id="back">뒤로 가기</button>
+		<div class="container">
+			<form>
+				<input type="file" name="profile" accept="image/*" class="form-control" />
+				<input type="text" name="introduction" class="form-control" placeholder="자기소개 작성" />
+				<button type="button" class="btn btn-primary" id="submitButton">제출</button>
+			</form>
+			
+			<img th:src="${profileImage}">
+		</div>
 </body>	
 </html>
