@@ -70,13 +70,32 @@ public interface UserService {
 
 	public Map<String, Object> getUserList(Search search);
 	
-	public List<FollowMap> getFollowList(String userId, String searchKeyword, int currentPage, int limit);
+	/**
+	 * 
+	 * @param myUserId  :: 내 session id
+	 * @param userId  :: target id
+	 * @param searchKeyword : nullable
+	 * @param currentPage : nullable (paging 불필요시)
+	 * @param limit : nullable (paging 불필요시)
+	 * @param selectFollow  :: true : 팔로우 목록, false : 팔로워 목록
+	 * @return
+	 */
+	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow);
 	
-	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit);
+	/**
+	 * 
+	 * @param userId  :: target id
+	 * @param searchKeyword : nullable
+	 * @param currentPage : nullable (paging 불필요시)
+	 * @param limit : nullable (paging 불필요시)
+	 * @param selectFollow  :: true : 팔로우 목록, false : 팔로워 목록
+	 * @return
+	 */
+	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow);
 	
-	public List<FollowMap> getFollowerList(String userId, String searchKeyword, int currentPage, int limit);
+	// public List<FollowMap> getFollowerList(String myUserId, String userId, String searchKeyword, int currentPage, int limit);
 	
-	public int getFollowerListTotalCount(String userId, String searchKeyword, int currentPage, int limit);
+	// public int getFollowerListTotalCount(String userId, String searchKeyword, int currentPage, int limit);
 	
 	public boolean checkFollow(String myUserId, String targetUserId);
 	

@@ -40,6 +40,7 @@ import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.domain.FollowSearch;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
@@ -129,29 +130,41 @@ public class UserRestController {
 	
 	
 	@PostMapping("/getFollowList")
-	public List<FollowMap> getFollowList(@ModelAttribute Search search) {
+	public List<FollowMap> getFollowList(@ModelAttribute Search search, HttpServletRequest request) {
 		
-		String userId = search.getUserId();
-		String keyword = search.getSearchKeyword();
-		int currentPage = search.getCurrentPage();
-		
-		List<FollowMap> followList = userService.getFollowList(userId, keyword, currentPage, pageSize);
-		
-		return followList;
-	}
-	
-	@PostMapping("/getFollowerList")
-	public void getFollowerList(@ModelAttribute Search search) {
-		
-		Integer currentPage = search.getCurrentPage();
 		/*
 		if(currentPage == null)
 			currentPage = 1;
 		*/
 		
-		List<FollowMap> followList = userService.getFollowList(search.getUserId(), null, currentPage, pageSize);
+		String myUserId = redisUtil.getSession(request).getUserId();
+		String userId = search.getUserId();
+		String keyword = search.getSearchKeyword();
+		int currentPage = search.getCurrentPage();
+		boolean selectFollow = true;
 		
+		List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		
+		return followList;
+	}
+	
+	@PostMapping("/getFollowerList")
+	public List<FollowMap> getFollowerList(@ModelAttribute Search search, HttpServletRequest request) {
 
+		/*
+		if(currentPage == null)
+			currentPage = 1;
+		*/
+		
+		String myUserId = redisUtil.getSession(request).getUserId();
+		String userId = search.getUserId();
+		String keyword = search.getSearchKeyword();
+		int currentPage = search.getCurrentPage();
+		boolean selectFollow = false;
+		
+		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		
+		return followerList;
 	}
 	
 	@GetMapping("/getSharedList")
@@ -160,7 +173,7 @@ public class UserRestController {
 		String userId = value.get("userId");
 		
 		Search search=Search.builder()
-				.userId(" user2 ").
+				.userId(userId).
 				currentPage(1)
 				.limit(5)
 				.sharedType(1)

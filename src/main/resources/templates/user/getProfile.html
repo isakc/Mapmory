@@ -5,6 +5,14 @@
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<title>프로필</title>
 	
+	<style>
+	
+	.showBlock {
+	  border: 2px solid red; /* 빨간색 실선 테두리 */
+	}
+		
+	</style>
+	
 	<script th:inline="javascript">
 	
 		$(function(){
@@ -16,14 +24,12 @@
 			console.log("isFollow : " + isFollow);
 			
 			if(myProfile == true || myProfile == "true") {
-
-				$('#updateProfile').css('display','block');
-				$('#myChatList').css('display','block');
+				
+				$('#myProfile').css('display','block');
 					
 			} else {
 				
-				$('#voiceChat').css('display','block');
-				$('#chat').css('display','block');
+				$('#otherProfile').css('display','block');
 				
 				if (isFollow == true || isFollow == "true") {
 					
@@ -41,10 +47,12 @@
 		$(function() { 
 			
 			const userId = [[${profile.user.userId}]];
+			
 			console.log(userId);
 			$('#back').on('click', function() {
 				
-				window.location.href="/timeline/getTimelineList?userId="+userId;
+				// window.location.href="/timeline/getTimelineList?userId="+userId;
+				history.back();
 			});
 			
 			$('#follow-list').on('click', function() {
@@ -100,7 +108,8 @@
 			
 			$('#myChatList').on('click', function() {
 				
-				window.location.href="http://192.168.0.45:3000/chat/chatList";
+				// window.location.href="http://192.168.0.45:3000/chat/chatList";
+				window.location.href="https://mapmory.co.kr/video-call/chatlist";
 			});
 			
 			$('#chat').on('click', function() {
@@ -112,7 +121,7 @@
 			      method: "POST",
 			      data: JSON.stringify({
 			    	userId: sessionId,
-			        opponent: "user1"
+			        opponent: userId
 			      }),
 			      success: function(response) {
 			        
@@ -149,15 +158,15 @@
 	<img alt="" src="@{profile.user.profileImageName}">
 	
 	<ul class="profile-info">
-	  <li id="shared-list">
+	  <li id="shared-list" class="showBlock">
 	    <span class="label">공유기록 수</span>
 	    <span class="value" th:text="${profile.totalSharedListCount}"></span>
 	  </li>
-	  <li id="follow-list">
+	  <li id="follow-list" class="showBlock">
 	    <span class="label">팔로워</span>
 	    <span class="value" th:text="${profile.totalFollowCount}"></span>
 	  </li>
-	  <li id="follower-list">
+	  <li id="follower-list" class="showBlock">
 	    <span class="label">팔로잉</span>
 	    <span class="value" th:text="${profile.totalFollowerCount}"></span>
 	  </li>
@@ -166,13 +175,17 @@
 	<h3>자기소개</h3>
 	<p th:text="${profile.user.introduction}"></p>
 
-	
-	<button type="button" id="updateProfile" style="display:none;">내 프로필 수정</button>
-	<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
-	<button type="button" id="addFollow" style="display:none;">팔로우</button>
-	
-	<button type="button" id="myChatList" style="display:none;">내 채팅 목록으로 이동</button>
-	<button type="button" id="voiceChat" style="display:none;">화상통화</button>
-	<button type="button" id="chat" style="display:none;">메세지 보내기</button>
+	<div id="myProfile" style="display:none;">
+		<button type="button" id="updateProfile">내 프로필 수정</button>
+		<button type="button" id="myChatList">내 채팅 목록으로 이동</button>
+	</div>
+	<div id="otherProfile" style="display:none;">
+		<div>
+			<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
+			<button type="button" id="addFollow" style="display:none;">팔로우</button>
+		</div>
+		<button type="button" id="voiceChat">화상통화</button>
+		<button type="button" id="chat">메세지 보내기</button>
+	</div>
 </body>	
 </html>

@@ -152,11 +152,39 @@
 		WHERE user_id = #{value}
 	</select>
 	
-	<select id="selectFollowList" parameterType="search" resultMap="selectFollowMap">
-		SELECT
-		fb.target_id as user_id, u.user_name, u.nickname, u.profile_image_name, u.hide_profile 
+	<select id="selectFollowList" parameterType="com.mapmory.services.user.domain.FollowSearch" resultMap="selectFollowMap">
+	SELECT
+		  fb.target_id AS user_id,
+		  u.user_name,
+		  u.nickname,
+		  u.profile_image_name,
+		  u.hide_profile,
+		  IF(NOW() BETWEEN s.subscription_start_date AND s.subscription_end_date, 1, 0) AS is_subscribed,
+		  CASE
+		    WHEN fb2.user_id IS NULL THEN 0
+		    ELSE 1
+		  END AS is_followed_by_me
 		FROM follow_block fb
-			JOIN users u ON fb.target_id = u.user_id
+		<if test="selectFollow == true">LEFT JOIN users u ON fb.target_id = u.user_id</if>
+		<if test="selectFollow != true">LEFT JOIN users u ON fb.user_id = u.user_id</if>
+		LEFT JOIN subscription s ON fb.target_id = s.user_id
+		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId} AND fb2.fb_type=0
+		WHERE
+		  fb.user_id = #{userId}
+		  AND fb.fb_type = 0
+		  <if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
+	    <if test="limit != 0 and currentPage != 0"> 
+		ORDER BY fb.FB_NO DESC
+		LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="getFollowListTotalCount" parameterType="com.mapmory.services.user.domain.FollowSearch" resultType="integer">
+		SELECT
+		COUNT(*) 
+		FROM follow_block fb
+			<if test="selectFollow == true">JOIN users u ON fb.target_id = u.user_id</if>
+			<if test="selectFollow != true">JOIN users u ON fb.user_id = u.user_id</if>
 		WHERE
 			fb.user_id = #{userId}
 			AND fb_type=0
@@ -167,21 +195,7 @@
 		</if>
 	</select>
 	
-	<select id="getFollowListTotalCount" parameterType="search" resultType="integer">
-		SELECT
-		COUNT(*) 
-		FROM follow_block fb
-			JOIN users u ON fb.target_id = u.user_id
-		WHERE
-			fb.user_id = #{userId}
-			AND fb_type=0
-			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
-		<if test="limit != 0 and currentPage != 0"> 
-		ORDER BY fb.FB_NO DESC 
-		LIMIT #{limit} OFFSET #{offset}
-		</if>
-	</select>
-	
+	<!-- 
 	<select id="selectFollowerList" parameterType="search" resultMap="selectFollowMap">
 		SELECT
 		fb.target_id as user_id, u.user_name, u.nickname, u.profile_image_name, u.hide_profile 
@@ -209,7 +223,8 @@
 		LIMIT #{limit} OFFSET #{offset}
 		</if>
 	</select>
-	
+	 -->
+	 
 	<select id="isFollow" parameterType="com.mapmory.services.user.domain.FollowBlock" resultType="integer">
 		SELECT
 		COUNT(*)

@@ -4,8 +4,16 @@
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <script>
+    <script th:inline="javascript">
  		$(function() {
+ 			
+ 			const temp = [[${userId}]];
+ 			
+ 			if(temp != null) {
+ 				
+ 				$('#loginDiv').css('display', 'none');
+ 				$('#userDiv').css('display', 'block');
+ 			}
  			
 			$('#login').on('click', function() {
         		
@@ -48,7 +56,8 @@
 			
 			$('#getProfile').on('click', function() {
 				
-				window.location.href="/user/getProfile";
+				
+				window.location.href="/user/getProfile?userId="+[[${userId}]];
 			});
  		});
  		
@@ -69,22 +78,27 @@
 </head>
 <body>
     <form id="loginForm">
-    
-        <input type="text" id="username" name="userId" placeholder="아이디">
-        <br/>
-        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
-        <br/>   
+    	
+    	<div id="loginDiv">
+	        <input type="text" id="username" name="userId" placeholder="아이디">
+	        <br/>
+	        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
+	        <br/>   
+	        
+	        <input type="checkbox" name="keepLogin" value="true"/>
+	        <label for="keepLogin">로그인 유지</label>
+	        
+	        <button type="button" id="login">로그인</button>
+	        <button type="button" id="signUp">회원가입</button>
+        </div>
+        <div id="userDiv" style="display:none;">
+	        <button type="button" id="getProfile">내 프로필로 이동</button>
+	        <button type="button" id="logout">로그아웃</button>
+        </div>
+        <hr>
+        <hr>
+        <hr>
         
-        <input type="checkbox" name="keepLogin" value="true"/>
-        <label for="keepLogin">로그인 유지</label>
-        
-        <button type="button" id="login">로그인</button>
-        <button type="button" id="signUp">회원가입</button>
-        <hr>
-        <hr>
-        <hr>
-        <button type="button" id="getProfile">내 프로필로 이동</button>
-        <button type="button" id="logout">로그아웃</button>
 
 		<details>
 		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
