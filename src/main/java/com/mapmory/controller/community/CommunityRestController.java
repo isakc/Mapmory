@@ -3,6 +3,8 @@ package com.mapmory.controller.community;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,14 +26,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.user.domain.FollowBlock;
 
 @RestController
 @RequestMapping("/community/*")
@@ -48,7 +53,10 @@ public class CommunityRestController {
 	private ContentFilterUtil contentFilterUtil;
 	
     @Autowired
-    private ObjectStorageUtil objectStorageUtil;	
+    private ObjectStorageUtil objectStorageUtil;
+    
+    @Autowired
+    private RedisUtil<SessionData> redisUtil;
 	
 	public CommunityRestController() {
 		System.out.println(this.getClass());
@@ -66,14 +74,21 @@ public class CommunityRestController {
 	//댓글 추가
 	@PostMapping("/rest/addReply")
 	public ResponseEntity<Reply> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
-							@RequestParam("recordNo") int recordNo,
+							@RequestParam("recordNo") int recordNo, HttpServletRequest request, @RequestParam("userId") String userId,
 							@RequestParam("replyText") String replyText, Search search) throws Exception {
+		userId = redisUtil.getSession(request).getUserId();
+		
 		System.out.println("/rest/addReply : REST 시작");
+		
+		System.out.println(userId);
 		
 		Reply reply = new Reply();
 		reply.setRecordNo(recordNo);
 		reply.setReplyText(replyText);
-		reply.setUserId("user5");
+		reply.setUserId(userId);
+		
+		System.out.println(reply);
+		
 
 		if (replyImageName != null && !replyImageName.isEmpty()) {
 			if(contentFilterUtil.checkBadImage(replyImageName) == false) {
@@ -121,16 +136,18 @@ public class CommunityRestController {
 	
 	//댓글 수정
 	@PostMapping("/rest/updateReply/{replyNo}")
-	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, String userId, String updateReplyText, int recordNo, 
+	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, @RequestParam("userId") String userId, 
+												String updateReplyText, int recordNo, HttpServletRequest request, 
 												@RequestParam(value = "replyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
 
+		userId = redisUtil.getSession(request).getUserId();
+		
 		Reply reply = new Reply();
 		reply.setReplyNo(replyNo);
 		reply.setRecordNo(recordNo);
 		reply.setReplyText(updateReplyText);
-		reply.setUserId("user5");
+		reply.setUserId(userId);
 		
-	
 		if (updateReplyImageName != null && !updateReplyImageName.isEmpty()) {
 			if(contentFilterUtil.checkBadImage(updateReplyImageName) == false) {
 				System.out.println("이미지 검사 통과");
@@ -150,9 +167,10 @@ public class CommunityRestController {
 	
 	//댓글 삭제
 	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
-	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo) throws Exception {
+	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo, HttpServletRequest request) throws Exception {
 		
 		int recordNo = 0;
+		userId = redisUtil.getSession(request).getUserId();
 		communityService.deleteCommunityLogs(userId, recordNo, replyNo);
 		
 		communityService.deleteReply(userId, replyNo);
@@ -175,8 +193,13 @@ public class CommunityRestController {
 	
 	//커뮤니티 로그 추가
 	@PostMapping("/rest/addCommunityLogs")
-	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs) throws Exception {
-			communityService.addCommunityLogs(communityLogs);
+	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		communityLogs.setUserId(userId);
+		
+		communityService.addCommunityLogs(communityLogs);
 		return ResponseEntity.ok(communityLogs);
 	}
 	
@@ -213,6 +236,13 @@ public class CommunityRestController {
 	public ResponseEntity<Report> confirmReport(Search search, @RequestBody Report report, @PathVariable int reportNo) throws Exception {
 		communityService.confirmReport(report);
 		return ResponseEntity.ok(report);
+	}
+	
+	//사용자 차단
+	@PostMapping("/rest/addBlockUser")
+	public ResponseEntity<FollowBlock> addBlockUser(@RequestBody FollowBlock followBlock) throws Exception{
+		communityService.addBlockUser(followBlock);
+		return ResponseEntity.ok(followBlock);
 	}
 	
 }

@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -46,6 +44,7 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
+		
 		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
 
@@ -161,9 +160,13 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Map<String, Object> getUserReportList(Search search, String userId) throws Exception {
-		List<Object> list = communityDao.getUSerReportList(search, "user5");
-		int totalCount = communityDao.getUserReportTotalCount(search, "user5");
+
+		search.setOffset((search.getCurrentPage()-1) * search.getPageSize());
+		search.setPageSize(search.getPageSize());
 		
+		List<Object> list = communityDao.getUSerReportList(search, userId);
+		int totalCount = communityDao.getUserReportTotalCount(search, userId);
+				
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
