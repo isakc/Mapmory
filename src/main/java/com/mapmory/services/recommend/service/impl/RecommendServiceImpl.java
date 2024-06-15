@@ -10,11 +10,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,8 +38,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.dto.RecommendPlaceDTO;
 import com.mapmory.services.recommend.service.RecommendService;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
@@ -71,6 +73,9 @@ public class RecommendServiceImpl implements RecommendService {
     
     @Value("${aitems.Secret_Key}")
     private String aitems_Secret_Key;
+    
+    @Value("${kakaomap.rest.apiKey}")
+    private String kakaoMapRestKey;
 	
 	@Override
 	public void addSearchData(Record record) throws Exception {
@@ -585,21 +590,84 @@ public class RecommendServiceImpl implements RecommendService {
 		
 		}
 
+//		@Override
+//		public Map<String, Object> getRecordList(List<String> recordNo) throws Exception {
+//
+//			for(String i : recordNo) {
+//				System.out.println(i);
+//			}
+//			
+//			List<HashMap<String,Record>> list = recommendDao.getRecordList(recordNo);
+//			System.out.println("++++++++++getRecordListOver++++++++++++++");
+//			System.out.println("getRecordList: "+list);
+//			Map<String, Object> map = new HashMap<String, Object>();
+//			map.put("record",list);
+//			
+//			return map;
+//		}
+		
 		@Override
-		public Map<String, Object> getRecordList(List<String> recordNo) throws Exception {
+		public List<RecommendPlaceDTO> getRecordList(List<String> recordNo) throws Exception {
 
-			for(String i : recordNo) {
-				System.out.println(i);
-			}
+			List<Record> recordList = recommendDao.getRecordList(recordNo);
+			List<RecommendPlaceDTO> recommendPlaceList = new ArrayList<RecommendPlaceDTO>();	
 			
-			List<HashMap<String,Record>> list = recommendDao.getRecordList(recordNo);
-			System.out.println("++++++++++getRecordListOver++++++++++++++");
-			System.out.println("getRecordList: "+list);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("record",list);
+			Collections.shuffle(recordList); // 랜덤으로 섞음
 			
-			return map;
-		}
+			RestTemplate restTemplate = new RestTemplate();
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Authorization", "KakaoAK "+kakaoMapRestKey);
+	        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+	        
+			StringBuilder url = new StringBuilder();
+			ObjectMapper objectMapper = new ObjectMapper();
+		    JsonNode rootNode;
+		    int totalCount;
+		    String resultJson;
+		    JsonNode documents;
+		    
+			for (Record record : recordList) {
+				url.setLength(0);
+				
+				url.append("https://dapi.kakao.com/v2/local/search/keyword?")
+				.append("query=").append(record.getCheckpointAddress())
+				.append("&x").append(record.getLatitude())
+				.append("&y").append(record.getLongitude());
+				
+				resultJson = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, String.class).getBody(); // REST
+
+				System.out.println("getRecordList resultJson: " + resultJson);
+				
+				rootNode = objectMapper.readTree(resultJson);
+			    
+				totalCount = rootNode.path("meta").path("total_count").asInt();
+				System.out.println("totalCount: " + totalCount);
+				if(totalCount != 0) {
+				    documents = rootNode.path("documents");
+				    
+				    for(JsonNode item : documents) {
+				    	RecommendPlaceDTO recommendPlaceDTO = RecommendPlaceDTO.builder()
+								.placeName(item.path("place_name").asText())
+								.distance(item.path("distance").asText())
+								.placeUrl(item.path("place_url").asText())
+								.categoryName(item.path("category_name").asText())
+								.roadAddressName(item.path("road_address_name").asText())
+								.phone(item.path("phone").asText())
+								.latitude(item.path("y").asDouble())
+								.longitude(item.path("x").asDouble())
+								.build();
+
+				    	recommendPlaceList.add(recommendPlaceDTO);
+				    }
+				
+				}//만약 데이터가 있으면 추가
+				
+			} // recordList만큼 반복
+			
+			Collections.shuffle(recommendPlaceList);
+				
+			return recommendPlaceList.subList(0,5);
+		}// getRecordList: 추천 장소 리스트 얻음 
 }
 
 	

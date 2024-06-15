@@ -20,6 +20,7 @@ public interface RecommendDao {
 	
 	public List<String> getHashTagNames(int recordNo) throws Exception;
 	
-	public List<HashMap<String,Record>> getRecordList(List<String> recordNo) throws Exception;
+	//public List<HashMap<String,Record>> getRecordList(List<String> recordNo) throws Exception;
+	public List<Record> getRecordList(List<String> recordNo) throws Exception;
 	
 }

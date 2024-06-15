@@ -16,7 +16,7 @@
 	</resultMap>
 	
 	<!-- timeline  -->
-	<resultMap id="recordResultMapList"  type="java.util.HashMap">
+	<resultMap id="recordResultMapList"  type="record">
 	    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
 	    <result property="recordUserId" column="record_user_id" jdbcType="VARCHAR"/>
 	    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
