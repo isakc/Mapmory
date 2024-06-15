@@ -74,7 +74,8 @@ public class TimelineServiceImpl implements TimelineService {
 				.recordNo(record.getRecordNo())
 				.imageTagType(0)
 				.build());
-		if(record.getImageName()!=null ||record.getHashtag()!=null) {
+		if((record.getImageName()!=null && !record.getImageName().isEmpty())
+				||(record.getHashtag() != null && !record.getHashtag().isEmpty())) {
 			map.put("recordNo",record.getRecordNo());
 			map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 			timelineDao.insertImageTag(map);

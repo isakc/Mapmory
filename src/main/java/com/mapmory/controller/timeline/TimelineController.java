@@ -55,6 +55,9 @@ public class TimelineController {
 	
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
+    
+    @Value("${cdn.url}")
+    private String cdnUrl;
 	
 	public TimelineController(){
 		System.out.println("TimelineController default Contrctor call : " + this.getClass());
@@ -169,7 +172,7 @@ public class TimelineController {
 //		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
 //			return null;
 //		}
-		record.setMediaName(record.getMediaName().replace(mediaFileFolder,""));
+		record.setMediaName(record.getMediaName().replace(cdnUrl+mediaFileFolder+"/",""));
 		record = timelineUtil.imageFileUpload(record, imageFile);
 		record = timelineUtil.mediaFileUpload(record, mediaFile);
 		
