@@ -76,15 +76,16 @@
 				$.ajax({
 			      url: "/user/rest/deleteFollow",
 			      method: "POST",
-			      data: {
+			      contentType:"application/json",
+			      data: JSON.stringify({
 			        targetId: userId
-			      },
+			      }),
 			      success: function(response) {
 			        
 					if(response == true || response == "true") {
 						
-						$('#deleteFollow').attr('display', 'none');
-						$('#addFollow').attr('display', 'block');
+						$('#deleteFollow').css('display', 'none');
+						$('#addFollow').css('display', 'block');
 						
 					} else {
 						
@@ -105,15 +106,18 @@
 				$.ajax({
 			      url: "/user/rest/addFollow",
 			      method: "POST",
-			      data: {
+			      contentType:"application/json",
+			      data: JSON.stringify({
 			        targetId: userId
-			      },
+			      }),
 			      success: function(response) {
 			        
 					if(response == true || response == "true") {
 						
-						$('#deleteFollow').attr('display', 'block');
-						$('#addFollow').attr('display', 'none');
+						$('#deleteFollow').css('display', 'block');
+						$('#addFollow').css('display', 'none');
+						
+						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
 						
 					} else {
 						
@@ -141,6 +145,7 @@
 				$.ajax({
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
 	               method: "POST",
+	               contentType:"application/json",
 	               data: JSON.stringify({
 	                userId: sessionId,
 	                 opponent: userId

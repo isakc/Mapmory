@@ -15,18 +15,27 @@
 		
 		$(document).on('click', '.follow', function() {
 			
+			const btn = $(this);
+			console.log(btn.html());
+			console.log(btn.parent().html());
+			console.log(btn.parent().find("button").html());
+			
 			$.ajax({
 		      url: "/user/rest/addFollow",
 		      method: "POST",
-		      data: {
+		      contentType:"application/json",
+		      data: JSON.stringify({
 		        targetId: $(this).parent().find('div').attr('id')
-		      },
+		      }),
 		      success: function(response) {
 		        
+		    	  console.log(response);
+		    	  
 				if(response == true || response == "true") {
 					
-					$(this).parent().find("button").text("언팔로우");
-					$(this).parent().find("button").attr('class', 'unfollow');
+					
+					btn.parent().find("button").text("언팔로우");
+					btn.parent().find("button").attr('class', 'unfollow');
 					
 				} else {
 					
@@ -44,19 +53,26 @@
 		
 		$(document).on('click', '.unfollow', function() {
 			
+			const btn = $(this);
+			console.log(btn.html());
+			console.log(btn.parent().html());
+			console.log(btn.parent().find("button").html());
 
 			$.ajax({
 		      url: "/user/rest/deleteFollow",
 		      method: "POST",
-		      data: {
-		        targetId: userId
-		      },
+		      contentType:"application/json",
+		      data: JSON.stringify({
+		        targetId: $(this).parent().find('div').attr('id')
+		      }),
 		      success: function(response) {
 		        
+		    	  console.log(response);
+		    	  
 				if(response == true || response == "true") {
-					
-					$(this).parent().find("button").text("팔로우");
-					$(this).parent().find("button").attr('class', 'follow');
+
+					btn.parent().find("button").text("팔로우");
+					btn.parent().find("button").attr('class', 'follow');
 					
 				} else {
 					
@@ -87,6 +103,6 @@
 		<p th:text="${user.isSubscribed == 1} ? '구독 중' : '구독 안함'"></p>
 		<p style="display:none;" th:text="${user.hideProfile}"></p>
 	</div>
-	<button type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:class="${isFollow} ? 'unfollow' : 'follow'" ></button>
+	<button type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:class="${user.isFollow == 1} ? 'unfollow' : 'follow'" ></button>
 	<hr/>
 </div>
