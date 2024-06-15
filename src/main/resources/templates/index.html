@@ -3,9 +3,10 @@
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-     
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+	<script src="/javascript/user/naveridlogin_js_sdk_2.0.2.js"></script>
     
     <script th:inline="javascript">
  		$(function() {
@@ -32,7 +33,9 @@
 
                     	console.log("server 응답 : "+ response);
                     	
-                    	if(response == "false" || response == false) {
+                    	
+                    	
+                    	if(response == "passwordExceeded") {
                     		
                     		const result = confirm("비밀번호 변경 권장 기한을 넘어섰습니다. 비밀번호를 변경하시겠습니까?");
                         	if(result) {
@@ -41,6 +44,13 @@
                         		
                         	} 
                         	
+                    	} 
+						
+                    	if(response != "true") {
+                    	
+                    		alert("현재 정지 상태입니다. 정지 해제 일시 : " + response);
+                    		return;
+                    		
                     	}
                     	
                     	$('form').attr('method', 'post').attr('action', '/user/login').submit();
@@ -102,6 +112,13 @@
 	        <button type="button" id="signUp">회원가입</button>
 	        
 	        
+	        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${client_id}, redirect_uri=${redirect_uri}, response_type=${response_type}, scope=${scope}, access_type=${access_type}, prompt=${prompt}, state=${state})}">
+	        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인">
+	        </a>
+			<div id="naverIdLogin">
+				<a id="naverIdLogin_loginButton" th:href="@{https://nid.naver.com/oauth2.0/authorize(response_type=code, client_id=${client_id}, redirect_uri=${redirect_uri}, state=${state})}" role="button">
+				<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
+			</div>	
 	        <div id="kakao">
 				<a href="user/getKakaoLoginView">
    				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼">

@@ -476,8 +476,18 @@ public class UserController {
 	}
 	
 	@GetMapping("/admin/getAdminDetailUser")
-	public void getAdminDetailUser() {
+	public void getAdminDetailUser(@RequestParam String userId, Model model) {
 		
+		User user = userService.getDetailUser(userId);
+		
+		Map<String, String> map= userService.checkSuspended(userId);
+		
+		String isSuspended = map.get("isSuspended");
+		
+		if(isSuspended.equals("true"))
+			user.setEndSuspensionDate(java.time.LocalDate.parse(map.get("endSuspensionDate")));
+		
+		model.addAttribute("user", user);
 	}
 	
 	

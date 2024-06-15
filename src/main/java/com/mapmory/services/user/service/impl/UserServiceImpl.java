@@ -738,6 +738,56 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
+	@Override
+	public Map<String, String> checkSuspended(String userId) {
+		
+		Map<String, String> map = new HashMap<>();
+		
+		SuspensionLogList suspensionLogList = getSuspensionLogListActually(userId);
+		if(suspensionLogList != null) {
+			List<SuspensionDetail> list = getSuspensionLogListActually(userId).getSuspensionDetailList();
+			
+			int count = list.size();
+			LocalDateTime lastSuspensionDate = list.get(count-1).getStartSuspensionDate();
+			LocalDateTime now = LocalDateTime.now();
+			switch(count) {
+			
+				case 1:
+					lastSuspensionDate.plusDays(1);
+					break;
+				case 2:
+					lastSuspensionDate.plusDays(7);
+					break;
+				case 3:
+					lastSuspensionDate.plusDays(14);
+					break;
+				case 4:
+					lastSuspensionDate.plusYears(9999L);
+					break;
+				default :
+					throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
+			}
+			
+			if(now.isBefore(lastSuspensionDate)) {
+				
+				map.put("isSuspended", "true");
+				map.put("endSuspensionDate", lastSuspensionDate.toString());
+				
+			} else {
+				
+				map.put("isSuspended", "false");
+				
+			}
+		
+		} else {
+			
+			map.put("isSuspended", "false");
+			
+		}
+
+		return map;
+	}
+	
 	/**
 	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
 	 */

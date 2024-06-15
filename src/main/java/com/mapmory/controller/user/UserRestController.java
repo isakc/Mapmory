@@ -49,6 +49,7 @@ import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
+import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
@@ -105,7 +106,7 @@ public class UserRestController {
 	////////////////////////////////////////////////////////////////////
 	
 	@PostMapping("/login")
-	public ResponseEntity<Boolean> login(@RequestBody Login loginData) throws Exception {
+	public ResponseEntity<String> login(@RequestBody Login loginData) throws Exception {
 		
 		String userId = loginData.getUserId();
 		
@@ -121,19 +122,28 @@ public class UserRestController {
 		
 		if( !isValid) {
 
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("wrong password");
 			
 		} else {
 			
-			boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
-			if(!result) {
+			Map<String, String> resultMap = userService.checkSuspended(userId);
 			
-				return ResponseEntity.ok(false);  // 비밀번호 변경을 권장하기 위한 표시
+			if(resultMap.get("isSuspended").equals("true")) {
+				
+				return ResponseEntity.ok(resultMap.get("endSuspensionDate"));
 				
 			} else {
-
-				return ResponseEntity.ok(true);
 				
+				boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
+				if(!result) {
+				
+					return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+					
+				} else {
+
+					return ResponseEntity.ok("true");
+					
+				}	
 			}	
 		}
 	}
@@ -164,6 +174,7 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 		
 	}
+
 	
 	@PostMapping("/getFollowList")
 	public List<FollowMap> getFollowList(@ModelAttribute Search search, HttpServletRequest request) {
@@ -296,10 +307,18 @@ public class UserRestController {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
-	@PostMapping("/admin/suspendUser")
-	public ResponseEntity<Boolean> suspendUser() {
+	@PostMapping("/admin/addSuspendUser")
+	public ResponseEntity<Boolean> addSuspendUser(@RequestBody Map<String, String> map) throws Exception {
 		
-		return ResponseEntity.ok(true);
+		String userId = map.get("userId");
+		String reason = map.get("reason");
+		
+		boolean result = userService.addSuspendUser(userId, reason);
+		
+		if(result == true)
+			return ResponseEntity.ok(true);
+		else
+			return ResponseEntity.internalServerError().body(false);
 	}
 	
 	@PostMapping("/admin/getDailyLoginStatistics")
@@ -322,6 +341,22 @@ public class UserRestController {
 		return ResponseEntity.ok(temp);
 	}
 	
+	@PostMapping("/admin/deleteSuspendUser")
+	public ResponseEntity<Boolean> deleteSuspendUser(@RequestBody Map<String, String> map) throws Exception {
+		
+		String userId = map.get("userId");
+		
+		List<SuspensionDetail> list = userService.getSuspensionLogListActually(userId).getSuspensionDetailList();
+		
+		int logNo = list.get(list.size()-1).getLogNo();
+		
+		boolean result = userService.deleteSuspendUser(logNo);
+		
+		if(result == true)
+			return ResponseEntity.ok(true);
+		else
+			return ResponseEntity.internalServerError().body(false);
+	}
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

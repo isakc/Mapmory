@@ -1,10 +1,102 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+<meta charset="UTF-8">
+<title>2단계 인증</title>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+
+<script type="text/javascript">
+
+	$( function() {
+		
+
+		$(document).on('click', '#checkKey', function() {
+			
+			console.log('flag');
+			
+			$.ajax({
+				
+				url : "/auth/google/rest/checkKey",
+				method : "POST",
+				dataType : "JSON",
+				headers : {
+					"Accept" : "application/json",
+					"Content-Type" : "application/json"
+				},
+				data : JSON.stringify({ 
+					encodedKey : $('#encodedKey').text(),
+					userCode : $('input[name="userCode"]').val()
+				}),
+				success : function(responseBody, httpStatus){
+
+					console.log(responseBody);
+					
+				}
+			});
+		});
+		
+		$("button:contains('제출')").on("click", function(){
+			
+			$.ajax({
+				
+				url : "/auth/google/rest/generateKey",
+				method : "POST",
+				dataType : "JSON",
+				headers : {
+					"Accept" : "application/json",
+					"Content-Type" : "application/json"
+				},
+				data : JSON.stringify({ 
+					userName : $('input:text[name="userName"]').val()
+				}),
+				success : function(responseBody, httpStatus){
+
+					console.log(responseBody);
+					
+					// $('.row:last').empty();
+					$('.container').empty();
+					let detail = "";
+					detail += "<h2>당신의 key</h2>"; 
+					detail += "<p id='encodedKey'>" + responseBody.encodedKey +"</p>"; 			
+					detail += "<img src='https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+responseBody.userName+"@"+responseBody.hostName+"?secret="+responseBody.encodedKey+"&chld=H|0' alt=''>";
+					detail += "<hr/>";
+					detail += "<form>";
+					detail += "<div class='form-group'>";
+					detail += '<label for="userName">이름</label>';
+					detail += '<input type="text" name="userCode" class="form-control" placeholder="인증번호 6자리 입력">';
+					detail += "</div>";
+					detail += "<div class='row'>";
+					detail += '<button type="button" class="btn btn-default" id="checkKey">인증하기</button>';
+					detail += "</div>";
+					detail += "</form>";
+					// $('.row:last').append(detail);
+					$('.container').append(detail);
+				}
+			});
+		});
+		
+	});
+
+</script>
+
 </head>
 <body>
-
-</body>	
+	<br/>
+	<br/>
+	<div class="container">
+		<form>
+			<div class="form-group">
+				<label for="userName">이름</label>
+				<input type="text" name="userName" class="form-control" placeholder="당신의 이름을 입력">
+			</div>
+			<div class="row">
+				<button type="button" class="btn btn-default">제출</button>
+			</div>
+		</form>
+	</div>
+</body>
 </html>

@@ -220,6 +220,13 @@ public interface UserService {
 	 */
 	public boolean checkHideProfile(String userId);
 	
+	/**
+	 * true : 정상, false : 정지 상태
+	 * @param userId
+	 * @return
+	 */
+	public Map<String, String> checkSuspended(String userId);
+	
 	public void setupForTest();
 	
 	///////////////////////////////////////////////////////////////////////
