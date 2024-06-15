@@ -45,6 +45,8 @@ public class MapRecord {
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;
+	private int recordType;
+	private String stringDistance;
 	
 	private Double distance;
 	

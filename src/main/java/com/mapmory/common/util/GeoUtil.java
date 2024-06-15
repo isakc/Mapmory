@@ -1,13 +1,11 @@
 package com.mapmory.common.util;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.mapmory.services.timeline.domain.MapRecord;
-import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.SearchDto;
 
 public class GeoUtil {
@@ -85,6 +83,22 @@ public class GeoUtil {
                 return Double.compare(record1.getDistance(), record2.getDistance());
             }
         });
+    }
+    
+    public static String getStringDistance(double distance) {
+
+        String stringDistance;
+        
+        if (distance >= 1.0) {
+            DecimalFormat df = new DecimalFormat("#.#");
+            stringDistance = df.format(distance) + " km";
+        } else {
+            // 1km 미만일 경우 미터 단위로 변환하여 표시
+            int distanceInMeters = (int) (distance * 1000);
+            stringDistance = distanceInMeters + " m";
+        }
+        
+        return stringDistance;
     }
 }
 
