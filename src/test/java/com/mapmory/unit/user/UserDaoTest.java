@@ -209,6 +209,7 @@ public class UserDaoTest {
 		Assertions.assertThat(email).isEqualTo(resultUser.getEmail());
 	}
 	
+	/*
 	// @Test
 	public void testSelectFollowList() throws Exception {
 		
@@ -231,6 +232,7 @@ public class UserDaoTest {
 		
 		Assertions.assertThat(followList.get(0).getUserId()).isEqualTo("user3");
 	}
+	*/
 	
 	// @Test
 	public void testSelectSuspensionList() {
@@ -432,6 +434,7 @@ public class UserDaoTest {
 		
 	}
 
+	/*
 	// @Test
 	public void testDeleteFollow() {
 		
@@ -467,6 +470,7 @@ public class UserDaoTest {
 		
 		Assertions.assertThat(flag).isTrue();
 	}
+	*/
 	
 	// @Test
 	@SuppressWarnings("unchecked")

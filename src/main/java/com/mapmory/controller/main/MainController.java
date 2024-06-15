@@ -1,13 +1,30 @@
 package com.mapmory.controller.main;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.mapmory.common.domain.SessionData;
+import com.mapmory.common.util.RedisUtil;
 
 @Controller
 public class MainController {
 	
+	@Autowired
+	private RedisUtil<SessionData> redisUtil;
+	
 	@GetMapping("/")
-	public String index() {
+	public String index(HttpServletRequest request, Model model) {
+		
+		if( request.getCookies() != null) {
+			
+			String userId = redisUtil.getSession(request).getUserId();
+			model.addAttribute("userId", userId);
+		}
+		
 		return "index.html";
 	}
 	

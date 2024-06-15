@@ -26,25 +26,41 @@
 		            $('#userIdMsg').text('아이디를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#userIdMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#passwordChecked').text() === 'false') {
 		            $('#passwordMsg').text('비밀번호를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#passwordMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#userNameChecked').text() === 'false') {
 		            $('#userNameMsg').text('이름을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#userNameMsg').css('display', 'none');
+			    	
+			    }
 				
 				if ($('#nicknameChecked').text() === 'false') {
 		            $('#nicknameMsg').text('닉네임을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#nicknameMsg').css('display', 'none');
+			    	
+			    }
 				
 				const birthday = document.getElementById('birthday').value;
 			    if (!birthday) {
@@ -52,40 +68,73 @@
 			    	$('#birthdayMsg').text('생년월일을 선택해주세요.').css('color', 'red').show();
 			        event.preventDefault();
 			        return;
+			    } else {
+			    	
+			    	$('#birthdayMsg').css('display', 'none');
+			    	
 			    }
 			    
 			    if ($('#emailChecked').text() === 'false') {
 		            $('#emailMsg').text('이메일을 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#emailMsg').css('display', 'none');
+			    	
+			    }
 			    
 			    if ($('#phoneNumberChecked').text() === 'false') {
 		            $('#phoneNumberMsg').text('휴대전화번호를 다시 확인해주세요.').css('color', 'red').show();
 		            event.preventDefault();
 		            return;
-		        }
+		        } else {
+			    	
+			    	$('#phoneNumberMsg').css('display', 'none');
+			    	
+			    }
+			    if ($('#captchaChecked').text() === 'false') {
+			    	alert('캡차 인증을 완료해야 합니다.');
+		            event.preventDefault();
+		            return;
+		        } else {
+
+			    }
 			    
-			    $(this).submit();
+			    
+			    $('form#signupForm').submit();
+			    
+			    /*
+			    $.ajax({
+			    	type : 'post',
+					url : '/user/rest/signUp',
+					data : $('form').serialize(),
+					success : function(response){
+						
+						alert('회원가입에 성공하였습니다!');
+						window.location.href="/";
+
+					},
+					error: function(xhr, status, error){
+						alert(error);
+					},
+					complete: function() {
+						
+						alert('회원가입에 성공하였습니다! (complete)');
+						window.location.href="/";
+						
+					}
+			    });
+			    */
 			});
 		});
 	</script>
-	<!-- 
-        <div>
-            <label for="emailAuthNum">이메일 인증번호</label>
-            <input type="number" id="emailAuthNum" placeholder="이메일 인증번호"/>
-        </div>
-        <div>
-            <label for="phoneNumberAuthNum">휴대전화번호 인증번호</label>
-            <input type="number" id="phoneNumberAuthNum" placeholder="휴대전화번호 인증번호"/>
-        </div>
-         -->
 </head>
 <body>
     <h1>회원가입</h1>
     <button type="button" id="back">뒤로가기</button>
     
-    <form th:action="@{/user/signup}" th:object="${user}" method="post" id="signupForm">
+    <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
         <div>
             <label for="userId">아이디</label>
             <input type="text" id="userId" th:field="*{userId}" placeholder="아이디" required/>
@@ -107,7 +156,6 @@
         <div>
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임" required/>
-            <button type="button" id="nicknameDuplicationCheck">중복체크</button>
             <p id="nicknameMsg" style="display: none;"/>
             <p id="nicknameChecked" style="display: none;">false</p>
         </div>
@@ -125,23 +173,32 @@
                 <option value="2">여성</option>
             </select>
         </div>
-        <div>
+        <div id="emailDiv">
             <label for="email">이메일</label>
             <input type="email" id="email" th:field="*{email}" placeholder="이메일 (예: test@test.com)" required/>
             <button type="button" id="sendAuthEmail">인증번호 발송</button>
+            <input type="hidden" class="form-control" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
             <p id="emailMsg" style="display: none;"/>
-            <p id="emailChecked" style="display: none;">false</p>
+            <p id="emailChecked" style="display: none;">false</p>		
         </div>
         <div>
             <label for="phoneNumber">휴대전화번호</label>
             <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
             <button type="button" id="sendAuthPhoneNum">인증번호 발송</button>
+            <input type="hidden" class="form-control" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
             <p id="phoneNumberMsg" style="display: none;"/>
             <p id="phoneNumberChecked" style="display: none;">false</p>
         </div>
         <div>
-            <label for="flag">캡챠</label>
-        </div>
+	        <div id="captchaImageContainer">
+			    <!-- 캡차 이미지가 표시될 곳 -->
+		    </div>
+		    <div>
+			    <input type="text" id="captcha-input" placeholder="Enter Captcha">
+	        	<button type="button" id="verify-button">확인</button>
+	        	<p id="captchaChecked" style="display: none;">false</p>
+			</div>
+		</div>
         <button type="button" id="submitForm">회원가입 완료하기</button>
         
     </form>

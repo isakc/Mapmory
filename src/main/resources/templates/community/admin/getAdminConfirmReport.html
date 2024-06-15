@@ -3,25 +3,141 @@
 <head>
 	<meta charset="UTF-8">
 	<title>신고처리</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">	
+
+	<!-- 기록 및 댓글 팝업창 시작-->
+	<script th:inline="javascript">
+    	/*<![CDATA[*/
+	    function openPopup(event, url) {
+	        event.preventDefault();
+	        window.open(url, 'Popup', 'width=1000,height=600');
+	    }
+	    /*]]>*/	    
+	    
+    	/*<![CDATA[*/
+	    function openPopup2(event, url) {
+	        event.preventDefault();
+	        window.open(url, 'Popup', 'width=1000,height=200');
+	    }
+	    /*]]>*/    	
+	</script>
+	<!-- 기록 및 댓글 팝업창 종료-->	
+	
+	<!-- 신고 승인 시작 -->
+	<script type="text/javascript">
+		$(function() {
+			$('#accept').on("click", function() {
+				
+				var reportStatus = 2;
+				var reportResult = 1;
+				var reportNo = $('#reportNo').val();
+				console.log(reportNo);
+				var data = {
+						reportStatus : reportStatus,
+						reportResult : reportResult,
+						reportNo : reportNo
+				};
+				
+				$.ajax({
+					type : 'POST',
+					url : '/community/rest/confirmReport/'+reportNo,
+					contentType : 'application/json',
+					data : JSON.stringify(data),
+					success : function(response) {
+						console.log("신고 승인 완료");
+						$('#confirm').show();
+						$('#backButton').on("click", function() {
+							window.location.href = '/community/admin/getAdminReportList';
+						})
+					},
+					error : function(xhr, status, error) {
+						console.log("신고 승인 실패", error)
+					}
+				})
+			});
+			
+		});
+	</script>
+	<!-- 신고 승인 종료 -->
+	
+	<!-- 신고 반려 시작 -->
+	<script type="text/javascript">
+	$(function() {
+		$('#reject').on("click", function() {
+			
+			var reportStatus = 2;
+			var reportResult = 2;
+			var reportNo = $('#reportNo').val();
+			console.log(reportNo);
+			var data = {
+					reportStatus : reportStatus,
+					reportResult : reportResult,
+					reportNo : reportNo
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url : '/community/rest/confirmReport/'+reportNo,
+				contentType : 'application/json',
+				data : JSON.stringify(data),
+				success : function(response) {
+					console.log("신고 반려 완료");
+					$('#confirm').show();
+					$('#backButton').on("click", function() {
+						window.location.href = '/community/admin/getAdminReportList';
+					})
+				},
+				error : function(xhr, status, error) {
+					console.log("신고 반려 실패", error)
+				}
+			})
+		});
+		
+	});	
+	</script>
+	<!-- 신고 반려 종료 -->		
 </head>
 <body>
 	<h1>신고처리</h1>
 	
 	<form id="getConfirmReport">
 		<label for="reportTitle">신고제목</label>
-		<input type="text" id="reportTitle" readonly>
+		<div id="reportTitle" th:text="${report.reportTitle}"></div><br/>
 		<label for="reporText">신고내용</label>
-		<input type="text" id="reportText" readonly>
+		<div id="reportText" th:text="${report.reportText}"></div><br/>
 		<label for="reporter">신고자 ID</label>
-		<input type="text" id="reporter" readonly>
+		<div id="reporter" th:text="${report.userId}"></div><br/>
 		<label for="target">피신고자 ID</label>
-		<input type="text" id="target" readonly>
-		<label for="recordTitle">기록 제목</label>
-		<input type="text" id="recordTitle" readonly>				
-		<label for="replyText">댓글 내용</label>
-		<input type="text" id="replyText" readonly>
-	
+		<div id="target" th:text="${report.targetUserId}"></div><br/>		
+		<div id="recordField" th:if="${report.recordNo!=null}">
+			<label for="recordNo">기록</label>
+			<div>
+				<a th:href="@{'/community/getDetailSharedRecord/' + ${report.recordNo}}" th:text="기록보기"
+					onclick="openPopup(event, this.getAttribute('href')); return false;">
+				</a>
+			</div>
+		</div>
+		<div id="replyField" th:if="${report.replyNo!=null}">
+			<label for="replyNo">댓글</label>
+			<div>
+				<a th:href="@{'/community/getReply/' + ${report.replyNo}}" th:text="댓글보기"
+					onclick="openPopup2(event, this.getAttribute('href')); return false;">>
+				</a>
+			</div>			
+		</div>
+		<br/><br/>
+		<input type = "hidden" id="reportNo" th:value="${report.reportNo}">
+		<button type="button" id="accept">승인</button>
+		<button type="button" id="reject">반려</button> 
 	</form>
+	
+	<br/><br/><br/>
+	<div id="confirm" style="display:none;">
+		<p> 신고 처리 완료</p>
+		<button id="backButton">돌아가기</button>
+	</div>
 
 </body>	
 </html>

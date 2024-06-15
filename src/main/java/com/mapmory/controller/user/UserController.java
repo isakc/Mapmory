@@ -1,9 +1,8 @@
 package com.mapmory.controller.user;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -15,23 +14,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.purchase.domain.Subscription;
+import com.mapmory.services.purchase.service.SubscriptionService;
+import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.abs.TacConstants;
+import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
+import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.LoginService;
@@ -47,9 +48,15 @@ public class UserController {
 	
 	@Autowired
 	private LoginService loginService;
+
+	@Autowired
+	private TimelineService timelineService;
 	
 	@Autowired
 	private RedisUtil<SessionData> redisUtil;
+	
+	@Autowired
+	private SubscriptionService subscriptionService;
 	
 	@Autowired
 	@Qualifier("objectStorageUtil")
@@ -61,7 +68,14 @@ public class UserController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
+	@Value("${page.Size}")
+	private int pageSize;
 	
+    
+	////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////
+    
 	// test용
 	@GetMapping("/setupForTest")
 	public void setupForTest() {
@@ -70,9 +84,9 @@ public class UserController {
 		userService.setupForTest();
 		System.out.println("\n\n암호화 적용 성공! template error는 무시해주세요~~");
 	}
-	
+
 	@PostMapping("/login")
-	public void login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin,  HttpServletResponse response) throws Exception{
+	public String login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin, @RequestParam String changePassword, HttpServletResponse response) throws Exception{
 
 		boolean keep;
 		
@@ -89,13 +103,31 @@ public class UserController {
 		if ( !loginService.setSession(login, role, sessionId, keep))
 			throw new Exception("redis에 값이 저장되지 않음.");
 		
-		Cookie cookie = createCookie(sessionId);
+		Cookie cookie = createCookie(sessionId, keep);
 		response.addCookie(cookie);
 		
-		if(role == 1)
-			response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
-		else
-			response.sendRedirect("/user/admin/adminMain");
+		boolean isLog = userService.addLoginLog(userId);
+		System.out.println("로그인 로그 등록 여부 : " + isLog);
+		
+		boolean wantToChangePassword = Boolean.valueOf(changePassword); 
+		if(wantToChangePassword) {
+			
+			return "redirect:/user/getUpdatePasswordView";
+			
+		} else {
+			
+			if(role == 1) {
+				
+				// response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
+				return "redirect:/map";
+				
+			} else {
+				
+				// response.sendRedirect("/user/admin/adminMain");
+				return "redirect:/user/admin/adminMain";
+				
+			}
+		}
 	}
 	
 	@PostMapping("/logout")
@@ -106,8 +138,11 @@ public class UserController {
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
 	@PostMapping("/getSignUpView")
-	public void getSignUpView(Model model) {
+	public void getSignUpView(Model model, @RequestParam String[] checked) {
 		
+		// refactoring 필요... -> 무엇이 check되었는지를 파악해야 함
+		System.out.println("checked : "+ Arrays.asList(checked));
+		// model.addAttribute("user", User.builder().build());
 		model.addAttribute("user", User.builder().build());
 		
 	}	
@@ -122,29 +157,20 @@ public class UserController {
 			throw new Exception("회원가입에 실패했습니다.");
 		}
 		
-		return "redirect:/";
+		return "forward:/user/ok";
 	}
 	
+	@RequestMapping("/ok")
+	public void signUpOk() {
+		
+		
+	}
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
 		
 
 		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
-	
-		// int role = redisUtil.getSession(request).getRole();
-
-		// 관리자는 redirect, 사용자는 forward시키고 싶은데, 현재로써는 방법을 모르겠다.
-		/*
-		if (role == 0) {
-			
-			model.addAttribute("tacList", tacList);
-			return "/user/admin/getAdminTermsAndConditionsList";
-		} else {
-			model.addAttribute("tacList", tacList);
-			return "/user/getAgreeTermsAndConditionsList";	
-		}
-		*/
 		
 		model.addAttribute("tacList", tacList);
 	}
@@ -154,21 +180,6 @@ public class UserController {
 	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
 		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
-		
-		/*
-		int role = redisUtil.getSession(request).getRole();
-		
-
-		if(role == 0) {
-			
-			model.addAttribute("tac", tac);
-			return "/user/admin/getAdminDetailTermsAndConditions";
-		} else {
-			
-			model.addAttribute("tac", tac);
-			return "/user/getUserDetailTermsAndConditions";
-		}
-		*/
 		
 		model.addAttribute("tac", tac);
 	}
@@ -210,26 +221,75 @@ public class UserController {
 	@GetMapping("/getKakaoLoginView")
 	public void getKakaoLoginView() {
 		
+		
+		
 	}
 	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo() {
+	public void getUserInfo() { 
 		
 	}
 	
 	@GetMapping("/getProfile")
-	public void getProfile() {
+	public void getProfile(HttpServletRequest request, @RequestParam(required=false) String userId, Model model) throws Exception {
+		
+		String myUserId = redisUtil.getSession(request).getUserId();
+
+		Profile profile;
+		if( userId.equals(myUserId) ) {
+			
+			profile = setProfileViewData(myUserId);
+			model.addAttribute("myProfile", true);
+			
+		} else {
+			
+			profile = setProfileViewData(userId);
+			model.addAttribute("myProfile", false);
+			
+			boolean isFollow = userService.checkFollow(myUserId, userId);
+			
+			System.out.println("isFollow : " + isFollow);
+			if(isFollow == true) {
+				model.addAttribute("isFollow", true);
+			} else {
+				model.addAttribute("isFollow", false);
+			}
+			
+		}
+				
+		model.addAttribute("sessionId", myUserId);
+		model.addAttribute("profile", profile);
+		
 		
 	}
 	
 	@GetMapping("/getFollowList")
-	public void getFollowList() {
+	public void getFollowList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
+		String myUserId = redisUtil.getSession(request).getUserId();
+		
+		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, true);
+		
+		System.out.println(followList);
+		
+		model.addAttribute("type", 0);
+		model.addAttribute("list", followList);
+		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public void getFollowerList() {
+	public String getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
+		String myUserId = redisUtil.getSession(request).getUserId();
+		
+		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, false);
+		
+		
+		model.addAttribute("type", 1);
+		model.addAttribute("list", followerList);
+		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		
+		return "forward:/user/getFollowList";
 	}
 	
 	
@@ -279,9 +339,9 @@ public class UserController {
 	
 	
 	@PostMapping("/updateProfile")
-	public void postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model) throws Exception {
+	public String postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
 		
-		String userId = "user1";
+		String userId = redisUtil.getSession(request).getUserId();
 		
 		if(contentFilterUtil.checkBadImage(file)) {
 			System.out.println("부적절한 이미지입니다.");
@@ -290,11 +350,15 @@ public class UserController {
 		boolean result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
 		System.out.println(result);
 		
+		/*
 		User user = userService.getDetailUser(userId);
 		
 		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
 		model.addAttribute("profileImage", cdnPath);
+		*/
+		
+		return "redirect:/user/getProfile?userId="+userId;
 	}
 
 	
@@ -348,16 +412,104 @@ public class UserController {
 		
 	}
 	
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// jaemin ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	// redis에 맞게 session 방식 변경 필요
+	/*
+	@GetMapping(value = "kakaoLogin")
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            String access_Token = userServiceJM.getKakaoAccessToken(code);
+            String kakaoId = userServiceJM.getKakaoUserInfo(access_Token);
 
-	private Cookie createCookie(String sessionId) {
+            if (kakaoId == null) {
+                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
+            }
+            
+            SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
+                    .socialId(kakaoId)
+                    .build();
+            
+            String tempSocialId = userService.getSocialId(socialLoginInfo);
+
+            if (tempSocialId == null) {
+                // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트
+                session.setAttribute("kakaoId", kakaoId);
+                redirectAttributes.addAttribute("kakaoId", kakaoId);
+                return "redirect:/user/addUser";
+            }
+
+            // 로그인 성공 처리
+            session.setAttribute("tempSocialId", tempSocialId);
+            return "index";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+    */
+	
+	private Cookie createCookie(String sessionId, boolean keepLogin) {
 		
 		Cookie cookie = new Cookie("JSESSIONID", sessionId);
 		cookie.setPath("/");
 		// cookie.setDomain("mapmory.life");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
-		cookie.setMaxAge(30 * 60);
+		
+		if(keepLogin)
+			cookie.setMaxAge(60 * 60 * 24 * 90 );
+		else
+			cookie.setMaxAge(30 * 60);
 		
 		return cookie;
+	}
+	
+	private Profile setProfileViewData(String userId) throws Exception {
+		
+		User user = userService.getDetailUser(userId);
+		user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
+		
+		// boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
+		boolean isSubscribed;
+		Subscription subscription = subscriptionService.getDetailSubscription(userId);
+		if(subscription == null || subscription.isSubscribed() == false) {
+			
+			isSubscribed = false;
+			
+		} else {
+			
+			isSubscribed = true;
+			
+		}
+		
+		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, true);
+		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, false);
+		
+		Search search=Search.builder()
+				.userId(userId).
+				currentPage(1)
+				.limit(5)
+				.sharedType(1)
+				.tempType(1)
+				.timecapsuleType(0)
+				.build();
+		
+		int totalSharedListCount = timelineService.getTimelineList(search).size();
+		
+		Profile profile = Profile.builder()
+					.user(user)
+					.isSubscribed(isSubscribed)
+					.totalFollowCount(totalFollowCount)
+					.totalFollowerCount(totalFollowerCount)
+					.totalSharedListCount(totalSharedListCount)
+					.build();
+		
+		return profile;
 	}
 }

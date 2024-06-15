@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -62,6 +63,7 @@ public class CommunityRestController {
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
+	//댓글 추가
 	@PostMapping("/rest/addReply")
 	public ResponseEntity<Reply> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
 							@RequestParam("recordNo") int recordNo,
@@ -103,6 +105,21 @@ public class CommunityRestController {
 	    }
 	}  		
 
+	//댓글 목록 조회
+	@GetMapping("/rest/getReplyList/{recordNo}")
+	public ResponseEntity<Map<String, Object>> getReplyList(Search search, @PathVariable int recordNo) throws Exception {
+		if(search == null) {
+		search = Search.builder()
+				.currentPage(1)
+				.limit(10)
+				.build();
+		}
+		Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+		return ResponseEntity.ok(replyData);
+	}
+	
+	
+	//댓글 수정
 	@PostMapping("/rest/updateReply/{replyNo}")
 	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, String userId, String updateReplyText, int recordNo, 
 												@RequestParam(value = "replyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
@@ -131,6 +148,7 @@ public class CommunityRestController {
 
 	}       
 	
+	//댓글 삭제
 	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
 	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo) throws Exception {
 		
@@ -141,48 +159,60 @@ public class CommunityRestController {
 		return "redirect: community/getReplyList";
 	}	
 
+	//기록별 댓글 수
 	@PostMapping("/rest/getReplyTotalCount")
 	public ResponseEntity<Integer> getReplyTotalCount(Search search, int recordNo) throws Exception {
 		int replyCount = communityDao.getReplyTotalCount(search, recordNo);	
 		return ResponseEntity.ok(replyCount);
 	}
 	
+	//사용자 작성 댓글 수
 	@PostMapping("/rest/getReplyUserTotalCount")
 	public ResponseEntity<Integer> getReplyUserTotalCount(Search search, String userId) throws Exception {
 		int userReplyCount = communityDao.getReplyUserTotalCount(search, userId);
 		return ResponseEntity.ok(userReplyCount);
 	}	
 	
-	
+	//커뮤니티 로그 추가
 	@PostMapping("/rest/addCommunityLogs")
 	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs) throws Exception {
 			communityService.addCommunityLogs(communityLogs);
 		return ResponseEntity.ok(communityLogs);
 	}
 	
+	//좋아요 개수
 	@PostMapping("/rest/getReactionLikeTotalCount")
 	public ResponseEntity<Integer> getReactionLikeTotalCount(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
 		int likeCount = communityDao.getReactionLikeTotalCount(communityLogs);
 		return ResponseEntity.ok(likeCount);
 	}	
 	
+	//싫어요 개수
 	@PostMapping("/rest/getReactionDisLikeTotalCount")
 	public ResponseEntity<Integer> getReactionDisLikeTotalCount(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo ) throws Exception {
 		int dislikeCount = communityDao.getReactionDisLikeTotalCount(communityLogs);
 		return ResponseEntity.ok(dislikeCount);
 	}	
 	
+	//신고하기 제출
 	@PostMapping("/rest/doReport")
 	public ResponseEntity<Report> doReport(@RequestBody Report report) throws Exception {
 		communityService.doReport(report);
 		return ResponseEntity.ok(report);
-
 	}
 	
-
+	//사용자 신고 건수
+	@GetMapping("/rest/getUserReportTotalCount")
+	public ResponseEntity<Integer> getUserReportTotalCount(Search search, @RequestParam String userId) throws Exception {
+		int reportCount = communityDao.getUserReportTotalCount(search, userId);
+		return ResponseEntity.ok(reportCount);
+	}
 	
-	
-	
-	
+	//관리자 신고 처리
+	@PostMapping("/rest/confirmReport/{reportNo}")
+	public ResponseEntity<Report> confirmReport(Search search, @RequestBody Report report, @PathVariable int reportNo) throws Exception {
+		communityService.confirmReport(report);
+		return ResponseEntity.ok(report);
+	}
 	
 }

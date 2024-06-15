@@ -41,10 +41,10 @@ public class CommunityController {
     private ObjectStorageUtil objectStorageUtil;	
 	
 	@Value("${page.Unit}")
-	int PageUnit;
+	private int pageUnit;
 	
 	@Value("${page.Size}")
-	int PageSize;
+	int pageSize;
 	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
@@ -52,6 +52,7 @@ public class CommunityController {
 	TimelineController timelineController = new TimelineController();
 	
 	
+	//공유 기록 목록 조회
 	@GetMapping("/getSharedRecordList")
 	public String getSharedRecordList(Search search, Model model) throws Exception {
 		search = Search.builder()
@@ -62,6 +63,7 @@ public class CommunityController {
 		return "community/getSharedRecordList";
 	}
 	
+	//공유 기록 상세 조회
 	@GetMapping("/getDetailSharedRecord/{recordNo}")
 	public String getDetailSharedRecord(Model model, Search search, @PathVariable int recordNo) throws Exception{
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo));
@@ -72,6 +74,7 @@ public class CommunityController {
 		return "community/getDetailSharedRecord";
 	}
 
+	//댓글 목록 조회
 	@GetMapping("/getReplyList/{recordNo}")
 	public String getReplyList(Search search, @PathVariable int recordNo, Model model) throws Exception {
 		if(search == null) {
@@ -85,31 +88,76 @@ public class CommunityController {
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
 
-	   
 		return "community/getReplyList";
     }	
 	
+	//댓글 선택 조회(관리자용)
+	@GetMapping("/getReply/{replyNo}")
+	public String getReply(Search search, @PathVariable int replyNo, Model model) throws Exception {
+		
+		model.addAttribute("reply", communityService.getReply(replyNo));
+		return "community/getReply";
+	}
+	
+	//신고하기 화면 이동
 	@GetMapping("/addReport")
 	public String addReport(Model model) throws Exception {
 		return "community/addReport";
-
 	}
-
-	@GetMapping("/getUserReportList")
-	public String getUserReportListt(Search search, String userId, Model model) throws Exception {
+	
+	//사용자 신고 목록 조회	
+	@GetMapping("/getUserReportList/{userId}")
+	public String getUserReportListt(Search search, @PathVariable String userId, Model model) throws Exception {
 		if(search == null) {
 			search = Search.builder()
 					.currentPage(1)
 					.limit(10)
 					.build();
 		}
-		Map<String, Object> reportList = communityService.getUserReplyList(search, userId);
+	
+		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
+		userId = "user5";
 		model.addAttribute("reportList",  reportList.get("list"));
 		model.addAttribute("totalCount", reportList.get("totalCount"));
 		
 		return "community/getUserReportList";
-
 	}	
+	
+	//관리자 신고 조회
+	@GetMapping("/admin/getAdminReportList")
+	public String getAdminReportList(Search search, Integer role, Model model) throws Exception {
+		
+		role = 0;
+			
+		if(role == null | role !=0) {
+			return "index";
+		}
+		
+    	if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+		
+		search.setPageSize(pageSize);
+		
+			Map<String, Object> allReportList = communityService.getAdminReportList(search);
+
+			model.addAttribute("allReportList", allReportList.get("list"));
+			model.addAttribute("totalCount", allReportList.get("totalCount"));
+			model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
+			
+			return "community/admin/getAdminReportList";
+	}
+	
+	//관리자 신고 처리
+	@GetMapping("/admin/getAdminConfirmReport/{reportNo}")
+	public String getAdminConfirmReport(Model model, Search search, @PathVariable int reportNo) throws Exception {
+
+		model.addAttribute("report", communityService.getReport(reportNo));
+		return "community/admin/getAdminConfirmReport";
+	}	
+	
+	
+	
 	
 //	@PostMapping("/deleteReplyByRecord/{recordNo}")
 //	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {

@@ -44,8 +44,8 @@
 	</insert>
 	
 	<select id="getDetailSubscription" parameterType="string" resultMap="subscriptionSelectMap">
-		SELECT 
-			subscription_no, 
+		SELECT
+			subscription_no,
 			user_id,
 			next_subscription_payment_method,
 			next_subscription_card_type,
@@ -56,10 +56,13 @@
 			customer_uid,
 			merchant_uid,
 			IF(NOW() BETWEEN subscription_start_date AND subscription_end_date, 1, 0) AS is_subscribed
-		FROM 
+		FROM
 			subscription
-		WHERE 
+		WHERE
 			user_id = #{userId}
+		ORDER BY
+			subscription_end_date DESC
+		LIMIT 1;
 	</select>
 	
 	<update id="updatePaymentMethod" parameterType='subscription'>

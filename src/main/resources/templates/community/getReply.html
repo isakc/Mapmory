@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>댓글</title>
+</head>
+<body>
+	<h1>댓글</h1>
+		<table>
+		<tbody>
+			<tr>
+				<th>닉네임</th>
+				<th>프로필사진</th>
+				<th>구독유무</th>
+				<th>댓글내용</th>
+				<th>댓글사진</th>
+				<th>작성일자</th>
+				<th>좋아요수</th>
+				<th></th>
+				<th>싫어요수</th>
+				<th></th>
+			</tr>
+			<tr>
+				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
+				<td th:text="${reply.profileImageName}"></td>
+				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
+				<td class="replyText" th:text="${reply.replyText}"></td>
+				<td th:text="${reply.replyImageName}"></td>
+				<td th:text="${reply.replyDate}"></td>
+				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
+				<td><button type="button" id="likeButton">좋아요</button></td>
+				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
+				<td><button type="button" id="dislikeButton">싫어요</button></td>
+				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></td>
+				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
+				<td class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></td>
+			</tr>
+		</tbody>
+	</table>
+</body>	
+</html>

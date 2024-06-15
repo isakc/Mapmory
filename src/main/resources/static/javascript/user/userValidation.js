@@ -218,12 +218,234 @@ $(function() {
 	});
 });
 
+////////////////////////////// captcha //////////////////////////////
+$(function() {
+	
+	  let captchaKey;	
+
+	  function loadCaptcha() {
+	    $.get("/user/rest/nkey?code=0", function(response) {
+	      captchaKey = JSON.parse(response).key;
+	      var captchaImageUrl = "/user/rest/image?key=" + captchaKey;
+	      $("#captchaImageContainer").html($("<img>").attr("src", captchaImageUrl));
+	    });
+	  }
+	
+	  $("#verify-button").click(function() {
+	    var captchaValue = $("#captcha-input").val();
+	
+	    $.ajax({
+	      url: "/user/rest/verify",
+	      method: "GET",
+	      data: {
+	        key: captchaKey,
+	        value: captchaValue
+	      },
+	      success: function(response) {
+	        var result = JSON.parse(response);
+	        if (result.result) {
+	          alert("캡차 확인 성공!");
+	          $('#captchaChecked').text('true');
+	        } else {
+	          alert("캡차를 다시 확인해주세요.");
+	          $('#captchaChecked').text('false');
+	          loadCaptcha(); // 새로운 캡차 이미지 로드
+	        }
+	      },
+	      error: function(xhr, status, error) {
+	        console.error("캡차 검증 실패:", error);
+	        alert("캡차를 다시 확인해주세요.");
+	        $('#captchaChecked').text('false');
+	        loadCaptcha(); // 새로운 캡차 이미지 로드
+	      }
+	    });
+	  });
+	
+	  loadCaptcha(); // 페이지 로드 시 캡차 로드
+});
 
 
+////////////////////////////// phone 인증 //////////////////////////////
+$(function() {
+	
+	var checkNum; // 인증번호 저장 변수
 
+    // 휴대폰 번호 인증 요청
+    $('#sendAuthPhoneNum').click(function() {
+		
+		var phone = $('#phoneNumber').val(); // 입력된 휴대폰 번호 가져오기
+		
+		const phoneRegex = /^(?:(010)|(01[1|6|7|8|9]))-\d{3,4}-(\d{4})$/;
+		
+		if( !phoneRegex.test(phone)) {
+			
+			$('#phoneNumberMsg').text("양식에 맞게 작성해주세요. (ex. 010-1234-1234)").css('color', 'red').show();
+			event.preventDefault();
+			return;
+		} else {
+			
+			$('#phoneNumberMsg').css('display','none');
+			
+		}
 
+        // 서버로 POST 요청 보내기
+        $.ajax({
+            url: "/user/rest/sendPhoneNumberAuthNum", // 요청할 URL
+            type: "POST", // POST 요청
+            data: { to: phone }, // 전송할 데이터
+            dataType: "json", // 응답 데이터 형식은 JSON으로 설정
+            success: function(data) {
+                if (data) { // 요청이 성공하면
+                    checkNum = data; // 전송된 인증번호 저장
+                    
+                    $('#phoneAuthCode').attr("type", "number");
+                    alert('인증번호를 전송했습니다. (만료 시간 : 3분)');
+                    
+                } else {
+                    alert('인증번호 전송에 실패했습니다. 다시 시도해주세요.');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
+                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
+                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        });
+    });
 
+    // 인증번호 확인
+    $('#phoneAuthCode').on('input',function() {
+		
+		$('#phoneNumberMsg').show();
+		const value = $('input[name="phoneAuthCode"]').val();
+		if(value == '')
+			return;
+		
+		$.ajax({
+            url: "/user/rest/checkAuthNum", // 요청할 URL
+            type: "POST", // POST 요청
+            data: JSON.stringify({
+				codeKey: getCookie("PHONEAUTHKEY"),
+				codeValue: value
+			}),
+            contentType: "application/json", // 응답 데이터 형식은 JSON으로 설정
+            success: function(data) {
+				
+                if (data==true) { // 요청이 성공하면
+                   
+					$('#phoneNumberMsg').text("인증번호가 일치합니다.").css('color', 'green');
+		            $('#phoneNumber').attr('readonly', true);
+		            $('#sendAuthPhoneNum').attr('disabled', true);
+		            $('#phoneAuthCode').attr('type', 'hidden');
+		            $('#phoneNumberChecked').text('true');
+                    
+                } else {
+					
+                    $('#phoneNumberMsg').text("인증번호가 일치하지 않습니다.").css('color', 'red');
+                    
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
+                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
+                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        });
+    });
+})
 
+////////////////////////////// email 인증 //////////////////////////////
+$(function() {
+	
+	let codeKey;
+	
+	$("#sendAuthEmail").click(function () {
+				
+		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
+		
+		email_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+		
+		if( !email_regex.test(email) ) {
+			
+			$('#emailMsg').text("양식에 맞게 작성해주세요. (ex. test@test.com)").css('color', 'red').show();
+			event.preventDefault();
+			return;
+			
+		} else {
+			
+			$('#emailMsg').css('display','none');
+			
+		}
+		
+		$('#emailAuthCode').attr("type", "number");
+
+		//Ajax로 전송
+		$.ajax({
+			url : '/user/rest/sendEmailAuthNum',
+			data : {
+				email : email
+			},
+			type : 'POST',
+			dataType : 'json',
+			success : function(result) {
+
+				codeKey = result;
+				alert("인증 코드가 입력하신 이메일로 전송 되었습니다. (만료 시간 : 3분)");
+			}
+		}); //End Ajax
+	});
+
+	$("#emailAuthCode").on("input", function() {
+
+		$('#emailMsg').show();
+		
+		const value = $('input[name="emailAuthCode"]').val();
+		if(value == '')
+			return;
+		
+		$.ajax({
+            url: "/user/rest/checkAuthNum", // 요청할 URL
+            type: "POST", // POST 요청
+            data: JSON.stringify({
+				codeKey: getCookie("EMAILAUTHKEY"),
+				codeValue: value
+			}),
+            contentType: "application/json", // 응답 데이터 형식은 JSON으로 설정
+            success: function(data) {
+				
+                if (data==true) { // 요청이 성공하면
+                   
+					$("#emailMsg").text('인증번호가 일치합니다.').css('color', 'green');
+					$('#sendAuthEmail').attr('disabled', true);
+					$('#email').attr('readonly', true);
+					$('#emailAuthCode').attr('type', 'hidden');
+					$('#emailChecked').text("true");
+                    
+                } else {
+					
+                    $("#emailMsg").text('인증번호가 불일치합니다.').css('color', 'red');
+                    
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) { // 요청이 실패하면
+                console.error("AJAX error: " + textStatus + ' : ' + errorThrown);
+                alert("서버 요청 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
+        });
+	});
+});
+
+function getCookie(codeKeyName) {
+  const cookies = document.cookie.split('; ');
+  for (const cookie of cookies) {
+    const [key, value] = cookie.split('=');
+    if (key === codeKeyName) {
+      return value;
+    }
+  }
+  return null;
+}
+
+const userId = getCookie('userId');
+console.log(userId); // 예: "kim1234"
 
 
 

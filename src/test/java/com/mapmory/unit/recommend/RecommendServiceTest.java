@@ -32,7 +32,7 @@ public class RecommendServiceTest {
 	@Qualifier("recommendServiceImpl")
 	RecommendService recommendService;
 	
-	@Test
+//	@Test
 	public void addSearchData() throws Exception{
 		
 
@@ -85,14 +85,16 @@ public class RecommendServiceTest {
 //		}
 	}
 	
-//	@Test
+	@Test
 	public void getRecordList() throws Exception{
 		
 		List<String> result = recommendService.getRecommendData("user1");
 		System.out.println("==========getRecommendDataOver==========");
 		System.out.println("result: "+result);
-		Map<String, Object> map = recommendService.getRecordList(result);	
-		System.out.println(map);
+		//Map<String, Object> map = recommendService.getRecordList(result);	
+		//System.out.println(map);
+		
+		System.out.println(recommendService.getRecordList(result));
 	}
 		
 //	@Test
