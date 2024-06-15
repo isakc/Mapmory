@@ -27,6 +27,16 @@
 				});
 				*/
 			});
+			
+			$(document).on('click', '.unfollow', function() {
+				
+				/*
+				$.ajax({
+					
+					
+				});
+				*/
+			});
 		});
 	</script>
 	
@@ -51,7 +61,7 @@
 			<img th:src="|${profileFolder}${profileImageName}|">
 			<p th:text="${nickname}"></p>
 			<p th:text="${isSubscribed} ? '구독 중', '구독 안함'"></p>
-			<button type="button" th:text="${isFollow} ? '언팔로우' : '팔로우'"></button>
+			<button type="button" th:text="${isFollow} ? '언팔로우' : '팔로우'" th:class="${isFollow} ? 'unfollow' : 'follow'" ></button>
 			<p style="display:none;" th:text="${hideProfile}"></p>
 		</div>
 		<hr/>

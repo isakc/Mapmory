@@ -270,6 +270,8 @@ public class UserController {
 		
 		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, true);
 		
+		System.out.println(followList);
+		
 		model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
 		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
