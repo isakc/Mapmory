@@ -314,10 +314,8 @@ LIMIT #{limit} OFFSET #{offset}
 <delete id="deleteImageTag" parameterType="imageTag">
     DELETE FROM image_tag 
     <trim prefix="where" prefixOverrides="AND||OR"> 
-    image_tag_order IN 
-    (SELECT image_tag_order 
-    FROM image_tag 
-    WHERE recordNo = #{recordNo})
+    record_no = #{recordNo}
+    AND image_tag_type= #{imageTagType}
     </trim>
 </delete>
 

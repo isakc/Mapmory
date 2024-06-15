@@ -88,8 +88,8 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	//image만 삭제
 	@Override
-	public void deleteImage(int imageNo) throws Exception {
-		timelineDao.deleteImageToImageNo(imageNo);
+	public int deleteImage(int imageNo) throws Exception {
+		return timelineDao.deleteImageToImageNo(imageNo);
 	}
 	
 	//Category CRUD
@@ -159,6 +159,7 @@ public class TimelineServiceImpl implements TimelineService {
 		for(Map<String,Object> tempMap:timelineDao.selectMapRecordList(searchDto)) {
 			MapRecord mapRecord =TimelineUtil.mapToMapRecord(tempMap);
 			mapRecord.setDistance(GeoUtil.calculateCloseDistance(search.getLatitude(), search.getLongitude(), mapRecord.getLatitude(), mapRecord.getLongitude()));
+			mapRecord.setStringDistance(GeoUtil.getStringDistance(mapRecord.getDistance()));
 			recordList.add(mapRecord);
 		}
 		GeoUtil.sortByDistance(recordList);

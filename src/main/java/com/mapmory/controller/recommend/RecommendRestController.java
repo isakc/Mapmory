@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.dto.RecommendPlaceDTO;
 import com.mapmory.services.recommend.service.RecommendService;
 import com.mapmory.services.timeline.domain.Record;
 
@@ -73,14 +74,16 @@ public class RecommendRestController {
 	    }
 	    
 	    @GetMapping("/rest/recommend")
-		public Map<String, Object> getRecommendPlace(@RequestParam String userId) throws Exception{
+		//public Map<String, Object> getRecommendPlace(@RequestParam String userId) throws Exception{
+	    public List<RecommendPlaceDTO> getRecommendPlace(@RequestParam String userId) throws Exception{
 			
 			List<String> values = recommendService.getRecommendData(userId);
-			Map<String, Object> map = recommendService.getRecordList(values);
-			System.out.println(map);
+			List<RecommendPlaceDTO> list = recommendService.getRecordList(values);
+			//Map<String, Object> map = recommendService.getRecordList(values);
+			//System.out.println(map);
 			
-			
-			return map;
+			//return map;
+			return list;
 		
 		}
 	    
