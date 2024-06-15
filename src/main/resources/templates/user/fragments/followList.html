@@ -96,6 +96,11 @@
 	});
 </script>
 
+<!-- 검색은 선택 사항. -->
+<form>
+	<input type="text" name="search" />
+</form>
+
 <div th:each="user : ${list}">
 	<div th:id="${user.userId}" class="userDiv">
 		<img th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
