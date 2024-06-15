@@ -67,8 +67,8 @@ public class TimelineController {
 			@RequestParam(value="plus", required = false) Integer plus
 			) throws Exception,IOException{
 		if(selectDay==null) {
-//		LocalDate today = LocalDate.now();
-		LocalDate today = LocalDate.of(2024,5,29);
+		LocalDate today = LocalDate.now();
+//		LocalDate today = LocalDate.of(2024,5,29);
 		selectDay=Date.valueOf(today);
 		}
 		if( !(plus==null) ) {
@@ -139,20 +139,12 @@ public class TimelineController {
 	@GetMapping("getDetailTimeline")
 	public String getDetailTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		Record record=timelineService.getDetailTimeline(recordNo);
+		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
+		record=timelineUtil.mediaNameToUrl(record);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
-	}
-	
-	@GetMapping("getDetailTimecapsule")
-	public String getDetailTimecapsule(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		Record record=timelineService.getDetailTimeline(recordNo);
-		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
-		model.addAttribute("record",record);
-		return "timeline/getDetailTimecapsule";
 	}
 	
 	@GetMapping("updateTimeline")
@@ -162,6 +154,7 @@ public class TimelineController {
 		record=timelineUtil.mediaNameToUrl(record);
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
+		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("record",record);
 		return "timeline/updateTimeline";
 	}
@@ -169,13 +162,14 @@ public class TimelineController {
 	@PostMapping("updateTimeline")
 	public String updateTimeline(Model model,
 			@ModelAttribute("record") Record record,
-			@ModelAttribute("hashtagText") String hashtagText,
+			@RequestParam(name="hashtagText",required = false) String hashtagText,
 			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile) throws Exception,IOException {
 		
 //		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
 //			return null;
 //		}
+		record.setMediaName(record.getMediaName().replace(mediaFileFolder,""));
 		record = timelineUtil.imageFileUpload(record, imageFile);
 		record = timelineUtil.mediaFileUpload(record, mediaFile);
 		
@@ -192,11 +186,12 @@ public class TimelineController {
 			record.setTempType(0);
 		}
 		
+		record=TimelineUtil.validateRecord(record);
+		
 //		System.out.println("record.getImageName() : "+record.getImageName());
 //		System.out.println("record.getHashtag() : "+record.getHashtag());
 		timelineService.updateTimeline(record);
-		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
-		return "timeline/getDetailTimeline";
+		return getDetailTimeline(model,record.getRecordNo());
 	}
 
 	@GetMapping("deleteTimeline")
@@ -205,6 +200,15 @@ public class TimelineController {
 			@RequestParam(value="userId", required = true) String userId) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
 		return getTimelineList(model, userId, null, null);
+	}
+	
+	@GetMapping("getDetailTimecapsule")
+	public String getDetailTimecapsule(Model model,
+			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		Record record=timelineService.getDetailTimeline(recordNo);
+		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		model.addAttribute("record",record);
+		return "timeline/getDetailTimecapsule";
 	}
 	
 	@GetMapping("addTimecapsule")

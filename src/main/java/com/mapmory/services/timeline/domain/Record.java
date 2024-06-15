@@ -41,7 +41,7 @@ public class Record {
 	private String recordAddDate;
 	private String sharedDate;
 	private int updateCount;
-	private Date d_DayDate;
+	private String d_DayDate;
 	private int timecapsuleType;
 	
 	private Double distance;

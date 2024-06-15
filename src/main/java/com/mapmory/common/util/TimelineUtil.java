@@ -1,7 +1,11 @@
 package com.mapmory.common.util;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +55,10 @@ public class TimelineUtil {
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
 	
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	
 	//map을 record로 묶어주는 기능
 		public static Record mapToRecord(Map<String, Object> map) {
 			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
@@ -74,7 +82,7 @@ public class TimelineUtil {
 					.recordAddDate((String)map.get("recordAddDate"))
 					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((Date)map.get("d_DayDate"))
+					.d_DayDate((String)map.get("d_DayDate"))
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.build();
 			return record;
@@ -223,6 +231,49 @@ public class TimelineUtil {
 			return hashtagList;
 		}
 		
+		public static Record validateRecord(Record record) {
+			if(record.getRecordTitle()==null||record.getRecordTitle().trim().equals(""))
+				record.setRecordTitle(record.getCheckpointAddress()+"_"+record.getCheckpointDate());
+			
+			if(record.getRecordAddDate()!=null&&!record.getRecordAddDate().trim().equals(""))
+				record.setRecordAddDate(parseDateTime(record.getRecordAddDate()).toString());
+			else record.setRecordAddDate(null);
+			
+			if(record.getSharedDate()!=null&&!record.getSharedDate().trim().equals(""))
+				record.setSharedDate(parseDateTime(record.getSharedDate()).toString());
+			else record.setSharedDate(null);
+			
+			if(record.getD_DayDate()!=null&&!record.getD_DayDate().trim().equals("")) {
+				System.out.println("record.setD_DayDate(parseDate(record.getD_DayDate()).toString()); _"+ record.getD_DayDate()+"_");
+				record.setD_DayDate(parseDate(record.getD_DayDate()).toString());
+			}
+			else record.setD_DayDate(null);
+			
+			return record;
+		}
+		
+		// 문자열이 날짜 형식인지 확인하고 java.sql.Date로 변환
+		public static LocalDate parseDate(String dateStr) {
+	        try {
+	            LocalDate localDate = LocalDate.parse(dateStr, DATE_FORMATTER);
+	            return localDate;
+	        } catch (DateTimeParseException e) {
+	            System.out.println("Invalid date format: " + dateStr);
+	            return null;
+	        }
+	    }
+
+	    // 문자열이 일시 형식인지 확인하고 java.sql.Timestamp로 변환
+	    public static LocalDateTime parseDateTime(String dateTimeStr) {
+	        try {
+	            LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER);
+	            return localDateTime;
+	        } catch (DateTimeParseException e) {
+	            System.out.println("Invalid date time format: " + dateTimeStr);
+	            return null;
+	        }
+	    }
+		
 		public Record imageNameToUrl(Record record) {
 			if (!(record.getImageName() == null)) {
 				List<ImageTag> imageName = new ArrayList<ImageTag>();
@@ -274,7 +325,7 @@ public class TimelineUtil {
 
 			if (mediaFile.isEmpty() || mediaFile.getOriginalFilename() == null
 					|| mediaFile.getOriginalFilename().isEmpty()) {
-				System.out.println("Invalid file name: " + mediaFile.getOriginalFilename());
+				System.out.println("Invalid file name: " + record.getMediaName());
 				return record;
 			}
 			String uuid = ImageFileUtil.getImageUUIDFileName(mediaFile.getOriginalFilename());

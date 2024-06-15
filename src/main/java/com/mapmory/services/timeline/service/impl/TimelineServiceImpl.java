@@ -88,8 +88,8 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	//image만 삭제
 	@Override
-	public void deleteImage(int imageNo) throws Exception {
-		timelineDao.deleteImageToImageNo(imageNo);
+	public int deleteImage(int imageNo) throws Exception {
+		return timelineDao.deleteImageToImageNo(imageNo);
 	}
 	
 	//Category CRUD

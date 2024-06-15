@@ -83,6 +83,20 @@ public class TimelineRestController {
 		return ResponseEntity.ok(map);
 	}
 	
+	@GetMapping("deleteImage")
+	public ResponseEntity<Map<String,Object>> deleteImage(
+			@RequestParam int imageNo,
+			Map<String,Object> map) throws Exception,IOException {
+		map=new HashMap<String, Object>();
+		String text="";
+		int deleteSuccess=timelineService.deleteImage(imageNo);
+		if(deleteSuccess!=0) {
+			text+="사진 삭제 완료";
+		}
+		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
 	@PostMapping("upload")
 	public ResponseEntity<Map<String, Object>> uploadAudio(@RequestParam("audioFile") MultipartFile audioFile) throws Exception {
 		// 파일 저장 위치
