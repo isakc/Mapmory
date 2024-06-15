@@ -211,7 +211,11 @@ public class UserController {
 	
 	
 	@GetMapping("/getPersonalSecurityMenu")
-	public void getPersonalSecurityMenu() {
+	public void getPersonalSecurityMenu(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		model.addAttribute("userId", userId);
 		
 	}
 	

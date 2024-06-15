@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	public void setupForTest() {
 
-		
+		/*
 		UserSearch search = UserSearch.builder()
 							.searchCondition(-1)
 							.role(0)
@@ -126,8 +126,9 @@ public class UserServiceImpl implements UserService {
 			
 			updatePassword(userId, userPassword);
 		}
+		*/
 		
-		/*
+
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -137,7 +138,7 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-		*/
+
 	}
 	
 	@Override
@@ -827,7 +828,12 @@ public class UserServiceImpl implements UserService {
 		return map;
 	}
 	
-	
+	public boolean checkSetSecondaryAuth(String userId) {
+		
+		int setSecondaryAuth = getDetailUser(userId).getSetSecondaryAuth();
+		
+		return intToBool(setSecondaryAuth);
+	}
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

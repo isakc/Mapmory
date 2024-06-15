@@ -227,6 +227,8 @@ public interface UserService {
 	 */
 	public Map<String, String> checkSuspended(String userId);
 	
+	public boolean checkSetSecondaryAuth(String userId);
+	
 	public void setupForTest();
 	
 	///////////////////////////////////////////////////////////////////////

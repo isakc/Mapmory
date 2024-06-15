@@ -2,9 +2,129 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<title>개인/보안</title>
+	
+	<script th:inline="javascript">
+	
+		$(function() {
+			
+			const userId = [[${userId}]];
+			
+			$('#selectMyInfo').on('click', function() {
+				
+				window.location.href="/user/getUesrInfo";
+				
+			});
+			
+			$('#updateSecondaryAuth').on('click', function() {
+				
+				// ajax
+				$.ajax({
+					
+					url: "/user/rest/checkSetSecondaryAuth",
+					type : "post",
+					contentType : "application/json",
+					data : JSON.stringify({
+						userId : userId
+					}),
+					success : function(response) {
+						
+						if(response == true || response == 'true') {
+							
+							const result = confirm("현재 2단계 인증이 설정되어 있습니다. 설정을 해제하시겠습니까?"); 
+							
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: "/user/rest/updateSecondaryAuth",
+									type : "post",
+									contentType : "application/json",
+									data : JSON.stringify({
+										userId : userId
+									}),
+									success : function(response) {
+										
+										alert('변경에 성공했습니다!');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+							}
+							
+						} else {
+							
+							const result = confirm("현재 2단계 인증이 설정되어 있지 않습니다. 설정하시겠습니까?");
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: "/user/rest/updateSecondaryAuth",
+									type : "post",
+									contentType : "application/json",
+									data : JSON.stringify({
+										userId : userId
+									}),
+									success : function(response) {
+										
+										alert('변경에 성공했습니다!');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+							}
+							
+						}
+						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert('오류 발생 : ' + jqXHR.responseText)
+					}
+					
+				});
+				
+			});
+						
+			$('#updatePassword').on('click', function() {
+				
+				window.location.href="/user/getUpdatePasswordView";
+				
+			});
+			
+			$('#linkSocialLogin').on('click', function() {
+				
+				window.location.href="/user/getSocialLoginLinkedView";
+				
+			});
+			
+			$('#getBlockList').on('click', function() {
+				
+				window.location.href="/community/getBlockList";
+				
+			});
+			
+			$('#leaveAccount').on('click', function() {
+				
+				window.location.href="/user/getLeaveAccountView";
+				
+			});
+			
+		});
+	</script>
 </head>
 <body>
-
+	<button type="button" id="getMyInfo">내 정보 조회</button>
+	<button type="button" id="updateSecondaryAuth">2단계 인증 설정</button>
+	<button type="button" id="updatePassword">비밀번호 변경</button>
+	<button type="button" id="linkSocialLogin">소셜 로그인 연동</button>
+	<button type="button" id="getBlockList">차단 목록 조회</button>
+	<button type="button" id="leaveAccount">계정 탈퇴</button>
 </body>	
 </html>

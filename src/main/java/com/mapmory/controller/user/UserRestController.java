@@ -246,9 +246,16 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/updateSecondaryAuth")
-	public ResponseEntity<Boolean> updateSecondaryAuth() {
+	public ResponseEntity<String> updateSecondaryAuth(@RequestBody Map<String, String> value) {
 		
-		return ResponseEntity.ok(true);
+		String userId = value.get("userId");
+		
+		boolean result = userService.updateSecondaryAuth(userId);
+				
+		if(result)
+			return ResponseEntity.ok("true");
+		else
+			return ResponseEntity.internalServerError().body("설정 변경에 실패...");
 	}
 	
 	@PostMapping("/deleteFollow")
@@ -289,6 +296,16 @@ public class UserRestController {
 		}
 		
 		result = !result;  
+		
+		return ResponseEntity.ok(result);
+	}
+	
+	@PostMapping("/checkSetSecondaryAuth")
+	public ResponseEntity<Boolean> checkSetSecondaryAuth(@RequestBody Map<String, String> value) {
+		
+		String userId = value.get("userId");
+		
+		boolean result = userService.checkSecondaryAuth(userId);
 		
 		return ResponseEntity.ok(result);
 	}
