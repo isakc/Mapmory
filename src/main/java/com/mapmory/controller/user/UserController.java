@@ -170,7 +170,10 @@ public class UserController {
 			
 		} else {
 			
+			// transaction 처리 필요
 			// String kakaoId = redisUtil.select("", String.class);
+			
+			/*
 			Map<String, String> map = getSocialIdByCookie(request, response);
 
 	        if (map != null) {
@@ -180,6 +183,7 @@ public class UserController {
 	            System.out.println("Finished addSocialLoginLink");
 	            
 	        }
+	        */
 		}
 	}
 	
@@ -262,7 +266,7 @@ public class UserController {
             	
                 // 소셜 로그인 정보가 없는 경우
             	String uuid = UUID.randomUUID().toString();
-                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
+                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
                 Cookie cookie = createTempCookie("KAKAOKEY", uuid);
                 response.addCookie(cookie);
                 

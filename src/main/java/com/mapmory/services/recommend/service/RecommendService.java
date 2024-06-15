@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.dto.RecommendPlaceDTO;
 import com.mapmory.services.timeline.domain.Record;
 
 public interface RecommendService {
@@ -23,7 +24,8 @@ public interface RecommendService {
 	
 	public List<String> getRecommendData(String userId) throws Exception; // 컨트롤러
 	
-	public Map<String, Object> getRecordList(List<String> recordNo) throws Exception; // 컨트롤러
+	//public Map<String, Object> getRecordList(List<String> recordNo) throws Exception; // 컨트롤러
+	public List<RecommendPlaceDTO> getRecordList(List<String> recordNo) throws Exception; // 컨트롤러
 	
 
 }

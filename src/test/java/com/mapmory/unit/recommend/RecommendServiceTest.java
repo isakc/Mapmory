@@ -32,7 +32,7 @@ public class RecommendServiceTest {
 	@Qualifier("recommendServiceImpl")
 	RecommendService recommendService;
 	
-	@Test
+//	@Test
 	public void addSearchData() throws Exception{
 		
 
@@ -59,7 +59,7 @@ public class RecommendServiceTest {
 				.recordText("기분이 나쁘진 않네요")
 				.tempType(0)
 				.updateCount(0)
-				.d_DayDate(Date.valueOf("2024-06-02"))
+				.d_DayDate("2024-06-02")
 				.timecapsuleType(0)
 				.build();
 		
@@ -85,14 +85,16 @@ public class RecommendServiceTest {
 //		}
 	}
 	
-//	@Test
+	@Test
 	public void getRecordList() throws Exception{
 		
 		List<String> result = recommendService.getRecommendData("user1");
 		System.out.println("==========getRecommendDataOver==========");
 		System.out.println("result: "+result);
-		Map<String, Object> map = recommendService.getRecordList(result);	
-		System.out.println(map);
+		//Map<String, Object> map = recommendService.getRecordList(result);	
+		//System.out.println(map);
+		
+		System.out.println(recommendService.getRecordList(result));
 	}
 		
 //	@Test

@@ -37,7 +37,7 @@ public interface TimelineDao {
 	
 	public void deleteImageTag(ImageTag imageTag) throws Exception;
 	
-	public void deleteImageToImageNo(int imageNo) throws Exception;
+	public int deleteImageToImageNo(int imageNo) throws Exception;
 	
 	//Category CRUD
 	public void insertCategory(Category category) throws Exception;
