@@ -52,7 +52,7 @@ public class TimelineServiceTest {
 				.recordAddDate("2024-06-01 04:52:35")
 				.sharedDate("2024-06-02 05:55:27")
 				.updateCount(0)
-				.d_DayDate(Date.valueOf("2024-06-02"))
+				.d_DayDate("2024-06-02")
 				.timecapsuleType(0)
 				.build();
 		timelineService.addTimeline(record);
@@ -85,7 +85,7 @@ public class TimelineServiceTest {
 				.recordAddDate("2024-06-01 04:52:35")
 				.sharedDate("2024-06-02 05:55:27")
 				.updateCount(0)
-				.d_DayDate(Date.valueOf("2024-06-02"))
+				.d_DayDate("2024-06-02")
 				.timecapsuleType(0)
 				.build();
 		timelineService.updateTimeline(record);

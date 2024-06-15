@@ -59,7 +59,7 @@ public class RecommendServiceTest {
 				.recordText("기분이 나쁘진 않네요")
 				.tempType(0)
 				.updateCount(0)
-				.d_DayDate(Date.valueOf("2024-06-02"))
+				.d_DayDate("2024-06-02")
 				.timecapsuleType(0)
 				.build();
 		
