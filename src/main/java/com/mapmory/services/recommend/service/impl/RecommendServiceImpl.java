@@ -43,8 +43,11 @@ import com.mapmory.services.recommend.dao.RecommendDao;
 import com.mapmory.services.recommend.domain.Recommend;
 import com.mapmory.services.recommend.dto.RecommendPlaceDTO;
 import com.mapmory.services.recommend.service.RecommendService;
+import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.domain.Record2;
+import com.mapmory.services.timeline.service.TimelineService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -76,7 +79,7 @@ public class RecommendServiceImpl implements RecommendService {
     
     @Value("${kakaomap.rest.apiKey}")
     private String kakaoMapRestKey;
-	
+    
 	@Override
 	public void addSearchData(Record record) throws Exception {
 
@@ -626,47 +629,44 @@ public class RecommendServiceImpl implements RecommendService {
 		    String resultJson;
 		    JsonNode documents;
 		    
+		    outerLoop:
 			for (Record record : recordList) {
 				url.setLength(0);
 				
 				url.append("https://dapi.kakao.com/v2/local/search/keyword?")
 				.append("query=").append(record.getCheckpointAddress())
-				.append("&x").append(record.getLatitude())
-				.append("&y").append(record.getLongitude());
+				.append("&page=").append( (int) (Math.random() * 3) + 1 );
 				
 				resultJson = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, String.class).getBody(); // REST
-
-				System.out.println("getRecordList resultJson: " + resultJson);
-				
+				System.out.println("resultJson임!!: " + resultJson);
 				rootNode = objectMapper.readTree(resultJson);
-			    
 				totalCount = rootNode.path("meta").path("total_count").asInt();
-				System.out.println("totalCount: " + totalCount);
+				
 				if(totalCount != 0) {
 				    documents = rootNode.path("documents");
+				    JsonNode item = documents.get((int) (Math.random() * documents.size() ));
 				    
-				    for(JsonNode item : documents) {
-				    	RecommendPlaceDTO recommendPlaceDTO = RecommendPlaceDTO.builder()
-								.placeName(item.path("place_name").asText())
-								.distance(item.path("distance").asText())
-								.placeUrl(item.path("place_url").asText())
-								.categoryName(item.path("category_name").asText())
-								.roadAddressName(item.path("road_address_name").asText())
-								.phone(item.path("phone").asText())
-								.latitude(item.path("y").asDouble())
-								.longitude(item.path("x").asDouble())
-								.build();
+					RecommendPlaceDTO recommendPlaceDTO = RecommendPlaceDTO.builder()
+							.placeName(item.path("place_name").asText())
+							.distance(item.path("distance").asText())
+							.placeUrl(item.path("place_url").asText())
+							.categoryName(item.path("category_name").asText())
+							.addressName(item.path("address_name").asText())
+							.phone(item.path("phone").asText())
+							.latitude(item.path("y").asDouble())
+							.longitude(item.path("x").asDouble())
+							.build();
 
-				    	recommendPlaceList.add(recommendPlaceDTO);
-				    }
-				
+					recommendPlaceList.add(recommendPlaceDTO);
+
+					if (recommendPlaceList.size() == 5) {
+						break outerLoop;
+					}
+				    
 				}//만약 데이터가 있으면 추가
-				
 			} // recordList만큼 반복
 			
-			Collections.shuffle(recommendPlaceList);
-				
-			return recommendPlaceList.subList(0,5);
+			return recommendPlaceList;
 		}// getRecordList: 추천 장소 리스트 얻음 
 }
 
