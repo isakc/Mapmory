@@ -1,5 +1,6 @@
 package com.mapmory.services.user.service;
 
+import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 
 public interface UserServiceJM {
@@ -10,5 +11,6 @@ public interface UserServiceJM {
 	
 	public String PhoneNumberCheck(String to) throws Exception;
 	
-	public User findByUserId(String userId) throws Exception;
+	//소셜 로그인 아이디 유무
+	public SocialLoginInfo socialLoginBySocialId(String socialId) throws Exception;
 }

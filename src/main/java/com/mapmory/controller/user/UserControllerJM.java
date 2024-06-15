@@ -1,5 +1,6 @@
 package com.mapmory.controller.user;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.mail.internet.MimeMessage;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserService;
@@ -39,7 +41,16 @@ public class UserControllerJM {
     UserService userService;
     
     @Autowired
+    private RedisUtil<String> redisUtil;
+    
+    @Autowired
 	JavaMailSenderImpl mailSender;
+    
+    @Value("${kakao.client.Id}")
+    private String clientId;
+    
+    @Value("${kakao.redirect.uri}")
+    private String redirectUri;
     
     @Value("${spring.mail.username}")
     private String emailId;
@@ -50,67 +61,73 @@ public class UserControllerJM {
 	    return "user/addUser";
 	}
 
-    @PostMapping("/addUser")
-    public String addUser(@ModelAttribute("user") User user,
-                          @ModelAttribute("socialInfo") SocialLoginInfo socialLoginInfo,
-                          HttpSession session) throws Exception {
-        System.out.println("/user/addUser : POST");
+    @PostMapping("/signUp")
+    public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+        boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
 
-        String kakaoId = (String) session.getAttribute("tempSocialId");
+        if (!isDone) {
+            throw new Exception("회원가입에 실패했습니다.");
+        }
+
+        String kakaoId = redisUtil.select("tempSocialId", String.class);
+
         if (kakaoId != null) {
-            socialLoginInfo.setSocialId(kakaoId);
+            System.out.println("Calling addSocialLoginLink");
+            userService.addSocialLoginLink(user.getUserId(), kakaoId);
+            System.out.println("Finished addSocialLoginLink");
         }
 
-        boolean result = userService.addUser(
-            user.getUserId(),
-            user.getUserPassword(),
-            user.getUserName(),
-            user.getNickname(),
-            user.getBirthday(),
-            user.getSex(),
-            user.getEmail(),
-            user.getPhoneNumber()
-        );
+        return "forward:/user/ok";
+    }
+    
+    @PostMapping("/getSignUpView")
+    public void getSignUpView(Model model, @RequestParam String[] checked) {
+        // refactoring 필요... -> 무엇이 check되었는지를 파악해야 함
+        System.out.println("checked : "+ Arrays.asList(checked));
 
-        session.removeAttribute("tempSocialId"); // 세션에서 카카오 아이디 제거
+        String kakaoId = redisUtil.select("tempSocialId", String.class);
+        System.out.println("kakaoId: " + kakaoId);
 
-        if (result) {
-            return "index";
-        } else {
-            return "redirect:/user/addUser";
-        }
+        model.addAttribute("user", User.builder().build());
     }
 
-	@GetMapping(value = "kakaoLogin")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpSession session, RedirectAttributes redirectAttributes) {
+    @GetMapping("/kakaoCallback")
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code) {
         try {
             String access_Token = userServiceJM.getKakaoAccessToken(code);
             String kakaoId = userServiceJM.getKakaoUserInfo(access_Token);
-
+            
             if (kakaoId == null) {
                 return "error"; // 카카오 사용자 정보가 없으면 에러 처리
             }
-            
-            SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
-                    .socialId(kakaoId)
-                    .build();
-            
-            String tempSocialId = userService.getSocialId(socialLoginInfo);
 
-            if (tempSocialId == null) {
-                // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트
-                session.setAttribute("kakaoId", kakaoId);
-                redirectAttributes.addAttribute("kakaoId", kakaoId);
-                return "redirect:/user/addUser";
+            SocialLoginInfo socialLoginInfo = userServiceJM.socialLoginBySocialId(kakaoId);
+            if (socialLoginInfo == null) {
+                // 소셜 로그인 정보가 없는 경우
+                redisUtil.insert("tempSocialId", kakaoId, 30); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
+                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
+            } else {
+                // 소셜 로그인 정보가 있는 경우
+                // 로그인 성공 처리
+                redisUtil.insert("socialId", kakaoId, 30); // Redis에 카카오 아이디 저장 (30분 만료)
+                redisUtil.delete(kakaoId);
+                System.out.println("카카오 아이디 레디스 삭제 여부 확인용 : :: : : :: : : :" + kakaoId);
+                return "redirect:/map"; // 메인 페이지로 리다이렉트                
             }
-
-            // 로그인 성공 처리
-            session.setAttribute("tempSocialId", tempSocialId);
-            return "index";
         } catch (Exception e) {
             e.printStackTrace();
             return "error";
         }
+    }
+    
+    @GetMapping("/kakaoLogin")
+    public String kakaoLogin() throws Exception {
+        // 클라이언트 ID와 리다이렉트 URI를 서버 측 코드에 저장
+
+        // 카카오 로그인 페이지로 리다이렉트
+        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + clientId + "&redirect_uri=" + redirectUri + "&response_type=code";
+        
+        return "redirect:" + kakaoAuthUrl;
     }
 	
 	@PostMapping("/memberPhoneCheck")

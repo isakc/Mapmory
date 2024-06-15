@@ -3,9 +3,9 @@
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- 
+     
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-     -->
+     
     
     <script th:inline="javascript">
  		$(function() {
@@ -101,11 +101,13 @@
 	        <button type="button" id="login">로그인</button>
 	        <button type="button" id="signUp">회원가입</button>
 	        
-	        <!-- 
+	        
 	        <div id="kakao">
-				<a class="p-2" id = "kakao-login-btn" href="https://kauth.kakao.com/oauth/authorize?client_id=cec50764919801119a69066d40036533&redirect_uri=/user/kakaoLogin&response_type=code">
+				<a href="user/kakaoLogin">
+   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼">
+				</a>
 			</div>
-			 -->
+			
         </div>
         <div id="userDiv" style="display:none;">
 	        <button type="button" id="getProfile">내 프로필로 이동</button>

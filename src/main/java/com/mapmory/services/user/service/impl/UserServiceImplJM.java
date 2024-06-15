@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mapmory.services.user.dao.UserDaoJM;
+import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.UserServiceJM;
 
@@ -33,7 +34,7 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 public class UserServiceImplJM implements UserServiceJM {
 	
 	@Autowired
-	UserDaoJM userDaoJM;
+	private UserDaoJM userDaoJM;
 	
 	@Value("${coolsms.apikey}")
 	private String coolsmsApiKey;
@@ -68,7 +69,7 @@ public class UserServiceImplJM implements UserServiceJM {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
-            sb.append("&redirect_uri=http://localhost:8000/user/kakaoLogin&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorize_code);
             System.out.println("authorize_code : " + authorize_code);
             bw.write(sb.toString());
@@ -178,5 +179,10 @@ public class UserServiceImplJM implements UserServiceJM {
 	public User findByUserId(String userId) throws Exception{
         return userDaoJM.findByUserId(userId);
     }
+	
+	//소셜로그인 판단
+	public SocialLoginInfo socialLoginBySocialId(String socialId) throws Exception {
+		return userDaoJM.socialLoginBySocialId(socialId);
+	}
 
 }
