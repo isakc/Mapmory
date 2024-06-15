@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<title>결제하기</title>
 	
-	<script th:src="@{/javascript/config/key.js}"></script>
-	<script th:src="@{/javascript/purchase/purchase.js}"></script>
+	<script src="/javascript/config/key.js"></script>
+	<script src="/javascript/purchase/purchase.js"></script>
 	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script>
@@ -17,16 +17,14 @@
     	  const productTitle = $("#productTitle").val();
     	  const price = $("#price").val()
     	  const currentDate = getCurrentDate();
+    	  const userId = /*[[${userId}]]*/ 'user1';
     	  
           IMP.request_pay({
               pg: selectedValue == 1 ? 'html5_inicis' : getPaymentMethod(selectedValue),
               pay_method: getPaymentMethod(selectedValue),
-              merchant_uid: "purchase_"+"user5"+"_"+currentDate,   // 주문번호
+              merchant_uid: "purchase_"+userId+"_"+currentDate,   // 주문번호
               name: $("#productTitle").val(),
-              amount: price,                         // 숫자 타입
-              buyer_email: "alice@example.com",
-              buyer_name: "user5",
-              buyer_tel: "010-1234-5678"
+              amount: price,              // 숫자 타입
           },
           function (rsp) { // callback
             console.log(rsp);
@@ -50,8 +48,8 @@
           IMP.request_pay(
             {
               pg: pg,
-              merchant_uid: "billingKey_"+"user7"+"_"+currentDate, // 빌링키 발급용 주문번호
-              customer_uid: "user7", // 카드(빌링키)와 1:1로 대응하는 값
+              merchant_uid: "billingKey_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
+              customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
               name: "정기 구독 결제",
               amount: 0 // 0으로 설정하여 할 시 빌링키만 발급
             },//빌링키 요청
@@ -59,12 +57,12 @@
             function (rsp) {
             	console.log(rsp);
             	
-            	$('input[name="userId"]').val("user7");
+            	$('input[name="userId"]').val(userId);
                 $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
                 $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
                 $('input[name="nextSubscriptionLastFourDigits"]').val(getLastFourDigits(rsp.card_number));
                 $('input[name="customerUid"]').val(rsp.customer_uid);
-                $('input[name="merchantUid"]').val("subscription_" + "user7" + "_" + currentDate);
+                $('input[name="merchantUid"]').val("subscription_" + userId + "_" + currentDate);
             	
                 if(rsp.success){ //빌링키 발급 성공
 
@@ -117,9 +115,9 @@
         	<input type="hidden" name="cardType">
         	<input type="hidden" name="lastFourDigits" >
         	<input type="hidden" name="purchaseDate">
-			<input type="hidden" name="price" th:field="${product.price}" readonly ><br><br>
+			<input type="hidden" name="price" th:value="${product.price}" readonly ><br><br>
 		
-        	<input type="hidden" name="userId" value="user7" readonly>
+        	<input type="hidden" name="userId" th:value="${userId}" readonly>
         	<input type="hidden" name="nextSubscriptionPaymentMethod" readonly>
         	<input type="hidden" name="nextSubscriptionCardType" readonly>
         	<input type="hidden" name="nextSubscriptionLastFourDigits" readonly>

@@ -18,7 +18,7 @@ public class RecommendPlaceDTO {
     private String distance;
     private String placeUrl;
     private String categoryName;
-    private String roadAddressName;
+    private String addressName;
     private String phone;
     private double latitude;
     private double longitude;
