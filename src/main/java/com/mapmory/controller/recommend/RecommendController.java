@@ -62,8 +62,8 @@ public class RecommendController {
 	public String getRecommendPlace(@RequestParam String userId) throws Exception{
 		
 		List<String> values = recommendService.getRecommendData(userId);
-		Map<String, Object> map = recommendService.getRecordList(values);
-		System.out.println(map);
+		//Map<String, Object> map = recommendService.getRecordList(values);
+		//System.out.println(map);
 		
 		//경로 넣을것 To-do
 		return null;
