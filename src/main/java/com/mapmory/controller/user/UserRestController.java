@@ -106,7 +106,7 @@ public class UserRestController {
 	////////////////////////////////////////////////////////////////////
 	
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody Login loginData) throws Exception {
+	public ResponseEntity<String> login(@RequestBody Login loginData, HttpServletResponse response) throws Exception {
 		
 		String userId = loginData.getUserId();
 		
@@ -129,7 +129,7 @@ public class UserRestController {
 			Map<String, String> resultMap = userService.checkSuspended(userId);
 			
 			if(resultMap.get("isSuspended").equals("true")) {
-				
+
 				return ResponseEntity.ok(resultMap.get("endSuspensionDate"));
 				
 			} else {
@@ -536,7 +536,7 @@ public class UserRestController {
 		// cookie.setDomain("mapmory.co.kr");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(false);
-		cookie.setMaxAge(3 * 60);
+		cookie.setMaxAge(5 * 60);
 		
 		return cookie;
 	}

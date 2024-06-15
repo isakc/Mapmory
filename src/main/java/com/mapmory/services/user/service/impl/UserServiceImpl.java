@@ -104,6 +104,42 @@ public class UserServiceImpl implements UserService {
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
+	 */
+	public void setupForTest() {
+
+		
+		UserSearch search = UserSearch.builder()
+							.searchCondition(-1)
+							.role(0)
+							.currentPage(1)
+							.pageSize(100)
+							.limit(100)
+							.build();
+		List<User> list = userDao.selectUserList(search);
+		
+		for(User user : list) {
+			
+			String userId = user.getUserId();
+			String userPassword = getPassword(userId);
+			
+			updatePassword(userId, userPassword);
+		}
+		
+		/*
+		String userId="user1";
+		String userPassword="password1";
+		updatePassword(userId, userPassword);
+		userId="user2";
+		userPassword="password2";	
+		updatePassword(userId, userPassword);
+		userId="admin";
+		userPassword="admin";
+		updatePassword(userId, userPassword);
+		*/
+	}
+	
 	@Override
 	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
 		// TODO Auto-generated method stub
@@ -158,16 +194,16 @@ public class UserServiceImpl implements UserService {
 		switch(count) {
 		
 			case 0:
-				startSuspensionDate.plusDays(1);
+				startSuspensionDate = startSuspensionDate.plusDays(1);
 				break;
 			case 1:
-				startSuspensionDate.plusDays(7);
+				startSuspensionDate = startSuspensionDate.plusDays(7);
 				break;
 			case 2:
-				startSuspensionDate.plusDays(14);
+				startSuspensionDate = startSuspensionDate.plusDays(14);
 				break;
 			case 3:
-				startSuspensionDate.plusYears(9999L);
+				startSuspensionDate = startSuspensionDate.plusYears(9999L);
 				break;
 			default :
 				throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
@@ -747,26 +783,29 @@ public class UserServiceImpl implements UserService {
 		if(suspensionLogList != null) {
 			List<SuspensionDetail> list = getSuspensionLogListActually(userId).getSuspensionDetailList();
 			
+			System.out.println("suspensionDetailList : " + list);
 			int count = list.size();
 			LocalDateTime lastSuspensionDate = list.get(count-1).getStartSuspensionDate();
 			LocalDateTime now = LocalDateTime.now();
 			switch(count) {
 			
 				case 1:
-					lastSuspensionDate.plusDays(1);
+					lastSuspensionDate = lastSuspensionDate.plusDays(1);
 					break;
 				case 2:
-					lastSuspensionDate.plusDays(7);
+					lastSuspensionDate = lastSuspensionDate.plusDays(7);
 					break;
 				case 3:
-					lastSuspensionDate.plusDays(14);
+					lastSuspensionDate = lastSuspensionDate.plusDays(14);
 					break;
 				case 4:
-					lastSuspensionDate.plusYears(9999L);
+					lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
 					break;
 				default :
 					throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
 			}
+			
+			System.out.println("정지 해제 일시 : " + lastSuspensionDate);
 			
 			if(now.isBefore(lastSuspensionDate)) {
 				
@@ -788,40 +827,7 @@ public class UserServiceImpl implements UserService {
 		return map;
 	}
 	
-	/**
-	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
-	 */
-	public void setupForTest() {
-
-		/*
-		UserSearch search = UserSearch.builder()
-							.searchCondition(-1)
-							.role(0)
-							.currentPage(1)
-							.pageSize(100)
-							.limit(100)
-							.build();
-		List<User> list = userDao.selectUserList(search);
-		
-		for(User user : list) {
-			
-			String userId = user.getUserId();
-			String userPassword = getPassword(userId);
-			
-			updatePassword(userId, userPassword);
-		}
-		*/
-		
-		String userId="user1";
-		String userPassword="password1";
-		updatePassword(userId, userPassword);
-		userId="user2";
-		userPassword="password2";	
-		updatePassword(userId, userPassword);
-		userId="admin";
-		userPassword="admin";
-		updatePassword(userId, userPassword);
-	}
+	
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

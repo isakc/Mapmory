@@ -100,6 +100,8 @@ public class UserController {
 	@PostMapping("/login")
 	public String login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin, @RequestParam String changePassword, HttpServletResponse response) throws Exception{
 
+		
+		
 		boolean keep;
 		
 		if(keepLogin == null)
