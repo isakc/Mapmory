@@ -47,6 +47,8 @@ public interface UserDao {
 	
 	public List<SocialLoginInfo> selectSocialIdList(String userId);
 	
+	public String selectUserIdBySocialId(String socialId);
+	
 	/**
 	 * 사용자 일간 전체 로그인 통계를 조회한다.
 	 * @param search

@@ -29,8 +29,8 @@ import com.mapmory.services.user.service.UserService;
 import com.mapmory.services.user.service.UserServiceJM;
 
 
-@Controller
-@RequestMapping("/user/*")
+// @Controller
+// @RequestMapping("/user/*")
 public class UserControllerJM {
 	
 	@Autowired

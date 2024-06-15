@@ -14,6 +14,6 @@ public class FollowMap {
     private String nickname;     
     private String profileImageName;
     private Byte hideProfile;  
-    private boolean isSubscribed;
-    private boolean isFollow;
+    private int isSubscribed;  // 0 : 구독 안함, 1 : 구독중
+    private int isFollow;  // 0 : 팔로우 안함, 1 : 팔로우중
 }

@@ -21,8 +21,15 @@ public class MainController {
 		
 		if( request.getCookies() != null) {
 			
-			String userId = redisUtil.getSession(request).getUserId();
-			model.addAttribute("userId", userId);
+			SessionData temp = redisUtil.getSession(request);
+			
+			if(temp != null) {
+				
+				String userId = temp.getUserId();
+				model.addAttribute("userId", userId);
+				
+			}
+				
 		}
 		
 		return "index.html";
