@@ -3,7 +3,9 @@
 <head>
     <title>로그인</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+     -->
     
     <script th:inline="javascript">
  		$(function() {
@@ -39,9 +41,9 @@
                         		
                         	} 
                         	
-                        	$('form').attr('method', 'post').attr('action', '/user/login').submit();
-                    		
                     	}
+                    	
+                    	$('form').attr('method', 'post').attr('action', '/user/login').submit();
                     },
                     error: function(jqXHR) {
                         alert("오류 발생: " + jqXHR.responseText);
@@ -99,18 +101,22 @@
 	        <button type="button" id="login">로그인</button>
 	        <button type="button" id="signUp">회원가입</button>
 	        
-	        <div id="kakao"></div>
-			<a class="p-2" id = "kakao-login-btn" href="https://kauth.kakao.com/oauth/authorize?client_id=cec50764919801119a69066d40036533&redirect_uri=/user/kakaoLogin&response_type=code">
+	        <!-- 
+	        <div id="kakao">
+				<a class="p-2" id = "kakao-login-btn" href="https://kauth.kakao.com/oauth/authorize?client_id=cec50764919801119a69066d40036533&redirect_uri=/user/kakaoLogin&response_type=code">
+			</div>
+			 -->
         </div>
         <div id="userDiv" style="display:none;">
 	        <button type="button" id="getProfile">내 프로필로 이동</button>
 	        <button type="button" id="logout">로그아웃</button>
         </div>
-        <hr>
-        <hr>
-        <hr>
         
-
+        
+        
+        <hr>
+        <hr>
+        <hr>
 		<details>
 		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
 		  <ol>
