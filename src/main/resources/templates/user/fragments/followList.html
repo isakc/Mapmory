@@ -1,0 +1,50 @@
+<script>
+	$(function() {
+		
+		$('#back').on('click', function() {
+			
+			history.back();
+		});
+		
+		$('input').on('input', function() {
+			
+			// 입력할 때마다 리스트 최신화
+		});
+		
+		$(document).on('click', '.follow', function() {
+			
+			/*
+			$.ajax({
+				
+				
+			});
+			*/
+		});
+		
+		$(document).on('click', '.unfollow', function() {
+			
+			/*
+			$.ajax({
+				
+				
+			});
+			*/
+		});
+		
+		$(document).on('click', '.userDiv', function() {
+			
+			window.location.href="/user/getProfile?userId="+$(this).;
+		});
+	});
+</script>
+
+<div th:each="user : ${list}">
+	<div id="${user.userId}" class="userDiv">
+		<img th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
+		<p th:text="${user.nickname}"></p>
+		<p th:text="${user.isSubscribed == 1} ? '구독 중' : '구독 안함'"></p>
+		<button type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:class="${isFollow} ? 'unfollow' : 'follow'" ></button>
+		<p style="display:none;" th:text="${user.hideProfile}"></p>
+	</div>
+	<hr/>
+</div>

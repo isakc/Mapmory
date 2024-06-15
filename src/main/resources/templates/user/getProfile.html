@@ -224,6 +224,7 @@
 	
 	</div>
 	
-	<img alt="" th:src="${profile.user.profileImageName}">
+	<!-- <img alt="" th:src="${profile.user.profileImageName}">  -->
+	<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
 </body>	
 </html>

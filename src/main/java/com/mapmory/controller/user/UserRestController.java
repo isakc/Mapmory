@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +28,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -86,8 +90,15 @@ public class UserRestController {
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
+	@Autowired
+	@Qualifier("objectStorageUtil")
+	private ObjectStorageUtil objectStorageUtil;
+	
 	@Value("${page.Size}")
 	private int pageSize;
+	
+	@Value("${object.profile.folderName}")
+	private String PROFILE_FOLDER_NAME;
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -155,7 +166,7 @@ public class UserRestController {
 		String userId = search.getUserId();
 		String keyword = search.getSearchKeyword();
 		int currentPage = search.getCurrentPage();
-		boolean selectFollow = true;
+		int selectFollow = 0;
 		
 		List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
 		
@@ -174,7 +185,7 @@ public class UserRestController {
 		String userId = search.getUserId();
 		String keyword = search.getSearchKeyword();
 		int currentPage = search.getCurrentPage();
-		boolean selectFollow = false;
+		int selectFollow = 1;
 		
 		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
 		
@@ -464,6 +475,13 @@ public class UserRestController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/image/{uuid}")
+    public byte[] getImage(@PathVariable String uuid) throws Exception {
+        byte[] bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
+        // System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
+        return bytes;
+    }
 	
     private Cookie createCookie(String codeKeyName, String codeKey) {
 		
@@ -476,4 +494,6 @@ public class UserRestController {
 		
 		return cookie;
 	}
+    
+    
 }
