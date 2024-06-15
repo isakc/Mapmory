@@ -70,12 +70,7 @@
 				
 				window.location.href="/user/getUpdateProfileView?userId="+userId;
 			});
-			
-			$('#voiceChat').on('click', function() {
-				
-				window.location.href="/video-call/"+userId;
-			});
-						
+					
 			$('#deleteFollow').on('click', function() {
 				
 				$.ajax({
@@ -108,7 +103,7 @@
 			$('#addFollow').on('click', function() {
 				
 				$.ajax({
-			      url: "/user/rest/deleteFollow",
+			      url: "/user/rest/addFollow",
 			      method: "POST",
 			      data: {
 			        targetId: userId
@@ -215,7 +210,6 @@
 			<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
 			<button type="button" id="addFollow" style="display:none;">팔로우</button>
 		</div>
-		<button type="button" id="voiceChat">화상통화</button>
 		<button type="button" id="chat">메세지 보내기</button>
 	</div>
 	

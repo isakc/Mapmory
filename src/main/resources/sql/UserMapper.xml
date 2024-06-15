@@ -156,7 +156,12 @@
 	
 	<select id="selectFollowList" parameterType="com.mapmory.services.user.domain.FollowSearch" resultMap="selectFollowMap">
 	SELECT
+		<if test="selectFollow == 0">
 		  fb.target_id AS user_id,
+	    </if>
+	    <if test="selectFollow == 1">
+		  fb.user_id,
+	    </if>
 		  u.user_name,
 		  u.nickname,
 		  u.profile_image_name,

@@ -341,6 +341,7 @@ public class UserController {
 		
 		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
+		// model.addAttribute("sessionId", myUserId);
 		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
 	

@@ -53,6 +53,8 @@ public interface UserService {
 	public boolean addLeaveAccount(String userId);
 	
 	public boolean addLoginLog(String userId);
+	
+	public boolean addFollow(String userId, String targetId);
 
 	// getProfile, getUserInfo 모두 이거로 처리
 	public User getDetailUser(String userId);

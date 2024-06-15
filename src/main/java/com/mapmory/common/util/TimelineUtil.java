@@ -82,7 +82,7 @@ public class TimelineUtil {
 					.recordAddDate((String)map.get("recordAddDate"))
 					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((String)map.get("d_DayDate"))
+					.d_DayDate((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString())
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.build();
 			return record;

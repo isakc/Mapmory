@@ -153,6 +153,17 @@ public class UserRestController {
 	}
 	*/
 	
+	@PostMapping("/addFollow")
+	public ResponseEntity<Boolean> addFollow(HttpServletRequest request, @RequestBody Map<String, String> value) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		String targetId = value.get("targetId");
+		
+		boolean result = userService.addFollow(userId, targetId);
+		
+		return ResponseEntity.ok(result);
+		
+	}
 	
 	@PostMapping("/getFollowList")
 	public List<FollowMap> getFollowList(@ModelAttribute Search search, HttpServletRequest request) {

@@ -238,6 +238,20 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public boolean addFollow(String userId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(userId)
+				.targetId(targetId)
+				.build();
+
+		int result = userDao.insertFollow(follow);
+		
+		return intToBool(result);
+		
+	}
+	
+	@Override
 	public User getDetailUser(String userId) {
 		// TODO Auto-generated method stub
 		User user = User.builder()
