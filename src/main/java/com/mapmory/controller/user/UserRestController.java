@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -99,10 +97,14 @@ public class UserRestController {
 	
 	// 소셜 로그인용
 	@Autowired
-	private RedisUtil<String> redisUtilTempSocialId;
+	private RedisUtil<String> redisUtilString;
 	
 	@Autowired
-	private RedisUtil<Integer> redisUtilAuthCode;
+	private RedisUtil<Integer> redisUtilInteger;
+
+	
+	@Autowired
+	private RedisUtil<Map> redisUtilMap;
 	
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
@@ -161,25 +163,46 @@ public class UserRestController {
 				return ResponseEntity.ok(resultMap.get("endSuspensionDate"));
 				
 			} else {
-				
-				byte role = userService.getDetailUser(userId).getRole();
+				User user = userService.getDetailUser(userId);
+				byte role = user.getRole();
+				byte setSecondAuth = user.getSetSecondaryAuth();
 				boolean keep = Boolean.valueOf(map.get("keepLogin"));
+				boolean needToChangePassword = userService.checkPasswordChangeDeadlineExceeded(userId);
 				
-				acceptLogin(userId, role, response, keep);
-				
-				boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
-				if(!result) {
-				
-					// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
-					return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+				if(setSecondAuth == 1) {
+					
+					// 임시 인증 쿠키 생성
+					String uuid = UUID.randomUUID().toString();
+					Map<String, String> tempMap = new HashMap<>();
+					tempMap.put("userId", userId);
+					tempMap.put("role", String.valueOf(role));
+					tempMap.put("keepLogin", String.valueOf(keep));
+					// tempMap.put("changePasword", String.valueOf(needToChangePassword));
+					
+					redisUtilMap.insert(uuid, tempMap, 5L);
+					Cookie cookie = createCookie("SECONDAUTH", uuid, 60*5, "/user");
+					response.addCookie(cookie);
+					return ResponseEntity.ok("secondAuth");
 					
 				} else {
+					
+					acceptLogin(userId, role, response, keep);
+					
+					
+					if(!needToChangePassword) {
+					
+						// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
+						return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+						
+					} else {
 
-					if(role == 1)
-						return ResponseEntity.ok("user");
-					else
-						return ResponseEntity.ok("admin");
-				}	
+						if(role == 1)
+							return ResponseEntity.ok("user");
+						else
+							return ResponseEntity.ok("admin");
+						
+					}	
+				}
 			}	
 		}
 	}
@@ -308,9 +331,14 @@ public class UserRestController {
 		String userId = value.get("userId");
 		
 		boolean result = userService.updateSecondaryAuth(userId);
-				
-		if(result)
+		
+		if(result) {
+			
+			String secondAuthKeyName = "SECONDAUTH-"+userId;
+			redisUtilString.delete(secondAuthKeyName);
 			return ResponseEntity.ok("true");
+		}
+			
 		else
 			return ResponseEntity.internalServerError().body("설정 변경에 실패...");
 	}
@@ -376,26 +404,57 @@ public class UserRestController {
 	}
 
 	@PostMapping("/generateKey")
-	public GoogleAuthenticatorKey generateKey(@RequestBody Map<String, String> value) { 
+	public ResponseEntity<GoogleAuthenticatorKey> generateKey(@RequestBody Map<String, String> map) { 
 		
-		String encodedKey = new String(userService.generateSecondAuthKey()); 
+		String userId = map.get("userId");
+		String userName = map.get("userName");
+		
+		
+		String secondAuthKeyName = "SECONDAUTH-"+userId;
+		String encodedKey = redisUtilString.select(secondAuthKeyName, String.class);
+		
+		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
+		
+		if(encodedKey == null) {
+			
+			encodedKey = new String(userService.generateSecondAuthKey()); 
+			returnKey.setEncodedKey(encodedKey);
+			returnKey.setUserName(userName);
+			returnKey.setHostName(hostName);
+			redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
+			
+			/*
+			 * 발급된 encodedKey를 가지고 본인의 Google Authenticator app에 추가한다.
+			 * Google Authenticator app에서 QR을 통해서도 등록이 가능하다.
+			 */
+			return ResponseEntity.ok(returnKey); 
+			
+		} else {
 
-		GoogleAuthenticatorKey key = new GoogleAuthenticatorKey();
-		key.setEncodedKey(encodedKey);
-		key.setUserName(value.get("userName"));
-		key.setHostName(hostName);
-		/*
-		 * 발급된 encodedKey를 가지고 본인의 Google Authenticator app에 추가한다.
-		 * Google Authenticator app에서 QR을 통해서도 등록이 가능하다.
-		 */
-		return key; 
+			returnKey.setEncodedKey("");
+			return ResponseEntity.ok(returnKey); 
+		}
+
 	}
 	
 	@PostMapping("/checkSecondaryKey")
-	public ResponseEntity<Boolean> checkKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
-		
+	public ResponseEntity<Boolean> checkSecondaryKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		boolean result = userService.checkSecondAuthKey(googleUserOtpCheck);
+		
+		if(result) {
+		
+			Cookie cookie = findCookie("SECONDAUTH", request);
+			
+			Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
+			String userId = map.get("userId");
+			byte role = Byte.valueOf(map.get("role"));
+			boolean keep = Boolean.valueOf(map.get("keepLogin"));
+
+			acceptLogin(userId, role, response, keep);
+
+			response.addCookie(createCookie("SECONDAUTH", "", 0, "/user"));
+		}
 		
 		return ResponseEntity.ok(result);
 	}
@@ -447,7 +506,7 @@ public class UserRestController {
             	
                 // 소셜 로그인 정보가 없는 경우
             	String uuid = UUID.randomUUID().toString();
-                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
+                redisUtilString.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
                 // Cookie cookie = createTempCookie("KAKAOKEY", uuid);
                 Cookie cookie = createCookie("KAKAOKEY", uuid, 60 * 5, "/user/getSignUpView");
                 response.addCookie(cookie);
@@ -547,7 +606,7 @@ public class UserRestController {
 		String codeKey = "p-"+UUID.randomUUID().toString();
 		// authMap.put(codeKey, codeValue);
 		
-		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
+		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
 		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
 		
@@ -587,7 +646,7 @@ public class UserRestController {
 		
 		String codeKey = "e-"+UUID.randomUUID().toString();
 		
-		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
+		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
 		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
 		
@@ -603,8 +662,8 @@ public class UserRestController {
 		String codeKey = value.get("codeKey");
 		int codeValue = Integer.parseInt(value.get("codeValue"));
 		
-		System.out.println(redisUtilAuthCode.select(codeKey, Integer.class));
-		if( codeValue == redisUtilAuthCode.select(codeKey, Integer.class))
+		System.out.println(redisUtilInteger.select(codeKey, Integer.class));
+		if( codeValue == redisUtilInteger.select(codeKey, Integer.class))
 			return ResponseEntity.ok(true);
 		else
 			return ResponseEntity.ok(false);
@@ -710,6 +769,23 @@ public class UserRestController {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 
+    private Cookie findCookie(String cookieKeyName, HttpServletRequest request) {
+    	
+    	System.out.println(request.getPathInfo());
+    	System.out.println(request.getServletPath());
+    	Cookie[] cookies = request.getCookies();
+    	
+    	for(Cookie cookie : cookies) {
+    		
+    		if(cookie.getName().equals(cookieKeyName)) {
+    			
+    			return cookie;
+    			
+    		}	
+    	}
+    	
+    	return null;
+    }
 	
     private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
 		
@@ -788,7 +864,7 @@ public class UserRestController {
 			if(cookieName.equals("KAKAOKEY")) {
 				
 				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				String socialId = redisUtilString.select(keyName, String.class);
 				cookie.setMaxAge(0);
 				response.addCookie(cookie);
 				
@@ -800,7 +876,7 @@ public class UserRestController {
 			} else if(cookieName.equals("NAVERKEY")) {
 				
 				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				String socialId = redisUtilString.select(keyName, String.class);
 				cookie.setMaxAge(0);
 				response.addCookie(cookie);
 				
@@ -812,7 +888,7 @@ public class UserRestController {
 			} else if(cookieName.equals("GOOGLEKEY")) {
 				
 				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				String socialId = redisUtilString.select(keyName, String.class);
 				cookie.setMaxAge(0);
 				response.addCookie(cookie);
 				

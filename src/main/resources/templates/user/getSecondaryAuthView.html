@@ -9,14 +9,49 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
 
-<script type="text/javascript">
+<script th:inline="javascript">
 
 	$( function() {
 		
+		const userId = [[${userId}]];
+		
+		$.ajax({
+			
+			url : "/user/rest/generateKey",
+			method : "POST",
+			dataType : "JSON",
+			headers : {
+				"Accept" : "application/json",
+				"Content-Type" : "application/json"
+			},
+			data : JSON.stringify({ 
+				userId : userId,
+				userName : userId
+			}),
+			success : function(responseBody, httpStatus){
+
+				console.log(responseBody);
+				
+				// $('.row:last').empty();
+				// $('form').empty();
+				let detail = "";
+				detail += "<p style='bold'>Google authenticator를 설치하고 2단계 인증을 수행하세요.</p>";
+				
+				if(responseBody.encodedKey != '') {
+					
+					detail += "<p>최초 2단계 인증 수행 시에만 키가 제공됩니다. 90일 뒤에 만료됩니다. 2단계 인증 재설정 시에 키를 다시 발급 받을 수 있습니다.</p>";
+					detail += "<p id='encodedKey'>" + responseBody.encodedKey +"</p>"; 			
+					detail += "<img src='https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+responseBody.userName+"@"+responseBody.hostName+"?secret="+responseBody.encodedKey+"&chld=H|0' alt=''>";
+					detail += "<hr/>";
+					
+				} 
+				
+				// $('.row:last').append(detail);
+				$('form').append(detail);
+			}
+		});
 
 		$(document).on('click', '#checkKey', function() {
-			
-			console.log('flag');
 			
 			$.ajax({
 				
@@ -35,46 +70,12 @@
 
 					console.log(responseBody);
 					
-				}
-			});
-		});
-		
-		$("button:contains('제출')").on("click", function(){
-			
-			$.ajax({
-				
-				url : "/user/rest/generateKey",
-				method : "POST",
-				dataType : "JSON",
-				headers : {
-					"Accept" : "application/json",
-					"Content-Type" : "application/json"
-				},
-				data : JSON.stringify({ 
-					userName : $('input:text[name="userName"]').val()
-				}),
-				success : function(responseBody, httpStatus){
-
-					console.log(responseBody);
+					if(responseBody == true || responseBody == 'true') {
+						
+						window.location.href="/map";
+						
+					}
 					
-					// $('.row:last').empty();
-					$('.container').empty();
-					let detail = "";
-					detail += "<h2>당신의 key</h2>"; 
-					detail += "<p id='encodedKey'>" + responseBody.encodedKey +"</p>"; 			
-					detail += "<img src='https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+responseBody.userName+"@"+responseBody.hostName+"?secret="+responseBody.encodedKey+"&chld=H|0' alt=''>";
-					detail += "<hr/>";
-					detail += "<form>";
-					detail += "<div class='form-group'>";
-					detail += '<label for="userName">이름</label>';
-					detail += '<input type="text" name="userCode" class="form-control" placeholder="인증번호 6자리 입력">';
-					detail += "</div>";
-					detail += "<div class='row'>";
-					detail += '<button type="button" class="btn btn-default" id="checkKey">인증하기</button>';
-					detail += "</div>";
-					detail += "</form>";
-					// $('.row:last').append(detail);
-					$('.container').append(detail);
 				}
 			});
 		});
@@ -85,9 +86,23 @@
 
 </head>
 <body>
+
+
 	<br/>
 	<br/>
 	<div class="container">
+		<h1>2단계 인증</h1>
+
+		<form>
+			<div class='form-group'>
+				<label for="userName">인증번호</label>
+				<input type="text" name="userCode" class="form-control" placeholder="인증번호 6자리 입력">
+			</div>
+			<div class='row'>
+				<button type="button" class="btn btn-default" id="checkKey">인증하기</button>
+			</div>
+		</form>
+		<!-- 
 		<form>
 			<div class="form-group">
 				<label for="userName">이름</label>
@@ -97,6 +112,7 @@
 				<button type="button" class="btn btn-default">제출</button>
 			</div>
 		</form>
+		 -->
 	</div>
 </body>
 </html>

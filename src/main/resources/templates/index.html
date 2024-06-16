@@ -41,6 +41,12 @@
                     		
                     	}
                     	
+                    	if(response == "secondAuth") {
+                    		
+                    		window.location.href="/user/getSecondaryAuthView?userId="+$("#username").val();
+                    		return;
+                    	}
+                    	
                     	if(response == "passwordExceeded") {
                     		
                     		const result = confirm("비밀번호 변경 권장 기한을 넘어섰습니다. 비밀번호를 변경하시겠습니까?");

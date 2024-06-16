@@ -61,6 +61,9 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
+	private RedisUtil<Map> redisUtilMap;
+	
+	@Autowired
 	private SubscriptionService subscriptionService;
 	
 	@Autowired
@@ -156,10 +159,15 @@ public class UserController {
 	
 
 	@GetMapping("/getSecondaryAuthView")
-	public String getSecondaryAuthView(@RequestParam(required=false) String keepLogin, @RequestParam(required=false) String changePassword) {
+	public void getSecondaryAuthView(Model model, HttpServletRequest request, @RequestParam String userId) {
 		
-		return "/user/getUpdatePasswordView";
-			
+		// login interceptor에서 직접 접근하는 것을 막아야 함
+		
+		Cookie cookie = findCookie("SECONDARYAUTH", request);
+		// Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
+		// String userId = map.get("userId");
+		
+		model.addAttribute("userId", userId);
 	}
 	
 	
@@ -426,6 +434,42 @@ public class UserController {
         }
     }
     */
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// util ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	private Cookie findCookie(String cookieKeyName, HttpServletRequest request) {
+    	
+    	System.out.println(request.getPathInfo());
+    	System.out.println(request.getServletPath());
+    	Cookie[] cookies = request.getCookies();
+    	
+    	for(Cookie cookie : cookies) {
+    		
+    		if(cookie.getName().equals(cookieKeyName)) {
+    			
+    			return cookie;
+    			
+    		}	
+    	}
+    	
+    	return null;
+    }
+	
+    private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
+		
+		Cookie cookie = new Cookie(codeKeyName, codeKey);
+		cookie.setPath(path);
+		// cookie.setDomain("mapmory.co.kr");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(false);
+		cookie.setMaxAge(maxAge);
+		
+		return cookie;
+	}
 	
 	/*
 	private String acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean changePassword) throws Exception {
