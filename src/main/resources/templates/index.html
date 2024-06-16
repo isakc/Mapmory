@@ -99,6 +99,12 @@
 				
 				window.location.href="/user/getProfile?userId="+[[${userId}]];
 			});
+			
+			$('#getId').on('click', function() {
+				
+				
+				window.location.href="/user/getIdView";
+			});
  		});
  		
  		$(function(){
@@ -133,8 +139,9 @@
 	        <button type="button" id="login">로그인</button>
 	        <button type="button" id="signUp">회원가입</button>
 	        
+	        <button type="button" id="getId">아이디 찾기</button>
 	        
-	        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${client_id}, redirect_uri=${redirect_uri}, response_type=${response_type}, scope=${scope}, access_type=${access_type}, prompt=${prompt}, state=${state})}">
+	        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
 	        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인">
 	        </a>
 			<div id="naverIdLogin">

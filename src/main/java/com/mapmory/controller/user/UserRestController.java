@@ -303,6 +303,20 @@ public class UserRestController {
 		
 		return ResponseEntity.ok(null);
 	}
+	
+	
+	@PostMapping("/getId")
+	public ResponseEntity<String> getId(@RequestBody Map<String, String> map) {
+		
+		System.out.println("Map : "+map);
+		
+		String userName = map.get("userName");
+		String email = map.get("email");
+		
+		String userId = userService.getId(userName, email);
+		
+		return ResponseEntity.ok(userId);
+	}
 
 	@PostMapping("/updateFollowState")
 	public ResponseEntity<Boolean> updateFollowState() {
@@ -532,7 +546,7 @@ public class UserRestController {
 		
 		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
+		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user");
 		
 		response.addCookie(cookie);
 		
@@ -572,7 +586,7 @@ public class UserRestController {
 		
 		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
+		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user");
 		
 		response.addCookie(cookie);
 		

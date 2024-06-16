@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +74,8 @@ import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.UserSearch;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
 import com.mapmory.services.user.domain.auth.naver.NaverProfile;
@@ -133,11 +137,23 @@ public class UserServiceImpl implements UserService {
 	private String naverRedirectUri;
     
 	@Value("${naver.token.request.url}")
-	private String tokenRequestUrl;
+	private String naverTokenRequestUrl;
 	
 	@Value("${naver.profile.request.url}")
 	private String profileRequestUrl;
 
+	
+	@Value("${google.client.id}")
+	private String clientId;
+	
+	@Value("${google.client.secret}")
+	private String clientSecret;
+	
+	@Value("${google.redirect.uri}")
+	private String redirectUri;
+
+	@Value("${google.redirect.uri}")
+	private String googleTokenRequestUrl;
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -885,7 +901,7 @@ public class UserServiceImpl implements UserService {
 		 // TOKEN_REQUEST_URL로 Http 요청 전송
 	    RestTemplate rt = new RestTemplate();
 	    ResponseEntity<String> tokenResponse = rt.exchange(
-	            tokenRequestUrl,
+	            naverTokenRequestUrl,
 	            HttpMethod.POST,
 	            naverTokenRequest,
 	            String.class
@@ -974,6 +990,109 @@ public class UserServiceImpl implements UserService {
 		
         return false;
 		
+	}
+	
+	/*
+	@Override
+	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException {
+				
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("grant_type","authorization_code");
+	    params.add("client_id", clientId);
+	    params.add("client_secret", clientSecret);
+	    params.add("code", code);
+	    params.add("redirect_uri", redirectUri);
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> tokenResponse;
+	    
+	    try {
+
+	    	// 문제 위치
+	    	tokenResponse = rt.exchange(
+		            googleTokenRequestUrl,
+		            HttpMethod.POST,
+		            googleTokenRequest,
+		            String.class
+		    );
+
+	    } catch(Exception e) {
+	    	
+	    	e.printStackTrace();
+	        throw new RuntimeException("Failed to get token from Google", e);
+	    }
+
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    GoogleToken token = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
+	    System.out.println(token);
+ 		return token;
+	    
+	}
+	
+	@Override
+	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+		
+		String[] chunks = idToken.split("\\.");
+ 	    
+ 	    Base64.Decoder decoder = Base64.getUrlDecoder();
+ 	    
+ 	    // 한글 깨짐 문제 해결
+ 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
+ 	    
+ 	    ObjectMapper objectMapper = new ObjectMapper();
+		return objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
+		
+	}
+	*/
+	
+	
+	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+
+		// Parameter로 전달할 속성들 추가
+	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("client_id", clientId);
+	    params.add("client_secret", clientSecret);
+	    params.add("code", code);
+	    params.add("grant_type","authorization_code");
+	    params.add("redirect_uri", redirectUri);
+	    
+	    /// get access token
+	    // Http 메시지 생성
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+	    
+	    System.out.println(googleTokenRequest);
+	    
+
+	    // TOKEN_REQUEST_URL로 Http 요청 전송
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> tokenResponse = rt.exchange(
+	            googleTokenRequestUrl,
+	            HttpMethod.POST,
+	            googleTokenRequest,
+	            String.class
+	    );
+
+	    /*
+	    // ObjectMapper를 통해 GoogleResponse 객체로 매핑
+ 		ObjectMapper objectMapper = new ObjectMapper();
+ 		GoogleToken googleToken = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
+ 	    
+ 	    String[] chunks = googleToken.getId_token().split("\\.");
+ 	    
+ 	    Base64.Decoder decoder = Base64.getUrlDecoder();
+ 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
+ 	    
+		GoogleJwtPayload payload = objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
+		return payload;
+		*/
+	    
+	    return null;
 	}
 	
 	///////////////////////////////////////////////////////////////////////

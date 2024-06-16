@@ -26,6 +26,21 @@ public class MainController {
 	@Value("${naver.state}")
 	private String naverState;
 	
+	@Value("${google.client.id}")
+	private String clientId;
+	
+	@Value("${google.client.secret}")
+	private String clientSecret;
+	
+	@Value("${google.redirect.uri}")
+	private String redirectUri;
+	
+	@Value("${google.state}")
+	private String state;
+	
+	@Value("${google.scope}")
+	private String scope;
+	
 	
 	@GetMapping("/")
 	public String index(HttpServletRequest request, Model model) {
@@ -46,6 +61,14 @@ public class MainController {
 		model.addAttribute("naver_client_id", naverClientId);
 		model.addAttribute("naver_redirect_uri", naverRedirectUri);
 		model.addAttribute("naver_state", naverState);
+		
+		model.addAttribute("google_client_id", clientId);
+        model.addAttribute("google_redirect_uri", redirectUri);
+        model.addAttribute("google_response_type", "code");
+        model.addAttribute("google_scope", scope); 
+        model.addAttribute("google_access_type", "offline");
+        model.addAttribute("google_prompt", "consent");
+        model.addAttribute("google_state", state);
 		
 		return "index.html";
 	}

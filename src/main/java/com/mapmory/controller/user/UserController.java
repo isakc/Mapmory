@@ -1,9 +1,15 @@
 package com.mapmory.controller.user;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,17 +22,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -40,9 +53,12 @@ import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
 import com.mapmory.services.user.domain.auth.naver.NaverProfile;
+import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
@@ -85,6 +101,17 @@ public class UserController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	@Value("${google.client.id}")
+	private String clientId;
+	
+	@Value("${google.client.secret}")
+	private String clientSecret;
+	
+	@Value("${google.redirect.uri}")
+	private String redirectUri;
+
+	@Value("${google.redirect.uri}")
+	private String googleTokenRequestUrl;
 
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -153,8 +180,14 @@ public class UserController {
 	}
 	
 	@PostMapping("/getId")
-	public void postIdView() {
+	public void postIdView(@RequestParam Map<String, String> map,  Model model) {
 		
+		String userName = map.get("userName");
+		String email = map.get("email");
+		
+		String userId= userService.getId(userName, email);
+		
+		model.addAttribute(userId);
 		
 	}
 	
@@ -345,7 +378,7 @@ public class UserController {
 	}
 	
 	@RequestMapping("/naver/auth/callback")
-	public String naverLogin(@RequestParam String code, @RequestParam String state, Model model, HttpServletResponse response) throws Exception {
+	public String naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
 		
 	    NaverAuthToken token = userService.getNaverToken(code, state);
 	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
@@ -362,7 +395,7 @@ public class UserController {
             Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
             response.addCookie(cookie);
 	    	
-	    	model.addAttribute("naverId", naverId);
+	    	// model.addAttribute("naverId", naverId);
 	    	return "redirect:/user/getAgreeTermsAndConditionsList";
 	    	
 	    } else {
@@ -376,7 +409,90 @@ public class UserController {
 	    }
 	}
 	
-	
+	@RequestMapping("/google/auth/callback")
+	public void googleLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
+
+		System.out.println("code : " + code);
+		
+		/*
+		// Parameter로 전달할 속성들 추가
+	    Map<String, String> params = new HashMap<>();
+	    params.put("grant_type","authorization_code");
+	    params.put("client_id", clientId);
+	    params.put("client_secret", clientSecret);
+	    params.put("code", code);
+	    params.put("redirect_uri", redirectUri);
+	    
+	    
+	    URL url = new URL(googleTokenRequestUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        conn.setDoOutput(true);
+
+        // 파라미터 문자열 생성
+        StringBuilder postData = new StringBuilder();
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            if (postData.length() != 0) postData.append('&');
+            postData.append(param.getKey());
+            postData.append('=');
+            postData.append(param.getValue());
+        }
+
+        // 파라미터 전송
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = postData.toString().getBytes("UTF-8");
+            os.write(input, 0, input.length);
+        }
+
+        // 응답 읽기
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuilder res = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            res.append(inputLine);
+        }
+        in.close();
+	    
+	    System.out.println(res);
+        */
+		
+		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
+		
+		/*
+		GoogleToken token = userService.getGoogleToken(code);
+		System.out.println(token);
+		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
+
+		
+		
+		
+		String googleId = payload.getSub();
+		String userId = userService.getUserIdBySocialId(googleId);
+		
+		if(userId == null) {
+			
+			String uuid = UUID.randomUUID().toString();
+        	String keyName = "g-"+uuid;
+            redisUtilString.insert(keyName, googleId, 10L); 
+            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
+            response.addCookie(cookie);
+	    	
+	    	// model.addAttribute("googleId", googleId);
+	    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    	
+		} else {
+	    	
+	    	User user = userService.getDetailUser(userId);
+        	byte role=user.getRole();
+        	
+	    	acceptLogin(userId, role, response, false);
+	    	return "redirect:/map";
+	    	
+	    }
+				*/
+	}
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -646,5 +762,13 @@ public class UserController {
 			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
 		
 		return cookie;
+	}
+    
+private HttpEntity<MultiValueMap<String, String>> makeTokenRequest(MultiValueMap<String, String> params) {
+		
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+	    return googleTokenRequest;
 	}
 }

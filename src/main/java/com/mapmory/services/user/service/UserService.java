@@ -1,5 +1,6 @@
 package com.mapmory.services.user.service;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
@@ -20,6 +21,8 @@ import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
 import com.mapmory.services.user.domain.auth.naver.NaverProfile;
@@ -239,6 +242,13 @@ public interface UserService {
 	
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException;
 	
+	/*
+	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException;
+	
+	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
+	*/
+	
+	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	//// jaemin ////////////////////////////////////////////////////////////
