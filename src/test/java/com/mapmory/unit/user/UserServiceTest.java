@@ -31,7 +31,7 @@ public class UserServiceTest {
 	@Qualifier("userServiceImpl")
 	private UserService userService;
 	
-	
+	/*
 	// @Test
 	public void testAddUser() throws Exception {
 		
@@ -75,7 +75,7 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(resultUser.getUserPassword()).isEqualTo(password);
 	}
-	
+	*/
 	
 	
 	// @Test

@@ -54,6 +54,7 @@ import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
+import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
@@ -210,8 +211,16 @@ public class UserRestController {
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		// transaction 처리 필요 - 소셜 로그인
-		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
+		String userId = user.getUserId();
+		Map<String, String> map = getSocialKey(request, response);
+		
+		String socialId = null;
+		if(map != null) {
+			
+			socialId = map.get("socialId");
+		}
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber(), socialId);
 		
 		if( !isDone) {
 			
@@ -219,20 +228,7 @@ public class UserRestController {
 			
 		} else {
 			
-			// transaction 처리 필요
-			// String kakaoId = redisUtil.select("", String.class);
 			
-			/*
-			Map<String, String> map = getSocialIdByCookie(request, response);
-
-	        if (map != null) {
-	        	
-	            System.out.println("Calling addSocialLoginLink");
-	            userService.addSocialLoginLink(user.getUserId(), map.get("socialId"));
-	            System.out.println("Finished addSocialLoginLink");
-	            
-	        }
-	        */
 			return ResponseEntity.ok(true);
 		}
 		
@@ -459,78 +455,6 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
-	@RequestMapping("/naver/auth/callback")
-	public String naverCallback(@RequestParam String code, @RequestParam String state, Model model) throws Exception {
-		
-	    NaverProfile profileInfo = userService.getNaverProfile(code, state);
-	    
-	    String userId = userService.getUserIdBySocialId(profileInfo.getId());
-	    
-	    // 회원가입 페이지로 이동
-	    if(userId == null) {
-
-	    	model.addAttribute("profileInfo", profileInfo);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
-	    } else {
-	    	
-	    	return "redirect:/map";
-	    	
-	    }
-	}
-	
-	
-	@GetMapping("/getKakaoLoginView")
-	public String getKakaoLoginView() {
-
-        // 카카오 로그인 페이지로 리다이렉트
-        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
-        
-        return "redirect:" + kakaoAuthUrl;
-		
-	}
-	
-	@GetMapping("/kakaoCallback")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) {
-        try {
-        	
-            String accessToken = userService.getKakaoAccessToken(code);
-            String kakaoId = userService.getKakaoUserInfo(accessToken);
-            
-            if (kakaoId == null) {
-                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
-            }
-
-            String userId = userService.getUserIdBySocialId(kakaoId);
-            if (userId == null) {
-            	
-                // 소셜 로그인 정보가 없는 경우
-            	String uuid = UUID.randomUUID().toString();
-                redisUtilString.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
-                // Cookie cookie = createTempCookie("KAKAOKEY", uuid);
-                Cookie cookie = createCookie("KAKAOKEY", uuid, 60 * 5, "/user/getSignUpView");
-                response.addCookie(cookie);
-                
-                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
-                
-            } else {
-
-            	User user = userService.getDetailUser(userId);
-            	          	
-            	String uuid = UUID.randomUUID().toString();
-            	loginService.setSession(userId, user.getRole(), uuid, false);
-            	Cookie cookie = createLoginCookie(uuid, false);
-            	response.addCookie(cookie);
-            	
-                return "redirect:/map"; // 메인 페이지로 리다이렉트   
-                
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
-    }
 	
 	
 	///////////////////////////////////////////////////////////////////////
@@ -762,6 +686,17 @@ public class UserRestController {
         // System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
         return bytes;
     }
+    	
+ 	@GetMapping("/getKakaoLoginView")
+	public String getKakaoLoginView() {
+
+        // 카카오 로그인 페이지로 리다이렉트
+        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
+        
+        return "redirect:" + kakaoAuthUrl;
+		
+	}
+	
     
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -810,28 +745,6 @@ public class UserRestController {
 		response.addCookie(cookie);
 		
 		userService.addLoginLog(userId);
-		// boolean isLog = userService.addLoginLog(userId);
-		// System.out.println("로그인 로그 등록 여부 : " + isLog);
-		
-		/*
-		boolean wantToChangePassword = changePassword; 
-		if(wantToChangePassword) {
-			
-			return "redirect:/user/getUpdatePasswordView";
-			
-		} else {
-			
-			if(role == 1) {
-				
-				return "redirect:/map";
-				
-			} else {
-				
-				return "redirect:/user/admin/adminMain";
-				
-			}
-		}
-		*/
 	}
     
     private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
@@ -851,7 +764,7 @@ public class UserRestController {
 		return cookie;
 	}
     
-    private Map<String, String> getSocialIdByCookie(HttpServletRequest request, HttpServletResponse response) {
+    private Map<String, String> getSocialKey(HttpServletRequest request, HttpServletResponse response) {
 		
 		Map<String, String> map = new HashMap<>();
 		
@@ -881,7 +794,7 @@ public class UserRestController {
 				response.addCookie(cookie);
 				
 				map.put("socialId", socialId);
-				map.put("type", "2");
+				map.put("type", "1");
 				
 				return map;
 				
@@ -893,7 +806,7 @@ public class UserRestController {
 				response.addCookie(cookie);
 				
 				map.put("socialId", socialId);
-				map.put("type", "2");
+				map.put("type", "0");
 				
 				return map;
 				

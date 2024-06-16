@@ -21,6 +21,7 @@ import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
 import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 
 public interface UserService {
@@ -40,7 +41,7 @@ public interface UserService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception;
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber, String socialId) throws Exception;
 	
 	/**
 	 * 계정 정지 정책 (1회: 1일 정지, 2회: 7일 정지, 3회: 14일 정지, 4회: 영구 정지)
@@ -230,9 +231,9 @@ public interface UserService {
 	 */
 	public boolean checkSetSecondaryAuth(String userId);
 	
+	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
-	
-	public NaverProfile getNaverProfile(String code, String state)  throws JsonMappingException, JsonProcessingException;
+	public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
 	
 	public String generateSecondAuthKey();
 	

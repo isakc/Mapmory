@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber, String socialId) throws Exception {
 		// TODO Auto-generated method stub
 		
 		if ( contentFilterUtil.checkBadWord(userId) ) 
@@ -205,6 +205,13 @@ public class UserServiceImpl implements UserService {
 						.build();
 	
 		int result = userDao.insertUser(user);
+		
+		if(socialId != null) {
+			
+			//  social_login_info 에 연동 정보를 저장할 것.
+			addSocialLoginLink(userId, socialId);
+			
+		}
 		
 		return intToBool(result);
 	}
@@ -862,7 +869,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public NaverProfile getNaverProfile(String code, String state) throws JsonMappingException, JsonProcessingException {
+	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException {
 		
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 	    params.add("grant_type","authorization_code");
@@ -886,14 +893,26 @@ public class UserServiceImpl implements UserService {
 		
 	    // ObjectMapper를 통해 NaverOAuthToken 객체로 매핑
 		ObjectMapper objectMapper = new ObjectMapper();
-		NaverAuthToken naverToken = objectMapper.readValue(tokenResponse.getBody(), NaverAuthToken.class);
+		return objectMapper.readValue(tokenResponse.getBody(), NaverAuthToken.class);
 		
-		/// get profile
-		headers = new HttpHeaders();
-	    headers.add("Authorization", "Bearer "+ naverToken.getAccess_token());
+	}
+	
+	@Override
+	public NaverProfile getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException {
+		
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("grant_type","authorization_code");
+	    params.add("client_id", naverClientId);
+	    params.add("client_secret", naverClientSecret);
+	    params.add("code", code);
+	    params.add("state", state);
+	    
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer "+ accessToken);
 	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 	    HttpEntity<MultiValueMap<String, String>> naverProfileRequest = new HttpEntity<>(headers);
-
+	    
+	    RestTemplate rt = new RestTemplate();
 	    ResponseEntity<String> profileResponse = rt.exchange(
 		    profileRequestUrl,
 		    HttpMethod.POST,
@@ -901,10 +920,13 @@ public class UserServiceImpl implements UserService {
 		    String.class
 	    );
 	    
+	    ObjectMapper objectMapper = new ObjectMapper();
 	    NaverProfileResponse result = objectMapper.readValue(profileResponse.getBody(), NaverProfileResponse.class);
 	    
 	    return result.getResponse();
 	}
+	
+	
 	
 	@Override
 	public String generateSecondAuthKey() {
