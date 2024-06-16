@@ -1,11 +1,15 @@
 package com.mapmory.services.user.service;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
@@ -16,13 +20,12 @@ import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 
 public interface UserService {
-	
-	/*
-	 *  naver, google login service 구현 필요.. 
-	 *  그 외 controller에서 사용해야 할 각종 business logic (REST 포함) 추가 예정
-	 */
+
+	public void setupForTest();
 	
 	/**
 	 * 
@@ -176,14 +179,7 @@ public interface UserService {
 	public boolean deleteFollow(String userId, String targetId);
 	
 	public boolean deleteSuspendUser(int logNo);
-	
-	/**
-	 * true: 설정됨, false : 설정안함
-	 * @param userId
-	 * @return
-	 */
-	public boolean checkSecondaryAuth(String userId);
-	
+
 	/**
 	 * false : 사용 가능, true : 중복됨
 	 * @param userId
@@ -227,9 +223,20 @@ public interface UserService {
 	 */
 	public Map<String, String> checkSuspended(String userId);
 	
+	/**
+	 * true: 설정됨, false : 설정안함
+	 * @param userId
+	 * @return
+	 */
 	public boolean checkSetSecondaryAuth(String userId);
 	
-	public void setupForTest();
+	
+	
+	public NaverProfile getNaverProfile(String code, String state)  throws JsonMappingException, JsonProcessingException;
+	
+	public String generateSecondAuthKey();
+	
+	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException;
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

@@ -537,12 +537,12 @@ public class UserServiceTest {
 		
 		// 2단계 인증을 설정하지 않은 경우
 		String userId = "sample_user1";
-		boolean result = userService.checkSecondaryAuth(userId);
+		boolean result = userService.checkSetSecondaryAuth(userId);
 		Assertions.assertThat(result).isFalse();
 		
 		// 2단계 인증을 설정한 경우
 		userId = "admin";
-		result = userService.checkSecondaryAuth(userId);
+		result = userService.checkSetSecondaryAuth(userId);
 		Assertions.assertThat(result).isTrue();
 		
 		

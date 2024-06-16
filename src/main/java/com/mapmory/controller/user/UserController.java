@@ -1,11 +1,11 @@
 package com.mapmory.controller.user;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,10 +36,10 @@ import com.mapmory.services.purchase.service.SubscriptionService;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.FollowMap;
-import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
@@ -59,9 +61,6 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
-	private RedisUtil<String> redisUtilTempSocialId;
-	
-	@Autowired
 	private SubscriptionService subscriptionService;
 	
 	@Autowired
@@ -77,13 +76,7 @@ public class UserController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
-	@Value("${kakao.client.Id}")
-    private String kakaoClientId;
-    
-    @Value("${kakao.redirect.uri}")
-    private String kakaoRedirectUri;
-	
-    
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -97,57 +90,12 @@ public class UserController {
 		System.out.println("\n\n암호화 적용 성공! template error는 무시해주세요~~");
 	}
 
-	@PostMapping("/login")
-	public String login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin, @RequestParam String changePassword, HttpServletResponse response) throws Exception{
-
-		
-		
-		boolean keep;
-		
-		if(keepLogin == null)
-			keep = false;
-		else
-			keep = true;
-
-		String userId = login.getUserId();
-		byte role = userService.getDetailUser(userId).getRole();
-		// System.out.println("role : " + role);
-		String sessionId = UUID.randomUUID().toString();
-		// System.out.println("sessionId : " + sessionId);
-		if ( !loginService.setSession(login.getUserId(), role, sessionId, keep))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createLoginCookie(sessionId, keep);
-		response.addCookie(cookie);
-		
-		boolean isLog = userService.addLoginLog(userId);
-		System.out.println("로그인 로그 등록 여부 : " + isLog);
-		
-		boolean wantToChangePassword = Boolean.valueOf(changePassword); 
-		if(wantToChangePassword) {
-			
-			return "redirect:/user/getUpdatePasswordView";
-			
-		} else {
-			
-			if(role == 1) {
-				
-				// response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
-				return "redirect:/map";
-				
-			} else {
-				
-				// response.sendRedirect("/user/admin/adminMain");
-				return "redirect:/user/admin/adminMain";
-				
-			}
-		}
-	}
 	
 	@PostMapping("/logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		loginService.logout(request, response);
+		loginService.logout(request, response);		
+		
 	}
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
@@ -161,35 +109,6 @@ public class UserController {
 		
 	}	
 	
-	@PostMapping("/signUp")
-	public void signUp(@ModelAttribute User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
-		
-		if( !isDone) {
-			
-			throw new Exception("회원가입에 실패했습니다.");
-			
-		} else {
-			
-			// transaction 처리 필요
-			// String kakaoId = redisUtil.select("", String.class);
-			
-			/*
-			Map<String, String> map = getSocialIdByCookie(request, response);
-
-	        if (map != null) {
-	        	
-	            System.out.println("Calling addSocialLoginLink");
-	            userService.addSocialLoginLink(user.getUserId(), map.get("socialId"));
-	            System.out.println("Finished addSocialLoginLink");
-	            
-	        }
-	        */
-		}
-	}
-	
-
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
 		
@@ -235,67 +154,29 @@ public class UserController {
 		
 	}
 	
+
+	@GetMapping("/getSecondaryAuthView")
+	public String getSecondaryAuthView(@RequestParam(required=false) String keepLogin, @RequestParam(required=false) String changePassword) {
+		
+		return "/user/getUpdatePasswordView";
+			
+	}
+	
+	
+	/*
 	@GetMapping("/getGoogleLoginView")
 	public void getGoogleLoginView() {
 		
 		
 	}
-	
+
 	@GetMapping("/getNaverLoginView")
 	public void getNaverLoginView() {
 		
 	}
+	*/
 	
-	@GetMapping("/getKakaoLoginView")
-	public String getKakaoLoginView() {
-
-        // 카카오 로그인 페이지로 리다이렉트
-        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
-        
-        return "redirect:" + kakaoAuthUrl;
-		
-	}
 	
-	@GetMapping("/kakaoCallback")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) {
-        try {
-        	
-            String accessToken = userService.getKakaoAccessToken(code);
-            String kakaoId = userService.getKakaoUserInfo(accessToken);
-            
-            if (kakaoId == null) {
-                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
-            }
-
-            String userId = userService.getUserIdBySocialId(kakaoId);
-            if (userId == null) {
-            	
-                // 소셜 로그인 정보가 없는 경우
-            	String uuid = UUID.randomUUID().toString();
-                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
-                Cookie cookie = createTempCookie("KAKAOKEY", uuid);
-                response.addCookie(cookie);
-                
-                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
-                
-            } else {
-
-            	User user = userService.getDetailUser(userId);
-            	          	
-            	String uuid = UUID.randomUUID().toString();
-            	loginService.setSession(userId, user.getRole(), uuid, false);
-            	Cookie cookie = createLoginCookie(uuid, false);
-            	response.addCookie(cookie);
-            	
-                return "redirect:/map"; // 메인 페이지로 리다이렉트   
-                
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
-    }
 	
 	@GetMapping("/getUserInfo")
 	public void getUserInfo() { 
@@ -394,16 +275,12 @@ public class UserController {
 		model.addAttribute("profileImage", cdnPath);
 		
 	}
-	
-	@GetMapping("/getUpdateSecondaryAuthView")
-	public void getUpdateSecondaryAuthView() {
-		
-	}
-	
+
 	@GetMapping("/getUpdatePasswordView")
 	public void getUpdatePasswordView() {
 		
 	}
+
 	
 	@GetMapping("/getSocialLoginLinkedView")
 	public void getSocialLoginLinkedView() {
@@ -435,10 +312,22 @@ public class UserController {
 		return "redirect:/user/getProfile?userId="+userId;
 	}
 
-	
-	@GetMapping("/updatePasswordView")
-	public void updatePasswordView() {
+
+	// for navigation
+	@PostMapping("/checkSecondaryKey")
+	public String checkKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck, @RequestParam(required=false) String changePassword) throws InvalidKeyException, NoSuchAlgorithmException {
 		
+		
+		boolean result = userService.checkSecondAuthKey(googleUserOtpCheck);
+		
+		if(result) {
+			
+			// acceptLogin(userId, role, response, keep, changePassword);
+			return "redirect";
+		} else {
+			
+			throw new InvalidKeyException("유효하지 않은 인증번호");
+		}
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -447,7 +336,7 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
-	
+	// 로그인 통계를 보여줄 예정
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
@@ -538,6 +427,39 @@ public class UserController {
     }
     */
 	
+	/*
+	private String acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean changePassword) throws Exception {
+
+		String sessionId = UUID.randomUUID().toString();
+		if ( !loginService.setSession(userId, role, sessionId, keep))
+			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		Cookie cookie = createLoginCookie(sessionId, keep);
+		response.addCookie(cookie);
+		
+		boolean isLog = userService.addLoginLog(userId);
+		System.out.println("로그인 로그 등록 여부 : " + isLog);
+		
+		boolean wantToChangePassword = changePassword; 
+		if(wantToChangePassword) {
+			
+			return "redirect:/user/getUpdatePasswordView";
+			
+		} else {
+			
+			if(role == 1) {
+				
+				return "redirect:/map";
+				
+			} else {
+				
+				return "redirect:/user/admin/adminMain";
+				
+			}
+		}
+		
+	}
+
 	private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
 		
 		Cookie cookie = new Cookie("JSESSIONID", sessionId);
@@ -550,9 +472,11 @@ public class UserController {
 			cookie.setMaxAge(60 * 60 * 24 * 90 );
 		else
 			cookie.setMaxAge(30 * 60);
+			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
 		
 		return cookie;
 	}
+		 */
 	
 	private Cookie createTempCookie(String cookieId, String sessionId) {
 		
@@ -607,60 +531,6 @@ public class UserController {
 					.build();
 		
 		return profile;
-	}
-	
-	private Map<String, String> getSocialIdByCookie(HttpServletRequest request, HttpServletResponse response) {
-		
-		Map<String, String> map = new HashMap<>();
-		
-		Cookie[] cookies = request.getCookies();
-		
-		for(Cookie cookie : cookies) {
-			
-			String cookieName = cookie.getName();
-			
-			if(cookieName.equals("KAKAOKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "2");
-				
-				return map;
-				
-			} else if(cookieName.equals("NAVERKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "2");
-				
-				return map;
-				
-			} else if(cookieName.equals("GOOGLEKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilTempSocialId.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "2");
-				
-				return map;
-				
-			} else {
-				System.out.println("social login 가입이 아님");
-			}
-		}
-		
-		return null;
 	}
 	
 }

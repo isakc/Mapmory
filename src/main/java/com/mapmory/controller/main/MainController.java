@@ -3,6 +3,7 @@ package com.mapmory.controller.main;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,16 @@ public class MainController {
 	
 	@Autowired
 	private RedisUtil<SessionData> redisUtil;
+	
+    @Value("${naver.client.id}")
+	private String naverClientId;
+	
+	@Value("${naver.redirect.uri}")
+	private String naverRedirectUri;
+	
+	@Value("${naver.state}")
+	private String naverState;
+	
 	
 	@GetMapping("/")
 	public String index(HttpServletRequest request, Model model) {
@@ -31,6 +42,10 @@ public class MainController {
 			}
 				
 		}
+		
+		model.addAttribute("naver_client_id", naverClientId);
+		model.addAttribute("naver_redirect_uri", naverRedirectUri);
+		model.addAttribute("naver_state", naverState);
 		
 		return "index.html";
 	}

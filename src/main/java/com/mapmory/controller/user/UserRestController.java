@@ -6,17 +6,24 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +58,9 @@ import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
@@ -65,6 +75,8 @@ public class UserRestController {
     @Value("${captcha.api.secret.key}")
     private String clientSecret;
 	
+    @Value("${server.host.name}")
+	private String hostName;
 	
 	@Autowired
 	JavaMailSenderImpl mailSender;
@@ -85,6 +97,10 @@ public class UserRestController {
 	@Autowired
 	private RedisUtil<SessionData> redisUtil;
 	
+	// 소셜 로그인용
+	@Autowired
+	private RedisUtil<String> redisUtilTempSocialId;
+	
 	@Autowired
 	private RedisUtil<Integer> redisUtilAuthCode;
 	
@@ -101,24 +117,35 @@ public class UserRestController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
+	@Value("${kakao.client.Id}")
+    private String kakaoClientId;
+    
+    @Value("${kakao.redirect.uri}")
+    private String kakaoRedirectUri;
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody Login loginData, HttpServletResponse response) throws Exception {
-		
-		String userId = loginData.getUserId();
+	public ResponseEntity<String> login(@RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+			
+		String userId = map.get("userId");
+		String password = map.get("userPassword");
 		
 		if(userId.isEmpty())
 			throw new Exception("아이디가 비어있습니다.");
 		
-		if(loginData.getUserPassword().isEmpty())
+		if(password.isEmpty())
 			throw new Exception("비밀번호가 비어있습니다.");
 		
+		Login loginData = Login.builder()
+				.userId(userId)
+				.userPassword(password)
+				.build();
 		
-		String savedPassword = userService.getPassword(userId);
-		boolean isValid = loginService.login(loginData, savedPassword);
+		String encodedPassword = userService.getPassword(userId);
+		boolean isValid = loginService.login(loginData, encodedPassword);
 		
 		if( !isValid) {
 
@@ -130,38 +157,63 @@ public class UserRestController {
 			
 			if(resultMap.get("isSuspended").equals("true")) {
 
+				
 				return ResponseEntity.ok(resultMap.get("endSuspensionDate"));
 				
 			} else {
 				
+				byte role = userService.getDetailUser(userId).getRole();
+				boolean keep = Boolean.valueOf(map.get("keepLogin"));
+				
+				acceptLogin(userId, role, response, keep);
+				
 				boolean result = userService.checkPasswordChangeDeadlineExceeded(userId);
 				if(!result) {
 				
+					// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
 					return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
 					
 				} else {
 
-					return ResponseEntity.ok("true");
-					
+					if(role == 1)
+						return ResponseEntity.ok("user");
+					else
+						return ResponseEntity.ok("admin");
 				}	
 			}	
 		}
 	}
 
-	/*
 	@PostMapping("/signUp")
-	public ResponseEntity<Boolean> postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		// transaction 처리 필요 - 소셜 로그인
 		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
 		
 		if( !isDone) {
 			
 			throw new Exception("회원가입에 실패했습니다.");
+			
+		} else {
+			
+			// transaction 처리 필요
+			// String kakaoId = redisUtil.select("", String.class);
+			
+			/*
+			Map<String, String> map = getSocialIdByCookie(request, response);
+
+	        if (map != null) {
+	        	
+	            System.out.println("Calling addSocialLoginLink");
+	            userService.addSocialLoginLink(user.getUserId(), map.get("socialId"));
+	            System.out.println("Finished addSocialLoginLink");
+	            
+	        }
+	        */
+			return ResponseEntity.ok(true);
 		}
 		
-		return ResponseEntity.ok(true);
 	}
-	*/
 	
 	@PostMapping("/addFollow")
 	public ResponseEntity<Boolean> addFollow(HttpServletRequest request, @RequestBody Map<String, String> value) {
@@ -240,9 +292,14 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Boolean> updatePassword() {
+	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response) {
 		
-		return ResponseEntity.ok(true);
+		
+		
+		if(true)
+			return ResponseEntity.ok(true);
+		else
+			return ResponseEntity.ok(false);
 	}
 	
 	@PostMapping("/updateSecondaryAuth")
@@ -305,7 +362,7 @@ public class UserRestController {
 		
 		String userId = value.get("userId");
 		
-		boolean result = userService.checkSecondaryAuth(userId);
+		boolean result = userService.checkSetSecondaryAuth(userId);
 		
 		return ResponseEntity.ok(result);
 	}
@@ -317,6 +374,105 @@ public class UserRestController {
 		System.out.println("value : " + s);
 		return ResponseEntity.ok(!contentFilterUtil.checkBadWord(s));
 	}
+
+	@PostMapping("/generateKey")
+	public GoogleAuthenticatorKey generateKey(@RequestBody Map<String, String> value) { 
+		
+		String encodedKey = new String(userService.generateSecondAuthKey()); 
+
+		GoogleAuthenticatorKey key = new GoogleAuthenticatorKey();
+		key.setEncodedKey(encodedKey);
+		key.setUserName(value.get("userName"));
+		key.setHostName(hostName);
+		/*
+		 * 발급된 encodedKey를 가지고 본인의 Google Authenticator app에 추가한다.
+		 * Google Authenticator app에서 QR을 통해서도 등록이 가능하다.
+		 */
+		return key; 
+	}
+	
+	@PostMapping("/checkSecondaryKey")
+	public ResponseEntity<Boolean> checkKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
+		
+		
+		boolean result = userService.checkSecondAuthKey(googleUserOtpCheck);
+		
+		return ResponseEntity.ok(result);
+	}
+	
+	@RequestMapping("/naver/auth/callback")
+	public String naverCallback(@RequestParam String code, @RequestParam String state, Model model) throws Exception {
+		
+	    NaverProfile profileInfo = userService.getNaverProfile(code, state);
+	    
+	    String userId = userService.getUserIdBySocialId(profileInfo.getId());
+	    
+	    // 회원가입 페이지로 이동
+	    if(userId == null) {
+
+	    	model.addAttribute("profileInfo", profileInfo);
+	    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    	
+	    } else {
+	    	
+	    	return "redirect:/map";
+	    	
+	    }
+	}
+	
+	
+	@GetMapping("/getKakaoLoginView")
+	public String getKakaoLoginView() {
+
+        // 카카오 로그인 페이지로 리다이렉트
+        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
+        
+        return "redirect:" + kakaoAuthUrl;
+		
+	}
+	
+	@GetMapping("/kakaoCallback")
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) {
+        try {
+        	
+            String accessToken = userService.getKakaoAccessToken(code);
+            String kakaoId = userService.getKakaoUserInfo(accessToken);
+            
+            if (kakaoId == null) {
+                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
+            }
+
+            String userId = userService.getUserIdBySocialId(kakaoId);
+            if (userId == null) {
+            	
+                // 소셜 로그인 정보가 없는 경우
+            	String uuid = UUID.randomUUID().toString();
+                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
+                // Cookie cookie = createTempCookie("KAKAOKEY", uuid);
+                Cookie cookie = createCookie("KAKAOKEY", uuid, 60 * 5, "/user/getSignUpView");
+                response.addCookie(cookie);
+                
+                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
+                
+            } else {
+
+            	User user = userService.getDetailUser(userId);
+            	          	
+            	String uuid = UUID.randomUUID().toString();
+            	loginService.setSession(userId, user.getRole(), uuid, false);
+            	Cookie cookie = createLoginCookie(uuid, false);
+            	response.addCookie(cookie);
+            	
+                return "redirect:/map"; // 메인 페이지로 리다이렉트   
+                
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+	
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -374,6 +530,8 @@ public class UserRestController {
 		else
 			return ResponseEntity.internalServerError().body(false);
 	}
+
+	
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -391,7 +549,7 @@ public class UserRestController {
 		
 		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey);
+		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
 		
 		response.addCookie(cookie);
 		
@@ -431,7 +589,7 @@ public class UserRestController {
 		
 		redisUtilAuthCode.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey);
+		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user/getSignUpView");
 		
 		response.addCookie(cookie);
 		
@@ -545,18 +703,130 @@ public class UserRestController {
         // System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
         return bytes;
     }
+    
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// utility ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+
 	
-    private Cookie createCookie(String codeKeyName, String codeKey) {
+    private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
 		
 		Cookie cookie = new Cookie(codeKeyName, codeKey);
-		cookie.setPath("/user/getSignUpView");
+		cookie.setPath(path);
 		// cookie.setDomain("mapmory.co.kr");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(false);
-		cookie.setMaxAge(5 * 60);
+		cookie.setMaxAge(maxAge);
 		
 		return cookie;
 	}
     
+    
+    private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
+
+		String sessionId = UUID.randomUUID().toString();
+		if ( !loginService.setSession(userId, role, sessionId, keep))
+			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		Cookie cookie = createLoginCookie(sessionId, keep);
+		response.addCookie(cookie);
+		
+		userService.addLoginLog(userId);
+		// boolean isLog = userService.addLoginLog(userId);
+		// System.out.println("로그인 로그 등록 여부 : " + isLog);
+		
+		/*
+		boolean wantToChangePassword = changePassword; 
+		if(wantToChangePassword) {
+			
+			return "redirect:/user/getUpdatePasswordView";
+			
+		} else {
+			
+			if(role == 1) {
+				
+				return "redirect:/map";
+				
+			} else {
+				
+				return "redirect:/user/admin/adminMain";
+				
+			}
+		}
+		*/
+	}
+    
+    private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
+		
+		Cookie cookie = new Cookie("JSESSIONID", sessionId);
+		cookie.setPath("/");
+		// cookie.setDomain("mapmory.life");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(true);
+		
+		if(keepLogin)
+			cookie.setMaxAge(60 * 60 * 24 * 90 );
+		else
+			cookie.setMaxAge(30 * 60);
+			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
+		
+		return cookie;
+	}
+    
+    private Map<String, String> getSocialIdByCookie(HttpServletRequest request, HttpServletResponse response) {
+		
+		Map<String, String> map = new HashMap<>();
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else if(cookieName.equals("NAVERKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else if(cookieName.equals("GOOGLEKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else {
+				System.out.println("social login 가입이 아님");
+			}
+		}
+		
+		return null;
+	}
     
 }

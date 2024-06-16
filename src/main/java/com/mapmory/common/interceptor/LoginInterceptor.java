@@ -37,8 +37,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 		System.out.println("requestURI : " + requestURI);
 		
 		/// white list
-		if(requestURI.equals("/")) {
+		if(requestURI.equals("/") || requestURI.equals("/login")) {
 			
+			// 정지된 사용자의 경우에는 로그인 유지할 쿠키를 제거해서 재접속 불가능하게 만듦.
 			Cookie[] cookies = request.getCookies();
 			
 			if(cookies != null ) {
@@ -60,8 +61,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 								response.addCookie(deleteCookie);
 								response.sendRedirect("/");
 							}
-							
-							System.out.println("세션이 만료되었습니다.");
+
 							response.sendRedirect(loginPath);
 							return false;
 						}
