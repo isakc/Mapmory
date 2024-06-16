@@ -185,18 +185,27 @@ public interface UserService {
 	public boolean deleteSuspendUser(int logNo);
 
 	/**
-	 * false : 사용 가능, true : 중복됨
+	 * false : 중복됨, true : 사용 가능
 	 * @param userId
 	 * @return
 	 */
 	public boolean checkDuplicationById(String userId);
 	
 	/**
-	 * false : 사용 가능, true : 중복됨
+	 * false : 중복됨, true : 사용 가능
 	 * @param nickname
 	 * @return
 	 */
 	public boolean checkDuplicationByNickname(String nickname);
+	
+	
+	/**
+	 * true : 존재함, false : 존재하지 않음
+	 * @param userId
+	 * @param email
+	 * @return
+	 */
+	public boolean checkUserExist(String userId, String email);
 	
 	/**
 	 * true : 검증됨, false : 검증 실패 

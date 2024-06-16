@@ -389,9 +389,7 @@ public class UserRestController {
 		} else {
 			throw new Exception("잘못된 type");
 		}
-		
-		result = !result;  
-		
+
 		return ResponseEntity.ok(result);
 	}
 	

@@ -105,6 +105,12 @@
 				
 				window.location.href="/user/getIdView";
 			});
+			
+			$('#getPassword').on('click', function() {
+				
+				
+				window.location.href="/user/getPasswordView";
+			});
  		});
  		
  		$(function(){
@@ -140,6 +146,7 @@
 	        <button type="button" id="signUp">회원가입</button>
 	        
 	        <button type="button" id="getId">아이디 찾기</button>
+	        <button type="button" id="getPassword">비밀번호 찾기</button>
 	        
 	        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
 	        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인">

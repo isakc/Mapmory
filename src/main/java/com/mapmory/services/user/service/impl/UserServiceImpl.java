@@ -373,6 +373,21 @@ public class UserServiceImpl implements UserService {
 		User resultUser =  userDao.selectUser(user);
 		return resultUser.getUserId();
 	}
+	
+	@Override
+	public boolean checkUserExist(String userId, String email) {
+		// TODO Auto-generated method stub
+		
+		User user = User.builder()
+					.userId(userId)
+					.email(email)
+					.build();
+		User resultUser =  userDao.selectUser(user);
+		if(resultUser != null)
+			return true;
+		else
+			return false;
+	}
 
 	@Deprecated
 	@Override
@@ -752,7 +767,7 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.checkDuplication(user);
 		
-		return intToBool(result);
+		return !intToBool(result);
 	}
 	
 	@Override
@@ -765,7 +780,7 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.checkDuplication(user);
 		
-		return intToBool(result);
+		return !intToBool(result);
 	}
 	
 	@Override

@@ -216,6 +216,12 @@ $(function() {
 		}
 		
 	});
+	
+	$('#email').on('input', function() {
+		if (event.keyCode === 32) {
+	    	event.preventDefault(); // 기본 동작 취소
+    	}
+  	});
 });
 
 ////////////////////////////// captcha //////////////////////////////

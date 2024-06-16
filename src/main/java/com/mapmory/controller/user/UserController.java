@@ -59,6 +59,7 @@ import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
 import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
+import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
@@ -179,20 +180,27 @@ public class UserController {
 		
 	}
 	
-	@PostMapping("/getId")
-	public void postIdView(@RequestParam Map<String, String> map,  Model model) {
-		
-		String userName = map.get("userName");
-		String email = map.get("email");
-		
-		String userId= userService.getId(userName, email);
-		
-		model.addAttribute(userId);
+	@GetMapping("/getPasswordView")
+	public void getPasswordView() {
 		
 	}
 	
-	@GetMapping("/getPasswordView")
-	public void getPasswordView() {
+	@PostMapping("/getPasswordView")
+	public String postPasswordView(@RequestParam Map<String, String> map) {
+		
+		String userId = map.get("userId");
+		String email = map.get("email");
+		
+		boolean result = userService.checkUserExist(userId, email);
+		
+		// 시간 되면 uuid로 변환할 것
+		createCookie("UPDATEPW", userId, 60*5, "/user");
+		
+		if(result == true)
+			return "redirect:/user/getUpdatePasswordView";
+		else
+			return "/error";
+		
 		
 	}
 	
@@ -208,22 +216,6 @@ public class UserController {
 		
 		model.addAttribute("userId", userId);
 	}
-	
-	
-	/*
-	@GetMapping("/getGoogleLoginView")
-	public void getGoogleLoginView() {
-		
-		
-	}
-
-	@GetMapping("/getNaverLoginView")
-	public void getNaverLoginView() {
-		
-	}
-	*/
-	
-	
 	
 	@GetMapping("/getUserInfo")
 	public void getUserInfo() { 
@@ -324,7 +316,8 @@ public class UserController {
 	}
 
 	@GetMapping("/getUpdatePasswordView")
-	public void getUpdatePasswordView() {
+	public void postUpdatePasswordView(@RequestParam Map<String, String> map) {
+		
 		
 	}
 
