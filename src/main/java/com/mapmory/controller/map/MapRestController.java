@@ -66,7 +66,7 @@ public class MapRestController {
 		
 		return resultTransitRouterList;
 	}// getTransitRouteList: 대중교통 경로 요청
-	
+
 	@ResponseBody
 	@PostMapping(value="rest/getMapRecordList")
 	public List<MapRecord> getMapRecordList(@RequestBody Search search) throws Exception {
