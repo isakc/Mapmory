@@ -327,17 +327,22 @@ public class UserController {
 	}
 
 	@GetMapping("/getUpdateProfileView")
-	public void getUpdateProfileView(Model model) throws Exception {
+	public void getUpdateProfileView(Model model, HttpServletRequest requset) throws Exception {
 		
-		String userId = "user1";
+		String userId = redisUtil.getSession(requset).getUserId();
 		
 		User user = userService.getDetailUser(userId);
 		
 		// String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
+		/*
 		ByteArrayResource cdnPath = objectStorageUtil.getImageResource(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		System.out.println(cdnPath);
 		
 		model.addAttribute("profileImage", cdnPath);
+		*/
+		
+		model.addAttribute("user",user );
 		
 	}
 

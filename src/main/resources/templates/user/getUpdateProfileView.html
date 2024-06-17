@@ -27,11 +27,12 @@
 		<div class="container">
 			<form>
 				<input type="file" name="profile" accept="image/*" class="form-control" />
-				<input type="text" name="introduction" class="form-control" placeholder="자기소개 작성" />
+				<input type="text" name="introduction" class="form-control" placeholder="자기소개 작성" th:value="${user.introduction}" />
 				<button type="button" class="btn btn-primary" id="submitButton">제출</button>
 			</form>
 			
-			<img th:src="${profileImage}">
+			<!-- <img th:src="${profileImage}">  -->
+			<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
 		</div>
 </body>	
 </html>
