@@ -178,7 +178,7 @@
     	<div id="loginDiv" class="align-self-center">
     	
     		<div class="text-center">
-				<h2>사용자 로그인</h2>
+				<h2 class="fw-bold">사용자 로그인</h2>
 				<p>서비스 이용을 위해서는 로그인이 필요합니다.</p>
 			</div>
     		<form id="loginForm" >
@@ -217,22 +217,26 @@
 	         
 	        
 	        
-	        <div id="social-login-btn" class="mt-5 row text-center img-fluid">
-	        	<div>
+	        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
+	        	<div class="my-3">
 			        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
 			        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
 		        </div>
 		        </a>
-				<div id="naverIdLogin">
+				<div id="naverIdLogin" class="my-3">
 					<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
 					<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">
 					<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
 				</div>	
-		        <div id="kakao">
+		        <div id="kakao" class="my-3">
 					<a href="/user/getKakaoLoginView">
 	   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼" width=320>
 					</a>
 				</div>
+			</div>
+			
+			<div class="mt-3 d-flex justify-content-center">
+				<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
 			</div>
         </div>
 	        
