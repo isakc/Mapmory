@@ -17,6 +17,8 @@ public interface PurchaseDao {
 	//selectOne
 	public PurchaseDTO getDetailPurchase(int purchaseNo) throws Exception;
 	
+	public PurchaseDTO getSubscriptionPurchase(Purchase purchase) throws Exception;
+	
 	//selectList
 	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception;
 	
