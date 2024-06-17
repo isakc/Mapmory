@@ -4,16 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -95,7 +90,24 @@ public class TimelineRestController {
 		String text="";
 		int deleteSuccess=timelineService.deleteImage(imageNo);
 		if(deleteSuccess!=0) {
-			text+="사진 삭제 완료";
+			text+="사진 삭제 완료.";
+		}else {
+			text = "사진 삭제 실패.";
+		}
+		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("deleteMedia")
+	public ResponseEntity<Map<String, Object>> deleteMedia(Map<String, Object> map,
+			@RequestParam(name = "recordNo", required = true) int recordNo) throws Exception, IOException {
+		map = new HashMap<String, Object>();
+		String text="";
+		int deleteSuccess=timelineService.deleteMedia(recordNo);
+		if(deleteSuccess!=0) {
+			text = "영상 삭제 완료.";
+		} else {
+			text = "영상 삭제 실패.";
 		}
 		map.put("text", text);
 		return ResponseEntity.ok(map);

@@ -285,7 +285,7 @@ public class TimelineUtil {
 		}
 
 		public Record mediaNameToUrl(Record record) {
-			if (!(record.getMediaName() == null)) {
+			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
 				record.setMediaName(objectStorageUtil.getImageUrl(record.getMediaName(), mediaFileFolder));
 			}
 			return record;

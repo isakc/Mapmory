@@ -323,6 +323,11 @@ LIMIT #{limit} OFFSET #{offset}
     DELETE FROM image_tag WHERE image_tag_order=#{imageTagOrder} AND image_tag_type=1
 </delete>
 
+<update id='updateMedia' parameterType='Integer'>
+	UPDATE record SET media_name = NULL
+	WHERE record_no = #{recordNo:NUMERIC}
+</update>
+
 	<!-- Create -->
     <insert id="insertCategory" parameterType="category">
         INSERT INTO category (CATEGORY_NAME, CATEGORY_IMOJI)

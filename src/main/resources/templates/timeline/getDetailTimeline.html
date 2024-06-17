@@ -22,8 +22,10 @@
  				<span class="badge bg-primary" th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span>
  			</h4>
     		<div class="card-text">
+    			<span class="badge bg-primary" th:text="'일시'"></span>
  				<span th:text="${record.checkpointDate}"></span><br/>
- 				<span th:text="${record.checkpointAddress}"></span><br/>
+    			<span class="badge bg-primary" th:text="'주소'"></span>
+ 				<span th:text="${record.checkpointAddress}"></span><br/><br/>
  				<video width="320" height="240" controls>
         			<source th:src="${record.mediaName}" type="video/mp4">
     			</video><br/>
@@ -32,9 +34,9 @@
 					<img th:src="${image.imageTagText}" /><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->
  				</div>
- 				<div th:each="hash : ${record.hashtag}">
- 					<span th:name="hash" data-hash="${hash.imageTagText}" th:text="${hash.imageTagText}"></span><br/>
- 				</div>
+    			<span class="badge bg-primary" th:text="'해시태그'"></span>
+ 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
+    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
  				<span th:utext="${record.recordText}"></span>
  			</div>
  		</div>
@@ -73,7 +75,7 @@ $(function() {
 	})
 	
 	$("span[name='hash']").click(function() {
-		let hash=$(this).text();
+		let hash=$(this).text().trim();
 		let encodeHash=encodeURIComponent(hash)
 		uri="?searchKeyword="+encodeHash;
 		self.location="/map"+uri;

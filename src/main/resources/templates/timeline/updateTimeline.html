@@ -62,12 +62,12 @@
     </div>
     <br/>
     
-    <div th:name="mediaName">
+    <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
 		<video width="320" height="240" controls>
         	<source th:src="${record.mediaName}" type="video/mp4">
     	</video>
     	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" th:text="x"></button>
-		<!-- <span th:text="${record.mediaName}"></span> -->
+		<span th:text="'영상 파일 이름 : _'+${record.mediaName}+'_'"></span>
     </div>
     <div class="row">
       <label for="mediaFile" class="form-label mt-4" th:text="'영상 파일'"></label>
@@ -76,10 +76,12 @@
     </div>
     
 	<div th:each="image : *{imageName}">
+	<div th:name="${image.imageTagOrder}">
 		<img th:src="${image.imageTagText}" />
 		<!-- <span th:text="${image.imageTagText}"></span> -->
 		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
-		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" data-imagetagorder="${image.imageTagOrder}" th:text="x"></button>
+		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" th:data-imagetagorder="${image.imageTagOrder}" th:text="x"></button>
+    </div>
     </div>
     <div class="row">
 		<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
@@ -136,10 +138,44 @@ $(function() {
 		window.open("/timeline/addVoiceToText",'_blank','width=400,height=300,left=400,top=300,scrollbars=no,location=no,toolbar=no,menubar=no,resizable=no');
 	})
 	
+	$("button[name='mediaX']").click(function() {
+			$.ajax("/timeline/rest/deleteMedia",{
+				method : "GET",
+				dataType : "json",
+				data : {
+					recordNo : recordNo
+				},
+				success : function(response,status){
+					alert(JSON.stringify(response));
+					console.log(JSON.stringify(response));
+					$('div[name="mediaName"]').remove();
+				},
+                error: function(xhr, status, error) {
+                    alert('Error: ' + error);
+                }
+				
+			})
+		})
+	
 	$("button[name='imageX']").click(function() {
-		let imageTagOrder=$(this).data('imagetagorder');
-		uri="?recordNo="+recordNo;
-		self.location="/timeline/updateTimeline"+uri;
+		let imageNo=$(this).data('imagetagorder');
+		console.log(imageNo);
+		$.ajax("/timeline/rest/deleteImage",{
+			method : "GET",
+			dataType : "json",
+			data : {
+				imageNo : imageNo
+			},
+			success : function(response,status){
+				alert(JSON.stringify(response));
+				console.log(JSON.stringify(response));
+				$('div[name="'+imageNo+'"]').remove();
+			},
+            error: function(xhr, status, error) {
+                alert('Error: ' + error);
+            }
+			
+		})
 	})
 })
 </script>

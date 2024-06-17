@@ -85,6 +85,7 @@ public class TimelineController {
 				.selectDay2((Date.valueOf(tomorrow.plusDays(1)))+" "+defaultTime)
 				.timecapsuleType(0)
 				.build();
+		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("timelineList", timelineService.getTimelineList(search));
 		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
