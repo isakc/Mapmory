@@ -126,9 +126,11 @@ public class RedisUtil<T> {
 			if(cookie.getName().equals("JSESSIONID")) {
 				
 				sessionId = cookie.getValue();
+				return (SessionData) redisTemplate.opsForValue().get(sessionId);
+				
 			}
 		}
 		
-		return (SessionData) redisTemplate.opsForValue().get(sessionId);
+		return null;
 	}
 }

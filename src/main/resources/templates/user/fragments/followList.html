@@ -1,0 +1,92 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<script>
+	$(function() {
+		
+		$('#back').on('click', function() {
+			
+			history.back();
+		});
+		
+		$('input').on('input', function() {
+			
+			// 입력할 때마다 리스트 최신화
+		});
+		
+		$(document).on('click', '.follow', function() {
+			
+			$.ajax({
+		      url: "/user/rest/addFollow",
+		      method: "POST",
+		      data: {
+		        targetId: $(this).parent().find('div').attr('id')
+		      },
+		      success: function(response) {
+		        
+				if(response == true || response == "true") {
+					
+					$(this).parent().find("button").text("언팔로우");
+					$(this).parent().find("button").attr('class', 'unfollow');
+					
+				} else {
+					
+					console.log('false');
+					alert('변경 실패...');
+					
+				}
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+		    });
+		});
+		
+		$(document).on('click', '.unfollow', function() {
+			
+
+			$.ajax({
+		      url: "/user/rest/deleteFollow",
+		      method: "POST",
+		      data: {
+		        targetId: userId
+		      },
+		      success: function(response) {
+		        
+				if(response == true || response == "true") {
+					
+					$(this).parent().find("button").text("팔로우");
+					$(this).parent().find("button").attr('class', 'follow');
+					
+				} else {
+					
+					console.log('false');
+					alert('변경 실패...');
+					
+				}
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+		    });
+
+		});
+		
+		$(document).on('click', '.userDiv', function() {
+			
+			window.location.href="/user/getProfile?userId="+$(this).attr('id');
+		});
+	});
+</script>
+
+<div th:each="user : ${list}">
+	<div th:id="${user.userId}" class="userDiv">
+		<img th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
+		<p th:text="${user.nickname}"></p>
+		<p th:text="${user.isSubscribed == 1} ? '구독 중' : '구독 안함'"></p>
+		<p style="display:none;" th:text="${user.hideProfile}"></p>
+	</div>
+	<button type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:class="${isFollow} ? 'unfollow' : 'follow'" ></button>
+	<hr/>
+</div>

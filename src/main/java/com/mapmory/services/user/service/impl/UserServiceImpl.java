@@ -238,6 +238,20 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public boolean addFollow(String userId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(userId)
+				.targetId(targetId)
+				.build();
+
+		int result = userDao.insertFollow(follow);
+		
+		return intToBool(result);
+		
+	}
+	
+	@Override
 	public User getDetailUser(String userId) {
 		// TODO Auto-generated method stub
 		User user = User.builder()
@@ -292,7 +306,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow) {
+	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, int selectFollow) {
 		// TODO Auto-generated method stub
 		
 		FollowSearch search = FollowSearch.builder()
@@ -308,7 +322,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow) {
+	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, int selectFollow) {
 		
 		FollowSearch search = FollowSearch.builder()
 				.selectFollow(selectFollow)
@@ -482,6 +496,15 @@ public class UserServiceImpl implements UserService {
 		
 		return userDao.selectPassword(userId);
 	}
+	
+	@Override
+	public String getUserIdBySocialId(String socialId) throws Exception {
+		
+		return userDao.selectUserIdBySocialId(socialId);
+		
+	};
+	
+	
 	
 	@Override
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception {
@@ -756,8 +779,28 @@ public class UserServiceImpl implements UserService {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
+	public int PhoneNumberCheck(String to) throws Exception {
+		// String smsProvider = "https://api.coolsms.co.kr";
+		// DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
+
+		Random random = new Random();
+		int codeValue = random.nextInt(888888)+111111; 
+
+		/*
+		Message message = new Message();
+		message.setFrom(phoneNum);    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
+		message.setTo(to);    				// 수신전화번호 (ajax로 view 화면에서 받아온 값으로 넘김)
+		message.setText("인증번호는 : [" + numStr + "]");
+
+		SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
+		SingleMessageSentResponse response = messageService.sendOne(request); // 메시지 전송
+		*/
+		
+		return codeValue;
+	}
+	
 	@Override
-    public String getKakaoAccessToken (String authorize_code) {
+    public String getKakaoAccessToken (String authorizeCode) {
         String access_Token = "";
         String refresh_Token = "";
         String reqURL = "https://kauth.kakao.com/oauth/token";
@@ -777,9 +820,9 @@ public class UserServiceImpl implements UserService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
-            sb.append("&redirect_uri=http://localhost:8000/user/kakaoLogin&response_type=code");     // 본인이 설정해 놓은 경로
-            sb.append("&code=" + authorize_code);
-            System.out.println("authorize_code : " + authorize_code);
+            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&code=" + authorizeCode);
+            System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());
             bw.flush();
 
@@ -818,7 +861,7 @@ public class UserServiceImpl implements UserService {
     }
 	
 	@Override
-    public String getKakaoUserInfo (String access_Token) throws Exception {
+    public String getKakaoUserInfo (String accessToken) throws Exception {
 
         //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> kakaoInfo = new HashMap<String, Object>();
@@ -830,7 +873,7 @@ public class UserServiceImpl implements UserService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            conn.setRequestProperty("Authorization", "Bearer " + access_Token);
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
 
             int responseCode = conn.getResponseCode();
             System.out.println("responseCode : " + responseCode);
@@ -860,26 +903,14 @@ public class UserServiceImpl implements UserService {
 
         return kakaoId; // 예외 발생 시 null 반환
     }
+
 	
-	public int PhoneNumberCheck(String to) throws Exception {
-		// String smsProvider = "https://api.coolsms.co.kr";
-		// DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
-
-		Random random = new Random();
-		int codeValue = random.nextInt(888888)+111111; 
-
-		/*
-		Message message = new Message();
-		message.setFrom(phoneNum);    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
-		message.setTo(to);    				// 수신전화번호 (ajax로 view 화면에서 받아온 값으로 넘김)
-		message.setText("인증번호는 : [" + numStr + "]");
-
-		SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
-		SingleMessageSentResponse response = messageService.sendOne(request); // 메시지 전송
-		*/
-		
-		return codeValue;
-	}
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// util ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
 
 	private boolean intToBool(int result) {
 		

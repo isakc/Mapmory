@@ -37,10 +37,10 @@ public class LoginServiceImpl implements LoginService {
 		}
 	}
 	
-	public boolean setSession(Login loginData, byte role, String sessionId, boolean keepLogin) {
+	public boolean setSession(String userId, byte role, String sessionId, boolean keepLogin) {
 		
 		SessionData sessionData = SessionData.builder()
-				.userId(loginData.getUserId())
+				.userId(userId)
 				.role(role)
 				.build();
 		
