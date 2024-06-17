@@ -1,40 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
 	<title>구매 목록</title>
+	
+	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
+	<link rel="stylesheet" href="/css/common/footer.css">
 </head>
 <body>
-<table border="1">
-        <thead>
-            <tr>
-            	<th>purchaseNo</th>
-            	<th>userId</th>
-            	<th>productNo</th>
-            	<th>paymentMethod</th>
-            	<th>cardType</th>
-            	<th>lastFourDigits</th>
-            	<th>purchaseDate</th>
-            	<th>price</th>
-                <th>productTitle</th>
-                <th>period</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="item : ${purchaseList}">
-                <td th:text="${item.purchaseNo}"></td>
-                <td th:text="${item.userId}"></td>
-                <td th:text="${item.productNo}"></td>
-                <td th:text="${item.paymentMethod}"></td>
-                <td th:text="${item.cardType}"></td>
-                <td th:text="${item.lastFourDigits}"></td>
-                <td th:text="${item.purchaseDateString}"></td>
-                <td th:text="${item.price}"></td>
-                <td th:text="${item.productTitle}"></td>
-                <td th:text="${item.period}"></td>
-            </tr>
-        </tbody>
-    </table>
+	
+	<div id=content-for-footer>
+	<div class="container mt-3">
+		<h1 class="fs-1 fw-bold text-center">결제 목록</h1>
+		<ul class="list-group" >
+			<li class="list-group-item justify-content-between align-items-center border-0" th:each="item : ${purchaseList}">
+				
+				<!-- 카드 -->
+				<div class="card mb-3">
+  					<div class="card-header fs-3">결제완료</div>
+  					<div class="card-body">
+    					<p class="card-text text-body-tertiary" th:text="${item.purchaseDateString} +'결제'"></p>
+    					<h4 class="card-title fs-3 fw-bold" th:text="${item.productTitle}"></h4>
+    					<p class="card-text fs-3 fw-bold" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|"></p>
+    					<span class="card-text fs-3 fw-bold" th:text="${item.paymentMethodString}"></span>
+    					<span class="card-text fs-3 fw-bold" th:if="${item.paymentMethod} == 1" th:text="${item.cardType} + ${item.lastFourDigits}"></span>
+  					</div><!-- card-body -->
+				</div><!-- card -->
+			</li>
+		</ul>
 
+	</div><!-- Container -->
+	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

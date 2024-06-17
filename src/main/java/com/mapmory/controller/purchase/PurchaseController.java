@@ -21,6 +21,7 @@ import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.service.ProductService;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
+import com.mapmory.services.purchase.dto.PurchaseDTO;
 import com.mapmory.services.purchase.service.PurchaseFacadeService;
 import com.mapmory.services.purchase.service.PurchaseService;
 import com.mapmory.services.purchase.service.SubscriptionService;
@@ -54,6 +55,10 @@ public class PurchaseController {
 	
 	@GetMapping(value="/addPurchaseView/{productNo}")
 	public String addPurchaseView(@PathVariable("productNo") int proudctNo, Model model, HttpServletRequest request) throws Exception {
+		
+		if(subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()) != null) {
+			model.addAttribute("message", "현재 구독 중입니다.");
+		}
 		
 		Product product = productService.getDetailProduct(proudctNo);
 		
@@ -120,9 +125,14 @@ public class PurchaseController {
 	
 	@GetMapping(value="/getDetailSubscription")
 	public String getDetailSubscription(Model model, HttpServletRequest request) throws Exception {
-		
-		model.addAttribute("subscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
+		PurchaseDTO purchase = purchaseService.getSubscriptionPurchase(
+				Purchase.builder().userId(redisUtil.getSession(request).getUserId()).productNo(productService.getSubscription().getProductNo()).build());
 
+		if(purchase != null) {
+			model.addAttribute("purchase", purchase);
+		}
+		model.addAttribute("subscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
+		
 		return "purchase/getDetailSubscription";
 	}// getDetailSubscription: 구독 상세 보기
 	
@@ -151,11 +161,11 @@ public class PurchaseController {
 		return "redirect:/purchase/getDetailSubscription";
 	}// cancelSubscription: 구독 해지
 	
-	@GetMapping(value="/purchaseMenu")
+	@GetMapping(value="/subscriptionMenu")
 	public String purchaseMenu(Model model) throws Exception {
 		
 		model.addAttribute("subscription", productService.getSubscription());
 		
-		return "purchase/purchaseMenu";
+		return "purchase/subscriptionMenu";
 	}// purchaseMenu: 구독 메뉴
 }

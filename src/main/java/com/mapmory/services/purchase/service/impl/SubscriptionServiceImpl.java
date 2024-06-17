@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.util.PurchaseUtil;
 import com.mapmory.exception.purchase.SubscriptionException;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.purchase.dao.SubscriptionDao;
@@ -56,8 +57,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	
     @Override
     public boolean addSubscription(Subscription subscription) throws Exception{
+    	Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
     	
-    	if (getDetailSubscription(subscription.getUserId()) == null) {
+    	if (currentSubscription == null || !(currentSubscription.isSubscribed()) ) {
     		
     		if(subscriptionDao.addSubscription(subscription) == 1 ) {
     			
@@ -72,8 +74,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public Subscription getDetailSubscription(String userId) throws Exception{
+    	Subscription subscription = subscriptionDao.getDetailSubscription(userId);
     	
-        return subscriptionDao.getDetailSubscription(userId);
+    	if( subscription != null && subscription.isSubscribed()) {
+    		subscription.setSubscriptionStartDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionStartDate()));
+    		subscription.setSubscriptionEndDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionEndDate()));
+    		
+    		if(subscription.getNextSubscriptionPaymentDate() != null) {
+    			subscription.setNextSubscriptionPaymentDateString(PurchaseUtil.purchaseDateChange(subscription.getNextSubscriptionPaymentDate()));
+    		}
+    	}
+    	
+    	
+        return subscription;
     }// getDetailSubscription: 구독 상세 정보
 
     @Override
@@ -85,11 +98,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public boolean cancelSubscriptionPortOne(String userId) throws Exception{
 		Subscription subscription = getDetailSubscription(userId);
-		Map<String, Object> map = new HashMap<>();
-		map.put("customer_uid", subscription.getCustomerUid());
 
 		try {
-			UnscheduleData unscheduleData = new UnscheduleData("user7");
+			UnscheduleData unscheduleData = new UnscheduleData(subscription.getCustomerUid());
 			IamportResponse<List<Schedule>> scheduleResponse = iamportClient.unsubscribeSchedule(unscheduleData);
 
 			return scheduleResponse.getCode() == 0;

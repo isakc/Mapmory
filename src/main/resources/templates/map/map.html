@@ -124,7 +124,7 @@
 						  privateType: $('#private').is(':checked') ? 1 : 0, 
 						  categoryNo: 0,
 						  userId: userId,
-						  searchKeyword: $('input[name="searchKeyword"]').val() };
+						  searchKeyword: $('input[name="searchKeyword"]').val().replace("#", '') };
 
 			$.ajax({
 				url: "/map/rest/getMapRecordList", // 요청을 보낼 URL을 입력
@@ -247,7 +247,7 @@
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
 	function hasTagClick(tagText){
-		$("#searchKeyword").val(tagText.replace('#', ''));
+		$("#searchKeyword").val(tagText);
         searchRecord();
 	}// hasTagClick
 	
@@ -326,7 +326,7 @@
 				<div id="suggestions"></div>
         	
        			<label>
-            		<input type="radio" name="radius" value="1100" checked> 1km
+            		<input type="radio" name="radius" value="1" checked> 1km
         		</label>
         	
         		<label>
