@@ -10,21 +10,13 @@
         <result property="noticeText" column="notice_text" jdbcType="VARCHAR" />
         <result property="noticeRegDate" column="notice_reg_date" jdbcType="DATE" />
         <result property="userId" column="user_id" jdbcType="VARCHAR" />
-        <result property="noticeType" column="notice_type" jdbcType="TINYINT" />
+        <result property="noticeType" column="notice_type" jdbcType="INTEGER" />
     </resultMap>
 
-    <sql id="select-notice-and-faq-list">
-        SELECT
-        notice_no, notice_title, notice_text,
-        notice_reg_date, user_id, notice_type,
-        ROW_NUMBER() OVER (ORDER BY notice_no) AS row_seq
-        FROM notice
-    </sql>
-
     <insert id="addNoticeOrFaq" parameterType="notice">
-		INSERT INTO notice (notice_title, notice_text, notice_reg_date, user_id, notice_type)
-		VALUES (#{noticeTitle}, #{noticeText}, SYSDATE(), #{userId}, #{noticeType})
-	</insert>
+        INSERT INTO notice (notice_title, notice_text, notice_reg_date, user_id, notice_type)
+        VALUES (#{noticeTitle}, #{noticeText}, SYSDATE(), #{userId}, #{noticeType})
+    </insert>
 
     <select id="getDetailNotice" resultType="notice" resultMap="noticeSelectMap">
         SELECT
@@ -33,19 +25,54 @@
         WHERE notice_no = #{noticeNo}
     </select>
 
+
     <select id="getNoticeList" parameterType="search" resultMap="noticeSelectMap">
-	    <include refid="select-notice-and-faq-list" />
-	    WHERE notice_type = 0
-	    ORDER BY notice_no DESC
-	    LIMIT #{offset}, #{pageSize}
-	</select>
-	
-	<select id="getFaqList" parameterType="search" resultMap="noticeSelectMap">
-	    <include refid="select-notice-and-faq-list" />
-	    WHERE notice_type = 1
-	    ORDER BY notice_no DESC
-	    LIMIT #{offset}, #{pageSize}
-	</select>
+        SELECT
+        n.notice_title,
+        n.notice_text,
+        n.notice_no,
+        n.notice_reg_date,
+        n.user_id,
+        n.notice_type
+        FROM notice n
+        WHERE notice_type = 0
+        <if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0">
+                    AND n.notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1">
+                    AND n.notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
+        ORDER BY n.notice_NO DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="getFaqList" parameterType="search" resultMap="noticeSelectMap">
+        SELECT
+        n.notice_title,
+        n.notice_text,
+        n.notice_no,
+        n.notice_reg_date,
+        n.user_id,
+        n.notice_type
+        FROM notice n
+        WHERE notice_type = 1
+        <if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0">
+                    AND n.notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1">
+                    AND n.notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
+        ORDER BY n.notice_NO DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 
     <update id="updateNoticeAndFaq" parameterType="notice">
         UPDATE notice
@@ -62,21 +89,38 @@
         WHERE notice_no = #{noticeNo}
     </delete>
 
+    <select id="getFaQTotalCount" parameterType="search" resultType="int">
+        SELECT COUNT(*)
+        FROM notice
+        WHERE notice_type = 1
+        <if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0 and searchKeyword != ''">
+                    AND notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1 and searchKeyword != ''">
+                    AND notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </select>
+
     <select id="getNoticeTotalCount" parameterType="search" resultType="int">
         SELECT COUNT(*)
-        FROM( SELECT notice_no , notice_title , notice_text
         FROM notice
-        <if test="searchCondition != null">
-            <where>
-                <if test="searchCondition == 0 and searchKeyword !='' ">
-                    notice_title = #{searchKeyword}
-                </if>
-                <if test="searchCondition == 1 and searchKeyword !='' ">
-                    notice_text = #{searchKeyword}
-                </if>
-            </where>
-        </if> ) countTable
+        WHERE notice_type = 0
+        <if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0 and searchKeyword != ''">
+                    AND notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1 and searchKeyword != ''">
+                    AND notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
     </select>
+
 
 
 </mapper>

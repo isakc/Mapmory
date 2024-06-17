@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.notice.domain.Notice;
 import com.mapmory.services.notice.service.NoticeService;
@@ -33,51 +35,117 @@ public class NoticeController {
     private int pageSize;
 
     @GetMapping("/getNoticeList")
-    public String getNoticeList(@ModelAttribute("search") Search search, Model model) throws Exception {
-    	Notice notice = new Notice();
-    	
-    	if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-		
-		search.setPageSize(pageSize);
-		
-        Map<String, Object> map = noticeService.getNoticeList(search);
-        List<Notice> noticeList = (List<Notice>) map.get("noticeList");
-        
-        int totalCount = (int) map.get("noticeTotalCount");
-        
-        System.out.println("noticetList =====" + noticeList);
+    public String getNoticeList(@ModelAttribute("search") Search search, Model model) {
+        try {
 
-        model.addAttribute("noticeList", noticeList);
-        model.addAttribute("search", search);
-        model.addAttribute("totalCount", totalCount);
-        
-        return "notice/getNoticeOrFaqList";
+            if (search.getCurrentPage() == 0) {
+                search.setCurrentPage(1);
+            }
+            search.setPageSize(pageSize);
+
+
+            Map<String, Object> map = noticeService.getNoticeList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
+
+            model.addAttribute("search", search);
+            model.addAttribute("noticeList", map.get("noticeList"));
+            model.addAttribute("resultPage", resultPage);
+
+            return "notice/getNoticeList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
     }
     
     @GetMapping("/getFaqList")
-    public String getFaqList(@ModelAttribute("search") Search search, Model model) throws Exception {
-    	
-    	if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-		
-		search.setPageSize(pageSize);
-		
-        Map<String, Object> map = noticeService.getFaqList(search);
-        List<Notice> noticeList = (List<Notice>) map.get("noticeList");
-        
-        int totalCount = (int) map.get("noticeTotalCount");
-        
-        System.out.println("noticetList =====" + noticeList);
+    public String getFaqList(@ModelAttribute("search") Search search, Model model) {
+        try {
 
-        model.addAttribute("noticeList", noticeList);
-        model.addAttribute("search", search);
-        model.addAttribute("totalCount", totalCount);
+            if (search.getCurrentPage() == 0) {
+                search.setCurrentPage(1);
+            }
+            search.setPageSize(pageSize);
 
-        return "notice/getNoticeOrFaqList";
+
+            Map<String, Object> map = noticeService.getFaqList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
+
+            model.addAttribute("search", search);
+            model.addAttribute("noticeList", map.get("noticeList"));
+            model.addAttribute("resultPage", resultPage);
+
+            return "notice/getFaqList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
     }
+    
+    @GetMapping("/getAdminFaqList")
+    public String getAdminFaqList(@ModelAttribute("search") Search search, Model model) {
+        try {
+
+            if (search.getCurrentPage() == 0) {
+                search.setCurrentPage(1);
+            }
+            search.setPageSize(pageSize);
+
+
+            Map<String, Object> map = noticeService.getFaqList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
+
+            model.addAttribute("search", search);
+            model.addAttribute("noticeList", map.get("noticeList"));
+            model.addAttribute("resultPage", resultPage);
+
+            return "notice/admin/getAdminFaqList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+    
+    @GetMapping("/getAdminNoticeList")
+    public String getAdminNoticeList(@ModelAttribute("search") Search search, Model model) {
+        try {
+
+            if (search.getCurrentPage() == 0) {
+                search.setCurrentPage(1);
+            }
+            search.setPageSize(pageSize);
+
+
+            Map<String, Object> map = noticeService.getNoticeList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
+
+            model.addAttribute("search", search);
+            model.addAttribute("noticeList", map.get("noticeList"));
+            model.addAttribute("resultPage", resultPage);
+
+            return "notice/admin/getAdminNoticeList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+
 
     @PostMapping("/addNoticeOrFaq")
     public String addNoticeOrFaq(@ModelAttribute("Notice") Notice notice,
@@ -104,6 +172,16 @@ public class NoticeController {
         Notice notice = noticeService.getDetailNotice(noticeNo);
         model.addAttribute("notice", notice);
         System.out.println("notice 테스트용 == " + notice);
+        return "notice/getDetailNoticeOrFaq";
+    }
+    
+    @GetMapping("/admin/getDetailNotice/{noticeNo}")
+    public String getAdminDetailNotice(@PathVariable int noticeNo,
+                                  Model model) throws Exception {
+        System.out.println("getAdminDetailNotice Start...... ");
+        Notice notice = noticeService.getDetailNotice(noticeNo);
+        model.addAttribute("notice", notice);
+        System.out.println("notice 테스트용 == " + notice);
         return "notice/admin/getAdminDetailNoticeOrFaq";
     }
 
@@ -116,9 +194,9 @@ public class NoticeController {
         notice = noticeService.getDetailNotice(noticeNo);
         
         if(notice.getNoticeType() == 0) {
-        	return "redirect:/notice/getNoticeList";
+        	return "redirect:/notice/getAdminNoticeList";
         } else {
-        	return "redirect:/notice/getFaqList";
+        	return "redirect:/notice/getAdminFaqList";
         }
     }
 
@@ -128,7 +206,7 @@ public class NoticeController {
         System.out.println("/updateNoticeOrFaqView");
         Notice notice = noticeService.getDetailNotice(noticeNo);
         model.addAttribute("notice", notice);
-        return "notice/admin/updateNoticeOrFaqe";
+        return "notice/admin/updateNoticeOrFaq";
     }
 
     @GetMapping("deleteNoticeOrFaq/{noticeNo}")
@@ -146,5 +224,10 @@ public class NoticeController {
         } else {
             return "redirect:/notice/getFaqList";
         }
+    }
+    
+    @GetMapping("noticeMenu")
+    public String noticeMenu()throws Exception{
+    	return "/notice/noticeMenu";
     }
 }
