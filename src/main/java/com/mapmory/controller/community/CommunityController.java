@@ -19,6 +19,7 @@ import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.controller.timeline.TimelineController;
+import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -49,8 +50,10 @@ public class CommunityController {
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
-	TimelineController timelineController = new TimelineController();
+	@Value("${timeline.kakaomap.apiKey}")
+	private String apiKey;
 	
+	TimelineController timelineController = new TimelineController();
 	
 	//공유 기록 목록 조회
 	@GetMapping("/getSharedRecordList")
@@ -59,7 +62,6 @@ public class CommunityController {
 		userId = redisUtil.getSession(request).getUserId();
 		
 		search = Search.builder()
-				.userId(userId)
 				.currentPage(1)
 				.limit(10)
 				.build();
@@ -77,8 +79,17 @@ public class CommunityController {
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
 	    model.addAttribute("userId", userId);
+	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
+	    
+	    CommunityLogs communityLogs = CommunityLogs.builder()
+	    		.userId(userId)
+	    		.recordNo(recordNo)
+	    		.logsType(0)
+	    		.build();
+	    		
+	    communityService.addCommunityLogs(communityLogs);		
 	    
 	    System.out.println("model :"+model);
 		return "community/getDetailSharedRecord";

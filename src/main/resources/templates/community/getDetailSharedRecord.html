@@ -277,6 +277,7 @@
 			<div class="card=body">
 				<p class="recordTitle" th:text="${record.recordTitle}"></p>
 				<span th:text="${record.sharedDate}"></span>
+				<span th:text="'조회수 : ' + ${record.logsCount}"></span>
 				<span th:text="${record.updateCount}+'회 수정됨'"></span>
 			</div>
 			<div class="card-body">
@@ -286,6 +287,7 @@
 			<div class="card-body">
 				<span th:text="${record.latitude}"></span>
 				<span th:text="${record.longitude}"></span>
+				<div th:include="timeline/component/map::kakaoMap"></div>
 				<p th:text="${record.checkpointAddress}"></p>
 			</div>
 			<div class="card-body">

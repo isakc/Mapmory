@@ -36,6 +36,8 @@ import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.timeline.dto.SharedRecordDto;
+import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 
 import retrofit2.http.Path;
@@ -47,6 +49,10 @@ public class CommunityRestController {
 	@Autowired
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
+	
+	@Autowired
+	@Qualifier("timelineService")
+	private TimelineService timelineService;
 	
 	@Autowired
 	private CommunityDao communityDao;
@@ -72,6 +78,28 @@ public class CommunityRestController {
 	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
+	
+	//공유 기록 목록 무한스크롤
+	@GetMapping("/rest/getSharedRecordList")
+    public List<SharedRecordDto> getSharedRecordList(@RequestParam(defaultValue = "1") int currentPage,
+    												@RequestParam(defaultValue = "10") int limit,
+    												HttpServletRequest request) throws Exception {
+		
+		System.out.println("REST 시작");
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		Search search = Search.builder()
+		.currentPage(currentPage)
+		.limit(limit)
+		.userId(userId)
+		.build();
+
+		return timelineService.getSharedRecordList(search);
+}
+
+	
+	
 	
 	//댓글 추가
 	@PostMapping("/rest/addReply")
@@ -205,8 +233,7 @@ public class CommunityRestController {
 		int recordNo = 0;
 		userId = redisUtil.getSession(request).getUserId();
 		communityService.deleteCommunityLogs(communityLogs);		
-//		communityService.deleteCommunityLogs(userId, recordNo, replyNo);
-		
+
 		communityService.deleteReply(userId, replyNo);
 		return "redirect: community/getReplyList";
 	}	
@@ -225,6 +252,7 @@ public class CommunityRestController {
 		return ResponseEntity.ok(userReplyCount);
 	}	
 	
+	//좋아요 싫어요 중복 체크
 	@PostMapping("/rest/checkLogs")
 	public ResponseEntity<CommunityLogs> checkLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
 		
