@@ -1,25 +1,141 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상품 목록</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        table,
-        th,
-        td {
-            border: 1px solid black;
-            border-collapse: collapse;
-            padding: 5px;
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .product-header {
+            background-color: #2780e3;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .product-header a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .product-item {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        .product-image img {
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-info h2 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .product-info p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .product-info .price {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .product-actions {
+            text-align: right;
+        }
+        .product-actions a {
+            color: #2780e3;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .product-actions a:hover {
+            color: #1c67c2;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script th:inline="javascript">
+</head>
+<body>
+    <div class="container">
+        <div class="product-header">
+            <div class="d-flex align-items-center">
+                <a th:href="@{/previousPage}" class="btn btn-light me-2"><i class="bi bi-chevron-left"></i></a>
+                <h1><i class="bi bi-bag"></i> 상품 목록</h1>
+            </div>
+        </div>
+        <table class="table table-hover product-table">
+            <tbody class="product-list">
+                <!-- 상품 목록이 여기 추가됩니다 -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Modal for Image Slideshow -->
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">상품 이미지</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <!-- 이미지 슬라이드가 여기 추가됩니다 -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
         let currentPage = 1;
         let loading = false;
+        let endOfData = false; 
+
         $(window).scroll(function() {
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                if (!loading) {
+            if (!endOfData && !loading) {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     loading = true;
                     currentPage++;
                     loadMoreProducts();
@@ -37,20 +153,27 @@
                 success: function(response) {
                     let html = '';
                     response.forEach(function(product) {
-                        html += '<tr>';
-                        html += '<td><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></td>';
-                        html += '<td>' + product.price + '</td>';
-                        html += '<td>';
+                        html += '<tr><td>';
+                        html += '<div class="product-item">';
+                        html += '<div class="product-image">';
                         if (product.uuid && product.uuid.length > 0) {
-                            html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" width="300" height="300">';
+                            html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" data-product-no="' + product.productNo + '" data-image-urls="' + product.uuid.map(u => '/product/image/' + u).join(',') + '">';
                         }
-                        html += '</td>';
-                        html += '<td>' + formatDate(product.productRegDate) + '</td>';
-                        html += '<td><a href="http://192.168.0.228:8000/purchase/addPurchaseView">구매</a></td>';
-                        html += '</tr>';
+                        html += '</div>';
+                        html += '<div class="product-info">';
+                        html += '<h2><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></h2>';
+                        html += '<p class="price">' + product.price + '원</p>';
+                        html += '</div>';
+                        html += '<div class="product-actions">';
+                        html += '<a href="http://192.168.0.228:8000/purchase/addPurchaseView">구매</a>';
+                        html += '<p>' + formatDate(product.productRegDate) + '</p>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</td></tr>';
                     });
                     $('.product-list').append(html);
                     loading = false;
+                    checkIfMoreContentNeeded(response.length);
                 },
                 error: function() {
                     console.log('Error occurred while loading more products.');
@@ -58,44 +181,58 @@
                 }
             });
         }
-        
+
+        function checkIfMoreContentNeeded(dataLength) {
+            if (dataLength === 0) {
+                endOfData = true;
+            }
+        }
+
         function formatDate(timestamp) {
-        	  const date = new Date(timestamp);
-        	  const year = String(date.getFullYear()).slice(-4);
-        	  const month = String(date.getMonth() + 1).padStart(2, '0');
-        	  const day = String(date.getDate()).padStart(2, '0');
-        	  return `${year}-${month}-${day}`;
-        	}
+            const date = new Date(timestamp);
+            const year = String(date.getFullYear()).slice(-4);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+     // 이미지 클릭 이벤트 처리
+        $(document).on('click', '.product-image img', function() {
+            const productNo = $(this).data('product-no');
+            fetchProductImages(productNo);
+        });
+
+        function fetchProductImages(productNo) {
+            $.ajax({
+                url: '/rest/products/getDetailProduct/' + productNo,
+                method: 'GET',
+                success: function(response) {
+                    const product = response;
+                    if (product && product.uuid && product.uuid.length > 0) {
+                        const carouselInner = $('#imageCarousel .carousel-inner');
+                        carouselInner.empty();
+
+                        product.uuid.forEach((uuid, index) => {
+                            const activeClass = index === 0 ? 'active' : '';
+                            carouselInner.append(
+                                `<div class="carousel-item ${activeClass}">
+                                    <img src="/rest/products/getProductImages/${uuid}" class="d-block w-100" alt="상품 이미지">
+                                </div>`
+                            );
+                        });
+
+                        $('#imageModal').modal('show');
+                    }
+                },
+                error: function() {
+                    console.log('Error occurred while fetching product images.');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadMoreProducts();
+        });
     </script>
-</head>
-
-<body>
-    <h1>상품 목록</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>상품명</th>
-                <th>가격</th>
-                <th>상품 이미지</th>
-                <th>등록일</th>
-                <th>구매</th>
-            </tr>
-        </thead>
-        <tbody class="product-list">
-            <tr th:each="product : ${productList}">
-                <td><a th:href="@{/product/getDetailProduct/{productNo}(productNo=${product.productNo})}" th:text="${product.productTitle}"></a></td>
-                <td th:text="${product.price}"></td>
-                <td>
-                    <img th:if="${not #lists.isEmpty(product.uuid)}" th:src="@{/product/image/{uuid}(uuid=${product.uuid[0]})}" alt="상품 이미지" width="300" height="300">
-                </td>
-                <td th:text="${product.productRegDate}"></td>
-                <td><a href="http://192.168.0.228:8000/purchase/addPurchaseView" th:text="구매"></a></td>
-            </tr>
-        </tbody>
-    </table>
-    <div>
-        <p>총 상품 수: <span th:text="${totalCount}"></span></p>
-    </div>
 </body>
-
 </html>
