@@ -3,6 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 	<!--  <script src="/javascript/common/modalScreen.js"></script>  -->
 	<!--  <link rel="stylesheet" href="/css/common/modalScreen.css">  -->
 	<title>프로필</title>
@@ -221,6 +223,9 @@
 
 	<!-- 현재 REST 지원 안됨. -->
 	<!-- 다음 주에 rest 지원 예쩡 -->
+	<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
+	<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
+	<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
 	<button type="button" id="sharedRecordListBtn">공유한 기록</button>
 	<button type="button" id="replyListBtn">작성한 댓글</button>
 	<button type="button" id="bookMarkListBtn">즐겨찾기한 기록</button>

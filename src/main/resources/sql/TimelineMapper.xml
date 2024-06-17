@@ -611,30 +611,18 @@ ORDER BY
 
 <select id='selectProfileTimelineList' resultMap='recordResultMap' parameterType='search'>
      SELECT 
-       a1.record_no AS record_no,
-       a1.record_user_id AS record_user_id,
        a1.record_title AS record_title,
-       a1.latitude AS latitude,
-       a1.longitude AS longitude,
-       a1.checkpoint_address AS checkpoint_address,
-       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
-       a1.media_name AS media_name,
-       a1.category_no AS category_no,
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
-       a1.record_text AS record_text,
-       a1.temp_type AS temp_type,
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
-       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
-       a1.update_count AS update_count,
-       a1.d_day_date AS d_day_date,
-       a1.timecapsule_type AS timecapsule_type,
+       <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date,
+       <!-- imageTagList -->
        a2.image_tag_order AS image_tag_order,
        a2.image_tag_type AS image_tag_type,
        a2.image_tag_text AS image_tag_text
    	FROM
    		record a1
-   	LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+   	LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no AND a2.image_tag_type=1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
    	WHERE
    		a1.record_user_id = #{userId}
