@@ -62,7 +62,7 @@ public class TimelineUtil {
 	//map을 record로 묶어주는 기능
 		public static Record mapToRecord(Map<String, Object> map) {
 			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
-			
+			System.out.println("(Date)map.get(\"d_DayDate\")==null ? null:((Date)map.get(\"d_DayDate\")).toString()"+((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString()));
 			Record record=Record.builder()
 					.recordNo((int)map.get("recordNo"))
 					.recordUserId((String)map.get("recordUserId"))
@@ -82,7 +82,7 @@ public class TimelineUtil {
 					.recordAddDate((String)map.get("recordAddDate"))
 					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((String)map.get("d_DayDate"))
+					.d_DayDate((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString())
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.build();
 			return record;
@@ -108,7 +108,6 @@ public class TimelineUtil {
 					.recordAddDate((String)map.get("recordAddDate"))
 					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((Date)map.get("d_DayDate"))
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.nickname((String)map.get("nickname"))
 					.profileImageName((String)map.get("profileImageName"))
@@ -150,7 +149,6 @@ public class TimelineUtil {
 					.recordAddDate((String)map.get("recordAddDate"))
 					.sharedDate((String)map.get("sharedDate"))
 					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((Date)map.get("d_DayDate"))
 					.timecapsuleType((Integer)map.get("timecapsuleType"))
 					.build();
 			return mapRecord;

@@ -26,11 +26,11 @@
 </ul>
 <ul>
     <li th:each="item : ${list5}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
-</ul>
+</ul>-->
 <ul>
     <li th:each="item : ${list6}" th:text="${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
 </ul>
-<ul>
+<!-- <ul>
     <li th:each="item : ${list7}" th:text="${' 기록된 타임캡슐 기록 : '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.d_DayDate}"></li>
 </ul>
 <ul>
@@ -44,8 +44,8 @@
 </ul>
 <ul>
     <li th:each="item : ${list11}" th:text="${' 타임라인 날짜 지정 : '+item}"></li>
-</ul> -->
-<!-- <ul>
+</ul>
+<ul>
     <li th:each="item : ${mapList1}" th:text=" '성문 follow : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
 </ul>
 <ul>
@@ -62,11 +62,11 @@
 </ul>
 <ul>
     <li th:each="item : ${mapList3_4}" th:text=" '성문 private only category : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}"></li>
-</ul> -->
-<ul>
+</ul>
+ <ul>
     <li th:each="item : ${mapList4}" th:text=" '성문 랜덤 테스트 : '+${item.recordUserId}+',  '+${item.latitude}+',  '+${item.longitude}+',  '+${item.distance}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.recordTitle}+',  '+${item.recordText}+',  nickName : '+${item.nickName}+',  '+${item.profileImageName}+',  category : '+${item.categoryName}+',  '+${item.categoryImoji}+',  '+${item.imageName}+',  '+${item.hashtag}"></li>
 </ul>
-<!-- <ul>
+ <ul>
     <li th:each="item : ${list16}" th:text=" '날짜선택 list : '+${item}"></li>
 </ul> -->
 </body>
