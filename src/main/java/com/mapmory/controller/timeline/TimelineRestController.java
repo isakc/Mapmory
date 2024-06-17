@@ -146,6 +146,7 @@ public class TimelineRestController {
 	}
 	
 	// 대민 지원
+
 	@GetMapping("getProfileTimelineList")
 	public ResponseEntity<Map<String, Object>> getProfileTimelineList(Map<String, Object> map,
 			@RequestParam(name = "userId", required = true) String userId,

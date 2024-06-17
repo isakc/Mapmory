@@ -9,7 +9,18 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	 -->
 	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
-	
+	<style>
+		/* body{margin-top:20px;} */ 
+		
+		a {
+		
+			color: inherit;
+			text-decoration: none;
+		
+		}
+		
+		
+	</style>
 	<!-- 
 	<style>
 		#social-login-btn {
@@ -26,6 +37,7 @@
 	</style>
  		
  		-->
+
 	<script src="/javascript/user/naveridlogin_js_sdk_2.0.2.js"></script>
     
     <script th:inline="javascript">
@@ -168,9 +180,11 @@
  		});
 
     </script>
+		
 </head>
-<body class="container mt-5">
+<body >
 	    	
+    	<div id=content-for-footer class="container mt-5">
     	<div id="loginDiv" class="align-self-center">
     	
     		<div class="text-center">
@@ -235,6 +249,7 @@
 				<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
 			</div>
         </div>
+
 	        
 	        <div id="userDiv" style="display:none;">
 		        <button type="button" id="getProfile">내 프로필로 이동</button>
@@ -267,7 +282,11 @@
 	        <button type="button" id="footerView">footer 실험실로 이동</button>
 
 	    
-		<div th:include="common/footer::defaultFooter"></div>
+    	
+    	</div><!-- 추가시 여기 위에서만 작업할 것 -->
+    	
+		<div th:replace="common/footer::defaultFooter"></div>
+		
 
 </body>
 </html>

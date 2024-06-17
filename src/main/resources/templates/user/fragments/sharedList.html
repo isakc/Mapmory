@@ -3,7 +3,45 @@
 
 <script>
 
+	$(function() {
+		
+		$.ajax({
+			
+			url: `/timeline/rest/getProfileTimelineList?userId=&currentPage=`,
+		      method: "POST",
+		      contentType:"application/json",
+		      data: JSON.stringify({
+		        targetId: userId
+		      }),
+		      success: function(response) {
+		        
+				if(response == true || response == "true") {
+					
+					$('#deleteFollow').css('display', 'block');
+					$('#addFollow').css('display', 'none');
+					
+					// 팔로우/팔로잉 수 동적 처리 ajax 필요함
+					
+				} else {
+					
+					console.log('false');
+					alert('변경 실패...');
+					
+				}
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+			
+		});
+		
+	});
 	
+	$(function(){
+		
+		
+	});
 
 </script>
 
