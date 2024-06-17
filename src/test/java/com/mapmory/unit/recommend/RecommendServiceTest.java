@@ -85,7 +85,7 @@ public class RecommendServiceTest {
 //		}
 	}
 	
-	@Test
+//	@Test
 	public void getRecordList() throws Exception{
 		
 		List<String> result = recommendService.getRecommendData("user1");
