@@ -589,6 +589,7 @@ public class UserServiceImpl implements UserService {
 					
 				} else {
 					contents.append(nextLine).append("\n");
+					// contents.append(nextLine).append("<br/>");
 				}
 			}
 

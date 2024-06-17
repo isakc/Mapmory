@@ -138,6 +138,20 @@
 				
 				window.location.href="/user/getPasswordView";
 			});
+			
+			$('#keepLoginDiv').on('click', function() {
+				
+				
+				var checkBox = $(this).find('input[name="keepLogin"]');
+				/*
+			    if (checkBox.prop('checked')) {
+			      checkBox.prop('checked', false);
+			    } else {
+			      checkBox.prop('checked', true);
+			    }
+				*/
+				checkBox.prop('checked', !checkBox.prop('checked'));
+			});
  		});
  		
  		$(function(){
@@ -175,10 +189,10 @@
 				<div class="mb-1 d-grid gap-2">
 		        	<button type="button" id="login" class="btn btn-primary">사용자 로그인</button>
 		        </div>
-		        
-		        <input type="checkbox" name="keepLogin" class="form-check-input"/>
-		        <label for="keepLogin" class="form-check-label">로그인 유지</label>
-
+		        <div id="keepLoginDiv">
+			        <input type="checkbox" name="keepLogin" class="form-check-input"/>
+			        <label for="keepLogin" class="form-check-label">로그인 유지</label>
+				</div>
 	        </form>
 	        
 	        

@@ -6,6 +6,13 @@
 	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
 	
 	<title>이용약관 상세 조회</title>
+	
+	<style>
+	
+		#contents {
+			white-space: pre-wrap;
+		}
+	</style>
 </head>
 <body class="container mt-3">
 	<div class="row ">
@@ -16,8 +23,7 @@
 	
 	[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>] [[${tac.title}]]
 	<hr/>
-	<div>
-		[[${tac.contents}]]
+	<div id="contents" th:text="${#strings.trim(tac.contents)}">
 	</div>
 
 </body>	
