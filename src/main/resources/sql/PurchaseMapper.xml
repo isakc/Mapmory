@@ -58,6 +58,28 @@
     	WHERE 
     		p.purchase_no = #{purchaseNo}
 	</select>
+	
+	<select id="getSubscriptionPurchase" parameterType="purchase" resultMap="purchaseSelectMap">
+		SELECT
+			p.purchase_no,
+        	p.user_id,
+        	p.product_no,
+        	p.payment_method,
+        	p.card_type,
+        	p.last_four_digits,
+        	p.purchase_date,
+        	p.price,
+        	pro.product_title
+		FROM
+			purchase p
+		LEFT JOIN 
+    		product pro ON p.product_no = pro.product_no
+		WHERE p.user_id = #{userId} 
+		AND p.product_no = #{productNo}
+		ORDER BY
+			purchase_date DESC
+		LIMIT 1;
+	</select>
 
 	<select id="getPurchaseList" parameterType="search" resultMap="purchaseSelectMap">
     	SELECT
@@ -77,6 +99,8 @@
     		product pro ON p.product_no = pro.product_no
     	WHERE 
     		p.user_id = #{searchKeyword}
+    	ORDER BY
+			p.purchase_date DESC
 		LIMIT #{limit} OFFSET #{offset}
 	</select>
 
