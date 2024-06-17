@@ -66,6 +66,7 @@
 						<span th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span>
 						<span th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
 					</div>
+					
 					<div th:if="${iterStat.last == false}" class="separator"></div>
 				</div>
 		</div>
