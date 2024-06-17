@@ -167,6 +167,11 @@ public class TimelineServiceImpl implements TimelineService {
 		return recordList;
 	}
 
+	@Override
+	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception {
+		return timelineDao.selectProfileTimelineList(search);
+	}
+
 //	@Override
 //	public void deleteHashtag(int recordNo) throws Exception {
 //	}
