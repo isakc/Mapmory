@@ -290,9 +290,9 @@ public class TimelineController {
 	
 	
 	@GetMapping({"getDetailTimeline3"})
-	public void getDetailTimeline3(Model model) throws Exception,IOException {
+	public void getDetailTimeline3(Model model, String userId) throws Exception,IOException {
 		model.addAttribute("record",timelineService.getDetailTimeline(1));
-		model.addAttribute("record2",timelineService.getDetailSharedRecord(1));
+		model.addAttribute("record2",timelineService.getDetailSharedRecord(1, userId));
 	}
 	
 	@GetMapping({"getDetailTimeline2"})
