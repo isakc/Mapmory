@@ -7,7 +7,8 @@
 		
 		$.ajax({
 			
-			url: `/timeline/rest/getProfileTimelineList?userId=&currentPage=`,
+			// currentPage sessionStroage로 처리하자.
+			url: `/timeline/rest/getProfileTimelineList?userId=${profile.user.userId}&currentPage=1`,
 		      method: "POST",
 		      contentType:"application/json",
 		      data: JSON.stringify({

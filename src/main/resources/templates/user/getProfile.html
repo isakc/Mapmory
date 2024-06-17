@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<th:block th:replace="~{/common/dependencies}"></th:block>
 	<link href="/css/user/profile-image.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/common/footer.css">
 	<title>프로필</title>
 	
 	<style>
@@ -184,105 +185,113 @@
 		</script>
 	
 </head>
-<body class="container mt-3">
+<body>
 	
-	<div class="row">
-		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
-		<div class="col-10"></div>
-		<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
-	</div>
-	
-	<div class="row row-cols-4 text-center">
-		<div class="profile-box col">
-			<img class="profile" alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
-		</div>
-
-		  <div id="shared-list" class="col">
-		  	<div class="mt-4">
-			    <span>공유기록</span>
-			    <br/>
-			    <span class="value" th:text="${profile.totalSharedListCount}"></span>
-		    </div>
-		  </div>
-		  <div id="follow-list" class="col">
-		  	<div class="mt-4">
-	    		<span>팔로워</span>
-	    		<br/>
-	    		<span class="value" th:text="${profile.totalFollowCount}"></span>
-		    </div>
-		  </div>
-		  <div id="follower-list" class="col">
-		  	<div class="mt-4">
-			    <span>팔로잉</span>
-			    <br/>
-		    	<span class="value" th:text="${profile.totalFollowerCount}"></span>
-		    </div>
-		  </div>
-
-	</div>
-	
-	<p class="row mt-3" th:text="${profile.user.introduction}"></p>
-
-	<div id="myProfile" style="display:none;">
-		<div  class="d-grid gap-2 col-6 mx-auto">
-			<button type="button" id="updateProfile" class="btn btn-info">내 프로필 수정</button>
-			<button type="button" id="myChatList" class="btn btn-info">내 채팅 목록으로 이동</button>
-		</div>
-	</div>	
-	<div id="otherProfile" style="display:none;">
-		<div class="d-grid gap-2 col-6 mx-auto">
-			<button type="button" id="deleteFollow" class="btn btn-info" style="display:none;">언팔로우</button>
-			<button type="button" id="addFollow" class="btn btn-info" style="display:none;">팔로우</button>
-			<button type="button" id="chat" class="btn btn-info">메세지 보내기</button>
-		</div>
-	</div>
-	<hr/>
-
-	<!-- 현재 REST 지원 안됨. -->
-	<!-- 다음 주에 rest 지원 예쩡 -->
-	<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
-	<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
-	<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
-	<div class="row">
-		<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한 기록</button>
-		<button class="col btn btn-light" type="button" id="replyListBtn">작성한 댓글</button>
-		<button class="col btn btn-light" type="button" id="bookMarkListBtn">즐겨찾기</button>
-		<button class="col btn btn-light" type="button" id="bookMarkListBtn">좋아요한 목록</button>
-	</div>
-	<button type="button" id="reactRecordListBtn">좋아요한 기록 목록</button>
-	<button type="button" id="reactReplyListBtn">좋아요한 댓글 목록</button>
-	
-	
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="sharedRecordList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="replyList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="bookMarkList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactRecordList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactReplyList"></div>	
-
-	
-	<!-- Modal -->
-	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content text-center">
-	      <div class="modal-header">
-	        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-	      </div>
-	      <div class="modal-body">
-	      	  <th:block th:if="${myProfile == false}">
-			  <h2 class="fs-5">사용자 신고하기</h2>
-			  <hr>
-			  <h2 class="fs-5">사용자 차단하기</h2>
-			  </th:block>
-			  <th:block th:if="${myProfile == true}">
-				  <h2 class="fs-5">내 프로필 숨기기</h2>
-			  </th:block>
+	<div class="container mt-3" id="content-for-footer">
+		<div class="row">
+			<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+			<div class="col-10 mt-2">
+				<strong><span class="align-middle" th:text="${profile.user.nickname}"></span></strong>
+				<p th:if="${profile.isSubscribed == true}">☑️</p>
 			</div>
-	      <div class="modal-footer">
-	        
-	      </div>
-	    </div>
-	  </div>
+			<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
+		</div>
+		
+		<div class="row row-cols-5 text-center">
+			<div class="profile-box col">
+				<img class="profile" alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
+			</div>
+	
+			  <div id="shared-list" class="col">
+			  	<div class="mt-4">
+				    <span>sharing</span>
+				    <br/>
+				    <span class="value" th:text="${profile.totalSharedListCount}"></span>
+			    </div>
+			  </div>
+			  <div id="follow-list" class="col">
+			  	<div class="mt-4">
+		    		<span>follow</span>
+		    		<br/>
+		    		<span class="value" th:text="${profile.totalFollowCount}"></span>
+			    </div>
+			  </div>
+			  <div id="follower-list" class="col">
+			  	<div class="mt-4">
+				    <span>follower</span>
+				    <br/>
+			    	<span class="value" th:text="${profile.totalFollowerCount}"></span>
+			    </div>
+			  </div>
+	
+		</div>
+		
+		<p class="row mt-3" th:text="${profile.user.introduction}"></p>
+	
+		<div id="myProfile" style="display:none;">
+			<div  class="d-grid gap-2 col-6 mx-auto">
+				<button type="button" id="updateProfile" class="btn btn-info">내 프로필 수정</button>
+				<button type="button" id="myChatList" class="btn btn-info">나의 채팅</button>
+			</div>
+		</div>	
+		<div id="otherProfile" style="display:none;">
+			<div class="d-grid gap-2 col-6 mx-auto">
+				<button type="button" id="deleteFollow" class="btn btn-info" style="display:none;">언팔로우</button>
+				<button type="button" id="addFollow" class="btn btn-info" style="display:none;">팔로우</button>
+				<button type="button" id="chat" class="btn btn-info">메세지 보내기</button>
+			</div>
+		</div>
+		<hr/>
+	
+		<!-- 현재 REST 지원 안됨. -->
+		<!-- 다음 주에 rest 지원 예쩡 -->
+		<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
+		<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
+		<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
+		<div class="row">
+			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한 기록</button>
+			<button class="col btn btn-light" type="button" id="replyListBtn">작성한 댓글</button>
+			<button class="col btn btn-light" type="button" id="bookMarkListBtn">즐겨찾기</button>
+			<button class="col btn btn-light" type="button" id="bookMarkListBtn">좋아요 목록</button>
+		</div>
+		<button type="button" id="reactRecordListBtn">좋아요한 기록 목록</button>
+		<button type="button" id="reactReplyListBtn">좋아요한 댓글 목록</button>
+
+		<!-- 
+		<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="sharedRecordList"></div>
+		<div th:replace="~{/user/fragments/replyList}" style="display:none;" id="replyList"></div>
+		<div th:replace="~{/user/fragments/bookMarkList}" style="display:none;" id="bookMarkList"></div>
+		<div th:replace="~{/user/fragments/reactRecordList}" style="display:none;" id="reactRecordList"></div>
+		<div th:replace="~{/user/fragments/reactReplyList}" style="display:none;" id="reactReplyList"></div>	
+	 	-->
+		
+		<!-- Modal -->
+		<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content text-center">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+		      	  <th:block th:if="${myProfile == false}">
+				  <h2 class="fs-5">사용자 신고하기</h2>
+				  <hr>
+				  <h2 class="fs-5">사용자 차단하기</h2>
+				  </th:block>
+				  <th:block th:if="${myProfile == true}">
+					  <h2 class="fs-5">내 프로필 숨기기</h2>
+				  </th:block>
+				</div>
+		      <div class="modal-footer">
+		        
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>
