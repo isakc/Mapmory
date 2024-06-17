@@ -2,7 +2,9 @@ package com.mapmory.controller.user;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +59,9 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
+	private RedisUtil<String> redisUtilTempSocialId;
+	
+	@Autowired
 	private SubscriptionService subscriptionService;
 	
 	@Autowired
@@ -70,6 +76,12 @@ public class UserController {
 	
 	@Value("${page.Size}")
 	private int pageSize;
+	
+	@Value("${kakao.client.Id}")
+    private String kakaoClientId;
+    
+    @Value("${kakao.redirect.uri}")
+    private String kakaoRedirectUri;
 	
     
 	////////////////////////////////////////////////////////////////////
@@ -100,10 +112,10 @@ public class UserController {
 		// System.out.println("role : " + role);
 		String sessionId = UUID.randomUUID().toString();
 		// System.out.println("sessionId : " + sessionId);
-		if ( !loginService.setSession(login, role, sessionId, keep))
+		if ( !loginService.setSession(login.getUserId(), role, sessionId, keep))
 			throw new Exception("redis에 값이 저장되지 않음.");
 		
-		Cookie cookie = createCookie(sessionId, keep);
+		Cookie cookie = createLoginCookie(sessionId, keep);
 		response.addCookie(cookie);
 		
 		boolean isLog = userService.addLoginLog(userId);
@@ -148,23 +160,33 @@ public class UserController {
 	}	
 	
 	@PostMapping("/signUp")
-	public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
+	public void signUp(@ModelAttribute User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
 		
 		if( !isDone) {
 			
 			throw new Exception("회원가입에 실패했습니다.");
+			
+		} else {
+			
+			// transaction 처리 필요
+			// String kakaoId = redisUtil.select("", String.class);
+			
+			/*
+			Map<String, String> map = getSocialIdByCookie(request, response);
+
+	        if (map != null) {
+	        	
+	            System.out.println("Calling addSocialLoginLink");
+	            userService.addSocialLoginLink(user.getUserId(), map.get("socialId"));
+	            System.out.println("Finished addSocialLoginLink");
+	            
+	        }
+	        */
 		}
-		
-		return "forward:/user/ok";
 	}
 	
-	@RequestMapping("/ok")
-	public void signUpOk() {
-		
-		
-	}
 
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
@@ -219,11 +241,55 @@ public class UserController {
 	}
 	
 	@GetMapping("/getKakaoLoginView")
-	public void getKakaoLoginView() {
-		
-		
+	public String getKakaoLoginView() {
+
+        // 카카오 로그인 페이지로 리다이렉트
+        String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
+        
+        return "redirect:" + kakaoAuthUrl;
 		
 	}
+	
+	@GetMapping("/kakaoCallback")
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) {
+        try {
+        	
+            String accessToken = userService.getKakaoAccessToken(code);
+            String kakaoId = userService.getKakaoUserInfo(accessToken);
+            
+            if (kakaoId == null) {
+                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
+            }
+
+            String userId = userService.getUserIdBySocialId(kakaoId);
+            if (userId == null) {
+            	
+                // 소셜 로그인 정보가 없는 경우
+            	String uuid = UUID.randomUUID().toString();
+                redisUtilTempSocialId.insert("k-"+uuid, kakaoId, 30L); // Redis에 임시로 카카오 아이디 저장 (30분 만료)
+                Cookie cookie = createTempCookie("KAKAOKEY", uuid);
+                response.addCookie(cookie);
+                
+                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
+                
+            } else {
+
+            	User user = userService.getDetailUser(userId);
+            	          	
+            	String uuid = UUID.randomUUID().toString();
+            	loginService.setSession(userId, user.getRole(), uuid, false);
+            	Cookie cookie = createLoginCookie(uuid, false);
+            	response.addCookie(cookie);
+            	
+                return "redirect:/map"; // 메인 페이지로 리다이렉트   
+                
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
 	
 	@GetMapping("/getUserInfo")
 	public void getUserInfo() { 
@@ -257,9 +323,10 @@ public class UserController {
 			
 		}
 				
+		System.out.println(profile);
 		model.addAttribute("sessionId", myUserId);
 		model.addAttribute("profile", profile);
-		
+		// model.addAttribute("profileImage", objectStorageUtil.getImageBytes(profile.getUser().getProfileImageName(), PROFILE_FOLDER_NAME));
 		
 	}
 	
@@ -268,28 +335,27 @@ public class UserController {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, true);
+		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 0);
 		
 		System.out.println(followList);
 		
-		model.addAttribute("type", 0);
+		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
-		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		// model.addAttribute("sessionId", myUserId);
+		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public String getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, false);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 1);
 		
 		
-		model.addAttribute("type", 1);
+		// model.addAttribute("type", 1);
 		model.addAttribute("list", followerList);
 		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
-		
-		return "forward:/user/getFollowList";
 	}
 	
 	
@@ -315,7 +381,9 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		// String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		
+		ByteArrayResource cdnPath = objectStorageUtil.getImageResource(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
 		model.addAttribute("profileImage", cdnPath);
 		
@@ -454,7 +522,7 @@ public class UserController {
     }
     */
 	
-	private Cookie createCookie(String sessionId, boolean keepLogin) {
+	private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
 		
 		Cookie cookie = new Cookie("JSESSIONID", sessionId);
 		cookie.setPath("/");
@@ -470,10 +538,22 @@ public class UserController {
 		return cookie;
 	}
 	
+	private Cookie createTempCookie(String cookieId, String sessionId) {
+		
+		Cookie cookie = new Cookie(cookieId, sessionId);
+		cookie.setPath("/");
+		// cookie.setDomain("mapmory.co.kr");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(true);
+		cookie.setMaxAge(60 * 10);
+		
+		return cookie;
+	}
+	
 	private Profile setProfileViewData(String userId) throws Exception {
 		
 		User user = userService.getDetailUser(userId);
-		user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
+		// user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
 		
 		// boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
 		boolean isSubscribed;
@@ -488,8 +568,8 @@ public class UserController {
 			
 		}
 		
-		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, true);
-		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, false);
+		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, 0);
+		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, 1);
 		
 		Search search=Search.builder()
 				.userId(userId).
@@ -512,4 +592,59 @@ public class UserController {
 		
 		return profile;
 	}
+	
+	private Map<String, String> getSocialIdByCookie(HttpServletRequest request, HttpServletResponse response) {
+		
+		Map<String, String> map = new HashMap<>();
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else if(cookieName.equals("NAVERKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else if(cookieName.equals("GOOGLEKEY")) {
+				
+				String keyName = cookie.getValue();
+				String socialId = redisUtilTempSocialId.select(keyName, String.class);
+				cookie.setMaxAge(0);
+				response.addCookie(cookie);
+				
+				map.put("socialId", socialId);
+				map.put("type", "2");
+				
+				return map;
+				
+			} else {
+				System.out.println("social login 가입이 아님");
+			}
+		}
+		
+		return null;
+	}
+	
 }

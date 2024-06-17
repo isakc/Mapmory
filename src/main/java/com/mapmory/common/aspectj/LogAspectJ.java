@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogAspectJ {
 
-	@Around("execution(* com.mapmory.services..*.*(..) )")
+	@Around("execution(* com.mapmory.services..*.*(..) ), execution(* com.mapmory.common.util..*.*(..) )")
 	public Object invoke(ProceedingJoinPoint joinPoint) throws Throwable {
 			
 		System.out.println("");

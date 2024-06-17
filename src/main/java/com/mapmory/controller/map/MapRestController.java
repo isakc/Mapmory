@@ -1,11 +1,10 @@
 package com.mapmory.controller.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +19,9 @@ import com.mapmory.services.map.domain.SearchTransitRouter;
 import com.mapmory.services.map.service.MapService;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
-import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
+import com.mapmory.services.user.domain.FollowMap;
+import com.mapmory.services.user.service.UserService;
 
 @RestController
 @RequestMapping("/map/*")
@@ -34,6 +34,10 @@ public class MapRestController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
+	
+	@Autowired
+	@Qualifier("userServiceImpl")
+	private UserService userService;
 	
 	///// Constructor /////
 	
@@ -70,13 +74,32 @@ public class MapRestController {
 		search.setLimit(10);
 		search.setCurrentPage(1);
 		
-		return timelineService.getMapRecordList(search);
+		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);
+		List<FollowMap> followList = userService.getFollowList(null, search.getUserId(), null, 0, 0, false);
+		List<String> followUserId = new ArrayList<String>();
+		
+		for(FollowMap follow : followList) {
+			followUserId.add(follow.getUserId());
+		}
+		
+		for(MapRecord record : mapRecordList) {
+			if(record.getRecordUserId().equals(search.getUserId())) { // 기록의 작성자가 사용자의 ID인 경우 private
+				record.setRecordType(0);
+			}else if(followUserId.contains(record.getRecordUserId())) {// 사용자의 ID의 팔로우 리스트 중 포함되어 있으면 follow
+				record.setRecordType(2);
+			}else {// 나머지는 공유 기록 public
+				record.setRecordType(1);
+			}
+		}
+		
+		//1 private // 2 follow // 3 public
+		
+		return mapRecordList;
 	}
 
 	@ResponseBody
 	@PostMapping(value="rest/getDetailRecord")
 	public Record getDetailRecord(@RequestBody Record record) throws Exception {
-		System.out.println(record);
 		return timelineService.getDetailTimeline(record.getRecordNo());
 	}
 }

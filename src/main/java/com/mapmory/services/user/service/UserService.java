@@ -53,6 +53,8 @@ public interface UserService {
 	public boolean addLeaveAccount(String userId);
 	
 	public boolean addLoginLog(String userId);
+	
+	public boolean addFollow(String userId, String targetId);
 
 	// getProfile, getUserInfo 모두 이거로 처리
 	public User getDetailUser(String userId);
@@ -80,7 +82,7 @@ public interface UserService {
 	 * @param selectFollow  :: true : 팔로우 목록, false : 팔로워 목록
 	 * @return
 	 */
-	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow);
+	public List<FollowMap> getFollowList(String myUserId, String userId, String searchKeyword, int currentPage, int limit, int selectFollow);
 	
 	/**
 	 * 
@@ -91,7 +93,7 @@ public interface UserService {
 	 * @param selectFollow  :: true : 팔로우 목록, false : 팔로워 목록
 	 * @return
 	 */
-	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, boolean selectFollow);
+	public int getFollowListTotalCount(String userId, String searchKeyword, int currentPage, int limit, int selectFollow);
 	
 	// public List<FollowMap> getFollowerList(String myUserId, String userId, String searchKeyword, int currentPage, int limit);
 	
@@ -141,6 +143,8 @@ public interface UserService {
 	public TermsAndConditions getDetailTermsAndConditions(String filePath) throws Exception;
 	
 	public String getPassword(String userId);
+	
+	public String getUserIdBySocialId(String socialId) throws Exception;
 	
 	public boolean updateUserInfo(String userId, String userName, String nickname, LocalDate birthday, Integer sex, String email, String phoneNumber) throws Exception;
 	
@@ -224,9 +228,10 @@ public interface UserService {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
-	public String getKakaoAccessToken (String authorize_code);
+	public String getKakaoAccessToken (String authorizeCode);
 	
-	public String getKakaoUserInfo (String access_Token) throws Exception;
+	public String getKakaoUserInfo (String accessToken) throws Exception;
 	
 	public int PhoneNumberCheck(String to) throws Exception;
+	
 }

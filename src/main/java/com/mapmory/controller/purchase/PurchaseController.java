@@ -3,7 +3,6 @@ package com.mapmory.controller.purchase;
 import java.time.LocalDateTime;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +24,6 @@ import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.PurchaseFacadeService;
 import com.mapmory.services.purchase.service.PurchaseService;
 import com.mapmory.services.purchase.service.SubscriptionService;
-import com.mapmory.services.user.domain.User;
 
 @Controller
 @RequestMapping("/purchase/*")
@@ -55,10 +53,11 @@ public class PurchaseController {
 	///// Method /////
 	
 	@GetMapping(value="/addPurchaseView/{productNo}")
-	public String addPurchaseView(@PathVariable("productNo") int proudctNo, Model model) throws Exception {
+	public String addPurchaseView(@PathVariable("productNo") int proudctNo, Model model, HttpServletRequest request) throws Exception {
 		
 		Product product = productService.getDetailProduct(proudctNo);
 		
+		model.addAttribute("userId", redisUtil.getSession(request).getUserId());
 		model.addAttribute("product", product);
 		
 		return "purchase/addPurchase";
@@ -84,12 +83,8 @@ public class PurchaseController {
 			search.setCurrentPage(1);
 		}
 		
-		//SessionData s = redisUtil.getSession(request);
-		//s.getUserId();
-		
-		//search.setSearchKeyword(s.getUserId());//@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		search.setSearchKeyword("user7");//@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		search.setLimit(3);//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		search.setSearchKeyword(redisUtil.getSession(request).getUserId());
+		search.setLimit(10);//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
 		model.addAttribute("purchaseList", purchaseService.getPurchaseList(search));
 		
@@ -124,18 +119,17 @@ public class PurchaseController {
 	}// requestSubscription: 구독 시작한 날 결제 추가
 	
 	@GetMapping(value="/getDetailSubscription")
-	public String getDetailSubscription(Model model, HttpSession session) throws Exception {
-		User user = (User) session.getAttribute("user");
+	public String getDetailSubscription(Model model, HttpServletRequest request) throws Exception {
 		
-		model.addAttribute("subscription", subscriptionService.getDetailSubscription("user7")); // user.getUserId() @@@@@@@@@@@@@
+		model.addAttribute("subscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
 
 		return "purchase/getDetailSubscription";
 	}// getDetailSubscription: 구독 상세 보기
 	
 	@GetMapping(value="/updatePaymentMethod")
-	public String updatePaymentMethodView(Model model, HttpSession session) throws Exception {
+	public String updatePaymentMethodView(Model model, HttpServletRequest request) throws Exception {
 		
-		model.addAttribute("currentSubscription", subscriptionService.getDetailSubscription("user7"));// user.getUserId() @@@@@@@@@@@@@
+		model.addAttribute("currentSubscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
 		
 		return "purchase/updatePaymentMethod";
 		
@@ -150,14 +144,12 @@ public class PurchaseController {
 	}// updatePaymentMethod: 구독 결제 수단 변경
 
 	@GetMapping(value="/cancelSubscription")
-	public String cancelSubscription(HttpSession session) throws Exception {
-
-		User user = (User) session.getAttribute("user");
+	public String cancelSubscription(HttpServletRequest request) throws Exception {
 		
-		purchaseFacadeService.cancelSubscription("user7"); // user.getUserId() @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		purchaseFacadeService.cancelSubscription(redisUtil.getSession(request).getUserId());
 		
 		return "redirect:/purchase/getDetailSubscription";
-	}// deleteSubscription: 구독 해지
+	}// cancelSubscription: 구독 해지
 	
 	@GetMapping(value="/purchaseMenu")
 	public String purchaseMenu(Model model) throws Exception {
