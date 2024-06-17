@@ -183,13 +183,21 @@ public class UserServiceImpl implements UserService {
 		}
 		*/
 		
-
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
 		userId="user2";
 		userPassword="password2";	
 		updatePassword(userId, userPassword);
+		userId="user3";
+		userPassword="password3";	
+		updatePassword(userId, userPassword);
+		userId="user4";
+		userPassword="password4";	
+		updatePassword(userId, userPassword);
+		userId="user7";
+		userPassword="password7";	
+		updatePassword(userId, userPassword);			
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
