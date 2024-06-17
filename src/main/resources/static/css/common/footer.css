@@ -1,6 +1,6 @@
 @charset "EUC-KR";
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-footer {
+.footer-container {
 		border-top: 2px solid black;
 		width : 100%;
 		height : 25%;
@@ -13,7 +13,6 @@ footer {
 	}
 
 	.mobile-bottom-nav {
-
 	  /* z-index: 1000;
 	  will-change: transform;
 	  transform: translateZ(0); */
@@ -41,3 +40,8 @@ footer {
  .material-icons {
 		font-size: 2em; /* 아이콘 크기를 원하는 크기로 설정 */
 	}
+	
+	div#content-for-footer {
+				min-height: 90vh;
+				/* footer 추가시 body내부에 있는 모든태그 <div id=content></div> 로 묶어주고 추가해줄 것.*/ 
+			}
