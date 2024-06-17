@@ -9,18 +9,18 @@
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></script>	
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 	
 	<!-- 기록 좋아요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#likeButton', function() {
+		$(document).on("click", '#recordLike', function() {
 			event.preventDefault();
 			var userId = /*[[${userId}]]*/
-			
 			console.log("1.사용자 ID :"+userId);
-			var row = $(this).closest('tr');
-			var recordNo = row.find('.recordNo').text();
-			var replyNo = "";
+			var recordNo = /*[[${record.recordNo}]]*/
+	        console.log("2.기록번호 : "+recordNo);
+	        var replyNo = "";
 			var logsType = 2;
 			var data = {
 					userId : userId,
@@ -36,7 +36,7 @@
 				data : JSON.stringify(data),
 				success : function(response) {
 					console.log('좋아요 성공');
-					updateLikes(row, recordNo, replyNo, logsType);
+					updateLikes(recordNo, replyNo, logsType);
 				},
 				error : function(xhr, status, error) {
 					console.error('좋아요 실패');
@@ -44,11 +44,12 @@
 			});
 		});
 	});
-	function updateLikes(row, recordNo, replyNo, logsType) {
+	function updateLikes(recordNo, replyNo, logsType) {
 		var data = {
 			recordNo : recordNo,
 			replyNo : replyNo,
 			logsType : logsType
+
 		};
 		$.ajax({
 			type : 'POST',
@@ -56,7 +57,8 @@
 			contentType: 'application/json',
 			data : JSON.stringify(data),
 			success : function(likeCount) {
-				row.find('td').eq(20).text(likeCount);
+	            var likeCountElement = $('.likeCount'); 
+	            likeCountElement.text(likeCount); 
 			},
 			error : function(xhr, status, error) {
 				console.log("데이터 가져오기 실패");
@@ -69,11 +71,11 @@
 	<!-- 기록 싫어요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#dislikeButton', function() {
+		$(document).on("click", '#recordDislike', function() {
 			var userId = /*[[${userId}]]*/
-			console.log(userId);
-			var row = $(this).closest('tr');
-			var recordNo = row.find('.recordNo').text();
+			console.log("1.사용자 ID : "+userId);
+			var recordNo = /*[[${record.recordNo}]]*/
+		    console.log("2.기록번호 : "+recordNo);
 			var replyNo = "";
 			var logsType = 3;
 			var data = {
@@ -90,7 +92,7 @@
 				data : JSON.stringify(data),
 				success : function(response) {
 					console.log('싫어요 성공');
-					updateDislikes(row, recordNo, replyNo, logsType);
+					updateDislikes(recordNo, replyNo, logsType);
 				},
 				error : function(xhr, status, error) {
 					console.error('싫어요 실패');
@@ -99,7 +101,7 @@
 		});
 	});
 	
-	function updateDislikes(row, recordNo, replyNo, logsType) {
+	function updateDislikes(recordNo, replyNo, logsType) {
 		var data = {
 			recordNo : recordNo,
 			replyNo : replyNo,
@@ -111,7 +113,9 @@
 			contentType: 'application/json',
 			data : JSON.stringify(data),			
 			success : function(dislikeCount) {
-				row.find('td').eq(22).text(dislikeCount);
+	            var dislikeCountElement = $('.dislikeCount'); 
+	            dislikeCountElement.text(dislikeCount); 
+	            $('.dislike').html('<i class="bi bi-hand-thumbs-down"></i>');
 			},
 			error : function(xhr, status, error) {
 				console.log("데이터 가져오기 실패");
@@ -124,11 +128,11 @@
 	<!-- 기록 즐겨찾기 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#bookmark', function() {
+		$(document).on("click", '.bi.bi-heart', function() {
 			var userId = /*[[${userId}]]*/
-			console.log(userId);
-			var row = $(this).closest('tr')
-			var recordNo = row.find('.recordNo').text();
+			console.log("1.사용자 ID : "+userId);
+			var recordNo = /*[[${record.recordNo}]]*/
+			console.log("2.기록번호 : "+recordNo);
 			var currentBookmark = $(this).data('bookmark');
 			var replyNo = "";
 			var logsType = 1;
@@ -146,7 +150,7 @@
 				data : JSON.stringify(data),
 				success : function(response) {
 					console.log('즐겨찾기 성공');
-					updateBookmark(row, recordNo, replyNo, logsType);
+					updateBookmark(recordNo, replyNo, logsType);
 				},
 				error : function(xhr, status, error) {
 					console.error('즐갸찾기 실패');
@@ -238,127 +242,91 @@
 		  color: black;
 		  text-decoration: none;
 		  cursor: pointer;
+		}
+		
+		.separator {
+			border-top : 2px solid;
+			margin-top : 20px;
+		}		
+
+		.separator2 {
+			border-top : 2px solid;
+			margin-top : 20px;
 		}	
+		
+		.profileImage {
+			border-radius: 50%;
+			width : 50px;
+			height : 50px;
+		}			
 	</style>	
 	
 </head>
 <body>
-	<div>
-	
-	</div>
+	<div class="container">
+		<div class="card mb-3">
+			<div>
+				<h4>
+					<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
+					<a th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
+					<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
+					<span th:text="${record.subscriptionEndDate}"></span>
+					<i class="bi bi-three-dots" style="float: right;"></i>									
+				</h4> 
+			</div>
+			<div class="card=body">
+				<p class="recordTitle" th:text="${record.recordTitle}"></p>
+				<span th:text="${record.sharedDate}"></span>
+				<span th:text="${record.updateCount}+'회 수정됨'"></span>
+			</div>
+			<div class="card-body">
+				<span th:text="${record.categoryName}"></span>
+				<span th:text="${record.categoryImoji}"></span>
+			</div>
+			<div class="card-body">
+				<span th:text="${record.latitude}"></span>
+				<span th:text="${record.longitude}"></span>
+				<p th:text="${record.checkpointAddress}"></p>
+			</div>
+			<div class="card-body">
+				<p th:text="${record.mediaName}"></p>
+				<p th:text="${record.imageName}"></p>
+				<p th:text="${record.hashtag}"></p>
+				<p th:text="${record.recordText}"></p>			
+			</div>
+			<div class="card-body">
+				<i class="bi bi-hand-thumbs-up" id="recordLike"></i>					
+				<span class="likeCount" th:text="${record.likeCount}"></span>
+				<i class="bi bi-hand-thumbs-down" id="recordDislike"></i>			
+				<span class="dislikeCount" th:text="${record.dislikeCount}"></span>	
+			</div>			
+			<div class="separator"></div>
+		</div>
+	</div>	
 
-
-
-	<h1>공유기록상세보기</h1>
-	<table>
-		<tbody>
-			<tr>
-				<th>닉네임</th>
-				<th>프로필사진</th>
-				<th>기록제목</th>
-				<th>위도</th>
-				<th>경도</th>
-				<th>주소</th>
-				<th>영상</th>
-				<th>내용</th>
-				<th>이미지</th>
-				<th>해시태그</th>
-				<th>공유날짜</th>
-				<th>구독유무</th>
-				<th>카테고리</th>
-				<th>카테고리이름</th>
-				<th>카테고리이모지</th>
-				<th>즐겨찾기확인</th>
-				<th>즐겨찾기</th>
-				<th>댓글수</th>
-				<th>좋아요수</th>
-				<th>좋아요버튼</th>
-				<th>싫어요수</th>
-				<th>싫어요버튼</th>
-				<th>수정횟수</th>
-				<th>더보기</th>
-			</tr>
-			<tr>
-				<td><a th:href="@{'/user/getProfile/' + ${record.recordUserId}}" th:text="${record.nickname}"></a></td>	
-				<td class="recordUserId" style=display:none; th:text="${record.recordUserId}" data-recorduserid ="${record.recordUserId}"></td>
-				<td class="recordNo" style=display:none; th:text="${record.recordNo}" data-recordno = "${record.recordNo}"></td>
-				<td th:text="${record.profileImageName}"></td>
-				<td class="recordTitle" th:text="${record.recordTitle}"></td>
-				<td th:text="${record.latitude}"></td>
-				<td th:text="${record.longitude}"></td>
-				<td th:text="${record.checkpointAddress}"></td>
-				<td th:text="${record.mediaName}"></td>
-				<td th:text="${record.recordText}"></td>
-				<td th:text="${record.imageName}"></td>
-				<td th:text="${record.hashtag}"></td>
-				<td th:text="${record.sharedDate}"></td>
-				<td th:style="'text-align: center;'" th:text="${record.subscriptionEndDate}"></td>
-				<td th:style="'text-align: center;'" th:text="${record.categoryNo}"></td>
-				<td th:text="${record.categoryName}"></td>
-				<td th:text="${record.categoryImoji}"></td>
-				<td th:style="'text-align: center;'" th:text="${record.bookmark}"></td>
-				<td>
-					<button type="button" class="bookmark" id="bookmark" data-recordno="${record.recordNo}" data-bookmark="${record.bookmark}">
-			            <span th:if="${record.bookmark == 1}">즐겨찾기 해제</span>
-			            <span th:if="${record.bookmark == 0}">즐겨찾기</span>
-			 		</button>           
-				</td>
-				<td th:style="'text-align: center;'" th:text="${record.replyCount}"></td>
-				<td th:style="'text-align: center;'" th:text="${record.likeCount}"></td>
-				<td><button type="button" id="likeButton">좋아요</button></td>					
-				<td th:style="'text-align: center;'" th:text="${record.dislikeCount}"></td>	
-				<td><button type="button" id="dislikeButton">싫어요</button></td>													
-				<td th:style="'text-align: center;'" th:text="${record.updateCount}"></td>
-				<td>
-					<button type="button" class="moreBtn">더보기</button>
-				</td>			
-			</tr> 
-		</tbody>
-	</table>
-	<form id="reportForm" method="POST">
-		<input type="hidden" name="recordUserId" th:field ="${record.recordUserId}">
-		<input type="hidden" name="recordNo" th:field = "${record.recordNo}">
-		<input type="hidden" name="recordTitle" th:field = "${record.recordTitle}">		
-	</form>
-	<div id="moreModal" class="modal">
-	<div class="modal-content">
-		<button type="submit" id="addReport">공유기록신고하기</button>
-		<span class="close">&times;</span>
-	</div>
-</div>
-	<br/>
-
-    <h1>댓글 목록</h1>
-    <table>
-        <tbody>
-            <tr>
-                <th>닉네임</th>
-                <th>프로필사진</th>
-                <th>구독유무</th>
-                <th>댓글내용</th>
-                <th>댓글사진</th>
-                <th>작성일자</th>
-                <th>좋아요수</th>
-                <th>싫어요수</th>
-            </tr>
-            <tr th:each="reply, iterStat : ${replyList}">
-                <td th:if="${iterStat.index < 5}">
-                    <a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
-                </td>
-                <td th:if="${iterStat.index < 5}" th:text="${reply.profileImageName}"></td>
-                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>    
-                <td th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></td>
-                <td th:if="${iterStat.index < 5}" th:text="${reply.replyImageName}"></td>
-                <td th:if="${iterStat.index < 5}" th:text="${reply.replyDate}"></td>
-                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
-                <td th:if="${iterStat.index < 5}" th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <br/><br/>
-    <div>
-        <a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+	<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
+		<div class="col-sm-2">
+			<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+			<a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
+			<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
+		</div>
+		<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></p>
+		<p th:if="${iterStat.index < 5}" th:text="${reply.replyImageName}"></p>
+		<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate}"></span>
+		<i class="bi bi-hand-thumbs-up"></i>			
+		<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}"></span>
+		<i class="bi bi-hand-thumbs-down"></i>
+		<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}"></span>
+		<div th:if="${iterStat.index < 5}" class="separator2"></div>
+	</div>		
+	<div class="card-body">
+		<a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+    </div>
+    <br/>
+    <div class="card-body">
+		<i class="bi bi-heart"></i>
+		<i class="bi bi-chat-square-text-fill"></i>					
+		<span th:text="${record.replyCount}" class="reply-count"></span>	
     </div>
 </body>	
 </html>

@@ -395,7 +395,7 @@ LIMIT #{limit} OFFSET #{offset}
        a1.record_text AS record_text,
        a1.temp_type AS temp_type,
        DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
-       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
+       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i') AS shared_date,
        a1.update_count AS update_count,
        a1.d_day_date AS d_day_date,
        a1.timecapsule_type AS timecapsule_type,
