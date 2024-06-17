@@ -61,6 +61,7 @@ public class UserControllerJM {
 	    return "user/addUser";
 	}
 
+    /*
     @PostMapping("/signUp")
     public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
         boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
@@ -79,6 +80,7 @@ public class UserControllerJM {
 
         return "forward:/user/ok";
     }
+    */
     
     @PostMapping("/getSignUpView")
     public void getSignUpView(Model model, @RequestParam String[] checked) {

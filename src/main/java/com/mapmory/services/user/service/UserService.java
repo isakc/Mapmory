@@ -1,11 +1,16 @@
 package com.mapmory.services.user.service;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Login;
@@ -16,13 +21,15 @@ import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
+import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 
 public interface UserService {
-	
-	/*
-	 *  naver, google login service 구현 필요.. 
-	 *  그 외 controller에서 사용해야 할 각종 business logic (REST 포함) 추가 예정
-	 */
+
+	public void setupForTest();
 	
 	/**
 	 * 
@@ -37,7 +44,7 @@ public interface UserService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception;
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber, String socialId) throws Exception;
 	
 	/**
 	 * 계정 정지 정책 (1회: 1일 정지, 2회: 7일 정지, 3회: 14일 정지, 4회: 영구 정지)
@@ -176,27 +183,29 @@ public interface UserService {
 	public boolean deleteFollow(String userId, String targetId);
 	
 	public boolean deleteSuspendUser(int logNo);
-	
+
 	/**
-	 * true: 설정됨, false : 설정안함
-	 * @param userId
-	 * @return
-	 */
-	public boolean checkSecondaryAuth(String userId);
-	
-	/**
-	 * false : 사용 가능, true : 중복됨
+	 * false : 중복됨, true : 사용 가능
 	 * @param userId
 	 * @return
 	 */
 	public boolean checkDuplicationById(String userId);
 	
 	/**
-	 * false : 사용 가능, true : 중복됨
+	 * false : 중복됨, true : 사용 가능
 	 * @param nickname
 	 * @return
 	 */
 	public boolean checkDuplicationByNickname(String nickname);
+	
+	
+	/**
+	 * true : 존재함, false : 존재하지 않음
+	 * @param userId
+	 * @param email
+	 * @return
+	 */
+	public boolean checkUserExist(String userId, String email);
 	
 	/**
 	 * true : 검증됨, false : 검증 실패 
@@ -220,8 +229,35 @@ public interface UserService {
 	 */
 	public boolean checkHideProfile(String userId);
 	
-	public void setupForTest();
+	/**
+	 * true : 정상, false : 정지 상태
+	 * @param userId
+	 * @return
+	 */
+	public Map<String, String> checkSuspended(String userId);
 	
+	/**
+	 * true: 설정됨, false : 설정안함
+	 * @param userId
+	 * @return
+	 */
+	public boolean checkSetSecondaryAuth(String userId);
+	
+	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
+	
+	public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
+	
+	public String generateSecondAuthKey();
+	
+	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException;
+	
+	/*
+	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException;
+	
+	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
+	*/
+	
+	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException;
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	//// jaemin ////////////////////////////////////////////////////////////

@@ -75,7 +75,7 @@ public class MapRestController {
 		search.setCurrentPage(1);
 		
 		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);
-		List<FollowMap> followList = userService.getFollowList(null, search.getUserId(), null, 0, 0, false);
+		List<FollowMap> followList = userService.getFollowList(null, search.getUserId(), null, 0, 0, 0);
 		List<String> followUserId = new ArrayList<String>();
 		
 		for(FollowMap follow : followList) {

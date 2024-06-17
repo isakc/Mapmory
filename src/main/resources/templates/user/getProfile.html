@@ -76,15 +76,16 @@
 				$.ajax({
 			      url: "/user/rest/deleteFollow",
 			      method: "POST",
-			      data: {
+			      contentType:"application/json",
+			      data: JSON.stringify({
 			        targetId: userId
-			      },
+			      }),
 			      success: function(response) {
 			        
 					if(response == true || response == "true") {
 						
-						$('#deleteFollow').attr('display', 'none');
-						$('#addFollow').attr('display', 'block');
+						$('#deleteFollow').css('display', 'none');
+						$('#addFollow').css('display', 'block');
 						
 					} else {
 						
@@ -105,15 +106,18 @@
 				$.ajax({
 			      url: "/user/rest/addFollow",
 			      method: "POST",
-			      data: {
+			      contentType:"application/json",
+			      data: JSON.stringify({
 			        targetId: userId
-			      },
+			      }),
 			      success: function(response) {
 			        
 					if(response == true || response == "true") {
 						
-						$('#deleteFollow').attr('display', 'block');
-						$('#addFollow').attr('display', 'none');
+						$('#deleteFollow').css('display', 'block');
+						$('#addFollow').css('display', 'none');
+						
+						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
 						
 					} else {
 						
@@ -141,6 +145,7 @@
 				$.ajax({
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
 	               method: "POST",
+	               contentType:"application/json",
 	               data: JSON.stringify({
 	                userId: sessionId,
 	                 opponent: userId
@@ -213,12 +218,37 @@
 		<button type="button" id="chat">메세지 보내기</button>
 	</div>
 	
+
+	<!-- 현재 REST 지원 안됨. -->
+	<!-- 다음 주에 rest 지원 예쩡 -->
+	<button type="button" id="sharedRecordListBtn">공유한 기록</button>
+	<button type="button" id="replyListBtn">작성한 댓글</button>
+	<button type="button" id="bookMarkListBtn">즐겨찾기한 기록</button>
+	<button type="button" id="reactRecordListBtn">좋아요한 기록 목록</button>
+	<button type="button" id="reactReplyListBtn">좋아요한 댓글 목록</button>
+	
+	
+	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="sharedRecordList"></div>
+	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="replyList"></div>
+	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="bookMarkList"></div>
+	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactRecordList"></div>
+	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactReplyList"></div>	
+	
+	
+	<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
+	
+	
+	<!-- modal -->
 	<div id="toggle" class="modal">
 		
 	
 	</div>
+<<<<<<< HEAD
 	
 	<!-- <img alt="" th:src="${profile.user.profileImageName}">  -->
 	<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
 </body>	
+=======
+</body>	
+>>>>>>> refs/remotes/origin/master
 </html>

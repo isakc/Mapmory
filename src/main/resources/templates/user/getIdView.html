@@ -2,9 +2,96 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+	<script src="/javascript/user/userValidation.js"></script>
+	
+	<title>아이디 찾기</title>
+	
+	<script>
+	
+		$(function() {
+			
+			$('#submitForm').on('click', function() {
+				
+				if ($('#userNameChecked').text() === 'false') {
+		            $('#userNameMsg').text('이름을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#userNameMsg').css('display', 'none');
+			    	
+			    }
+				
+				if ($('#emailChecked').text() === 'false') {
+		            $('#emailMsg').text('이메일을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#emailMsg').css('display', 'none');
+			    	
+			    }
+				
+				
+				// $('form').attr('method','post').attr('action', '/user/getId').submit();
+				
+				const form = new FormData($('form').get(0));
+				   const formJson = {};
+				   
+				   form.forEach((value, key) => {
+					   
+					   formJson[key] = value;
+				   })
+				   console.log(formJson);
+				   
+				    $.ajax({
+				    	type : 'post',
+						url : '/user/rest/getId',
+						data : JSON.stringify(formJson),
+						contentType : "application/json",
+						success : function(response){
+							
+							$('form').html('<p>당신의 id는 ' + response + '입니다.</p>');
+		
+						},
+						error: function(xhr, status, error){
+							alert(error);
+						}
+				    });
+
+			});
+			
+			
+		});
+	
+	</script>
 </head>
 <body>
+
+	<h1>아이디 찾기</h1>
+	
+	<form>
+	
+		<div>
+            <label for="userName">이름</label>
+            <input type="text" id="userName" name="userName"  placeholder="이름" required/>
+            <p id="userNameMsg" style="display: none;"/>
+            <p id="userNameChecked" style="display: none;">false</p>
+        </div>
+        
+        <div id="emailDiv">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email"  placeholder="이메일 (예: test@test.com)" required/>
+            <button type="button" id="sendAuthEmail">인증번호 발송</button>
+            <input type="hidden" class="form-control" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
+            <p id="emailMsg" style="display: none;"/>
+            <p id="emailChecked" style="display: none;">false</p>		
+        </div>
+		
+		<button type="button" id="submitForm">ID 조회</button>
+	</form>
 
 </body>	
 </html>
