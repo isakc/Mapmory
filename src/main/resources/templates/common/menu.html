@@ -2,9 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<link rel="stylesheet" href="/css/common/footer.css"> <!-- footer 추가한 페이지는 반드시 추가해줄것. -->
+	<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" rel="stylesheet">
+	<title>메뉴</title>
+	
+	<style>
+			div#content {
+				min-height: 90vh;
+				/* footer 추가시 body내부에 있는 모든태그 <div id=content></div> 로 묶어주고 추가해줄 것.*/ 
+			}
+		</style>
 </head>
 <body>
+	<div id=content>
+	<h1>메뉴</h1>
+	<hr/>
+	
+	
+	</div>
 
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

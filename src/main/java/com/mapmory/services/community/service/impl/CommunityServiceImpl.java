@@ -30,7 +30,7 @@ public class CommunityServiceImpl implements CommunityService {
 	@Autowired
 	private ContentFilterUtil contentFIlterUtil;
 	
-	@Value("{page.unit")
+	@Value("{page.unit}")
 	private String pageUnit;
 	
 	@Value("${page.size}")

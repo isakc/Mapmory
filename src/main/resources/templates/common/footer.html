@@ -5,10 +5,20 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" href="/css/common/footer.css">
 	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css"> -->
+	
+	<script type="text/javascript">
+	
+	$(function() {
+		
+	})
+	
+	
+	</script>
 
 <style>
 
@@ -64,13 +74,13 @@
 		</div>
 		
 		<div class="mobile-bottom-nav__item">
-			<div class="mobile-bottom-nav__item-content">
+			<div class="mobile-bottom-nav__item-content" name="커뮤니티">
 				<i class="material-icons">insert_comment</i>
 				Community
 			</div>		
 		</div>
 		<div class="mobile-bottom-nav__item">
-			<div class="mobile-bottom-nav__item-content">
+			<div class="mobile-bottom-nav__item-content" name="메뉴">
 				<i class="material-icons">list</i>
 				Menu
 			</div>		
@@ -90,8 +100,10 @@
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
 <script type="text/javascript">
 	$(function() {
+		
 		$("div[name='타임라인']").on("click", function() {
 			self.location = "/timeline/getTimelineList?userId=user1";
+			
 		});
 		
 		let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
@@ -124,13 +136,20 @@
 	                }
 					
 				})
-			})
+			});
+		
 		$("div[name='프로필']").on("click", function() {
-			self.location = "/user/getProfile"
+			window.location.href=`/user/getProfile?userId=[[${userId}]]`;
+		});
+		
+		$("div[name='커뮤니티']").on("click", function() {
+			window.location.href="/community/getSharedRecordList";
 		})
 		
-		
-	})
+		$("div[name='메뉴']").on("click", function() {
+			window.location.href=`/common/menu`;
+		})		
+	});
 </script>
 </footer>	
 </body>
