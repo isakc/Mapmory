@@ -2,21 +2,23 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
+	
 	<title>이용약관 상세 조회</title>
 </head>
-<body>
-	<h2>사용자 페이지</h2>
-
+<body class="container mt-3">
+	<div class="row ">
+		<p class="fs-1 col-9 ">이용약관 상세 조회</p>
+		<div class="col-1"></div>
+		<a class="fs-1 col-1" href="javascript:history.back()">⇦</a>
+	</div>
 	
-		<div>
-			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
-		</div>
-		<div>
-			[[${tac.title}]]
-		</div>
-		<div>
-			[[${tac.contents}]]
-		</div>
+	[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>] [[${tac.title}]]
+	<hr/>
+	<div>
+		[[${tac.contents}]]
+	</div>
 
 </body>	
 </html>
