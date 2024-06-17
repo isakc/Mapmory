@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -46,6 +44,7 @@ public class CommunityServiceImpl implements CommunityService {
 	
 	@Override
 	public Map<String, Object> getReplyList(Search search, int recordNo) throws Exception {
+		
 		List<Object> list = communityDao.getReplyList(search, recordNo);
 		int totalCount = communityDao.getReplyTotalCount(search, recordNo);
 
@@ -76,7 +75,7 @@ public class CommunityServiceImpl implements CommunityService {
 				.replyImageName(reply.getReplyImageName())
 				.build();
 
-		if(ContentFilterUtil.checkBadWord(newReply.getReplyText())) {
+		if(contentFIlterUtil.checkBadWord(newReply.getReplyText())) {
 			throw new Exception("비속어가 포함된 댓글은 등록할 수 없음");
 		} else {
 			communityDao.addReply(newReply);	
@@ -126,6 +125,26 @@ public class CommunityServiceImpl implements CommunityService {
 	}	
 	
 	@Override
+	public void checkLog(CommunityLogs communityLogs) throws Exception {
+		
+		int logCount = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		
+		if(logCount >0) {
+			if(communityLogs.getLogsType() !=0) {
+				communityDao.deleteCommunityLogs(communityLogs);
+			}
+		} else {
+			if(communityLogs.getLogsType() == 2 || communityLogs.getLogsType() == 3) {
+				int conflictCount = communityDao.checkConflictLogs(communityLogs);
+				if (conflictCount > 0) {
+					return;
+				}
+			}
+			communityDao.addCommunityLogs(communityLogs);
+		}
+	}	
+	
+	@Override
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception {
 		return communityDao.getCommunityLogs(commmunityLogsNo);
 	}	
@@ -136,13 +155,13 @@ public class CommunityServiceImpl implements CommunityService {
 	}	
 	
 	@Override
-	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception {
-		communityDao.deleteCommunityLogs(userId, recordNo, replyNo);
+	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception {
+		communityDao.deleteCommunityLogs(communityLogs);
 	}
 
 	@Override
-	public Map<String, Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception {
-		List<Object> list = communityDao.getCommunityLogsList(search, userId, logsType);
+	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception {
+		List<Object> list = communityDao.getCommunityLogsList(search, communityLogs);
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
@@ -161,9 +180,13 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public Map<String, Object> getUserReportList(Search search, String userId) throws Exception {
-		List<Object> list = communityDao.getUSerReportList(search, "user5");
-		int totalCount = communityDao.getUserReportTotalCount(search, "user5");
+
+		search.setOffset((search.getCurrentPage()-1) * search.getPageSize());
+		search.setPageSize(search.getPageSize());
 		
+		List<Object> list = communityDao.getUSerReportList(search, userId);
+		int totalCount = communityDao.getUserReportTotalCount(search, userId);
+				
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		map.put("totalCount", Integer.valueOf(totalCount));
@@ -224,6 +247,7 @@ public class CommunityServiceImpl implements CommunityService {
 		communityDao.deleteBlockedUser(userId, targetId);
 		
 	}
+
 
 //	@Override
 //	public void deleteReplyByRecord(int recordNo) throws Exception {

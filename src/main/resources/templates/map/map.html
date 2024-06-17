@@ -322,11 +322,11 @@
     	</div>
     	
     	<div class="overlay overlayCenter" id="searchBoxGroup">
-    		<input type="text" id="searchKeyword" name="searchKeyword" placeholder="검색어를 입력하세요" />
+    		<input type="text" id="searchKeyword" name="searchKeyword" placeholder="검색어를 입력하세요" th:value="${searchKeyword}" />
 				<div id="suggestions"></div>
         	
        			<label>
-            		<input type="radio" name="radius" value="1" checked> 1km
+            		<input type="radio" name="radius" value="1100" checked> 1km
         		</label>
         	
         		<label>

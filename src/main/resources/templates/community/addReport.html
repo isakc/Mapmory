@@ -16,19 +16,23 @@
     	        var storedReportData = JSON.parse(storedData);
     	        console.log(storedReportData);
     	    }
-			var userId = storedReportData.userId;
+			
+    	    var userId = storedReportData.userId;
     	    var recordNo = storedReportData.recordNo;
     	    var recordTitle = storedReportData.recordTitle;
 			var replyNo = storedReportData.replyNo;
     	    var replyText = storedReportData.replyText;
 
-			$('#reporter').val(storedReportData.userId);
-    	    $('#target').val(storedReportData.targetUserId);
+    	    console.log("1.사용자ID :"+userId);
+    	    
+    	    $('#reporter').val(userId);
+			$('#target').val(storedReportData.targetUserId);
 			$('#recordNo').val(storedReportData.recordNo);
 			$('#recordTitle').val(storedReportData.recordTitle);
 			$('#replyText').val(storedReportData.replyText);
 			$('#replyNo').val(storedReportData.replyNo);
             
+			console.log(userId);
 			console.log(recordTitle);
 			console.log(replyText);
 			

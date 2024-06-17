@@ -21,6 +21,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.connector.Response;
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -137,10 +138,12 @@ public class UserRestController {
 		String password = map.get("userPassword");
 		
 		if(userId.isEmpty())
-			throw new Exception("아이디가 비어있습니다.");
+			// throw new Exception("아이디가 비어있습니다.");
+			return ResponseEntity.ok("empty id");
 		
 		if(password.isEmpty())
-			throw new Exception("비밀번호가 비어있습니다.");
+			return ResponseEntity.ok("empty password");
+			// throw new Exception("비밀번호가 비어있습니다.");
 		
 		Login loginData = Login.builder()
 				.userId(userId)

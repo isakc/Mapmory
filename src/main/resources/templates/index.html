@@ -2,11 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <title>로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <!-- 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<<<<<<< HEAD
 	<link rel="stylesheet" href="/css/common/footer.css"> <!-- footer 추가한 페이지는 반드시 추가해줄것. -->
+
+	 
+	<style>
+		/* body{margin-top:20px;} */ 
+		
+		a {
+		
+			color: inherit;
+			text-decoration: none;
+		
+		}
+		
+		
+	</style>
+	
+	<!-- 
+	<style>
+		#social-login-btn {
+	      height: 100vh; /* 화면의 전체 높이를 차지하도록 설정 */
+	      display: flex;
+	      /*justify-content: center; */ /* 수평 중앙 정렬 */
+	      align-items: center; /* 수직 중앙 정렬 */
+	    }
+	    .login-buttons {
+	      display: flex;
+	      flex-direction: column; /* 수직으로 나열 */
+	      gap: 20px; /* 버튼들 간의 간격 */
+	    }
+	</style>
+ 		
+ 		-->
+
 	<script src="/javascript/user/naveridlogin_js_sdk_2.0.2.js"></script>
     
     <script th:inline="javascript">
@@ -35,6 +75,13 @@
 
                     	console.log("server 응답 : "+ response);
 						
+                    	if(response == "empty id" ||response == "empty password"  ) {
+                    		
+                    		alert("아이디와 비밀번호를 모두 입력해주세요.");
+                    		return;
+                    	}
+                    		
+                    	
                     	if(response == "wrong password") {
                     		
                     		alert("아이디 또는 비밀번호가 틀렸습니다.");
@@ -136,75 +183,106 @@
 			}
 		</style>
 </head>
-<body>
-<div id=content>
-    <form id="loginForm">
+<body class="container mt-5">
+	    	
+    	<div id="loginDiv" class="align-self-center">
     	
-    	<div id="loginDiv">
-	        <input type="text" id="username" name="userId" placeholder="아이디">
-	        <br/>
-	        <input type="password" id="password" name="userPassword" placeholder="비밀번호">
-	        <br/>   
+    		<div class="text-center">
+				<h2 class="fw-bold">사용자 로그인</h2>
+				<p>서비스 이용을 위해서는 로그인이 필요합니다.</p>
+			</div>
+    		<form id="loginForm" >
+	    		<div >
+		    		<label for="userId" class="form-label"></label>
+			        <input type="text" id="username" name="userId" placeholder="아이디" class="form-control">
+				</div>
+				<div class="mb-4">
+			        <label for="userPassword" class="form-label"></label>
+			        <input type="password" id="password" name="userPassword" placeholder="비밀번호" class="form-control">
+				</div>
+				<div class="mb-1 d-grid gap-2">
+		        	<button type="button" id="login" class="btn btn-primary">사용자 로그인</button>
+		        </div>
+		        
+		        <input type="checkbox" name="keepLogin" class="form-check-input"/>
+		        <label for="keepLogin" class="form-check-label">로그인 유지</label>
+
+	        </form>
 	        
-	        <input type="checkbox" name="keepLogin"/>
-	        <label for="keepLogin">로그인 유지</label>
+	        
 	        
 	        <!-- <input type="hidden" name="changePassword" value="false"/>  -->
 	        
-	        <button type="button" id="login">로그인</button>
+	        <!-- 
 	        <button type="button" id="signUp">회원가입</button>
-	        
 	        <button type="button" id="getId">아이디 찾기</button>
 	        <button type="button" id="getPassword">비밀번호 찾기</button>
+	         -->
+	         
+	         <div class="mt-3 d-flex justify-content-center">
+	         	<a class="mx-3" href="/user/getAgreeTermsAndConditionsList">회원가입</a>
+	         	<a class="mx-3" href="/user/getIdView">아이디 찾기</a>
+	         	<a class="mx-3" href="/user/getPasswordView">비밀번호 찾기</a>
+	         </div>
+	         
 	        
-	        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
-	        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인">
-	        </a>
-			<div id="naverIdLogin">
-				<a id="naverIdLogin_loginButton" th:href="@{https://nid.naver.com/oauth2.0/authorize(response_type=code, client_id=${naver_client_id}, redirect_uri=${naver_redirect_uri}, state=${naver_state})}" role="button">
-				<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
-			</div>	
-	        <div id="kakao">
-				<a href="user/getKakaoLoginView">
-   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼">
-				</a>
+	        
+	        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
+	        	<div class="my-3">
+			        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
+			        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
+		        </div>
+		        </a>
+				<div id="naverIdLogin" class="my-3">
+					<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
+					<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">
+					<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
+				</div>	
+		        <div id="kakao" class="my-3">
+					<a href="/user/getKakaoLoginView">
+	   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼" width=320>
+					</a>
+				</div>
 			</div>
 			
+			<div class="mt-3 d-flex justify-content-center">
+				<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
+			</div>
         </div>
-        <div id="userDiv" style="display:none;">
-	        <button type="button" id="getProfile">내 프로필로 이동</button>
-	        <button type="button" id="logout">로그아웃</button>
-        </div>
-        
-        
-        
-        <hr>
-        <hr>
-        <hr>
-		<details>
-		  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
-		  <ol>
-		    <li>
-		      'users' 테이블에서 `password` 열의 길이를 120으로 변경합니다. (또는 현재 데이터베이스를 삭제하고 개인용 스크립트를 다시 붙여넣어도 됩니다.)
-		    </li>
-		    <li>
-		      "/user/setupForTest" URL로 접속합니다. template error가 발생할텐데, 이것은 무시하셔도 됩니다! (view가 없어서 당연히 발생함)
-		    </li>
-		  </ol>
-		  <br>
-		
-		  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 기존 코드를 주석처리하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
-		</details>
-         
-        <br/>
-        <br/>
-        <button type="button" id="mapView">map으로 바로 이동</button>
-        <button type="button" id="footerView">footer 실험실로 이동</button>
-    </form>
-    
-  </div>
-    
-	<div th:replace="common/footer::defaultFooter"></div>
-	
+
+	        
+	        <div id="userDiv" style="display:none;">
+		        <button type="button" id="getProfile">내 프로필로 이동</button>
+		        <button type="button" id="logout">로그아웃</button>
+	        </div>
+       	   
+	        
+	        
+	        <hr>
+	        <hr>
+	        <hr>
+			<details>
+			  <summary>사용자 테스트 방법 (비밀번호 암호화 정책 적용)</summary>
+			  <ol>
+			    <li>
+			      'users' 테이블에서 `password` 열의 길이를 120으로 변경합니다. (또는 현재 데이터베이스를 삭제하고 개인용 스크립트를 다시 붙여넣어도 됩니다.)
+			    </li>
+			    <li>
+			      "/user/setupForTest" URL로 접속합니다. template error가 발생할텐데, 이것은 무시하셔도 됩니다! (view가 없어서 당연히 발생함)
+			    </li>
+			  </ol>
+			  <br>
+			
+			  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 기존 코드를 주석처리하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
+			</details>
+	         
+	        <br/>
+	        <br/>
+	        <button type="button" id="mapView">map으로 바로 이동</button>
+	        <button type="button" id="footerView">footer 실험실로 이동</button>
+
+	    
+		<div th:include="common/footer::defaultFooter"></div>
+
 </body>
 </html>

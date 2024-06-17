@@ -74,7 +74,8 @@ public class TimelineServiceImpl implements TimelineService {
 				.recordNo(record.getRecordNo())
 				.imageTagType(0)
 				.build());
-		if(record.getImageName()!=null ||record.getHashtag()!=null) {
+		if((record.getImageName()!=null && !record.getImageName().isEmpty())
+				||(record.getHashtag() != null && !record.getHashtag().isEmpty())) {
 			map.put("recordNo",record.getRecordNo());
 			map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
 			timelineDao.insertImageTag(map);
@@ -133,8 +134,8 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
-	public SharedRecord getDetailSharedRecord(int recordNo) throws Exception{
-		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo));
+	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception{
+		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo, userId));
 	}
 	
 	@Override
@@ -164,6 +165,11 @@ public class TimelineServiceImpl implements TimelineService {
 		}
 		GeoUtil.sortByDistance(recordList);
 		return recordList;
+	}
+
+	@Override
+	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception {
+		return timelineDao.selectProfileTimelineList(search);
 	}
 
 //	@Override

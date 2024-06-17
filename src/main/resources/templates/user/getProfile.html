@@ -2,18 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<!--  <script src="/javascript/common/modalScreen.js"></script>  -->
-	<!--  <link rel="stylesheet" href="/css/common/modalScreen.css">  -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
+	<link href="/css/user/profile-image.css" rel="stylesheet">
 	<title>프로필</title>
 	
 	<style>
-	
-	.showBlock {
-	  border: 2px solid red; /* 빨간색 실선 테두리 */
-	}
+
 		
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
 	</style>
+	
+	
 	
 	<script th:inline="javascript">
 	
@@ -182,45 +190,63 @@
 		</script>
 	
 </head>
-<body>
+<body class="container mt-3">
 	
-	<button type="button" id="back">뒤로 가기</button>
-	
-	<button type="button" id="toggleButton">=</button>
-
-	<ul class="profile-info">
-	  <li id="shared-list" class="showBlock">
-	    <span class="label">공유기록 수</span>
-	    <span class="value" th:text="${profile.totalSharedListCount}"></span>
-	  </li>
-	  <li id="follow-list" class="showBlock">
-	    <span class="label">팔로워</span>
-	    <span class="value" th:text="${profile.totalFollowCount}"></span>
-	  </li>
-	  <li id="follower-list" class="showBlock">
-	    <span class="label">팔로잉</span>
-	    <span class="value" th:text="${profile.totalFollowerCount}"></span>
-	  </li>
-	</ul>
-	
-	<h3>자기소개</h3>
-	<p th:text="${profile.user.introduction}"></p>
-
-	<div id="myProfile" style="display:none;">
-		<button type="button" id="updateProfile">내 프로필 수정</button>
-		<button type="button" id="myChatList">내 채팅 목록으로 이동</button>
+	<div class="row">
+		<a class="col-1 text-start fs-1" href="javascript:history.back()">⬅️</a>
+		<div class="col-10"></div>
+		<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
 	</div>
-	<div id="otherProfile" style="display:none;">
+	
+	<div class="row row-cols-4 text-center ">
+		<div class="profile-box col">
+			<img class="profile" alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
+		</div>
+
+		  <div id="shared-list" class="col">
+		  	<div class="mt-4">
+			    <span>공유기록</span>
+			    <br/>
+			    <span class="value" th:text="${profile.totalSharedListCount}"></span>
+		    </div>
+		  </div>
+		  <div id="follow-list" class="col">
+		  	<div class="mt-4">
+	    		<span>팔로워</span>
+	    		<br/>
+	    		<span class="value" th:text="${profile.totalFollowCount}"></span>
+		    </div>
+		  </div>
+		  <div id="follower-list" class="col">
+		  	<div class="mt-4">
+			    <span>팔로잉</span>
+			    <br/>
+		    	<span class="value" th:text="${profile.totalFollowerCount}"></span>
+		    </div>
+		  </div>
+
+	</div>
+	
+	<p class="row mt-3 text-center" th:text="${profile.user.introduction}"></p>
+
+	<div id="myProfile" class="row justify-content-md-center" style="display:none;">
+		<button type="button" id="updateProfile" class="col col-lg-2 btn btn-primary">내 프로필 수정</button>
+		<button type="button" id="myChatList" class="col col-lg-2 btn btn-primary">내 채팅 목록으로 이동</button>
+	</div>	
+	<div id="otherProfile"  class="row justify-content-md-center" style="display:none;">
 		<div>
 			<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
 			<button type="button" id="addFollow" style="display:none;">팔로우</button>
 		</div>
 		<button type="button" id="chat">메세지 보내기</button>
 	</div>
-	
+	<hr/>
 
 	<!-- 현재 REST 지원 안됨. -->
 	<!-- 다음 주에 rest 지원 예쩡 -->
+	<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
+	<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
+	<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
 	<button type="button" id="sharedRecordListBtn">공유한 기록</button>
 	<button type="button" id="replyListBtn">작성한 댓글</button>
 	<button type="button" id="bookMarkListBtn">즐겨찾기한 기록</button>
@@ -233,15 +259,31 @@
 	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="bookMarkList"></div>
 	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactRecordList"></div>
 	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactReplyList"></div>	
+
 	
-	
-	<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
-	
-	
-	<!-- modal -->
-	<div id="toggle" class="modal">
-		
-	
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content text-center">
+	      <div class="modal-header">
+	        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+	        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body">
+			  <h2 class="fs-5">사용자 신고하기</h2>
+			  <hr>
+			  <h2 class="fs-5">사용자 차단하기</h2>
+			  <hr>
+			  <th:block th:if="${myProfile == true}">
+				  <h2 class="fs-5">프로필 숨기기</h2>
+			  </th:block>
+			</div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary">Save changes</button>
+	      </div>
+	    </div>
+	  </div>
 	</div>
 </body>	
 </html>

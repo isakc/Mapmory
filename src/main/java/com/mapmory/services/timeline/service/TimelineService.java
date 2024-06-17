@@ -42,11 +42,13 @@ public interface TimelineService {
 	
 	public SummaryRecordDto getSummaryRecord(Search search) throws Exception;
 	
-	public SharedRecord getDetailSharedRecord(int recordNo) throws Exception;
+	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
 	public List<SharedRecordDto> getSharedRecordList(Search search) throws Exception;
 	
 	public List<MapRecord> getMapRecordList(Search search) throws Exception;
+	
+	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception;
 	
 	
 

@@ -56,13 +56,15 @@ public interface TimelineDao {
 	
 	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
 	
-	public Map<String, Object> selectDetailSharedRecord(int recordNo) throws Exception;
+	public Map<String, Object> selectDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
 	public List<SharedRecordDto> selectSharedRecordList(Search search) throws Exception;
 	
 	public List<Map<String, Object>> selectMapRecordList(SearchDto searchDto) throws Exception;
 	
 	public Record selectDetailTimeline2(int recordNo) throws Exception;
+	
+	public List<Map<String, Object>> selectProfileTimelineList(Search search) throws Exception;
 	
 	//아래 미사용
 //	//record insert시 Imagefile insert

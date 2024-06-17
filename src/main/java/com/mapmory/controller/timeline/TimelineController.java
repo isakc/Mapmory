@@ -55,6 +55,9 @@ public class TimelineController {
 	
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
+    
+    @Value("${cdn.url}")
+    private String cdnUrl;
 	
 	public TimelineController(){
 		System.out.println("TimelineController default Contrctor call : " + this.getClass());
@@ -169,7 +172,7 @@ public class TimelineController {
 //		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
 //			return null;
 //		}
-		record.setMediaName(record.getMediaName().replace(mediaFileFolder,""));
+		record.setMediaName(record.getMediaName().replace(cdnUrl+mediaFileFolder+"/",""));
 		record = timelineUtil.imageFileUpload(record, imageFile);
 		record = timelineUtil.mediaFileUpload(record, mediaFile);
 		
@@ -287,9 +290,9 @@ public class TimelineController {
 	
 	
 	@GetMapping({"getDetailTimeline3"})
-	public void getDetailTimeline3(Model model) throws Exception,IOException {
+	public void getDetailTimeline3(Model model, String userId) throws Exception,IOException {
 		model.addAttribute("record",timelineService.getDetailTimeline(1));
-		model.addAttribute("record2",timelineService.getDetailSharedRecord(1));
+		model.addAttribute("record2",timelineService.getDetailSharedRecord(1, userId));
 	}
 	
 	@GetMapping({"getDetailTimeline2"})
@@ -332,14 +335,14 @@ public class TimelineController {
 //				.timecapsuleType(0)
 //				.build();
 //		model.addAttribute("list5",timelineService.getTimelineList(search));
-//		search=Search.builder()
-//				.currentPage(1)
-//				.limit(5)
-//				.sharedType(0)
-//				.tempType(0)
-//				.timecapsuleType(1)
-//				.build();
-//		model.addAttribute("list6",timelineService.getTimelineList(search));
+		search=Search.builder()
+				.currentPage(1)
+				.limit(5)
+				.sharedType(0)
+				.tempType(0)
+				.timecapsuleType(1)
+				.build();
+		model.addAttribute("list6",timelineService.getTimelineList(search));
 //		//d_day보다 현재 날짜가 위에 있으면 갖고오는 조건식
 //		search=Search.builder()
 //				.currentPage(1)
@@ -437,17 +440,17 @@ public class TimelineController {
 //	 			.categoryNo(3)
 //				.build();
 //		model.addAttribute("mapList3_4",timelineService.getMapRecordList(search));
-		search=Search.builder()
-				.latitude(37.4794143)
-	 			.longitude(127.020817)
+//		search=Search.builder()
+//				.latitude(37.4794143)
+//	 			.longitude(127.020817)
 //	 			.privateType(1)
 //	 			.followType(1)
-	 			.sharedType(1)
-	 			.userId("user1")
-	 			.radius(4)
-	 			.limit(100)
-				.build();
-		model.addAttribute("mapList4",timelineService.getMapRecordList(search));
+//	 			.sharedType(1)
+//	 			.userId("user1")
+//	 			.radius(1100)
+//	 			.limit(100)
+//				.build();
+//		model.addAttribute("mapList4",timelineService.getMapRecordList(search));
 //		//===========================================
 //		search=Search.builder()
 //				.userId("user1")
