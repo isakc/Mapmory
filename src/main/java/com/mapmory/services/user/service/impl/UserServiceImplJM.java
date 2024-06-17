@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class UserServiceImplJM implements UserServiceJM {
 	private String phoneNum;
 	
 	@Value("${kakao.client}")
-	private String kakaoCilent;
+	private String kakaoCilent; 
 	
 	@Override
     public String getKakaoAccessToken (String authorize_code) {
@@ -142,6 +143,16 @@ public class UserServiceImplJM implements UserServiceJM {
 
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+
+            String name = properties.getAsJsonObject().get("nickname").getAsString();
+            String email = kakao_account.getAsJsonObject().get("email").getAsString();
+            String kphone = kakao_account.getAsJsonObject().get("phone_number").getAsString();
+            String birthday = kakao_account.getAsJsonObject().get("phone_number").getAsString();
+            
+            System.out.println(properties);
+            System.out.println(name);
+            System.out.println(email);
+            System.out.println(kphone);
 
             kakaoId = element.getAsJsonObject().get("id").getAsString();
             System.out.println("kakaoId : " + kakaoId);
