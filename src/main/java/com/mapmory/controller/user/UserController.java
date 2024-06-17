@@ -249,7 +249,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/getProfile")
-	public void getProfile(HttpServletRequest request, @RequestParam(required=false) String userId, Model model) throws Exception {
+	public void getProfile(HttpServletRequest request, @RequestParam String userId, Model model) throws Exception {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 
