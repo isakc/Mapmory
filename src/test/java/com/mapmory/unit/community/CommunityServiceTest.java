@@ -151,7 +151,8 @@ public class CommunityServiceTest {
 	//@Test
 	public void TestDeleteCommunityLogs() throws Exception {
 
-		communityService.deleteCommunityLogs("user4", 22, 0);		
+		CommunityLogs communityLogs = null;
+		communityService.deleteCommunityLogs(communityLogs);		
 		System.out.println("delete 테스트 : ");	
 	}	
 	
@@ -160,7 +161,8 @@ public class CommunityServiceTest {
 		Search search = new Search();
 		search.setLimit(1);
 		search.setOffset(0);
-		Map<String, Object> map = communityService.getCommunityLogsList(search, "user2", 1);
+		CommunityLogs communityLogs = null;
+		Map<String, Object> map = communityService.getCommunityLogsList(search, communityLogs);
 		
 		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
 		

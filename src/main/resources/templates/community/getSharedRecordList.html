@@ -1,44 +1,109 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<title>공유 기록 목록</title>
 <head>
 	<meta charset="UTF-8">
-	<title>공유 기록 목록</title>
-	<script type="text/javascript">
-	</script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></script>
+	
+	
+	<style>
+		.reply-count {
+			font-size : 18px;
+			font-weight : bold;
+		}
+		
+		.title {
+			font-size : 24px;
+			font-weight : solid-bold; 
+		}
+		
+		.separator {
+			border-top : 2px solid;
+			margin-top : 20px;
+		}
+	</style>
+		
 </head>
 <body>
-	<h1>공유기록목록</h1>
-	<table>		
-		<tbody>
-			<tr>
-				<th>유저</th>
-				<th>프로필사진</th>
-				<th>구독유무</th>
-				<th>공유날짜</th>
-				<th>수정횟수</th>
-				<th>댓글수</th>
-				<th>이미지타입</th>
-				<th>이미지</th>
-				<th>카테고리이름</th>
-				<th>카테고리이모지</th>
-				<th>공유기록제목</th>
-			</tr>		
-			<tr th:each="sharedRecord : ${sharedRecordlist}">
-				<td><a th:href="@{'/user/getProfile/?userId=' + ${sharedRecord.recordUserId}}" th:text="${sharedRecord.nickname}"></a></td>
-				<td th:text="${sharedRecord.profileImageName}"></td>
-				<td th:text="${sharedRecord.subscriptionEndDate}"></td>
-				<td th:text="${sharedRecord.sharedDate}"></td>
-				<td th:style="'text-align: center;'" th:text="${sharedRecord.updateCount}"></td>
-				<td th:style="'text-align: center;'" th:text="${sharedRecord.replyCount}"></td>
-				<td th:text="${sharedRecord.imageTagType}"></td>				
-				<td th:text="${sharedRecord.imageTagText}"></td>				
-				<td th:text="${sharedRecord.categoryName}"></td>
-				<td th:text="${sharedRecord.categoryImoji}"></td>		
-				<td><a th:href="@{'/community/getDetailSharedRecord/' + ${sharedRecord.recordNo}}" th:text="${sharedRecord.recordTitle}"></a></td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="container">
+		<div class="card mb-3">
+			<h3 class="card-header">공유기록목록</h3>
+				<div th:each="sharedRecord, iterStat  : ${sharedRecordlist}" class="col-sm-4">
+					<div class="card-body">
+						<h4>
+							<span th:text="${sharedRecord.profileImageName}"></span>
+							<a th:href="@{/user/getProfile(userId=${sharedRecord.recordUserId})}" th:text="${sharedRecord.nickname}"></a>
+							<span th:text="${sharedRecord.subscriptionEndDate}"></span>
+						</h4> 
+					</div>
+					<div th:if="${sharedRecord.imageTagType != null and sharedRecord.imageTagText !=null}">
+						<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+							<rect width="100%" height="100%" fill="#868e96"></rect>
+							<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+						</svg>					
+					</div>
+					<div class="card-body">
+						<svg xmlns="http://www.w3.org/2000/svg" width="30" height="25" fill="currentColor" class="bi bi-chat-square-text-fill" viewBox="0 0 16 16">
+						  <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1z"/>
+						</svg>					
+						<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
+					</div>
+					
+					<div class="card-body">
+						<h3 class="card-title">
+							<a th:href="@{'/community/getDetailSharedRecord/' + ${sharedRecord.recordNo}}" th:text="${sharedRecord.recordTitle}" class="title"></a>
+							<span th:text="${sharedRecord.categoryName}"></span>
+							<span th:text="${sharedRecord.categoryImoji}"></span>
+						</h3>
+
+					</div>
+					<div class="card-footer text-muted">
+						<span th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span>
+						<span th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
+					</div>
+					<div th:if="${iterStat.last == false}" class="separator"></div>
+				</div>
+		</div>
+	</div>
+
+
+<!-- 	<h1>공유기록목록</h1> -->
+<!-- 	<table>		 -->
+<!-- 		<tbody> -->
+<!-- 			<tr> -->
+<!-- 				<th>유저</th> -->
+<!-- 				<th>프로필사진</th> -->
+<!-- 				<th>구독유무</th> -->
+<!-- 				<th>공유날짜</th> -->
+<!-- 				<th>수정횟수</th> -->
+<!-- 				<th>댓글수</th> -->
+<!-- 				<th>이미지타입</th> -->
+<!-- 				<th>이미지</th> -->
+<!-- 				<th>카테고리이름</th> -->
+<!-- 				<th>카테고리이모지</th> -->
+<!-- 				<th>공유기록제목</th> -->
+<!-- 			</tr>		 -->
+<!-- 			<tr th:each="sharedRecord : ${sharedRecordlist}"> -->
+<!-- 				<td><a th:href="@{'/user/getProfile/?userId=' + ${sharedRecord.recordUserId}}" th:text="${sharedRecord.nickname}"></a></td> -->
+<!-- 				<td th:text="${sharedRecord.profileImageName}"></td> -->
+<!-- 				<td th:text="${sharedRecord.subscriptionEndDate}"></td> -->
+<!-- 				<td th:text="${sharedRecord.sharedDate}"></td> -->
+<!-- 				<td th:style="'text-align: center;'" th:text="${sharedRecord.updateCount}"></td> -->
+<!-- 				<td th:style="'text-align: center;'" th:text="${sharedRecord.replyCount}"></td> -->
+<!-- 				<td th:text="${sharedRecord.imageTagType}"></td>				 -->
+<!-- 				<td th:text="${sharedRecord.imageTagText}"></td>				 -->
+<!-- 				<td th:text="${sharedRecord.categoryName}"></td> -->
+<!-- 				<td th:text="${sharedRecord.categoryImoji}"></td>		 -->
+<!-- 				<td><a th:href="@{'/community/getDetailSharedRecord/' + ${sharedRecord.recordNo}}" th:text="${sharedRecord.recordTitle}"></a></td> -->
+<!-- 			</tr> -->
+<!-- 		</tbody> -->
+<!-- 	</table> -->
 	
-	<br/><br/>
+<!-- 	<br/><br/> -->
 </body>	
 </html>

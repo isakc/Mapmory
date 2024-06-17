@@ -133,8 +133,8 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
-	public SharedRecord getDetailSharedRecord(int recordNo) throws Exception{
-		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo));
+	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception{
+		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo, userId));
 	}
 	
 	@Override

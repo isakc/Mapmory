@@ -38,6 +38,8 @@ import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.user.domain.FollowBlock;
 
+import retrofit2.http.Path;
+
 @RestController
 @RequestMapping("/community/*")
 public class CommunityRestController {
@@ -120,7 +122,7 @@ public class CommunityRestController {
 	    }
 	}  		
 
-	//댓글 목록 조회
+	//기록별 댓글 목록 조회
 	@GetMapping("/rest/getReplyList/{recordNo}")
 	public ResponseEntity<Map<String, Object>> getReplyList(Search search, @PathVariable int recordNo) throws Exception {
 		if(search == null) {
@@ -133,6 +135,37 @@ public class CommunityRestController {
 		return ResponseEntity.ok(replyData);
 	}
 	
+	//사용자별 댓글 목록 조회
+	@GetMapping("/rest/getReplyList/{userId}")
+	public ResponseEntity<Map<String, Object>> getReplyListByUser(Search search, @PathVariable String userId, HttpServletRequest request) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		if(search == null) {
+			search = Search.builder()
+					.userId(userId)
+					.currentPage(1)
+					.limit(10)
+					.build();
+		}
+		
+		Map<String, Object> replyData = communityService.getUserReplyList(search, userId);
+		return ResponseEntity.ok(replyData);	
+	}
+	
+	//사용자별 커뮤니티 로그 기록
+	@GetMapping("/rest/getCommunityLogsList/{userId}")
+	public ResponseEntity<Map<String, Object>> getCommunityLogsList(Search search, @PathVariable String userId, HttpServletRequest request) throws Exception {
+	
+		userId = redisUtil.getSession(request).getUserId();
+		
+		CommunityLogs communityLogs = new CommunityLogs();
+		communityLogs.setUserId(userId);
+		
+		Map<String, Object> result = communityService.getCommunityLogsList(search, communityLogs);
+		
+		return ResponseEntity.ok(result);
+	}
 	
 	//댓글 수정
 	@PostMapping("/rest/updateReply/{replyNo}")
@@ -167,11 +200,12 @@ public class CommunityRestController {
 	
 	//댓글 삭제
 	@DeleteMapping("/rest/deleteReply/{userId}/{replyNo}")
-	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo, HttpServletRequest request) throws Exception {
+	public String deleteReply(@PathVariable String userId, @PathVariable int replyNo, CommunityLogs communityLogs, HttpServletRequest request) throws Exception {
 		
 		int recordNo = 0;
 		userId = redisUtil.getSession(request).getUserId();
-		communityService.deleteCommunityLogs(userId, recordNo, replyNo);
+		communityService.deleteCommunityLogs(communityLogs);		
+//		communityService.deleteCommunityLogs(userId, recordNo, replyNo);
 		
 		communityService.deleteReply(userId, replyNo);
 		return "redirect: community/getReplyList";
@@ -191,16 +225,37 @@ public class CommunityRestController {
 		return ResponseEntity.ok(userReplyCount);
 	}	
 	
-	//커뮤니티 로그 추가
-	@PostMapping("/rest/addCommunityLogs")
-	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
+	@PostMapping("/rest/checkLogs")
+	public ResponseEntity<CommunityLogs> checkLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
 		
 		communityLogs.setUserId(userId);
 		
-		communityService.addCommunityLogs(communityLogs);
+		communityService.checkLog(communityLogs);
 		return ResponseEntity.ok(communityLogs);
+	}
+	
+	
+//	//커뮤니티 로그 추가
+//	@PostMapping("/rest/addCommunityLogs")
+//	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
+//		
+//		userId = redisUtil.getSession(request).getUserId();
+//		
+//		communityLogs.setUserId(userId);
+//		
+//		communityService.addCommunityLogs(communityLogs);
+//		return ResponseEntity.ok(communityLogs);
+//	}
+	
+	//즐겨찾기 취소
+	@DeleteMapping("/rest/deleteBookmark/{userId}/{recordNo}")
+	public String deleteCommunityLogs(@PathVariable String userId, @PathVariable int recordNo, HttpServletRequest request) throws Exception {
+
+		userId = redisUtil.getSession(request).getUserId();
+		
+		return "redirect: community/getDetailSharedRecord/"+recordNo;
 	}
 	
 	//좋아요 개수
@@ -216,6 +271,14 @@ public class CommunityRestController {
 		int dislikeCount = communityDao.getReactionDisLikeTotalCount(communityLogs);
 		return ResponseEntity.ok(dislikeCount);
 	}	
+	
+	//즐겨찾기 확인
+	@PostMapping("/rest/getBookmark")
+	public ResponseEntity<Integer> getBookmark(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
+	
+		int bookmark = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		return ResponseEntity.ok(bookmark);
+	}
 	
 	//신고하기 제출
 	@PostMapping("/rest/doReport")

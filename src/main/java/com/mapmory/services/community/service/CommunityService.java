@@ -40,10 +40,13 @@ public interface CommunityService {
 	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
 
 	//커뮤니티 활동 삭제
-	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception;
+	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
 	//커뮤니티 로그 목록 조회
-	public Map<String, Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception;	
+	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;	
+	
+	//커뮤니티 로그 중복 체크
+	public void checkLog(CommunityLogs communityLogs) throws Exception;
 	
 	//신고 정보 가져가지
 	public void addReport(Report report) throws Exception;

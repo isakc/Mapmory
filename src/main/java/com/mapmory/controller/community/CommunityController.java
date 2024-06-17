@@ -72,8 +72,8 @@ public class CommunityController {
 	public String getDetailSharedRecord(Search search, String userId, Model model, @PathVariable int recordNo, HttpServletRequest request) throws Exception{
 		
 		userId = redisUtil.getSession(request).getUserId();
-
-		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo));
+			
+		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
 	    model.addAttribute("userId", userId);
