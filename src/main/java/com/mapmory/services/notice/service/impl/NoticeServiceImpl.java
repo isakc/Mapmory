@@ -43,7 +43,7 @@ public class NoticeServiceImpl implements NoticeService {
         List<Notice> noticeList = noticeDao.getNoticeList(search);
     	int totalCount = noticeDao.getNoticeTotalCount(search);
     	
-    	System.out.println("프로덕트 리스트입니다. " + noticeList);
+    	System.out.println("공지사항 리스트입니다. " + noticeList);
     	
     	Map<String,Object> map = new HashMap<String, Object>();
     	map.put("noticeList",noticeList);
@@ -59,9 +59,9 @@ public class NoticeServiceImpl implements NoticeService {
         search.setPageSize(search.getPageSize());
         
         List<Notice> noticeList = noticeDao.getFaqList(search);
-    	int totalCount = noticeDao.getNoticeTotalCount(search);
+    	int totalCount = noticeDao.getFaQTotalCount(search);
     	
-    	System.out.println("프로덕트 리스트입니다. " + noticeList);
+    	System.out.println("공지사항 리스트입니다.. " + noticeList);
     	
     	Map<String,Object> map = new HashMap<String, Object>();
     	map.put("noticeList",noticeList);
