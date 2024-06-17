@@ -97,35 +97,47 @@
 			    	alert('캡차 인증을 완료해야 합니다.');
 		            event.preventDefault();
 		            return;
-		        } else {
-
-			    }
+		        }
 			    
 			    
-			    $('form#signupForm').submit();
+			   // 	$('form#signupForm').submit();
+			   
+			   console.log('ok');
 			    
-			    /*
+			   const form = new FormData($('form').get(0));
+			   const formJson = {};
+			   
+			   form.forEach((value, key) => {
+				   
+				   formJson[key] = value;
+			   })
+			   console.log(formJson);
+			   
 			    $.ajax({
 			    	type : 'post',
 					url : '/user/rest/signUp',
-					data : $('form').serialize(),
+					data : JSON.stringify(formJson),
+					contentType : "application/json",
 					success : function(response){
 						
-						alert('회원가입에 성공하였습니다!');
-						window.location.href="/";
+						if(response == true || response == 'true') {
 
+							alert('회원가입에 성공하였습니다!');
+							window.location.href="/";
+							
+						} else {
+							
+							alert('회원가입 실패...');
+							
+						}
+	
 					},
 					error: function(xhr, status, error){
 						alert(error);
-					},
-					complete: function() {
-						
-						alert('회원가입에 성공하였습니다! (complete)');
-						window.location.href="/";
-						
 					}
 			    });
-			    */
+			    
+			    
 			});
 		});
 	</script>
