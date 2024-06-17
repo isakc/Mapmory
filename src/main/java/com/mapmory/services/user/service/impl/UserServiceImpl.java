@@ -7,14 +7,20 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +28,28 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -54,6 +74,12 @@ import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.UserSearch;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
+import com.mapmory.services.user.domain.auth.naver.NaverProfile;
+import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
 import com.mapmory.services.user.service.UserService;
 
 import kr.co.shineware.nlp.komoran.exception.FileFormatException;
@@ -100,12 +126,78 @@ public class UserServiceImpl implements UserService {
 	@Value("${kakao.client}")
 	private String kakaoCilent;
 	
+	
+    @Value("${naver.client.id}")
+	private String naverClientId;
+    
+    @Value("${naver.client.secret}")
+	private String naverClientSecret;
+    
+	@Value("${naver.redirect.uri}")
+	private String naverRedirectUri;
+    
+	@Value("${naver.token.request.url}")
+	private String naverTokenRequestUrl;
+	
+	@Value("${naver.profile.request.url}")
+	private String profileRequestUrl;
+
+	
+	@Value("${google.client.id}")
+	private String clientId;
+	
+	@Value("${google.client.secret}")
+	private String clientSecret;
+	
+	@Value("${google.redirect.uri}")
+	private String redirectUri;
+
+	@Value("${google.redirect.uri}")
+	private String googleTokenRequestUrl;
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
+	 */
+	public void setupForTest() {
+
+		/*
+		UserSearch search = UserSearch.builder()
+							.searchCondition(-1)
+							.role(0)
+							.currentPage(1)
+							.pageSize(100)
+							.limit(100)
+							.build();
+		List<User> list = userDao.selectUserList(search);
+		
+		for(User user : list) {
+			
+			String userId = user.getUserId();
+			String userPassword = getPassword(userId);
+			
+			updatePassword(userId, userPassword);
+		}
+		*/
+		
+
+		String userId="user1";
+		String userPassword="password1";
+		updatePassword(userId, userPassword);
+		userId="user2";
+		userPassword="password2";	
+		updatePassword(userId, userPassword);
+		userId="admin";
+		userPassword="admin";
+		updatePassword(userId, userPassword);
+
+	}
+	
 	@Override
-	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber) throws Exception {
+	public boolean addUser(String userId, String userPassword, String userName, String nickname, LocalDate birthday, int sex, String email, String phoneNumber, String socialId) throws Exception {
 		// TODO Auto-generated method stub
 		
 		if ( contentFilterUtil.checkBadWord(userId) ) 
@@ -129,6 +221,13 @@ public class UserServiceImpl implements UserService {
 						.build();
 	
 		int result = userDao.insertUser(user);
+		
+		if(socialId != null) {
+			
+			//  social_login_info 에 연동 정보를 저장할 것.
+			addSocialLoginLink(userId, socialId);
+			
+		}
 		
 		return intToBool(result);
 	}
@@ -158,16 +257,16 @@ public class UserServiceImpl implements UserService {
 		switch(count) {
 		
 			case 0:
-				startSuspensionDate.plusDays(1);
+				startSuspensionDate = startSuspensionDate.plusDays(1);
 				break;
 			case 1:
-				startSuspensionDate.plusDays(7);
+				startSuspensionDate = startSuspensionDate.plusDays(7);
 				break;
 			case 2:
-				startSuspensionDate.plusDays(14);
+				startSuspensionDate = startSuspensionDate.plusDays(14);
 				break;
 			case 3:
-				startSuspensionDate.plusYears(9999L);
+				startSuspensionDate = startSuspensionDate.plusYears(9999L);
 				break;
 			default :
 				throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
@@ -273,6 +372,21 @@ public class UserServiceImpl implements UserService {
 					.build();
 		User resultUser =  userDao.selectUser(user);
 		return resultUser.getUserId();
+	}
+	
+	@Override
+	public boolean checkUserExist(String userId, String email) {
+		// TODO Auto-generated method stub
+		
+		User user = User.builder()
+					.userId(userId)
+					.email(email)
+					.build();
+		User resultUser =  userDao.selectUser(user);
+		if(resultUser != null)
+			return true;
+		else
+			return false;
 	}
 
 	@Deprecated
@@ -642,19 +756,6 @@ public class UserServiceImpl implements UserService {
 		int result = userDao.deleteSuspendUser(logNo);
 		return intToBool(result);
 	}
-	
-	@Override
-	public boolean checkSecondaryAuth(String userId) {
-		// TODO Auto-generated method stub
-		
-		User user = User.builder()
-						.userId(userId)
-						.build();
-						
-		Byte result = userDao.selectUser(user).getSetSecondaryAuth();
-		
-		return intToBool(result);
-	}
 
 	@Override
 	public boolean checkDuplicationById(String userId) {
@@ -666,7 +767,7 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.checkDuplication(user);
 		
-		return intToBool(result);
+		return !intToBool(result);
 	}
 	
 	@Override
@@ -679,7 +780,7 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.checkDuplication(user);
 		
-		return intToBool(result);
+		return !intToBool(result);
 	}
 	
 	@Override
@@ -738,39 +839,275 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
-	/**
-	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
-	 */
-	public void setupForTest() {
-
-		/*
-		UserSearch search = UserSearch.builder()
-							.searchCondition(-1)
-							.role(0)
-							.currentPage(1)
-							.pageSize(100)
-							.limit(100)
-							.build();
-		List<User> list = userDao.selectUserList(search);
+	@Override
+	public Map<String, String> checkSuspended(String userId) {
 		
-		for(User user : list) {
+		Map<String, String> map = new HashMap<>();
+		
+		SuspensionLogList suspensionLogList = getSuspensionLogListActually(userId);
+		if(suspensionLogList != null) {
+			List<SuspensionDetail> list = getSuspensionLogListActually(userId).getSuspensionDetailList();
 			
-			String userId = user.getUserId();
-			String userPassword = getPassword(userId);
+			System.out.println("suspensionDetailList : " + list);
+			int count = list.size();
+			LocalDateTime lastSuspensionDate = list.get(count-1).getStartSuspensionDate();
+			LocalDateTime now = LocalDateTime.now();
+			switch(count) {
 			
-			updatePassword(userId, userPassword);
+				case 1:
+					lastSuspensionDate = lastSuspensionDate.plusDays(1);
+					break;
+				case 2:
+					lastSuspensionDate = lastSuspensionDate.plusDays(7);
+					break;
+				case 3:
+					lastSuspensionDate = lastSuspensionDate.plusDays(14);
+					break;
+				case 4:
+					lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
+					break;
+				default :
+					throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
+			}
+			
+			System.out.println("정지 해제 일시 : " + lastSuspensionDate);
+			
+			if(now.isBefore(lastSuspensionDate)) {
+				
+				map.put("isSuspended", "true");
+				map.put("endSuspensionDate", lastSuspensionDate.toString());
+				
+			} else {
+				
+				map.put("isSuspended", "false");
+				
+			}
+		
+		} else {
+			
+			map.put("isSuspended", "false");
+			
 		}
-		*/
+
+		return map;
+	}
+	
+	public boolean checkSetSecondaryAuth(String userId) {
 		
-		String userId="user1";
-		String userPassword="password1";
-		updatePassword(userId, userPassword);
-		userId="user2";
-		userPassword="password2";	
-		updatePassword(userId, userPassword);
-		userId="admin";
-		userPassword="admin";
-		updatePassword(userId, userPassword);
+		int setSecondaryAuth = getDetailUser(userId).getSetSecondaryAuth();
+		
+		return intToBool(setSecondaryAuth);
+	}
+	
+	@Override
+	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException {
+		
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("grant_type","authorization_code");
+	    params.add("client_id", naverClientId);
+	    params.add("client_secret", naverClientSecret);
+	    params.add("code", code);
+	    params.add("state", state);
+		
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new org.springframework.http.HttpEntity<>(params, headers);
+
+		 // TOKEN_REQUEST_URL로 Http 요청 전송
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> tokenResponse = rt.exchange(
+	            naverTokenRequestUrl,
+	            HttpMethod.POST,
+	            naverTokenRequest,
+	            String.class
+	    );
+		
+	    // ObjectMapper를 통해 NaverOAuthToken 객체로 매핑
+		ObjectMapper objectMapper = new ObjectMapper();
+		return objectMapper.readValue(tokenResponse.getBody(), NaverAuthToken.class);
+		
+	}
+	
+	@Override
+	public NaverProfile getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException {
+		
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("grant_type","authorization_code");
+	    params.add("client_id", naverClientId);
+	    params.add("client_secret", naverClientSecret);
+	    params.add("code", code);
+	    params.add("state", state);
+	    
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer "+ accessToken);
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> naverProfileRequest = new HttpEntity<>(headers);
+	    
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> profileResponse = rt.exchange(
+		    profileRequestUrl,
+		    HttpMethod.POST,
+		    naverProfileRequest,
+		    String.class
+	    );
+	    
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    NaverProfileResponse result = objectMapper.readValue(profileResponse.getBody(), NaverProfileResponse.class);
+	    
+	    return result.getResponse();
+	}
+	
+	
+	
+	@Override
+	public String generateSecondAuthKey() {
+		
+		
+				// [secretSize + numOfScratchCodes * scratchCodeSize]
+		byte[] buffer = new byte[10 + 5 * 5]; 
+		
+		// Filling the buffer with random numbers.
+		new Random().nextBytes(buffer); 
+		
+		// Getting the key and converting it to Base32
+		Base32 codec = new Base32(); 
+								// (buffer, secretSize)
+		byte[] secretKey = Arrays.copyOf(buffer, 10); 
+		byte[] bEncodedKey = codec.encode(secretKey); 
+
+		return new String(bEncodedKey);
+	}
+	
+	@Override
+	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
+		
+		long userCode = Integer.parseInt(googleUserOtpCheck.getUserCode());
+		String encodedKey = googleUserOtpCheck.getEncodedKey();
+		
+		long I = new Date().getTime();
+		long II = I / 30000;
+		
+		boolean result = false;
+		
+		Base32 codec = new Base32();
+		byte[] decodedKey = codec.decode(encodedKey);
+		
+		// Window is used to check codes generated in the near past.
+        // You can use this value to tune how far you're willing to go.
+        int window = 3;
+        for (int i = -window; i <= window; ++i) {
+            long hash = verify_code(decodedKey, II + i);
+			
+            if (hash == userCode) {
+                return true;
+            }
+        }
+		
+        return false;
+		
+	}
+	
+	/*
+	@Override
+	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException {
+				
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("grant_type","authorization_code");
+	    params.add("client_id", clientId);
+	    params.add("client_secret", clientSecret);
+	    params.add("code", code);
+	    params.add("redirect_uri", redirectUri);
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> tokenResponse;
+	    
+	    try {
+
+	    	// 문제 위치
+	    	tokenResponse = rt.exchange(
+		            googleTokenRequestUrl,
+		            HttpMethod.POST,
+		            googleTokenRequest,
+		            String.class
+		    );
+
+	    } catch(Exception e) {
+	    	
+	    	e.printStackTrace();
+	        throw new RuntimeException("Failed to get token from Google", e);
+	    }
+
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    GoogleToken token = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
+	    System.out.println(token);
+ 		return token;
+	    
+	}
+	
+	@Override
+	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+		
+		String[] chunks = idToken.split("\\.");
+ 	    
+ 	    Base64.Decoder decoder = Base64.getUrlDecoder();
+ 	    
+ 	    // 한글 깨짐 문제 해결
+ 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
+ 	    
+ 	    ObjectMapper objectMapper = new ObjectMapper();
+		return objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
+		
+	}
+	*/
+	
+	
+	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+
+		// Parameter로 전달할 속성들 추가
+	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("client_id", clientId);
+	    params.add("client_secret", clientSecret);
+	    params.add("code", code);
+	    params.add("grant_type","authorization_code");
+	    params.add("redirect_uri", redirectUri);
+	    
+	    /// get access token
+	    // Http 메시지 생성
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+	    
+	    System.out.println(googleTokenRequest);
+	    
+
+	    // TOKEN_REQUEST_URL로 Http 요청 전송
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> tokenResponse = rt.exchange(
+	            googleTokenRequestUrl,
+	            HttpMethod.POST,
+	            googleTokenRequest,
+	            String.class
+	    );
+
+	    /*
+	    // ObjectMapper를 통해 GoogleResponse 객체로 매핑
+ 		ObjectMapper objectMapper = new ObjectMapper();
+ 		GoogleToken googleToken = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
+ 	    
+ 	    String[] chunks = googleToken.getId_token().split("\\.");
+ 	    
+ 	    Base64.Decoder decoder = Base64.getUrlDecoder();
+ 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
+ 	    
+		GoogleJwtPayload payload = objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
+		return payload;
+		*/
+	    
+	    return null;
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -919,4 +1256,35 @@ public class UserServiceImpl implements UserService {
 		else
 			return false;
 	}
+	
+	 private static int verify_code(byte[] key, long t)
+	            throws NoSuchAlgorithmException, InvalidKeyException {
+			
+	        byte[] data = new byte[8];
+	        long value = t;
+	        for (int i = 8; i-- > 0; value >>>= 8) {
+	            data[i] = (byte) value;
+	        }
+	 
+	        SecretKeySpec signKey = new SecretKeySpec(key, "HmacSHA1");
+	        Mac mac = Mac.getInstance("HmacSHA1");
+	        mac.init(signKey);
+	        byte[] hash = mac.doFinal(data);
+	 
+	        int offset = hash[20 - 1] & 0xF;
+	 
+	        // We're using a long because Java hasn't got unsigned int.
+	        long truncatedHash = 0;
+	        for (int i = 0; i < 4; ++i) {
+	            truncatedHash <<= 8;
+	            // We are dealing with signed bytes:
+	            // we just keep the first byte.
+	            truncatedHash |= (hash[offset + i] & 0xFF);
+	        }
+	 
+	        truncatedHash &= 0x7FFFFFFF;
+	        truncatedHash %= 1000000;
+	 
+	        return (int) truncatedHash;
+	    }
 }

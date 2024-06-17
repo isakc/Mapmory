@@ -103,6 +103,7 @@
 		<where> 
 		 	<if test="userId != null">user_id = #{userId}</if>
 		 	<if test="userName != null and email != null">user_name = #{userName} AND email = #{email}</if>
+		 	<if test="userName == null and email != null">AND email = #{email}</if>
 		</where>
 	</select>
 	
