@@ -66,36 +66,36 @@ public class MapRestController {
 		
 		return resultTransitRouterList;
 	}// getTransitRouteList: 대중교통 경로 요청
-	
-//	@ResponseBody
-//	@PostMapping(value="rest/getMapRecordList")
-//	public List<MapRecord> getMapRecordList(@RequestBody Search search) throws Exception {
-//		
-//		search.setLimit(10);
-//		search.setCurrentPage(1);
-//		
-//		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);
-//		List<FollowMap> followList = userService.getFollowList(null, search.getUserId(), null, 0, 0, false);
-//		List<String> followUserId = new ArrayList<String>();
-//		
-//		for(FollowMap follow : followList) {
-//			followUserId.add(follow.getUserId());
-//		}
-//		
-//		for(MapRecord record : mapRecordList) {
-//			if(record.getRecordUserId().equals(search.getUserId())) { // 기록의 작성자가 사용자의 ID인 경우 private
-//				record.setRecordType(0);
-//			}else if(followUserId.contains(record.getRecordUserId())) {// 사용자의 ID의 팔로우 리스트 중 포함되어 있으면 follow
-//				record.setRecordType(2);
-//			}else {// 나머지는 공유 기록 public
-//				record.setRecordType(1);
-//			}
-//		}
-//		
-//		//1 private // 2 follow // 3 public
-//		
-//		return mapRecordList;
-//	}
+
+	@ResponseBody
+	@PostMapping(value="rest/getMapRecordList")
+	public List<MapRecord> getMapRecordList(@RequestBody Search search) throws Exception {
+		
+		search.setLimit(10);
+		search.setCurrentPage(1);
+		
+		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);
+		List<FollowMap> followList = userService.getFollowList(null, search.getUserId(), null, 0, 0, 0);
+		List<String> followUserId = new ArrayList<String>();
+		
+		for(FollowMap follow : followList) {
+			followUserId.add(follow.getUserId());
+		}
+		
+		for(MapRecord record : mapRecordList) {
+			if(record.getRecordUserId().equals(search.getUserId())) { // 기록의 작성자가 사용자의 ID인 경우 private
+				record.setRecordType(0);
+			}else if(followUserId.contains(record.getRecordUserId())) {// 사용자의 ID의 팔로우 리스트 중 포함되어 있으면 follow
+				record.setRecordType(2);
+			}else {// 나머지는 공유 기록 public
+				record.setRecordType(1);
+			}
+		}
+		
+		//1 private // 2 follow // 3 public
+		
+		return mapRecordList;
+	}
 
 	@ResponseBody
 	@PostMapping(value="rest/getDetailRecord")
