@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/css/common/footer.css"> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -33,10 +34,23 @@
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
 				contentType : 'application/json',
-				data : JSON.stringify(data),
+				data : JSON.stringify({
+					userId : userId,
+					recordNo : recordNo,
+					logsType : 2 
+				}),
 				success : function(response) {
-					console.log('좋아요 성공');
+					console.log('좋아요 추가 혹은 취소 성공');
 					updateLikes(recordNo, replyNo, logsType);
+					
+				    var likeIcon = $('#recordLike');
+				    if (likeIcon.hasClass('bi-hand-thumbs-up')) {
+				        likeIcon.removeClass('bi-hand-thumbs-up');
+				        likeIcon.addClass('bi-hand-thumbs-up-fill');
+				    } else {
+				        likeIcon.removeClass('bi-hand-thumbs-up-fill');
+				        likeIcon.addClass('bi-hand-thumbs-up');
+				    }
 				},
 				error : function(xhr, status, error) {
 					console.error('좋아요 실패');
@@ -89,10 +103,22 @@
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
 				contentType : 'application/json',
-				data : JSON.stringify(data),
+				data : JSON.stringify({
+					userId : userId,
+					recordNo : recordNo,
+					logsType : 3 
+				}),
 				success : function(response) {
-					console.log('싫어요 성공');
+					console.log('싫어요 추가 혹은 취소 성공');
 					updateDislikes(recordNo, replyNo, logsType);
+				    var dislikeIcon = $('#recordDislike');
+				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down');
+				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    } else {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
+				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    }
 				},
 				error : function(xhr, status, error) {
 					console.error('싫어요 실패');
@@ -147,10 +173,22 @@
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
 				contentType : 'application/json',
-				data : JSON.stringify(data),
+				data : JSON.stringify({
+					userId : userId,
+					recordNo : recordNo,
+					logsType : 1 
+				}),
 				success : function(response) {
 					console.log('즐겨찾기 성공');
 					updateBookmark(recordNo, replyNo, logsType);
+				    var bookmarkIcon = $('#recordBookmark');
+				    if (bookmarkIcon.hasClass('bi-heart')) {
+				    	bookmarkIcon.removeClass('bi-heart');
+				    	bookmarkIcon.addClass('bi-heart-fill');
+				    } else {
+				        dislikeIcon.removeClass('bi-heart-fill');
+				        dislikeIcon.addClass('bi-heart');
+				    }					
 				},
 				error : function(xhr, status, error) {
 					console.error('즐갸찾기 실패');
@@ -263,72 +301,75 @@
 	
 </head>
 <body>
-	<div class="container">
-		<div class="card mb-3">
-			<div>
-				<h4>
-					<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
-					<a th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
-					<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
-					<span th:text="${record.subscriptionEndDate}"></span>
-					<i class="bi bi-three-dots" style="float: right;"></i>									
-				</h4> 
+	<div id=content-for-footer>	
+		<div class="container">
+			<div class="card mb-3">
+				<div>
+					<h4>
+						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
+						<a th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
+						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
+						<span th:text="${record.subscriptionEndDate}"></span>
+						<i class="bi bi-three-dots" style="float: right;"></i>									
+					</h4> 
+				</div>
+				<div class="card=body">
+					<p class="recordTitle" th:text="${record.recordTitle}"></p>
+					<span th:text="${record.sharedDate}"></span>
+					<span th:text="'조회수 : ' + ${record.logsCount}"></span>
+					<span th:text="${record.updateCount}+'회 수정됨'"></span>
+				</div>
+				<div class="card-body">
+					<span th:text="${record.categoryName}"></span>
+					<span th:text="${record.categoryImoji}"></span>
+				</div>
+				<div class="card-body">
+					<span th:text="${record.latitude}"></span>
+					<span th:text="${record.longitude}"></span>
+					<div th:include="timeline/component/map::kakaoMap"></div>
+					<p th:text="${record.checkpointAddress}"></p>
+				</div>
+				<div class="card-body">
+					<p th:text="${record.mediaName}"></p>
+					<p th:text="${record.imageName}"></p>
+					<p th:text="${record.hashtag}"></p>
+					<p th:text="${record.recordText}"></p>			
+				</div>
+				<div class="card-body">
+					<i class="bi bi-hand-thumbs-up" id="recordLike"></i>					
+					<span class="likeCount" th:text="${record.likeCount}"></span>
+					<i class="bi bi-hand-thumbs-down" id="recordDislike"></i>			
+					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>	
+				</div>			
+				<div class="separator"></div>
 			</div>
-			<div class="card=body">
-				<p class="recordTitle" th:text="${record.recordTitle}"></p>
-				<span th:text="${record.sharedDate}"></span>
-				<span th:text="'조회수 : ' + ${record.logsCount}"></span>
-				<span th:text="${record.updateCount}+'회 수정됨'"></span>
+		</div>	
+	
+		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
+			<div class="col-sm-2">
+				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+				<a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
+				<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
 			</div>
-			<div class="card-body">
-				<span th:text="${record.categoryName}"></span>
-				<span th:text="${record.categoryImoji}"></span>
-			</div>
-			<div class="card-body">
-				<span th:text="${record.latitude}"></span>
-				<span th:text="${record.longitude}"></span>
-				<div th:include="timeline/component/map::kakaoMap"></div>
-				<p th:text="${record.checkpointAddress}"></p>
-			</div>
-			<div class="card-body">
-				<p th:text="${record.mediaName}"></p>
-				<p th:text="${record.imageName}"></p>
-				<p th:text="${record.hashtag}"></p>
-				<p th:text="${record.recordText}"></p>			
-			</div>
-			<div class="card-body">
-				<i class="bi bi-hand-thumbs-up" id="recordLike"></i>					
-				<span class="likeCount" th:text="${record.likeCount}"></span>
-				<i class="bi bi-hand-thumbs-down" id="recordDislike"></i>			
-				<span class="dislikeCount" th:text="${record.dislikeCount}"></span>	
-			</div>			
-			<div class="separator"></div>
-		</div>
-	</div>	
-
-	<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
-		<div class="col-sm-2">
-			<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-			<a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
-			<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
-		</div>
-		<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></p>
-		<p th:if="${iterStat.index < 5}" th:text="${reply.replyImageName}"></p>
-		<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate}"></span>
-		<i class="bi bi-hand-thumbs-up"></i>			
-		<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}"></span>
-		<i class="bi bi-hand-thumbs-down"></i>
-		<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}"></span>
-		<div th:if="${iterStat.index < 5}" class="separator2"></div>
-	</div>		
-	<div class="card-body">
-		<a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
-    </div>
-    <br/>
-    <div class="card-body">
-		<i class="bi bi-heart"></i>
-		<i class="bi bi-chat-square-text-fill"></i>					
-		<span th:text="${record.replyCount}" class="reply-count"></span>	
-    </div>
+			<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></p>
+			<p th:if="${iterStat.index < 5}" th:text="${reply.replyImageName}"></p>
+			<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate}"></span>
+			<i class="bi bi-hand-thumbs-up"></i>			
+			<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}"></span>
+			<i class="bi bi-hand-thumbs-down"></i>
+			<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}"></span>
+			<div th:if="${iterStat.index < 5}" class="separator2"></div>
+		</div>		
+		<div class="card-body">
+			<a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+	    </div>
+	    <br/>
+	    <div class="card-body">
+			<i class="bi bi-heart" id="recordBookmark"></i>
+			<i class="bi bi-chat-square-text-fill"></i>					
+			<span th:text="${record.replyCount}" class="reply-count"></span>	
+	    </div>
+	</div>
+	<div th:replace="common/footer::defaultFooter"></div>	 
 </body>	
 </html>
