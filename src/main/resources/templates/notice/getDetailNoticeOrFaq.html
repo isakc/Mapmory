@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 상세</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .notice-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .notice-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .notice-detail {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .notice-detail h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .notice-detail .meta {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .notice-detail .content {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .action-links {
+            margin-top: 30px;
+        }
+
+        .action-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .action-links a:hover {
+            background-color: #0056b3;
+        }
+
+        .action-links a i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="notice-header">
+            <h2><i class="bi bi-question-octagon-fill"></i> 상세 보기</h2>
+        </div>
+        <div class="notice-detail">
+            <h1 th:text="${notice.noticeTitle}">공지사항 제목</h1>
+            <div class="meta">
+                <span th:text="${#temporals.format(notice.noticeRegDate, 'yyyy-MM-dd')}">등록일</span>
+            </div>
+            <div class="content" th:text="${notice.noticeText}">
+                공지사항 내용
+            </div>
+            <div class="action-links">
+                <a href="#" onclick="window.history.back();">
+                    <i class="fas fa-chevron-left"></i> 목록으로
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

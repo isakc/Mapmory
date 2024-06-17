@@ -22,6 +22,8 @@ public interface NoticeDao {
 	
 	public void deleteNoticeAndFaq(int noticeNo) throws Exception;
 	
+	public int getFaQTotalCount(Search search) throws Exception;
+	
 	public int getNoticeTotalCount(Search search) throws Exception;
 	
 }
