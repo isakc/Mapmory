@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class ProductRestController {
     private String folderName;
 
 
-    // 상품 목록 조회
+//     상품 목록 조회
     @GetMapping("/getProductList")
     public ResponseEntity<List<Product>> getProductList(@ModelAttribute("Search") Search search) throws Exception {
         if (search.getCurrentPage() == 0) {
@@ -53,11 +54,17 @@ public class ProductRestController {
         List<Product> productList = (List<Product>) map.get("productList");
         return ResponseEntity.ok(productList);
     }
+    
 
     // 상품 상세 조회
     @GetMapping("/getDetailProduct/{productNo}")
     public ResponseEntity<Product> getDetailProduct(@PathVariable int productNo) throws Exception {
         Product product = productService.getDetailProduct(productNo);
         return ResponseEntity.ok(product);
+    }
+    
+    @GetMapping("/getProductImages/{uuid}")
+    public byte[] getProductImages(@PathVariable("uuid") String uuid) throws Exception {
+        return objectStorageUtil.getImageBytes(uuid, folderName);
     }
 }
