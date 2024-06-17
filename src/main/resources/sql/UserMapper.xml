@@ -40,6 +40,8 @@
 	 	<result property="nickname" column="nickname" jdbcType="VARCHAR"/>
 	 	<result property="profileImageName" column="profile_image_name" jdbcType="VARCHAR"/>
 	 	<result property="hideProfile" column="hide_profile" jdbcType="TINYINT"/>
+	 	<result property="isSubscribed" column="is_subscribed" jdbcType="TINYINT"/>
+	 	<result property="isFollow" column="is_follow" jdbcType="TINYINT"/>
 	 </resultMap>
 	 
 	 <!-- <resultMap id="selectSuspensionLogMap" type="map">  -->
@@ -101,6 +103,7 @@
 		<where> 
 		 	<if test="userId != null">user_id = #{userId}</if>
 		 	<if test="userName != null and email != null">user_name = #{userName} AND email = #{email}</if>
+		 	<if test="userName == null and email != null">AND email = #{email}</if>
 		</where>
 	</select>
 	
@@ -154,7 +157,12 @@
 	
 	<select id="selectFollowList" parameterType="com.mapmory.services.user.domain.FollowSearch" resultMap="selectFollowMap">
 	SELECT
+		<if test="selectFollow == 0">
 		  fb.target_id AS user_id,
+	    </if>
+	    <if test="selectFollow == 1">
+		  fb.user_id,
+	    </if>
 		  u.user_name,
 		  u.nickname,
 		  u.profile_image_name,
@@ -163,15 +171,27 @@
 		  CASE
 		    WHEN fb2.user_id IS NULL THEN 0
 		    ELSE 1
-		  END AS is_followed_by_me
+		  END AS is_follow
 		FROM follow_block fb
-		<if test="selectFollow == true">LEFT JOIN users u ON fb.target_id = u.user_id</if>
-		<if test="selectFollow != true">LEFT JOIN users u ON fb.user_id = u.user_id</if>
+		<if test="selectFollow == 0">
+		LEFT JOIN users u ON fb.target_id = u.user_id
 		LEFT JOIN subscription s ON fb.target_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId} AND fb2.fb_type=0
+		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId} 
+		</if>
+		<if test="selectFollow == 1">
+		LEFT JOIN users u ON fb.user_id = u.user_id
+		LEFT JOIN subscription s ON fb.user_id = s.user_id
+		LEFT JOIN follow_block fb2 ON fb2.user_id = fb.user_id AND fb2.target_id = #{myUserId} 
+		</if>
+		AND fb2.fb_type=0
 		WHERE
+		  <if test="selectFollow == 0">
 		  fb.user_id = #{userId}
-		  AND fb.fb_type = 0
+		  </if>
+		  <if test="selectFollow == 1">
+		  fb.target_id = #{userId}
+		  </if>
+  		  AND fb.fb_type = 0
 		  <if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
 	    <if test="limit != 0 and currentPage != 0"> 
 		ORDER BY fb.FB_NO DESC
@@ -183,10 +203,15 @@
 		SELECT
 		COUNT(*) 
 		FROM follow_block fb
-			<if test="selectFollow == true">JOIN users u ON fb.target_id = u.user_id</if>
-			<if test="selectFollow != true">JOIN users u ON fb.user_id = u.user_id</if>
+			<if test="selectFollow == 0">JOIN users u ON fb.target_id = u.user_id</if>
+			<if test="selectFollow == 1">JOIN users u ON fb.user_id = u.user_id</if>
 		WHERE
-			fb.user_id = #{userId}
+			  <if test="selectFollow == 0">
+			  fb.user_id = #{userId}
+			  </if>
+			  <if test="selectFollow == 1">
+			  fb.target_id = #{userId}
+			  </if>
 			AND fb_type=0
 			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
 		ORDER BY fb.FB_NO DESC
@@ -277,6 +302,13 @@
 		FROM users
 		WHERE user_id = #{value}
 	</select>
+	
+	<select id="selectUserIdBySocialId" parameterType="String" resultType="string">
+        SELECT user_id
+        FROM social_login_info
+        WHERE social_id = #{socialId}
+    </select>
+	
 	
 	<select id="checkDuplication" parameterType="user" resultType="integer">
 		SELECT

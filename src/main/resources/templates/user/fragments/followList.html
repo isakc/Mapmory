@@ -1,0 +1,113 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<script>
+	$(function() {
+		
+		$('#back').on('click', function() {
+			
+			history.back();
+		});
+		
+		$('input').on('input', function() {
+			
+			// 입력할 때마다 리스트 최신화
+		});
+		
+		$(document).on('click', '.follow', function() {
+			
+			const btn = $(this);
+			console.log(btn.html());
+			console.log(btn.parent().html());
+			console.log(btn.parent().find("button").html());
+			
+			$.ajax({
+		      url: "/user/rest/addFollow",
+		      method: "POST",
+		      contentType:"application/json",
+		      data: JSON.stringify({
+		        targetId: $(this).parent().find('div').attr('id')
+		      }),
+		      success: function(response) {
+		        
+		    	  console.log(response);
+		    	  
+				if(response == true || response == "true") {
+					
+					
+					btn.parent().find("button").text("언팔로우");
+					btn.parent().find("button").attr('class', 'unfollow');
+					
+				} else {
+					
+					console.log('false');
+					alert('변경 실패...');
+					
+				}
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+		    });
+		});
+		
+		$(document).on('click', '.unfollow', function() {
+			
+			const btn = $(this);
+			console.log(btn.html());
+			console.log(btn.parent().html());
+			console.log(btn.parent().find("button").html());
+
+			$.ajax({
+		      url: "/user/rest/deleteFollow",
+		      method: "POST",
+		      contentType:"application/json",
+		      data: JSON.stringify({
+		        targetId: $(this).parent().find('div').attr('id')
+		      }),
+		      success: function(response) {
+		        
+		    	  console.log(response);
+		    	  
+				if(response == true || response == "true") {
+
+					btn.parent().find("button").text("팔로우");
+					btn.parent().find("button").attr('class', 'follow');
+					
+				} else {
+					
+					console.log('false');
+					alert('변경 실패...');
+					
+				}
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+		    });
+
+		});
+		
+		$(document).on('click', '.userDiv', function() {
+			
+			window.location.href="/user/getProfile?userId="+$(this).attr('id');
+		});
+	});
+</script>
+
+<!-- 검색은 선택 사항. -->
+<form>
+	<input type="text" name="search" />
+</form>
+
+<div th:each="user : ${list}">
+	<div th:id="${user.userId}" class="userDiv">
+		<img th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
+		<p th:text="${user.nickname}"></p>
+		<p th:text="${user.isSubscribed == 1} ? '구독 중' : '구독 안함'"></p>
+		<p style="display:none;" th:text="${user.hideProfile}"></p>
+	</div>
+	<button type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:class="${user.isFollow == 1} ? 'unfollow' : 'follow'" ></button>
+	<hr/>
+</div>

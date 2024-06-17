@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
 import com.mapmory.services.timeline.domain.Record;
@@ -58,10 +59,13 @@ public class TimelineRestController {
 	private TimelineService timelineService;
 	
 	@Autowired
-	ObjectStorageUtil objectStorageUtil;
+	private ObjectStorageUtil objectStorageUtil;
 	
 	@Value("${speech.folderName}")
-	String speechFolderName;
+	private String speechFolderName;
+
+	@Value("${page.Size}")
+	private int pageSize;
 	
 	public TimelineRestController(){
 		System.out.println("TimelineRestController default Contrctor call : " + this.getClass());
@@ -119,7 +123,6 @@ public class TimelineRestController {
 		//final String result = clovaSpeechClient.objectStorage("Object Storage key", requestEntity);
 		System.out.println(result);
 		
-		
 //	    Map<String, Object> response = new HashMap<>();
 //
 //	    try {
@@ -140,6 +143,17 @@ public class TimelineRestController {
 //	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 //	    }
 		return null;
+	}
+	
+	// 대민 지원
+	@GetMapping("getProfileTimelineList")
+	public ResponseEntity<Map<String, Object>> getProfileTimelineList(Map<String, Object> map,
+			@RequestParam(name = "userId", required = true) String userId,
+			@RequestParam(name = "currentPage", required = true) int currentPage) throws Exception, IOException {
+		map = new HashMap<String, Object>();
+		Search search = Search.builder().userId(userId).limit(pageSize).currentPage(currentPage).build();
+		map.put("timelineList", timelineService.getProfileTimelineList(search));
+		return ResponseEntity.ok(map);
 	}
 
 }

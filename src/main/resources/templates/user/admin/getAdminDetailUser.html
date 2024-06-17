@@ -2,9 +2,104 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<title>사용자 상세 조회</title>
+	
+	<script th:inline="javascript">
+	
+		$(function(){
+			
+			const userId = [[${user.userId}]];
+
+			let endSuspensionDate = [[${user.endSuspensionDate}]];
+			console.log("endSuspensionDate : "+ endSuspensionDate );
+			
+			if(endSuspensionDate == null) {
+				
+				$('#suspendUser').css('display', 'block');
+				$('#cancelSuspendUser').css('display', 'none');
+				
+			} else {
+				
+				$('#suspendUser').css('display', 'none');
+				$('#cancelSuspendUser').css('display', 'block');
+				
+			}
+			
+			
+			
+			$('#suspendUser').on('click', function() {
+				
+				$.ajax({
+					
+					type: "POST",
+                    url: "/user/rest/admin/addSuspendUser",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userId: userId
+                    }),
+                    success: function(response) {
+
+                    	console.log("server 응답 : "+ response);
+                    	
+                    	if(response == true) {
+                    		
+                    		alert("정지에 성공했습니다!");
+                    		$('#suspendUser').css('display', 'none');
+            				$('#cancelSuspendUser').css('display', 'block');
+                    		
+                    	}
+                    },
+                    error: function(jqXHR) {
+                        // alert("오류 발생: " + jqXHR.responseText);
+                    	alert("정지 실패...");
+                    }
+					
+				});
+				
+			});
+			
+			$('#cancelSuspendUser').on('click', function() {
+				
+				$.ajax({
+					
+					type: "POST",
+                    url: "/user/rest/admin/deleteSuspendUser",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        userId: userId
+                    }),
+                    success: function(response) {
+
+                    	console.log("server 응답 : "+ response);
+                    	
+                    	if(response == true) {
+                    		
+                    		alert("정지를 취소했습니다.");
+                    		$('#suspendUser').css('display', 'block');
+            				$('#cancelSuspendUser').css('display', 'none');
+                    		
+                    	}
+                    },
+                    error: function(jqXHR) {
+                        // alert("오류 발생: " + jqXHR.responseText);
+                    	alert("취소 실패...");
+                    }
+					
+				});
+				
+			});
+			
+		});
+	</script>
 </head>
 <body>
 
+	<h1>사용자 상세 조회</h1>
+	
+	[[${user}]]
+	
+	<button type="button" id="suspendUser">사용자 정지</button>
+	<button type="button" id="cancelSuspendUser" >정지 해제</button>
 </body>	
 </html>

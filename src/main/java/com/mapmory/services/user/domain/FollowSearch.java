@@ -14,5 +14,5 @@ import lombok.experimental.SuperBuilder;
 public class FollowSearch extends Search {
 
 	private String myUserId;
-	private boolean selectFollow;
+	private int selectFollow;  // 0 :: follow 검색, 1 :: follower 검색
 }

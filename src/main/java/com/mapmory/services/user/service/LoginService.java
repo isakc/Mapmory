@@ -29,7 +29,7 @@ public interface LoginService {
 	 * @param keepLogin  : 로그인 유지 여부
 	 * @return
 	 */
-	public boolean setSession(Login loginData, byte role, String sessionId , boolean keepLogin);
+	public boolean setSession(String userId, byte role, String sessionId , boolean keepLogin);
 	
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }

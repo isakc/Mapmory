@@ -1,8 +1,17 @@
 package com.mapmory.controller.user;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -12,15 +21,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -31,10 +50,16 @@ import com.mapmory.services.purchase.service.SubscriptionService;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.FollowMap;
-import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
+import com.mapmory.services.user.domain.auth.google.GoogleToken;
+import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
+import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
+import com.mapmory.services.user.domain.auth.naver.NaverProfile;
+import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
+import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
@@ -56,6 +81,12 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
+	private RedisUtil<Map> redisUtilMap;
+	
+	@Autowired
+	private RedisUtil<String> redisUtilString;
+	
+	@Autowired
 	private SubscriptionService subscriptionService;
 	
 	@Autowired
@@ -71,7 +102,18 @@ public class UserController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
-    
+	@Value("${google.client.id}")
+	private String clientId;
+	
+	@Value("${google.client.secret}")
+	private String clientSecret;
+	
+	@Value("${google.redirect.uri}")
+	private String redirectUri;
+
+	@Value("${google.redirect.uri}")
+	private String googleTokenRequestUrl;
+
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -85,55 +127,12 @@ public class UserController {
 		System.out.println("\n\n암호화 적용 성공! template error는 무시해주세요~~");
 	}
 
-	@PostMapping("/login")
-	public String login(@ModelAttribute Login login, @RequestParam(required=false) String keepLogin, @RequestParam String changePassword, HttpServletResponse response) throws Exception{
-
-		boolean keep;
-		
-		if(keepLogin == null)
-			keep = false;
-		else
-			keep = true;
-
-		String userId = login.getUserId();
-		byte role = userService.getDetailUser(userId).getRole();
-		// System.out.println("role : " + role);
-		String sessionId = UUID.randomUUID().toString();
-		// System.out.println("sessionId : " + sessionId);
-		if ( !loginService.setSession(login, role, sessionId, keep))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createCookie(sessionId, keep);
-		response.addCookie(cookie);
-		
-		boolean isLog = userService.addLoginLog(userId);
-		System.out.println("로그인 로그 등록 여부 : " + isLog);
-		
-		boolean wantToChangePassword = Boolean.valueOf(changePassword); 
-		if(wantToChangePassword) {
-			
-			return "redirect:/user/getUpdatePasswordView";
-			
-		} else {
-			
-			if(role == 1) {
-				
-				// response.sendRedirect("/map");  // 성문님께서 구현되는대로 적용 예정
-				return "redirect:/map";
-				
-			} else {
-				
-				// response.sendRedirect("/user/admin/adminMain");
-				return "redirect:/user/admin/adminMain";
-				
-			}
-		}
-	}
 	
 	@PostMapping("/logout")
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		loginService.logout(request, response);
+		loginService.logout(request, response);		
+		
 	}
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
@@ -147,25 +146,6 @@ public class UserController {
 		
 	}	
 	
-	@PostMapping("/signUp")
-	public String postSignUpView(@ModelAttribute User user, Model model) throws Exception {
-		
-		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber());
-		
-		if( !isDone) {
-			
-			throw new Exception("회원가입에 실패했습니다.");
-		}
-		
-		return "forward:/user/ok";
-	}
-	
-	@RequestMapping("/ok")
-	public void signUpOk() {
-		
-		
-	}
-
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
 		
@@ -187,7 +167,11 @@ public class UserController {
 	
 	
 	@GetMapping("/getPersonalSecurityMenu")
-	public void getPersonalSecurityMenu() {
+	public void getPersonalSecurityMenu(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		model.addAttribute("userId", userId);
 		
 	}
 	
@@ -196,33 +180,41 @@ public class UserController {
 		
 	}
 	
-	@PostMapping("/getId")
-	public void postIdView() {
-		
-		
-	}
-	
 	@GetMapping("/getPasswordView")
 	public void getPasswordView() {
 		
 	}
 	
-	@GetMapping("/getGoogleLoginView")
-	public void getGoogleLoginView() {
+	@PostMapping("/getPasswordView")
+	public String postPasswordView(@RequestParam Map<String, String> map) {
+		
+		String userId = map.get("userId");
+		String email = map.get("email");
+		
+		boolean result = userService.checkUserExist(userId, email);
+		
+		// 시간 되면 uuid로 변환할 것
+		createCookie("UPDATEPW", userId, 60*5, "/user");
+		
+		if(result == true)
+			return "redirect:/user/getUpdatePasswordView";
+		else
+			return "/error";
 		
 		
 	}
 	
-	@GetMapping("/getNaverLoginView")
-	public void getNaverLoginView() {
+
+	@GetMapping("/getSecondaryAuthView")
+	public void getSecondaryAuthView(Model model, HttpServletRequest request, @RequestParam String userId) {
 		
-	}
-	
-	@GetMapping("/getKakaoLoginView")
-	public void getKakaoLoginView() {
+		// login interceptor에서 직접 접근하는 것을 막아야 함
 		
+		Cookie cookie = findCookie("SECONDARYAUTH", request);
+		// Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
+		// String userId = map.get("userId");
 		
-		
+		model.addAttribute("userId", userId);
 	}
 	
 	@GetMapping("/getUserInfo")
@@ -257,9 +249,10 @@ public class UserController {
 			
 		}
 				
+		System.out.println(profile);
 		model.addAttribute("sessionId", myUserId);
 		model.addAttribute("profile", profile);
-		
+		// model.addAttribute("profileImage", objectStorageUtil.getImageBytes(profile.getUser().getProfileImageName(), PROFILE_FOLDER_NAME));
 		
 	}
 	
@@ -268,28 +261,27 @@ public class UserController {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, true);
+		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 0);
 		
 		System.out.println(followList);
 		
-		model.addAttribute("type", 0);
+		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
-		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		// model.addAttribute("sessionId", myUserId);
+		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public String getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, false);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 1);
 		
 		
-		model.addAttribute("type", 1);
+		// model.addAttribute("type", 1);
 		model.addAttribute("list", followerList);
 		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
-		
-		return "forward:/user/getFollowList";
 	}
 	
 	
@@ -315,21 +307,20 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		// String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		
+		ByteArrayResource cdnPath = objectStorageUtil.getImageResource(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
 		model.addAttribute("profileImage", cdnPath);
 		
 	}
-	
-	@GetMapping("/getUpdateSecondaryAuthView")
-	public void getUpdateSecondaryAuthView() {
-		
-	}
-	
+
 	@GetMapping("/getUpdatePasswordView")
-	public void getUpdatePasswordView() {
+	public void postUpdatePasswordView(@RequestParam Map<String, String> map) {
+		
 		
 	}
+
 	
 	@GetMapping("/getSocialLoginLinkedView")
 	public void getSocialLoginLinkedView() {
@@ -361,10 +352,139 @@ public class UserController {
 		return "redirect:/user/getProfile?userId="+userId;
 	}
 
-	
-	@GetMapping("/updatePasswordView")
-	public void updatePasswordView() {
+
+	// for navigation
+	@PostMapping("/checkSecondaryKey")
+	public String checkKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck, @RequestParam(required=false) String changePassword) throws InvalidKeyException, NoSuchAlgorithmException {
 		
+		
+		boolean result = userService.checkSecondAuthKey(googleUserOtpCheck);
+		
+		if(result) {
+			
+			// acceptLogin(userId, role, response, keep, changePassword);
+			return "redirect";
+		} else {
+			
+			throw new InvalidKeyException("유효하지 않은 인증번호");
+		}
+	}
+	
+	@RequestMapping("/naver/auth/callback")
+	public String naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+		
+	    NaverAuthToken token = userService.getNaverToken(code, state);
+	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
+	    
+	    String naverId = profileInfo.getId();
+	    String userId = userService.getUserIdBySocialId(naverId);
+	    
+	    // 회원가입 페이지로 이동
+	    if(userId == null) {
+
+	    	String uuid = UUID.randomUUID().toString();
+        	String keyName = "n-"+uuid;
+            redisUtilString.insert(keyName, naverId, 10L); 
+            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
+            response.addCookie(cookie);
+	    	
+	    	// model.addAttribute("naverId", naverId);
+	    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    	
+	    } else {
+	    	
+	    	User user = userService.getDetailUser(userId);
+        	byte role=user.getRole();
+        	
+	    	acceptLogin(userId, role, response, false);
+	    	return "redirect:/map";
+	    	
+	    }
+	}
+	
+	@RequestMapping("/google/auth/callback")
+	public void googleLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
+
+		System.out.println("code : " + code);
+		
+		/*
+		// Parameter로 전달할 속성들 추가
+	    Map<String, String> params = new HashMap<>();
+	    params.put("grant_type","authorization_code");
+	    params.put("client_id", clientId);
+	    params.put("client_secret", clientSecret);
+	    params.put("code", code);
+	    params.put("redirect_uri", redirectUri);
+	    
+	    
+	    URL url = new URL(googleTokenRequestUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        conn.setDoOutput(true);
+
+        // 파라미터 문자열 생성
+        StringBuilder postData = new StringBuilder();
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            if (postData.length() != 0) postData.append('&');
+            postData.append(param.getKey());
+            postData.append('=');
+            postData.append(param.getValue());
+        }
+
+        // 파라미터 전송
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = postData.toString().getBytes("UTF-8");
+            os.write(input, 0, input.length);
+        }
+
+        // 응답 읽기
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuilder res = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            res.append(inputLine);
+        }
+        in.close();
+	    
+	    System.out.println(res);
+        */
+		
+		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
+		
+		/*
+		GoogleToken token = userService.getGoogleToken(code);
+		System.out.println(token);
+		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
+
+		
+		
+		
+		String googleId = payload.getSub();
+		String userId = userService.getUserIdBySocialId(googleId);
+		
+		if(userId == null) {
+			
+			String uuid = UUID.randomUUID().toString();
+        	String keyName = "g-"+uuid;
+            redisUtilString.insert(keyName, googleId, 10L); 
+            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
+            response.addCookie(cookie);
+	    	
+	    	// model.addAttribute("googleId", googleId);
+	    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    	
+		} else {
+	    	
+	    	User user = userService.getDetailUser(userId);
+        	byte role=user.getRole();
+        	
+	    	acceptLogin(userId, role, response, false);
+	    	return "redirect:/map";
+	    	
+	    }
+				*/
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -373,7 +493,7 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
-	
+	// 로그인 통계를 보여줄 예정
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
@@ -384,7 +504,7 @@ public class UserController {
 		
 		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
 		
-		/*
+		/*  login interceptor에서 할 일
 		int role = redisUtil.getSession(request).getRole();
 		
 
@@ -408,10 +528,19 @@ public class UserController {
 	}
 	
 	@GetMapping("/admin/getAdminDetailUser")
-	public void getAdminDetailUser() {
+	public void getAdminDetailUser(@RequestParam String userId, Model model) {
 		
+		User user = userService.getDetailUser(userId);
+		
+		Map<String, String> map= userService.checkSuspended(userId);
+		
+		String isSuspended = map.get("isSuspended");
+		
+		if(isSuspended.equals("true"))
+			user.setEndSuspensionDate(java.time.LocalDate.parse(map.get("endSuspensionDate")));
+		
+		model.addAttribute("user", user);
 	}
-	
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -419,53 +548,139 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	
-	// redis에 맞게 session 방식 변경 필요
-	/*
-	@GetMapping(value = "kakaoLogin")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpSession session, RedirectAttributes redirectAttributes) {
+	@GetMapping("/kakaoCallback")
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) throws Exception {
         try {
-            String access_Token = userServiceJM.getKakaoAccessToken(code);
-            String kakaoId = userServiceJM.getKakaoUserInfo(access_Token);
-
+        	
+            String accessToken = userService.getKakaoAccessToken(code);
+            String kakaoId = userService.getKakaoUserInfo(accessToken);
+            
             if (kakaoId == null) {
-                return "error"; // 카카오 사용자 정보가 없으면 에러 처리
-            }
-            
-            SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
-                    .socialId(kakaoId)
-                    .build();
-            
-            String tempSocialId = userService.getSocialId(socialLoginInfo);
-
-            if (tempSocialId == null) {
-                // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트
-                session.setAttribute("kakaoId", kakaoId);
-                redirectAttributes.addAttribute("kakaoId", kakaoId);
-                return "redirect:/user/addUser";
+                throw new Exception("소셜 연동 정보가 없습니다."); // 카카오 사용자 정보가 없으면 에러 처리
             }
 
-            // 로그인 성공 처리
-            session.setAttribute("tempSocialId", tempSocialId);
-            return "index";
+            String userId = userService.getUserIdBySocialId(kakaoId);
+            // 소셜 로그인 연동 정보가 없는 경우
+            if (userId == null) {
+
+            	String uuid = UUID.randomUUID().toString();
+            	String keyName = "k-"+uuid;
+                redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
+                Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
+                response.addCookie(cookie);
+                
+                // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
+                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트 
+                
+            } else {
+
+            	// 로그인 처리
+            	User user = userService.getDetailUser(userId);
+            	byte role=user.getRole();    
+            	/*
+            	String uuid = UUID.randomUUID().toString();
+            	loginService.setSession(userId, user.getRole(), uuid, false);
+            	Cookie cookie = createLoginCookie(uuid, false);
+            	response.addCookie(cookie);
+            	*/
+            	
+            	acceptLogin(userId, role, response, false);
+            	
+                return "redirect:/map"; // 메인 페이지로 리다이렉트
+            	// return ResponseEntity.ok("map");
+            	
+            }
+            
         } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
+            
+            // return ResponseEntity.internalServerError().body(e.getMessage());
+            throw new Exception(e.getMessage());
         }
     }
-    */
+
+	/*
+	// redis에 맞게 session 방식 변경 필요
+ 	@GetMapping(value = "/kakaoLogin")
+     public String kakaoLogin(@RequestParam(value = "code", required = false) String code) {
+ 		
+         try {
+             String accessToken = userService.getKakaoAccessToken(code);
+             String kakaoId = userService.getKakaoUserInfo(accessToken);
+
+             if (kakaoId == null) {
+                 return "error"; // 카카오 사용자 정보가 없으면 에러 처리
+             }
+             
+             SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
+                     .socialId(kakaoId)
+                     .build();
+             
+             String tempSocialId = userService.getSocialId(socialLoginInfo);
+
+ 
+             if (tempSocialId == null) {
+            	 
+                 // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트
+                 session.setAttribute("kakaoId", kakaoId);
+                 redirectAttributes.addAttribute("kakaoId", kakaoId);
+                 return "redirect:/user/addUser";
+             }
+
+
+             // 로그인 성공 처리
+             session.setAttribute("tempSocialId", tempSocialId);
+             return "index";
+         } catch (Exception e) {
+             e.printStackTrace();
+             return "error";
+         }
+     }
+     */
 	
-	private Cookie createCookie(String sessionId, boolean keepLogin) {
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// util ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+	private Cookie findCookie(String cookieKeyName, HttpServletRequest request) {
+    	
+    	System.out.println(request.getPathInfo());
+    	System.out.println(request.getServletPath());
+    	Cookie[] cookies = request.getCookies();
+    	
+    	for(Cookie cookie : cookies) {
+    		
+    		if(cookie.getName().equals(cookieKeyName)) {
+    			
+    			return cookie;
+    			
+    		}	
+    	}
+    	
+    	return null;
+    }
+	
+    private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
 		
-		Cookie cookie = new Cookie("JSESSIONID", sessionId);
+		Cookie cookie = new Cookie(codeKeyName, codeKey);
+		cookie.setPath(path);
+		// cookie.setDomain("mapmory.co.kr");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(false);
+		cookie.setMaxAge(maxAge);
+		
+		return cookie;
+	}
+	
+	private Cookie createTempCookie(String cookieId, String sessionId) {
+		
+		Cookie cookie = new Cookie(cookieId, sessionId);
 		cookie.setPath("/");
-		// cookie.setDomain("mapmory.life");
+		// cookie.setDomain("mapmory.co.kr");
 		// cookie.setSecure(true);
 		cookie.setHttpOnly(true);
-		
-		if(keepLogin)
-			cookie.setMaxAge(60 * 60 * 24 * 90 );
-		else
-			cookie.setMaxAge(30 * 60);
+		cookie.setMaxAge(60 * 10);
 		
 		return cookie;
 	}
@@ -473,7 +688,7 @@ public class UserController {
 	private Profile setProfileViewData(String userId) throws Exception {
 		
 		User user = userService.getDetailUser(userId);
-		user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
+		// user.setProfileImageName(objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME));
 		
 		// boolean isSubscribed = subscriptionService.getDetailSubscription(userId).isSubscribed();
 		boolean isSubscribed;
@@ -488,8 +703,8 @@ public class UserController {
 			
 		}
 		
-		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, true);
-		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, false);
+		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, 0);
+		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, 1);
 		
 		Search search=Search.builder()
 				.userId(userId).
@@ -511,5 +726,42 @@ public class UserController {
 					.build();
 		
 		return profile;
+	}
+	
+	private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
+
+		String sessionId = UUID.randomUUID().toString();
+		if ( !loginService.setSession(userId, role, sessionId, keep))
+			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		Cookie cookie = createLoginCookie(sessionId, keep);
+		response.addCookie(cookie);
+		
+		userService.addLoginLog(userId);
+	}
+    
+    private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
+		
+		Cookie cookie = new Cookie("JSESSIONID", sessionId);
+		cookie.setPath("/");
+		// cookie.setDomain("mapmory.life");
+		// cookie.setSecure(true);
+		cookie.setHttpOnly(true);
+		
+		if(keepLogin)
+			cookie.setMaxAge(60 * 60 * 24 * 90 );
+		else
+			cookie.setMaxAge(30 * 60);
+			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
+		
+		return cookie;
+	}
+    
+private HttpEntity<MultiValueMap<String, String>> makeTokenRequest(MultiValueMap<String, String> params) {
+		
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
+	    return googleTokenRequest;
 	}
 }
