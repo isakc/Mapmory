@@ -32,7 +32,9 @@
 					<img th:src="${image.imageTagText}" /><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->
  				</div>
- 				<span th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
+ 				<div th:each="hash : ${record.hashtag}">
+ 					<span th:name="hash" data-hash="${hash.imageTagText}" th:text="${hash.imageTagText}"></span><br/>
+ 				</div>
  				<span th:utext="${record.recordText}"></span>
  			</div>
  		</div>
@@ -68,6 +70,13 @@ $(function() {
 	$("button[name='deleteTimeline']").click(function() {
 		uri="?recordNo="+recordNo+"&userId="+recordUserId;
 		self.location="/timeline/deleteTimeline"+uri;
+	})
+	
+	$("span[name='hash']").click(function() {
+		let hash=$(this).text();
+		let encodeHash=encodeURIComponent(hash)
+		uri="?searchKeyword="+encodeHash;
+		self.location="/map"+uri;
 	})
 })
 </script>
