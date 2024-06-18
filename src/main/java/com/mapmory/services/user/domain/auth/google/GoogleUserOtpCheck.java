@@ -9,6 +9,6 @@ import lombok.ToString;
 @ToString
 public class GoogleUserOtpCheck {
 
-	private String userCode;
+	private int userCode;
 	private String encodedKey;
 }

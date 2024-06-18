@@ -1003,7 +1003,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
 		
-		long userCode = Integer.parseInt(googleUserOtpCheck.getUserCode());
+		int userCode = googleUserOtpCheck.getUserCode();
 		String encodedKey = googleUserOtpCheck.getEncodedKey();
 		
 		long I = new Date().getTime();
