@@ -253,6 +253,8 @@ FROM
 		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
 	</if>
 </trim>
+ORDER BY checkpoint_date ASC,
+checkpoint_date IS NULL DESC
 </sql>
 
 <select id="selectTimelineList" parameterType="search" resultMap="recordResultMap">
@@ -322,6 +324,11 @@ LIMIT #{limit} OFFSET #{offset}
 <delete id="deleteImageToImageNo" parameterType="Integer">
     DELETE FROM image_tag WHERE image_tag_order=#{imageTagOrder} AND image_tag_type=1
 </delete>
+
+<update id='updateMedia' parameterType='Integer'>
+	UPDATE record SET media_name = NULL
+	WHERE record_no = #{recordNo:NUMERIC}
+</update>
 
 	<!-- Create -->
     <insert id="insertCategory" parameterType="category">

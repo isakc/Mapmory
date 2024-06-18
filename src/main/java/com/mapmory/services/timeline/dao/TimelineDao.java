@@ -39,6 +39,8 @@ public interface TimelineDao {
 	
 	public int deleteImageToImageNo(int imageNo) throws Exception;
 	
+	public int updateMedia(int recordNo) throws Exception;
+	
 	//Category CRUD
 	public void insertCategory(Category category) throws Exception;
 	
@@ -75,8 +77,6 @@ public interface TimelineDao {
 //	//Image and Hashtag delete
 //	//record select시 imageNo 못가져와서 가져오는 image select
 //	public List<ImageTagDto> selectImageForDelete(int recordNo) throws Exception;
-//	
-//	public void deleteImageToRecordNo(int recordNo) throws Exception;
 //	
 //	public void deleteHashtag(int recordNo) throws Exception;
 //	

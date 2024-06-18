@@ -4,8 +4,13 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
@@ -47,6 +54,9 @@ public class TimelineController {
 	@Value("${timeline.kakaomap.apiKey}")
 	private String kakaoMapApiKey;
 	
+	@Value("${timeline.tmap.apiKey}")
+	private String tMapApiKey;
+	
 	@Value("${default.time}")
 	private String defaultTime;
 	
@@ -58,9 +68,19 @@ public class TimelineController {
     
     @Value("${cdn.url}")
     private String cdnUrl;
+    
+    @Value("${timeline.kakaomap.restKey}")
+    private String restKey;
+    
+    private int searchOption=2;
 	
 	public TimelineController(){
 		System.out.println("TimelineController default Contrctor call : " + this.getClass());
+	}
+
+	
+	@GetMapping({"/*"})
+	public void getTimelineKey(Model model) {
 	}
 	
 	@GetMapping("getTimelineList")
@@ -85,7 +105,56 @@ public class TimelineController {
 				.selectDay2((Date.valueOf(tomorrow.plusDays(1)))+" "+defaultTime)
 				.timecapsuleType(0)
 				.build();
-		model.addAttribute("timelineList", timelineService.getTimelineList(search));
+		
+		List<Record> timelineList=timelineService.getTimelineList(search);
+		if(!(timelineList==null || timelineList.isEmpty())) {
+		List<Map<String,Object>> mapList=new ArrayList<Map<String,Object>>();
+		for(Record r: timelineList) {
+			Map<String,Object> map=new HashMap<String, Object>();
+			map.put("title", r.getCheckpointAddress()+"<br/>"
+			+r.getCheckpointDate().toString().substring(11));
+			map.put("latitude", r.getLatitude());
+			map.put("longitude", r.getLongitude());
+			mapList.add(map);
+		}
+		ObjectMapper objectMapper = new ObjectMapper();
+        String jsonPostions = objectMapper.writeValueAsString(mapList);
+
+		Map<String,Object> map=new HashMap<String, Object>();
+		mapList=new ArrayList<Map<String,Object>>();
+		map.put("startName", "출발지");
+		map.put("startX", timelineList.get(0).getLongitude().toString());
+		map.put("startY", timelineList.get(0).getLatitude().toString());
+		map.put("startTime", timelineList.get(0).getCheckpointDate()
+				.replace("-", "")
+				.replace(" ", "")
+				.replace(":", "")
+				.substring(0, 12));
+		map.put("endName", "도착지");
+		map.put("endX", timelineList.get(timelineList.size()-1).getLongitude().toString());
+		map.put("endY", timelineList.get(timelineList.size()-1).getLatitude().toString());
+		map.put("reqCoordType", "WGS84GEO");
+//		map.put("resCoordType", "EPSG3857");
+		map.put("resCoordType", "WGS84GEO");
+		map.put("searchOption", searchOption);
+        for(int i=1;i<(timelineList.size()-1);i++) {
+    		Map<String,Object> map3=new HashMap<String, Object>();
+        	map3.put("viaPointId", timelineList.get(i).getRecordUserId()+"_"+i);
+        	map3.put("viaPointName", timelineList.get(i).getCheckpointDate());
+        	map3.put("viaX", timelineList.get(i).getLongitude().toString());
+        	map3.put("viaY", timelineList.get(i).getLatitude().toString());
+        	mapList.add(map3);
+        }
+        map.put("viaPoints", mapList);
+        String jsonParam=objectMapper.writeValueAsString(map);
+        
+		model.addAttribute("positions",jsonPostions);
+		model.addAttribute("positionParam",jsonParam);
+		}
+//		model.addAttribute("apiKey", kakaoMapApiKey);
+//		model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("restKey",restKey);
+		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
 	}
@@ -134,8 +203,12 @@ public class TimelineController {
 	@GetMapping("getSimpleTimeline")
 	public String getSimpleTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+		Record record=timelineService.getDetailTimeline(recordNo);
+		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
 		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("record",timelineService.getDetailTimeline(recordNo));
+		model.addAttribute("restKey",restKey);
+		model.addAttribute("record",record);
+		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
 		return "timeline/getSimpleTimeline";
 	}
 	
@@ -145,7 +218,10 @@ public class TimelineController {
 		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
 		record=timelineUtil.mediaNameToUrl(record);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		
 		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("restKey",restKey);
+		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
 	}
@@ -158,6 +234,7 @@ public class TimelineController {
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
 		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		return "timeline/updateTimeline";
 	}
@@ -166,15 +243,16 @@ public class TimelineController {
 	public String updateTimeline(Model model,
 			@ModelAttribute("record") Record record,
 			@RequestParam(name="hashtagText",required = false) String hashtagText,
+			@RequestParam(name="sharedDateType",required = false) Integer sharedDateType,
 			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile) throws Exception,IOException {
 		
 //		if( ContentFilterUtil.checkBadWord(record.getRecordTitle()+hashtagText+record.getRecordText())==true) {
 //			return null;
 //		}
-		record.setMediaName(record.getMediaName().replace(cdnUrl+mediaFileFolder+"/",""));
-		record = timelineUtil.imageFileUpload(record, imageFile);
-		record = timelineUtil.mediaFileUpload(record, mediaFile);
+		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
+		record = timelineUtil.uploadImageFile(record, imageFile);
+		record = timelineUtil.uploadMediaFile(record, mediaFile);
 		
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
@@ -182,11 +260,23 @@ public class TimelineController {
 		
 		if(record.getMediaName()!=null || record.getImageName()!=null || record.getRecordText()!=null) {
 			if(record.getRecordAddDate()==null) {
-				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " "));
+				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
 			}
 			record.setTempType(1);
 		}else {
 			record.setTempType(0);
+		}
+		
+		if(sharedDateType!=null&&sharedDateType==1) {
+			if(ContentFilterUtil.checkBadWord(record.getRecordText()) 
+					|| ContentFilterUtil.checkBadWord(record.getRecordTitle())
+					|| ContentFilterUtil.checkBadWord(hashtagText) ) {
+				record.setSharedDate(null);
+			}else {
+				record.setSharedDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+			}
+		}else {
+			record.setSharedDate(null);
 		}
 		
 		record=TimelineUtil.validateRecord(record);
