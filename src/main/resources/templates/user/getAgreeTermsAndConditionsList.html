@@ -3,16 +3,20 @@
 <head>
 	<meta charset="UTF-8">
 	<title>이용약관</title>
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
 	
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	
 	<script>
 		$(function() {
 			
-			let allChecked = true;
-			$('button').on('click', function() {
+			$('#next').on('click', function() {
+			
+				let allChecked = true;
 				
 				$('input[type=checkbox]').each(function(){
+					
+					console.log($(this).closest('div').find('span').html());
 					
 					if($(this).closest('div').find('span').text()==='필수' && !$(this).is(':checked')) {
 						allChecked = false;
@@ -21,6 +25,7 @@
 					}
 				});
 				
+				console.log(allChecked);
 				if(allChecked) {
 					
 					console.log('flag');
@@ -30,27 +35,42 @@
 		});
 	</script>
 </head>
-<body>
-
-	<h2>이용약관 동의</h2>
+<body class="container mt-5">
 	
-	<form>
+
+	<!-- <div class="d-flex justify-content-between align-items-center mb-3">  -->
+	<div class="row ">
+		<p class="fs-1 col-9 ">이용약관 동의</p>
+		<div class="col-1"></div>
+		<a class="fs-1 col-1" href="javascript:history.back()">⇦</a>
+	</div>
+
+	
+	<!-- 
+	<div class="row">
+		<h2 class="col-6 text-start fs-1">이용약관 동의</h2>
+		<div class="col-5"></div>
+		<a class="col-1 text-end fs-1" href="javascript:history.back()">⇦</a>
+	</div>
+	 -->
+	
+	<form class='row mt-4'>
 		<div th:each="tac, state : ${tacList}">
 			<div>
-				<input type="checkbox" name="checked" th:value="${state.count}">
-				[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
+				<input type="checkbox" name="checked" th:id="${state.count}" th:value="${state.count}">
+				<label th:for="${state.count}">[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>] [[${tac.title}]]</label>
 			</div>
 			<div>
-				[[${tac.title}]]
+				<a class="text-body-tertiary" th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">&nbsp;&nbsp;&nbsp;&nbsp;> 자세히 보기</a>
 			</div>
-			<div>
-				<a th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
-			</div>
+			<br/>
 		</div>
 	</form>
 	
 	<br/>
 	<br/>
-	<button type="button" id="next">다음</button>
+	<div class="d-grid gap-2 col-11 mx-auto fixed-bottom mb-3 ">
+		<button class="btn btn-primary " type="button" id="next">다음</button>
+	</div>
 </body>	
 </html>

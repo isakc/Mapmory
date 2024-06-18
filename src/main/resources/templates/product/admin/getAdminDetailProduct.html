@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>공지사항 상세</title>
+    <title>상품 상세</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -98,16 +98,21 @@
 
 <body>
     <div class="container">
-        <h1>공지사항 상세</h1>
+        <h1>상품 상세</h1>
         <div class="product-detail">
-            <h2 th:text="${notice.noticeTitle}">공지사항 제목</h2>
-            <p th:text="${notice.noticeText}">공지사항 내용</p>
+            <h2 th:text="${product.productTitle}">상품 제목</h2>
+            <p th:text="${'가격: ' + product.price + '원'}">가격</p>
+            <div class="product-image">
+                <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" class="img-fluid rounded">
+            </div>
             <div class="action-links">
-                <a th:href="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}">수정</a>
+                <a th:href="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}">수정</a>
                 <a class="delete-link" data-toggle="modal" data-target="#confirmDeleteModal">삭제</a>
             </div>
         </div>
-    </div><!-- 삭제 확인 모달 창 -->
+    </div>
+
+    <!-- 삭제 확인 모달 창 -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -118,7 +123,7 @@
                     <p>정말로 삭제하시겠습니까?</p>
                 </div>
                 <div class="modal-footer">
-                    <a th:href="@{/notice/deleteNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" class="btn btn-danger">삭제</a>
+                    <a th:href="@{/product/deleteProduct/{productNo}(productNo=${product.productNo})}" class="btn btn-danger">삭제</a>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                 </div>
             </div>

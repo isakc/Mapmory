@@ -103,8 +103,8 @@ public class CommunityController {
 
 		search = Search.builder()
 				.userId(userId)
-				.currentPage(1)
-				.limit(10)
+				.currentPage(search.getCurrentPage())
+				.limit(search.getLimit())
 				.build();
 		
 		System.out.println("12 " +search);

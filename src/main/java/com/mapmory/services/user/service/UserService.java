@@ -180,6 +180,8 @@ public interface UserService {
 	
 	public boolean updateHideProfile(String userId);
 	
+	public boolean updateFollowToBlock(String myUserId, String targetId);
+	
 	public boolean deleteFollow(String userId, String targetId);
 	
 	public boolean deleteSuspendUser(int logNo);

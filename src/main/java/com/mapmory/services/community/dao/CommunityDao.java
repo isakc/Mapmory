@@ -83,6 +83,9 @@ public interface CommunityDao {
 	//사용자 차단
 	public void addBlockUser(FollowBlock followBlock) throws Exception;
 	
+	//차단 업데이트
+	public void updateBlockUser(FollowBlock followBlock) throws Exception;	
+	
 	//차단한 사용자 목록 조회
 	public List<Object> getBlockedList(Search search, String userId) throws Exception;
 	
@@ -118,5 +121,7 @@ public interface CommunityDao {
 	
 	//차단 총 개수
 	public int getBlockedTotalCount(Search search, String userId) throws Exception;
-	
+
+	//좋아요한 댓글 목록
+	public List<Object> getReplyLikeList(Search search, String userId) throws Exception;
 }

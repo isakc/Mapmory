@@ -19,6 +19,7 @@
 		<result property="replyImageName" 		column="reply_image_name"		jdbcType="VARCHAR"/>
 		<result property="replyDate" 			column="reply_date"				jdbcType="TIMESTAMP"/>
 		<result property="replyUpdateDate" 		column="reply_update_date"		jdbcType="TIMESTAMP"/>
+		<result property="recordTitle"			column="record_title"			jdbcType="VARCHAR"/>
 	</resultMap>
 	
 	<resultMap id="communityLogsSelectMap" type="communityLogs">
@@ -52,7 +53,9 @@
 
 	<!-- 댓글 목록 조회 -->
 	<select id="getReplyList" parameterType="search" resultMap="replySelectMap">
-		SELECT *,
+		SELECT reply_no, record_no, user_id, reply_text, reply_image_name,
+		DATE_FORMAT(reply_date, '%Y-%m-%d %H:%i') AS reply_date,
+		DATE_FORMAT(reply_update_date, '%Y-%m-%d %H:%i') AS reply_update_date,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
 			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
@@ -296,6 +299,14 @@
 		VALUES(#{userId}, #{targetId}, 1)
 	</insert>	
 
+	<!-- 차단 업데이트 -->
+	<update id="updateFollowBlock" parameterType="followBlock">
+		UPDATE follow_block
+		SET fb_type = 0
+		WHERE
+		user_id = #{userId} AND target_id = #{targetId}
+	</update>
+	
 	<!-- 차단 목록 조회 -->			
 	<select id="getBlockedList" parameterType="search" resultMap="followBlockSelectMap">
 		SELECT user_id, target_id, fb_type 
@@ -321,5 +332,19 @@
 		DELETE FROM follow_block
 		WHERE user_id = #{userId} AND target_id = #{targetId}	
 	</delete>
+
+	<!-- 좋아요한 댓글 목록 -->
+	<select id="getReplyLikeList" parameterType="search" resultMap="replySelectMap">
+		SELECT r.*,
+			(SELECT r2.record_title FROM record r2 WHERE r.record_no = r2.record_no) AS recordTitle
+		FROM reply r
+		WHERE EXISTS
+			(SELECT 1 FROM community_logs l
+			WHERE l.reply_no = r.reply_no
+			AND logs_type = 2
+			AND l.user_id = #{userId} )
+	</select>
+
+	
 
 </mapper>

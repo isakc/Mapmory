@@ -589,6 +589,7 @@ public class UserServiceImpl implements UserService {
 					
 				} else {
 					contents.append(nextLine).append("\n");
+					// contents.append(nextLine).append("<br/>");
 				}
 			}
 
@@ -742,6 +743,19 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}	
 
+	@Override
+	public boolean updateFollowToBlock(String myUserId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(myUserId)
+				.targetId(targetId)
+				.build();
+		
+		int result = userDao.updateFollowToBlock(follow);
+		
+		return intToBool(result);
+	}
+	
 	@Override
 	public boolean deleteFollow(String userId, String targetId) {
 		// TODO Auto-generated method stub
@@ -989,7 +1003,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
 		
-		long userCode = Integer.parseInt(googleUserOtpCheck.getUserCode());
+		int userCode = googleUserOtpCheck.getUserCode();
 		String encodedKey = googleUserOtpCheck.getEncodedKey();
 		
 		long I = new Date().getTime();

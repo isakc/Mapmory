@@ -16,21 +16,20 @@ public interface ProductService {
 
     public Map<String,Object> getProductList(Search search) throws Exception;
 
-    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception;
+    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames, List<String> imageTags, List<String> newImageTags) throws Exception;
 
     public void deleteProduct(int productNo,String folderName) throws Exception;
-
-    public Product getProductByName(String productTitle) throws Exception;
     
     public void deleteImage(String uuid,String folderName) throws Exception;
     
     public String getImageUrlByImageTag(String imageTag,String folderName) throws Exception;
-    
-    ProductImage getImageByTag(String imageTag) throws Exception;
 
     public Product getSubscription() throws Exception;
     
     public byte[] getImageBytes(String uuid, String folderName) throws Exception;
 
 	public byte[] getImageBytesByImageTag(String imageTag, String folderName)throws Exception;
+	
+	public void updateImageTags(int productNo, List<String> imageTags) throws Exception;
+	
 }

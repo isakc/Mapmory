@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공지사항 상세</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
     <!-- Custom CSS -->
     <style>
         .notice-header {
@@ -84,14 +83,15 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="notice-header">
-            <h2><i class="bi bi-question-octagon-fill"></i> 상세 보기</h2>
-        </div>
-        <div class="notice-detail">
-            <h1 th:text="${notice.noticeTitle}">공지사항 제목</h1>
-            <div class="meta">
-                <span th:text="${#temporals.format(notice.noticeRegDate, 'yyyy-MM-dd')}">등록일</span>
+    <div id=content-for-footer>
+        <div class="container">
+            <div class="notice-header">
+                <h2><i class="bi bi-question-octagon-fill"></i> 상세 보기</h2>
+            </div>
+            <div class="notice-detail">
+                <h1 th:text="${notice.noticeTitle}">공지사항 제목</h1>
+                <div class="meta">
+                    <span th:text="${#temporals.format(notice.noticeRegDate, 'yyyy-MM-dd')}">등록일</span>
             </div>
             <div class="content" th:text="${notice.noticeText}">
                 공지사항 내용
@@ -103,5 +103,7 @@
             </div>
         </div>
     </div>
+    </div>
+    <div th:replace="common/footer::defaultFooter"></div>
 </body>
 </html>

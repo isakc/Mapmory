@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -70,8 +71,6 @@ public class RedisUtil<T> {
 	 */
 	public T select(String keyName, Class<T> clazz) {
 		
-		System.out.println("flag");
-		System.out.println(redisTemplate.opsForValue().get(keyName));
 		return redisTemplate.opsForValue().get(keyName);
 	}
 	
@@ -133,4 +132,43 @@ public class RedisUtil<T> {
 		
 		return null;
 	}
+	
+	
+	public boolean updateSession(HttpServletRequest request, HttpServletResponse response) {
+
+		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
+		if(cookie == null)
+			return true;
+		
+		String key = cookie.getValue(); 
+		SessionData sessionData = (SessionData) redisTemplate.opsForValue().get(key);
+		
+		boolean successed;
+		if(sessionData.getIsKeepLogin() == 1) {
+			cookie.setPath("/");
+			cookie.setMaxAge(60*60*24*90);
+			successed = redisTemplate.expire(key, 60*24*90, TimeUnit.MINUTES);
+		} else {
+			cookie.setPath("/");
+			cookie.setMaxAge(60*30);
+			successed = redisTemplate.expire(key, 60*30, TimeUnit.MINUTES);
+		}
+			
+		response.addCookie(cookie);
+		
+		if( !successed) {
+			System.out.println("Transaction 오류");
+			return false;
+		} else
+			return true;
+	}
+	
+	
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	//// utility ////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	
+
 }

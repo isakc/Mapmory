@@ -3,134 +3,124 @@
 
 <mapper namespace="com.mapmory.services.product.dao.ProductDao">
 
-    <resultMap type="product" id="productSelectMap">
-        <result property="productNo" column="product_no" jdbcType="INTEGER" />
-        <result property="productTitle" column="product_title" jdbcType="VARCHAR" />
-        <result property="price" column="price" jdbcType="INTEGER" />
-        <result property="productRegDate" column="product_regdate" jdbcType="DATE" />
-        <result property="userId" column="user_id" jdbcType="VARCHAR" />
-        <result property="period" column="PERIOD" jdbcType="INTEGER" />
-    </resultMap>
+	<resultMap type="product" id="productSelectMap">
+		<result property="productNo" column="product_no"
+			jdbcType="INTEGER" />
+		<result property="productTitle" column="product_title"
+			jdbcType="VARCHAR" />
+		<result property="price" column="price" jdbcType="INTEGER" />
+		<result property="productRegDate" column="product_regdate"
+			jdbcType="DATE" />
+		<result property="userId" column="user_id" jdbcType="VARCHAR" />
+		<result property="period" column="PERIOD" jdbcType="INTEGER" />
+	</resultMap>
 
-    <!-- 상품 추가 -->
-    <insert id="addProduct" parameterType="product" useGeneratedKeys="true" keyProperty="productNo">
-        INSERT INTO product (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
-        VALUES (#{productTitle}, #{price}, SYSDATE(), #{period}, #{userId})
-    </insert>
+	<!-- 상품 추가 -->
+	<insert id="addProduct" parameterType="product"
+		useGeneratedKeys="true" keyProperty="productNo">
+		INSERT INTO product (PRODUCT_TITLE, PRICE, PRODUCT_REGDATE, PERIOD, USER_ID)
+		VALUES (#{productTitle}, #{price}, SYSDATE(), #{period}, #{userId})
+	</insert>
 
-    <!-- 상품 상세 정보 조회 -->
-    <select id="getDetailProduct" parameterType="int" resultMap="productSelectMap">
-        SELECT
-        p.PRODUCT_NO,
-        p.PRODUCT_TITLE,
-        p.PRICE,
-        p.PERIOD
-        FROM
-        product p
-        LEFT JOIN
-        image_file i ON p.product_no = i.product_no
-        WHERE p.PRODUCT_NO = #{productNo}
-        GROUP BY p.PRODUCT_NO
-    </select>
-
-    <!-- 상품 리스트 조회 -->
- <!--   <select id="getProductList" parameterType="search" resultMap="productSelectMap">
-        SELECT
-        p.PRODUCT_NO,
-        p.PRODUCT_TITLE,
-        p.PRICE,
-        p.PRODUCT_REGDATE,
-        p.USER_ID,
-        p.PERIOD,
-<<<<<<< HEAD
-        FROM PRODUCT p
-        LEFT JOIN IMAGE_FILE i ON p.PRODUCT_NO = i.PRODUCT_NO
-=======
-        i.UUID
-        FROM product p
-        LEFT JOIN image_file i ON p.PRODUCT_NO = i.PRODUCT_NO
->>>>>>> refs/heads/master
-        <where>
-            <if test="searchCondition != null and searchKeyword != null">
-                <if test="searchCondition == 0 and searchKeyword != ''">
-                    AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-                </if>
-                <if test="searchCondition == 1">
-                    AND p.PRICE = CAST(#{searchKeyword} AS DECIMAL)
-                </if>
-            </if>
-        </where>
-        GROUP BY p.PRODUCT_NO, i.UUID
-        ORDER BY p.PRODUCT_NO
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>-->
-    <select id="getProductList" parameterType="search" resultMap="productSelectMap">
+	<!-- 상품 상세 정보 조회 -->
+	<select id="getDetailProduct" parameterType="int"
+		resultMap="productSelectMap">
 		SELECT
-    	p.PRODUCT_NO,
-    	p.PRODUCT_TITLE,
-    	p.PRICE,
-    	p.PRODUCT_REGDATE,
-    	p.USER_ID,
-    	p.PERIOD
+		p.PRODUCT_NO,
+		p.PRODUCT_TITLE,
+		p.PRICE,
+		p.PERIOD
+		FROM
+		product p
+		LEFT JOIN
+		image_file i ON p.product_no = i.product_no
+		WHERE p.PRODUCT_NO = #{productNo}
+		GROUP BY p.PRODUCT_NO
+	</select>
+
+	<!-- 상품 리스트 조회 -->
+	<!-- <select id="getProductList" parameterType="search" resultMap="productSelectMap"> 
+		SELECT p.PRODUCT_NO, p.PRODUCT_TITLE, p.PRICE, p.PRODUCT_REGDATE, p.USER_ID, 
+		p.PERIOD, <<<<<<< HEAD FROM PRODUCT p LEFT JOIN IMAGE_FILE i ON p.PRODUCT_NO 
+		= i.PRODUCT_NO ======= i.UUID FROM product p LEFT JOIN image_file i ON p.PRODUCT_NO 
+		= i.PRODUCT_NO >>>>>>> refs/heads/master <where> <if test="searchCondition 
+		!= null and searchKeyword != null"> <if test="searchCondition == 0 and searchKeyword 
+		!= ''"> AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%') </if> 
+		<if test="searchCondition == 1"> AND p.PRICE = CAST(#{searchKeyword} AS DECIMAL) 
+		</if> </if> </where> GROUP BY p.PRODUCT_NO, i.UUID ORDER BY p.PRODUCT_NO 
+		LIMIT #{pageSize} OFFSET #{offset} </select> -->
+	<select id="getProductList" parameterType="search"
+		resultMap="productSelectMap">
+		SELECT
+		p.PRODUCT_NO,
+		p.PRODUCT_TITLE,
+		p.PRICE,
+		p.PRODUCT_REGDATE,
+		p.USER_ID,
+		p.PERIOD
 		FROM product p
 		<if test="searchCondition != null and searchKeyword != null">
 			<choose>
 				<when test="searchCondition ==0">
-					AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+					AND p.PRODUCT_TITLE LIKE CONCAT('%',
+					#{searchKeyword}, '%')
 				</when>
 				<when test="searchCondition ==1">
-    				AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-    			</when>
-    			</choose>
-	</if>
+					AND p.PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+				</when>
+			</choose>
+		</if>
 		ORDER BY p.PRODUCT_NO
 		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
-    <!-- 상품 정보 수정 -->
-    <update id="updateProduct" parameterType="product">
-        UPDATE product
-        SET PRODUCT_TITLE = #{productTitle}, PRICE = #{price}, PRODUCT_REGDATE = CURRENT_DATE(), PERIOD = #{period}, USER_ID = #{userId}
-        WHERE PRODUCT_NO = #{productNo}
-    </update>
+	<!-- 상품 정보 수정 -->
+	<update id="updateProduct" parameterType="product">
+		UPDATE product
+		SET PRODUCT_TITLE = #{productTitle}, PRICE = #{price}, PRODUCT_REGDATE =
+		CURRENT_DATE(), PERIOD = #{period}, USER_ID = #{userId}
+		WHERE PRODUCT_NO = #{productNo}
+	</update>
 
-    <!-- 상품 삭제 -->
-    <delete id="deleteProduct" parameterType="int">
-        DELETE FROM product WHERE PRODUCT_NO = #{productNo}
-    </delete>
+	<!-- 상품 삭제 -->
+	<delete id="deleteProduct" parameterType="int">
+		DELETE FROM product WHERE PRODUCT_NO = #{productNo}
+	</delete>
 
-    <!-- 상품 이름으로 조회 -->
-    <select id="getProductByName" parameterType="string" resultType="product">
-        SELECT * FROM product WHERE PRODUCT_TITLE = #{productTitle}
-    </select>
+	<!-- 상품 이름으로 조회 -->
+	<select id="getProductByName" parameterType="string"
+		resultType="product">
+		SELECT * FROM product WHERE PRODUCT_TITLE = #{productTitle}
+	</select>
 
-    <!-- 상품 총 개수 조회 -->
-    <select id="getProductTotalCount" parameterType="search" resultType="int">
-        SELECT COUNT(*)
-        FROM product
-        <if test="searchCondition != null and searchKeyword != null">
-            <choose>
-                <when test="searchCondition == 0 and searchKeyword != ''">
-                    AND PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-                </when>
-                <when test="searchCondition == 1 and searchKeyword != ''">
-                    AND PRICE = CAST(#{searchKeyword} AS DECIMAL)
-                </when>
-            </choose>
-        </if>
-    </select>
-	
+	<!-- 상품 총 개수 조회 -->
+	<select id="getProductTotalCount" parameterType="search"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM product
+		<if test="searchCondition != null and searchKeyword != null">
+			<choose>
+				<when test="searchCondition == 0 and searchKeyword != ''">
+					AND PRODUCT_TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+				</when>
+				<when test="searchCondition == 1 and searchKeyword != ''">
+					AND PRICE = CAST(#{searchKeyword} AS DECIMAL)
+				</when>
+			</choose>
+		</if>
+	</select>
+
 	<select id="getSubscription" resultMap="productSelectMap">
-    	SELECT
-    		product_no,
-    		product_title,
-    		price,
-    		product_regdate,
-    		user_id,
-    		PERIOD 
-    	FROM
-    		product
-    	WHERE 
-    		PERIOD = 30
+		SELECT
+		product_no,
+		product_title,
+		price,
+		product_regdate,
+		user_id,
+		PERIOD
+		FROM
+		product
+		WHERE
+		PERIOD = 30
 	</select>
 
 </mapper>
