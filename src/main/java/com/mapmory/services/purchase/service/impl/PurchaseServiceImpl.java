@@ -78,6 +78,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 	@Override
 	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception {
 		List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
+		
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+   	 	search.setOffset(offset);
 
 		for (PurchaseDTO purchase : purchaseList) {
 			purchase.setPaymentMethodString(PurchaseUtil.paymentChange(purchase.getPaymentMethod()));

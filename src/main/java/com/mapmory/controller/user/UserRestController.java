@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.timeline.domain.Record;
@@ -191,7 +192,7 @@ public class UserRestController {
 					// tempMap.put("changePasword", String.valueOf(needToChangePassword));
 					
 					redisUtilMap.insert(uuid, tempMap, 5L);
-					Cookie cookie = createCookie("SECONDAUTH", uuid, 60*5, "/user");
+					Cookie cookie = CookieUtil.createCookie("SECONDAUTH", uuid, 60*5, "/user");
 					response.addCookie(cookie);
 					return ResponseEntity.ok("secondAuth");
 					
@@ -422,56 +423,99 @@ public class UserRestController {
 	}
 
 	@PostMapping("/generateKey")
-	public ResponseEntity<GoogleAuthenticatorKey> generateKey(@RequestBody Map<String, String> map) { 
+	public ResponseEntity<GoogleAuthenticatorKey> generateKey(HttpServletRequest request, HttpServletResponse response) { 
 		
-		String userId = map.get("userId");
-		String userName = map.get("userName");
+		Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
+		Map<String, String> tempMap = redisUtilMap.select(cookie.getValue(), Map.class);
+		// String userId = map.get("userId");
+		// String userName = map.get("userName");
+		String userId = tempMap.get("userId");
+		String role = tempMap.get("role");
+		String keepLogin = tempMap.get("keepLogin");
 		
 		
-		String secondAuthKeyName = "SECONDAUTH-"+userId;
+		
+		// String keyName = cookie.getValue();
+		
+		// String secondAuthKeyName = "SECONDAUTH-"+userId;
+		// String secondAuthKeyName = "SECONDAUTH-"+keyName;
+		String secondAuthKeyName = "SECONDAUTH-"+ userId;  // key name도 userId 기반 단방향 암호화 로직이 들어가야 한다.
 		String encodedKey = redisUtilString.select(secondAuthKeyName, String.class);
+		System.out.println("keyName : " + secondAuthKeyName);
+		System.out.println("encodedKey : " + encodedKey);
+		
+		/*
+		Cookie cookie1 = CookieUtil.createCookie("SECONDAUTHKEY", encodedKey, 60*5, "/user");
+		System.out.println("cookie1 : " + cookie1.toString());
+		response.addCookie(cookie);
+		*/
 		
 		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
 		
+		// 기존 키가 없으면 새로 발급
 		if(encodedKey == null) {
 			
-			encodedKey = new String(userService.generateSecondAuthKey()); 
+			encodedKey = new String(userService.generateSecondAuthKey());
+			// client에 저장하기 보다는 redis에 저장해서 client가 오동작해도 키가 증발하지 않게 한다. (localStorage에 저장했다가 삭제하는 것이 베스트)
+			
+			
 			returnKey.setEncodedKey(encodedKey);
-			returnKey.setUserName(userName);
+			returnKey.setUserName(userId);
 			returnKey.setHostName(hostName);
+			
+			// 나중에 RDBMS에서 저장해두는 것이 좋을 것 같다는 생각.
 			redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
 			
 			/*
 			 * 발급된 encodedKey를 가지고 본인의 Google Authenticator app에 추가한다.
 			 * Google Authenticator app에서 QR을 통해서도 등록이 가능하다.
 			 */
-			return ResponseEntity.ok(returnKey); 
+			return ResponseEntity.ok(returnKey);
+			
+			// return ResponseEntity.ok(encodedKey);
 			
 		} else {
 
-			returnKey.setEncodedKey("");
-			return ResponseEntity.ok(returnKey); 
+			return ResponseEntity.ok(null); 
 		}
 
 	}
 	
 	@PostMapping("/checkSecondaryKey")
-	public ResponseEntity<Boolean> checkSecondaryKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ResponseEntity<Boolean> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		boolean result = userService.checkSecondAuthKey(googleUserOtpCheck);
+		Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
+		// 5분안에 인증 못하면 세션 날라가서 keyname 날라감. 다시 로그인해서 발급받게 만들어서 보안 강화.
+		Map<String, String> tempMap = redisUtilMap.select(cookie.getValue(), Map.class);  
+		String userId = tempMap.get("userId");
+		byte role = Byte.valueOf(tempMap.get("role"));
+		boolean keep = Boolean.valueOf(tempMap.get("keepLogin"));
+		
+		int userCode = Integer.parseInt(map.get("userCode"));
+		// String encodedKey = map.get("encodedKey");
+		
+		// String encodedKey=  redisUtilString.select(keyName, String.class);
+		
+		GoogleUserOtpCheck dto = new GoogleUserOtpCheck();
+		dto.setUserCode(userCode);
+		
+		// Cookie cookie1 = CookieUtil.findCookie("SECONDAUTHKEY", request);
+		
+		String encodedKeyName = "SECONDAUTH-"+userId;
+		String encodedKey = redisUtilString.select(encodedKeyName, String.class);
+		dto.setEncodedKey(encodedKey);
+		System.out.println(encodedKey);
+		
+		boolean result = userService.checkSecondAuthKey(dto);
 		
 		if(result) {
-		
-			Cookie cookie = findCookie("SECONDAUTH", request);
 			
-			Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
-			String userId = map.get("userId");
-			byte role = Byte.valueOf(map.get("role"));
-			boolean keep = Boolean.valueOf(map.get("keepLogin"));
-
+			// String keyName = "SECONDAUTH-"+userId;
+			// redisUtilString.insert(keyName, encodedKey, 60*24*90L);
 			acceptLogin(userId, role, response, keep);
 
-			response.addCookie(createCookie("SECONDAUTH", "", 0, "/user"));
+			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/user"));
+			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
 		}
 		
 		return ResponseEntity.ok(result);
@@ -575,7 +619,7 @@ public class UserRestController {
 		
 		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user");
+		Cookie cookie = CookieUtil.createCookie("PHONEAUTHKEY", codeKey, 60*5, "/user");
 		
 		response.addCookie(cookie);
 		
@@ -615,7 +659,7 @@ public class UserRestController {
 		
 		redisUtilInteger.insert(codeKey, codeValue, 3L);
 		
-		Cookie cookie = createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user");
+		Cookie cookie = CookieUtil.createCookie("EMAILAUTHKEY", codeKey, 60*5, "/user");
 		
 		response.addCookie(cookie);
 		
@@ -740,37 +784,7 @@ public class UserRestController {
 	//// utility ////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
-
-    private Cookie findCookie(String cookieKeyName, HttpServletRequest request) {
-    	
-    	System.out.println(request.getPathInfo());
-    	System.out.println(request.getServletPath());
-    	Cookie[] cookies = request.getCookies();
-    	
-    	for(Cookie cookie : cookies) {
-    		
-    		if(cookie.getName().equals(cookieKeyName)) {
-    			
-    			return cookie;
-    			
-    		}	
-    	}
-    	
-    	return null;
-    }
-	
-    private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
-		
-		Cookie cookie = new Cookie(codeKeyName, codeKey);
-		cookie.setPath(path);
-		// cookie.setDomain("mapmory.co.kr");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(false);
-		cookie.setMaxAge(maxAge);
-		
-		return cookie;
-	}
-    
+   
     
     private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
 

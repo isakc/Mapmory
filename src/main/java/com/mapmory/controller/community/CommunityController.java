@@ -61,10 +61,11 @@ public class CommunityController {
 		
 		userId = redisUtil.getSession(request).getUserId();
 		
-		search = Search.builder()
-				.currentPage(1)
-				.limit(10)
-				.build();
+	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);
+	    
 		model.addAttribute("sharedRecordlist",timelineService.getSharedRecordList(search));	
 		return "community/getSharedRecordList";
 	}

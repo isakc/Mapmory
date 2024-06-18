@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,30 +11,37 @@
         body {
             background-color: #f8f9fa;
         }
+
         .card {
             border: none;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .card-title {
             font-weight: bold;
             color: #333;
         }
+
         .form-label {
             font-weight: bold;
             color: #555;
         }
+
         .form-control {
             border-radius: 5px;
         }
+
         .btn-primary {
             background-color: #2780e3;
             border-color: #2780e3;
         }
+
         .btn-primary:hover {
             background-color: #1c68b3;
             border-color: #1c68b3;
         }
+
         .remove-btn {
             position: absolute;
             top: 5px;
@@ -50,6 +58,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -80,51 +89,53 @@
                 </div>
             </div>
         </div>
-    </div><script>
-    document.querySelector('input[name="uploadFile"]').addEventListener('change', function (event) {
-        var imagePreview = document.getElementById('imagePreview');
-        imagePreview.innerHTML = '';
+    </div>
+    <script>
+        document.querySelector('input[name="uploadFile"]').addEventListener('change', function(event) {
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '';
 
-        var files = event.target.files;
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            var reader = new FileReader();
+            var files = event.target.files;
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var reader = new FileReader();
 
-            reader.onload = (function (file) {
-                return function (e) {
-                    var div = document.createElement('div');
-                    div.className = 'd-inline-block position-relative';
+                reader.onload = (function(file) {
+                    return function(e) {
+                        var div = document.createElement('div');
+                        div.className = 'd-inline-block position-relative';
 
-                    var img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'img-thumbnail me-2 mb-2';
-                    img.style.width = '150px';
-                    img.style.height = '150px';
-                    div.appendChild(img);
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-thumbnail me-2 mb-2';
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        div.appendChild(img);
 
-                    var removeBtn = document.createElement('button');
-                    removeBtn.className = 'remove-btn';
-                    removeBtn.innerHTML = '&times;';
-                    removeBtn.addEventListener('click', function () {
-                        div.remove();
-                    });
-                    div.appendChild(removeBtn);
+                        var removeBtn = document.createElement('button');
+                        removeBtn.className = 'remove-btn';
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.addEventListener('click', function() {
+                            div.remove();
+                        });
+                        div.appendChild(removeBtn);
 
-                    var tagInput = document.createElement('input');
-                    tagInput.type = 'text';
-                    tagInput.name = 'imageTag';
-                    tagInput.className = 'form-control mb-2';
-                    tagInput.placeholder = '이미지 태그 입력';
-                    tagInput.required = true;
-                    div.appendChild(tagInput);
+                        var tagInput = document.createElement('input');
+                        tagInput.type = 'text';
+                        tagInput.name = 'imageTag';
+                        tagInput.className = 'form-control mb-2';
+                        tagInput.placeholder = '이미지 태그 입력';
+                        tagInput.required = true;
+                        div.appendChild(tagInput);
 
-                    imagePreview.appendChild(div);
-                };
-            })(file);
+                        imagePreview.appendChild(div);
+                    };
+                })(file);
 
-            reader.readAsDataURL(file);
-        }
-    });
-</script>
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </body>
+
 </html>

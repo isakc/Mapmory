@@ -2,6 +2,7 @@ package com.mapmory.services.purchase.service;
 
 import java.util.List;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.purchase.domain.Subscription;
 
@@ -13,8 +14,13 @@ public interface SubscriptionService {
 	//selectOne
 	public Subscription getDetailSubscription(String userId) throws Exception;
 	
+	//selectList
+	public List<Subscription> getSubscriptionList(Search search) throws Exception;
+	
 	//update
 	public boolean updatePaymentMethod(Subscription subscription) throws Exception;
+	
+	public boolean reSubscription(String userId) throws Exception;
 	
 	//delete
 	public boolean cancelSubscription(String userId) throws Exception;

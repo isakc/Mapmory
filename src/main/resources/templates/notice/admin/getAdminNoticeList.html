@@ -93,7 +93,7 @@
             margin-top: 30px;
         }
     </style>
-  
+
 </head>
 
 <body>
@@ -151,17 +151,17 @@
 
             <div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/notice/getAdminNoticeList')}"></div>
         </div>
-        
-          <script th:inline="javascript">
-        $(document).ready(function() {
-            $('.dropdown-item').click(function(e) {
-                e.preventDefault();
-                var condition = $(this).data('condition');
-                $('#searchCondition').val(condition);
-                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                $('.dropdown-item').click(function(e) {
+                    e.preventDefault();
+                    var condition = $(this).data('condition');
+                    $('#searchCondition').val(condition);
+                    $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+                });
             });
-        });
-    </script>
+        </script>
 </body>
 
 </html>

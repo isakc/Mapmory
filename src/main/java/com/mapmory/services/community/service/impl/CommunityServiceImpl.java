@@ -256,14 +256,10 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public Map<String, Object> getReplyLikeList(Search search, String userId) throws Exception {
 		List<Object> list = communityDao.getReplyLikeList(search, userId);
-
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
 		return map;
 	}
-
-
-
 
 //	@Override
 //	public void deleteReplyByRecord(int recordNo) throws Exception {
