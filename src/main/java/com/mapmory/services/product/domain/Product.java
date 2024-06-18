@@ -25,6 +25,9 @@ public class Product {
     private int period;                     // 구분자
     private String userId;                  // 상품 등록한 사용자 아이디
     private List<String> uuid;
+    private List<String> imageTags;
+    private List<String> newImageTags;
+    
     
 
 }

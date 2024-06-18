@@ -12,11 +12,15 @@ public interface ProductImageDao {
     // 이미지 추가 메서드 변경
     public void addProductImage(ProductImage productImage) throws Exception;
     
-    public List<String> getProductImageList(int productNo) throws Exception;
+    public List<ProductImage> getProductImageList(int productNo) throws Exception;
     
     public void deleteProductImage(int productNo) throws Exception;
     
     public void deleteImage(String uuid) throws Exception;
     
-    public ProductImage getImageByTag(String imageTag) throws Exception;
+	public ProductImage getImageByTag(String imageTag) throws Exception;
+    
+    public void updateProductImage(ProductImage productImage) throws Exception;
+    
+    public List<ProductImage> getNewProductImageList(int productNo) throws Exception;
 }

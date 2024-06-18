@@ -1,5 +1,6 @@
 package com.mapmory.services.product.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,71 +56,124 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getDetailProduct(int productNo) throws Exception {
-    	
-    	Product product = productDao.getDetailProduct(productNo); // 상품 정보 가져오기
-    	
-    	if (product != null) { // 상품 정보가 존재하는 경우에만 이미지 정보를 가져와서 설정
-    		List<String> imageUuidList = productImageDao.getProductImageList(productNo); // 이미지 정보 가져오기
-    		product.setUuid(imageUuidList); // 이미지 정보를 상품 객체에 설정
-    	}
-    	
-    	System.out.println("서비스 임플에서의 프로덕트입니다. : : : : :" + product);
-    	return product; // 이미지 정보를 포함한 상품 정보 반환
+        
+        Product product = productDao.getDetailProduct(productNo); // 상품 정보 가져오기
+        
+        if (product != null) { // 상품 정보가 존재하는 경우에만 이미지 정보를 가져와서 설정
+        	List<ProductImage> productImages = productImageDao.getProductImageList(product.getProductNo());
+            
+            List<String> uuids = new ArrayList<>();
+            List<String> imageTags = new ArrayList<>();
+            
+            for (ProductImage image : productImages) {
+                uuids.add(image.getUuid());
+                imageTags.add(image.getImageTag());
+            }
+            
+            product.setUuid(uuids); // 이미지 UUID 정보를 상품 객체에 설정
+            product.setImageTags(imageTags);
+        }
+        
+        System.out.println("서비스 임플에서의 프로덕트입니다. : : : : :" + product);
+        return product; // 이미지 정보를 포함한 상품 정보 반환
     }
 
     @Override
     public Map<String,Object> getProductList(Search search) throws Exception {
-    	
-    	 int offset = (search.getCurrentPage() - 1) * search.getPageSize();
-    	 search.setOffset(offset);
         
-    	List<Product> productList = productDao.getProductList(search);
-    	int totalCount = productDao.getProductTotalCount(search);
-    	
-    	System.out.println("프로덕트 리스트입니다. " + productList);
-    	
-    	for (Product product : productList) {
-            List<String> imageUuidList = productImageDao.getProductImageList(product.getProductNo());
-            product.setUuid(imageUuidList);
+        int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+        search.setOffset(offset);
+        
+        List<Product> productList = productDao.getProductList(search);
+        int totalCount = productDao.getProductTotalCount(search);
+        
+        System.out.println("프로덕트 리스트입니다. " + productList);
+        
+        for (Product product : productList) {
+            List<ProductImage> productImages = productImageDao.getProductImageList(product.getProductNo());
+            
+            List<String> uuids = new ArrayList<>();
+            List<String> imageTags = new ArrayList<>();
+            
+            for (ProductImage image : productImages) {
+                uuids.add(image.getUuid());
+                imageTags.add(image.getImageTag());
+            }
+            
+            product.setUuid(uuids); // 이미지 UUID 정보를 상품 객체에 설정
+            product.setImageTags(imageTags);
         }
-    	
-    	Map<String,Object> map = new HashMap<>();
-    	map.put("productList",productList);
-    	map.put("productTotalCount", new Integer(totalCount));
+        
+        Map<String,Object> map = new HashMap<>();
+        map.put("productList", productList);
+        map.put("productTotalCount", totalCount);
         
         return map;
     }
 
-    @Transactional
+
     @Override
-    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames) throws Exception {
+    public void updateProduct(Product product, List<String> uuidFileNames, List<String> originalFileNames, List<String> imageTags, List<String> newImageTags) throws Exception {
+        // 상품 정보 업데이트
         productDao.updateProduct(product);
 
-        // 이미지 파일 업데이트
+        // 기존 이미지 태그 업데이트
+        if (imageTags != null) {
+            updateImageTags(product.getProductNo(), imageTags);
+        }
+
+        // 새로운 이미지 태그 업데이트
+        if (newImageTags != null) {
+            updateNewImageTags(product.getProductNo(), newImageTags);
+        }
+
+        // 새로운 이미지 파일 업로드 및 이미지 정보 추가
         for (int i = 0; i < uuidFileNames.size(); i++) {
             String uuid = uuidFileNames.get(i);
             String originalFilename = originalFileNames.get(i);
+            String imageTag = null;
+            if (i < newImageTags.size()) {
+                imageTag = newImageTags.get(i);
+            }
 
             ProductImage productImage = new ProductImage();
             productImage.setProductNo(product.getProductNo());
             productImage.setImageFile(originalFilename);
             productImage.setUuid(uuid);
+            productImage.setImageTag(imageTag);
             productImageDao.addProductImage(productImage);
         }
     }
+    
+    private void updateNewImageTags(int productNo, List<String> newImageTags) throws Exception {
+    	List<ProductImage> existingImages = productImageDao.getNewProductImageList(productNo);
+
+        for (int i = 0; i < existingImages.size(); i++) {
+            ProductImage image = existingImages.get(i);
+            if (i < newImageTags.size()) {
+                image.setImageTag(newImageTags.get(i));
+            } else {
+                image.setImageTag("");
+            }
+            productImageDao.updateProductImage(image);
+        }
+    }
+
+
 
     @Override
-    public void deleteProduct(int productNo,String folderName) throws Exception {
-    	
-    	List<String> imageUuidList = productImageDao.getProductImageList(productNo);
-        for (String uuid : imageUuidList) {
-            objectStorageUtil.deleteFile(uuid,folderName);
+    public void deleteProduct(int productNo, String folderName) throws Exception {
+        
+        List<ProductImage> imageList = productImageDao.getProductImageList(productNo);
+        
+        for (ProductImage image : imageList) {
+            objectStorageUtil.deleteFile(image.getUuid(), folderName);
         }
         
-    	productImageDao.deleteProductImage(productNo);
-    	productDao.deleteProduct(productNo);
-        
+        productImageDao.deleteProductImage(productNo);
+        productDao.deleteProduct(productNo);
     }
+
     
     @Override
     public void deleteImage(String uuid,String folderName) throws Exception {
@@ -127,29 +181,6 @@ public class ProductServiceImpl implements ProductService {
     	objectStorageUtil.deleteFile(uuid, folderName);
     	productImageDao.deleteImage(uuid);
     	
-    }
-
-    @Override
-    public Product getProductByName(String productTitle) throws Exception {
-        return productDao.getProductByName(productTitle);
-    }
-    
-    public String getImageUrl(ByteArrayResource imageResource) {
-        return cdnUrl + "productImage/" + imageResource.getDescription();
-    }
-    
-    public void processImageWithTag(String imageTag) throws Exception {
-        // IMAGE_TAG를 기반으로 이미지 조회
-        ProductImage productImage = getImageByTag(imageTag);
-        
-        if (productImage != null) {
-            // 이미지 처리 로직 구현
-            String imageUUID = productImage.getUuid();
-            // ...
-            System.out.println("Image UUID: " + imageUUID);
-        } else {
-            System.out.println("이건 이미지에 없는거임 ㅋ");
-        }
     }
     
     @Override
@@ -163,24 +194,31 @@ public class ProductServiceImpl implements ProductService {
             return "이미지 not found";
         }
     }
-    
+
     @Override
-    public ProductImage getImageByTag(String imageTag) throws Exception {
-        return productImageDao.getImageByTag(imageTag);
-    }
-    
     public Product getSubscription() throws Exception {
-    	
-    	Product product = productDao.getSubscription(); // 상품 정보 가져오기
-    	
-    	if (product != null) { // 상품 정보가 존재하는 경우에만 이미지 정보를 가져와서 설정
-    		List<String> imageUuidList = productImageDao.getProductImageList(product.getProductNo()); // 이미지 정보 가져오기
-    		product.setUuid(imageUuidList); // 이미지 정보를 상품 객체에 설정
-    	}
-    	
-    	System.out.println("서비스 임플에서의 프로덕트입니다. : : : : :" + product);
-    	return product; // 이미지 정보를 포함한 상품 정보 반환
+        
+        Product product = productDao.getSubscription(); // 상품 정보 가져오기
+        
+        if (product != null) {
+            List<ProductImage> productImages = productImageDao.getProductImageList(product.getProductNo()); // 이미지 정보 가져오기
+            
+            List<String> uuids = new ArrayList<>();
+            List<String> imageTags = new ArrayList<>();
+            
+            for (ProductImage image : productImages) {
+                uuids.add(image.getUuid());
+                imageTags.add(image.getImageTag());
+            }
+            
+            product.setUuid(uuids); // 이미지 UUID 정보를 상품 객체에 설정
+            product.setImageTags(imageTags);
+        }
+        
+        System.out.println("서비스 임플에서의 프로덕트입니다. : : : : :" + product);
+        return product; // 이미지 정보를 포함한 상품 정보 반환
     }
+
     
     public byte[] getImageBytesByImageTag(String imageTag, String folderName) throws Exception {
         ProductImage productImage = productImageDao.getImageByTag(imageTag);
@@ -194,6 +232,26 @@ public class ProductServiceImpl implements ProductService {
     
     public byte[] getImageBytes(String uuid, String folderName) throws Exception {
         return objectStorageUtil.getImageBytes(uuid, folderName);
+    }
+    
+    @Override
+    public void updateImageTags(int productNo, List<String> imageTags) throws Exception {
+        List<ProductImage> existingImages = productImageDao.getProductImageList(productNo);
+        
+        // imageTags가 null인 경우 빈 리스트로 초기화
+        if (imageTags == null) {
+            imageTags = new ArrayList<>();
+        }
+        
+        for (int i = 0; i < existingImages.size(); i++) {
+            ProductImage image = existingImages.get(i);
+            if (i < imageTags.size()) {
+                image.setImageTag(imageTags.get(i));
+            } else {
+                image.setImageTag("");
+            }
+            productImageDao.updateProductImage(image);
+        }
     }
 
 }
