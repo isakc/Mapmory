@@ -236,6 +236,11 @@ public class CommunityServiceImpl implements CommunityService {
 		map.put("totalCount", Integer.valueOf(totalCount));
 		return map;
 	}
+	
+	@Override
+	public void updateBlockUser(FollowBlock followBlock) throws Exception {
+		communityDao.updateBlockUser(followBlock);
+	}	
 
 	@Override
 	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception {
@@ -247,6 +252,17 @@ public class CommunityServiceImpl implements CommunityService {
 		communityDao.deleteBlockedUser(userId, targetId);
 		
 	}
+
+	@Override
+	public Map<String, Object> getReplyLikeList(Search search, String userId) throws Exception {
+		List<Object> list = communityDao.getReplyLikeList(search, userId);
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		return map;
+	}
+
+
 
 
 //	@Override
