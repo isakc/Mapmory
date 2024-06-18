@@ -121,6 +121,12 @@ public class UserRestController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
+	@Value("${object.timeline.image}")
+	private String TIMELINE_THUMBNAIL;
+	
+	@Value("${object.timeline.imoji}")
+	private String TIMELINE_EMOJI;
+	
 	@Value("${kakao.client.Id}")
     private String kakaoClientId;
     
@@ -529,7 +535,28 @@ public class UserRestController {
 			return ResponseEntity.internalServerError().body(false);
 	}
 
-	
+    
+    @GetMapping("/{type}/{uuid}")
+    public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
+    	
+    	byte[] bytes; 
+    	switch(type) {
+    	
+    		case "profile" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
+    			break;
+    		case "thumbnail" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
+    			break;
+    		case "emoji" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
+    			break;
+    		default:
+    			bytes = null;
+    	}
+
+        return bytes;
+    }
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -694,14 +721,8 @@ public class UserRestController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping("/image/{uuid}")
-    public byte[] getImage(@PathVariable String uuid) throws Exception {
-        byte[] bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
-        // System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
-        return bytes;
-    }
-    	
+
+
  	@GetMapping("/getKakaoLoginView")
 	public String getKakaoLoginView() {
 

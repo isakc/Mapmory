@@ -2,21 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <title>로그인</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/css/common/footer.css"><!-- footer 추가한 페이지는 반드시 추가해줄것. -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <th:block th:replace="~{/common/dependencies}"></th:block>
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <!-- 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-<<<<<<< HEAD
-	 
-
-	 
+	 -->
+	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
+	<!--  <link rel="stylesheet" href="/css/common/footer.css">  -->
 	<style>
 		/* body{margin-top:20px;} */ 
 		
@@ -29,7 +22,6 @@
 		
 		
 	</style>
-	
 	<!-- 
 	<style>
 		#social-login-btn {
@@ -159,6 +151,20 @@
 				
 				window.location.href="/user/getPasswordView";
 			});
+			
+			$('#keepLoginDiv').on('click', function() {
+				
+				
+				var checkBox = $(this).find('input[name="keepLogin"]');
+				/*
+			    if (checkBox.prop('checked')) {
+			      checkBox.prop('checked', false);
+			    } else {
+			      checkBox.prop('checked', true);
+			    }
+				*/
+				checkBox.prop('checked', !checkBox.prop('checked'));
+			});
  		});
  		
  		$(function(){
@@ -179,71 +185,72 @@
 </head>
 <body >
 	    	
-    	<div id=content-for-footer class="container mt-5">
-    	<div id="loginDiv" class="align-self-center">
-    	
-    		<div class="text-center">
-				<h2 class="fw-bold">사용자 로그인</h2>
-				<p>서비스 이용을 위해서는 로그인이 필요합니다.</p>
-			</div>
-    		<form id="loginForm" >
-	    		<div >
-		    		<label for="userId" class="form-label"></label>
-			        <input type="text" id="username" name="userId" placeholder="아이디" class="form-control">
+    	<!-- <div id=content-for-footer class="container mt-5">  -->
+    	<div class="container mt-5">
+		   	<div id="loginDiv" class="align-self-center">
+		   	
+		   		<div class="text-center">
+					<h2 class="fw-bold">사용자 로그인</h2>
+					<p>서비스 이용을 위해서는 로그인이 필요합니다.</p>
 				</div>
-				<div class="mb-4">
-			        <label for="userPassword" class="form-label"></label>
-			        <input type="password" id="password" name="userPassword" placeholder="비밀번호" class="form-control">
-				</div>
-				<div class="mb-1 d-grid gap-2">
-		        	<button type="button" id="login" class="btn btn-primary">사용자 로그인</button>
-		        </div>
+		   		<form id="loginForm" >
+		    		<div >
+			    		<label for="userId" class="form-label"></label>
+				        <input type="text" id="username" name="userId" placeholder="아이디" class="form-control">
+					</div>
+					<div class="mb-4">
+				        <label for="userPassword" class="form-label"></label>
+				        <input type="password" id="password" name="userPassword" placeholder="비밀번호" class="form-control">
+					</div>
+					<div class="mb-1 d-grid gap-2">
+			        	<button type="button" id="login" class="btn btn-primary">사용자 로그인</button>
+			        </div>
+			        <div id="keepLoginDiv">
+				        <input type="checkbox" name="keepLogin" class="form-check-input"/>
+				        <label for="keepLogin" class="form-check-label">로그인 유지</label>
+					</div>
+		        </form>
 		        
-		        <input type="checkbox" name="keepLogin" class="form-check-input"/>
-		        <label for="keepLogin" class="form-check-label">로그인 유지</label>
-
-	        </form>
-	        
-	        
-	        
-	        <!-- <input type="hidden" name="changePassword" value="false"/>  -->
-	        
-	        <!-- 
-	        <button type="button" id="signUp">회원가입</button>
-	        <button type="button" id="getId">아이디 찾기</button>
-	        <button type="button" id="getPassword">비밀번호 찾기</button>
-	         -->
-	         
-	         <div class="mt-3 d-flex justify-content-center">
-	         	<a class="mx-3" href="/user/getAgreeTermsAndConditionsList">회원가입</a>
-	         	<a class="mx-3" href="/user/getIdView">아이디 찾기</a>
-	         	<a class="mx-3" href="/user/getPasswordView">비밀번호 찾기</a>
-	         </div>
-	         
-	        
-	        
-	        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
-	        	<div class="my-3">
-			        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
-			        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
-		        </div>
-		        </a>
-				<div id="naverIdLogin" class="my-3">
-					<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
-					<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">
-					<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
-				</div>	
-		        <div id="kakao" class="my-3">
-					<a href="/user/getKakaoLoginView">
-	   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼" width=320>
-					</a>
+		        
+		        
+		        <!-- <input type="hidden" name="changePassword" value="false"/>  -->
+		        
+		        <!-- 
+		        <button type="button" id="signUp">회원가입</button>
+		        <button type="button" id="getId">아이디 찾기</button>
+		        <button type="button" id="getPassword">비밀번호 찾기</button>
+		         -->
+		         
+		         <div class="mt-3 d-flex justify-content-center">
+		         	<a class="mx-3" href="/user/getAgreeTermsAndConditionsList">회원가입</a>
+		         	<a class="mx-3" href="/user/getIdView">아이디 찾기</a>
+		         	<a class="mx-3" href="/user/getPasswordView">비밀번호 찾기</a>
+		         </div>
+		         
+		        
+		        
+		        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
+		        	<div class="my-3">
+				        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
+				        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
+			        </div>
+			        </a>
+					<div id="naverIdLogin" class="my-3">
+						<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
+						<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">
+						<img src="https://static.nid.naver.com/oauth/big_g.PNG" width=320></a>
+					</div>	
+			        <div id="kakao" class="my-3">
+						<a href="/user/getKakaoLoginView">
+		   				<img src="https://kr.object.ncloudstorage.com/mapmory-object/static/kakao_login_medium_narrow.png" alt="카카오 로그인 버튼" width=320>
+						</a>
+					</div>
 				</div>
-			</div>
-			
-			<div class="mt-3 d-flex justify-content-center">
-				<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
-			</div>
-        </div>
+				
+				<div class="mt-3 d-flex justify-content-center">
+					<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
+				</div>
+      		 </div>
 
 	        
 	        <div id="userDiv" style="display:none;">
@@ -280,7 +287,7 @@
     	
     	</div><!-- 추가시 여기 위에서만 작업할 것 -->
     	
-		<div th:replace="common/footer::defaultFooter"></div>
+		<!-- <div th:replace="common/footer::defaultFooter"></div>  -->
 		
 
 </body>
