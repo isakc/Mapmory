@@ -610,7 +610,8 @@ ORDER BY
 </select>
 
 <select id='selectProfileTimelineList' resultMap='recordResultMap' parameterType='search'>
-     SELECT 
+     SELECT
+       a1.record_no AS record_no, 
        a1.record_title AS record_title,
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,

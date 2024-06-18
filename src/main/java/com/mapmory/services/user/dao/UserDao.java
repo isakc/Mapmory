@@ -88,6 +88,8 @@ public interface UserDao {
 	
 	public int updatePassword(Login login);
 	
+	public int updateFollowToBlock(FollowBlock block);
+	
 	public int deleteFollow(FollowBlock follow);
 
 	public int deleteSuspendUser(int logNo);

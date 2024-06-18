@@ -744,6 +744,19 @@ public class UserServiceImpl implements UserService {
 	}	
 
 	@Override
+	public boolean updateFollowToBlock(String myUserId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(myUserId)
+				.targetId(targetId)
+				.build();
+		
+		int result = userDao.updateFollowToBlock(follow);
+		
+		return intToBool(result);
+	}
+	
+	@Override
 	public boolean deleteFollow(String userId, String targetId) {
 		// TODO Auto-generated method stub
 		
