@@ -589,6 +589,7 @@ public class UserServiceImpl implements UserService {
 					
 				} else {
 					contents.append(nextLine).append("\n");
+					// contents.append(nextLine).append("<br/>");
 				}
 			}
 
@@ -742,6 +743,19 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}	
 
+	@Override
+	public boolean updateFollowToBlock(String myUserId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(myUserId)
+				.targetId(targetId)
+				.build();
+		
+		int result = userDao.updateFollowToBlock(follow);
+		
+		return intToBool(result);
+	}
+	
 	@Override
 	public boolean deleteFollow(String userId, String targetId) {
 		// TODO Auto-generated method stub

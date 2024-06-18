@@ -9,7 +9,8 @@ $(function() {
 
 	    if ((userId.length < 5) || !userIdRegex.test(userId)) {
 
-	        $('#userIdMsg').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.').css('color', 'red').show();
+	        // $('#userIdMsg').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.').css('color', 'red').show();
+	        $('#userIdMsg').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.').removeClass('text-success').addClass('text-danger').show();
 	        $('#userIdChecked').text('false');
 	        event.preventDefault();
 	        return;
@@ -44,7 +45,8 @@ $(function() {
 			console.log("비속어 통과?:" + result);
 			if(!result) {
 				
-				$('#userIdMsg').text('욕설은 사용할 수 없습니다.').css('color', 'red').show();
+				// $('#userIdMsg').text('욕설은 사용할 수 없습니다.').css('color', 'red').show();
+				$('#userIdMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success').addClass('text-danger').show();
 				return;
 			}
 				
@@ -77,12 +79,14 @@ $(function() {
 			console.log("중복 통과?:" + result);
 			if (result === true) {
 
-				$('#userIdMsg').text('사용 가능한 아이디입니다.').css('color', 'green').show();
+				// $('#userIdMsg').text('사용 가능한 아이디입니다.').css('color', 'green').show();
+				$('#userIdMsg').text('사용 가능한 아이디입니다.').removeClass('text-danger').addClass('text-success').show();
 				$('#userIdChecked').text('true');
 				
 			} else {
 
-				$('#userIdMsg').text('중복되는 아이디입니다.').css('color', 'red').show();
+				// $('#userIdMsg').text('중복되는 아이디입니다.').css('color', 'red').show();
+				$('#userIdMsg').text('중복되는 아이디입니다.').removeClass('text-success').addClass('text-danger').show();
 			}
 			
 			return;

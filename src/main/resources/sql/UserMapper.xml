@@ -176,12 +176,14 @@
 		<if test="selectFollow == 0">
 		LEFT JOIN users u ON fb.target_id = u.user_id
 		LEFT JOIN subscription s ON fb.target_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId} 
+		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId}
+			<!-- AND fb2.fb_type != 1  -->
 		</if>
 		<if test="selectFollow == 1">
 		LEFT JOIN users u ON fb.user_id = u.user_id
 		LEFT JOIN subscription s ON fb.user_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.user_id = fb.user_id AND fb2.target_id = #{myUserId} 
+		LEFT JOIN follow_block fb2 ON fb2.user_id = fb.user_id AND fb2.target_id = #{myUserId}
+			<!-- AND fb.fb_type != 1  --> 
 		</if>
 		AND fb2.fb_type=0
 		WHERE
@@ -364,6 +366,14 @@
 		UPDATE users
 		SET user_password = #{userPassword}
 		WHERE user_id=#{userId}
+	</update>
+	
+	<update id="updateFollowToBlock" parameterType="followBlock" >
+	
+		UPDATE follow_block
+		SET fb_type = 1
+		WHERE user_id=#{userId} AND target_id=#{targetId} 
+	
 	</update>
 	
 	<delete id="deleteFollow" parameterType="followBlock">

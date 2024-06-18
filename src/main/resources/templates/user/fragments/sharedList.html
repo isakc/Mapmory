@@ -1,12 +1,65 @@
-
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
 <script>
 
+	$(function() {
+		
+		const userId = `[[${profile.user.userId}]]`;
+		
+		$.ajax({
+
+			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=1`,
+		      method: "GET",
+		      // contentType:"application/json",
+		      // dataType: "application/json",
+		      success: function(response) {
+			    	  
+		    	  response.timelineList.forEach((timeline) => {
+		    		  
+		    		  // console.log(timeline);
+		    		  let thumbnailName = null;
+		    		  if(timeline.imageTagList.length > 0)
+		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
+		    		  const title = timeline.recordTitle;
+		    		  const categoryName = timeline.categoryName;
+		    		  const categoryEmoji = timeline.categoryImoji;
+		    		  const regDate = timeline.recordAddDate;
+		    		  const recordNo = timeline.recordNo;
+		    		  
+		    		  let temp = '';
+		    		  temp += '<div id="'+recordNo+'" class="record">';
+			    		  if(thumbnailName != null)
+			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
+			    		  temp += '<p>'+title+'</p>';
+			    		  temp += '<div class="category">'
+				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+				    		  temp += '<p>'+categoryName+'</p>';
+			    		  temp += '</div>'
+			    		  temp += '<p>'+regDate+'</p>';
+			    		  temp += '</div>';
+		    		  temp += '<hr/>';
+		    		  $('#sharedRecordList').append(temp);
+		    	  })
+		    	  
+		    	  
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+			
+		});
+		
+	});
 	
-
+	$(function() {
+		
+		$(document).on('click', '.record', function() {
+			
+			const recordNo = $(this).attr('id');
+			window.location.href=`/timeline/getDetailTimeline?recordNo=${recordNo}`;
+		});
+		
+	});
+	
+	// 무한 스크롤 적용 필요
+	// currentPage java 전역변수로 처리하자.
 </script>
-
-<div th:each="item : ${list8}">
-	<li th:text="'+${item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
-</div>
