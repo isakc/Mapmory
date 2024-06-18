@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.PurchaseUtil;
 import com.mapmory.exception.purchase.SubscriptionException;
 import com.mapmory.services.product.domain.Product;
@@ -82,6 +83,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     		
     		if(subscription.getNextSubscriptionPaymentDate() != null) {
     			subscription.setNextSubscriptionPaymentDateString(PurchaseUtil.purchaseDateChange(subscription.getNextSubscriptionPaymentDate()));
+    			subscription.setNextSubscriptionPaymentMethodString(PurchaseUtil.paymentChange(subscription.getNextSubscriptionPaymentMethod()));
     		}
     	}
     	
@@ -139,7 +141,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		ScheduleData scheduleData = new ScheduleData(subscription.getCustomerUid());
 
 		ScheduleEntry scheduleEntry = new ScheduleEntry(subscription.getMerchantUid(),
-				Date.from(LocalDateTime.now().plusMonths(1).atZone(ZoneId.of("Asia/Seoul")).toInstant()),
+				Date.from(subscription.getNextSubscriptionPaymentDate().atZone(ZoneId.of("Asia/Seoul")).toInstant()),
 				BigDecimal.valueOf(product.getPrice()) );
 		scheduleEntry.setName(product.getProductTitle());
 		scheduleData.addSchedule(scheduleEntry);
@@ -166,4 +168,23 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionDao.deleteSubscription(subscriptionNo) == 1;
     }// deleteSubscription: 구독 삭제
 
+	@Override
+	public boolean reSubscription(String userId) throws Exception {
+		return subscriptionDao.reSubscription(userId) == 1;
+	}
+
+	@Override
+	public List<Subscription> getSubscriptionList(Search search) throws Exception {
+		List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList(search);
+		
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+   	 	search.setOffset(offset);
+   	 	
+		for(Subscription subscription : subscriptionList) {
+			subscription.setSubscriptionStartDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionStartDate()));
+			subscription.setSubscriptionEndDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionEndDate()));
+		}
+				
+		return subscriptionList;
+	}
 }
