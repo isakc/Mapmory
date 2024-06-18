@@ -69,10 +69,18 @@ public class TimelineController {
     @Value("${cdn.url}")
     private String cdnUrl;
     
+    @Value("${timeline.kakaomap.restKey}")
+    private String restKey;
+    
     private int searchOption=2;
 	
 	public TimelineController(){
 		System.out.println("TimelineController default Contrctor call : " + this.getClass());
+	}
+
+	
+	@GetMapping({"/*"})
+	public void getTimelineKey(Model model) {
 	}
 	
 	@GetMapping("getTimelineList")
@@ -145,6 +153,7 @@ public class TimelineController {
 		}
 //		model.addAttribute("apiKey", kakaoMapApiKey);
 //		model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
@@ -197,6 +206,7 @@ public class TimelineController {
 		Record record=timelineService.getDetailTimeline(recordNo);
 		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
 		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("record",record);
 		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
 		return "timeline/getSimpleTimeline";
@@ -210,6 +220,7 @@ public class TimelineController {
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";

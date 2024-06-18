@@ -30,6 +30,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class TimelineRestController {
 			@RequestBody Record record,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
+		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now().toString().replace("T"," ").split("\\.")[0]);
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
 		if(recordNo!=0) {

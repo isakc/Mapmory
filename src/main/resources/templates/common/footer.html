@@ -24,23 +24,22 @@
 <!-- <a href="#" th:text="체크포인트"></a> -->
 </div>
 <input type="hidden" th:name="recordUserIdOfFooter" th:value="'user2'"/>
-<input type="hidden" th:name="recordTitleOfFooter" th:value="null"/>
-<input type="hidden" th:name="latitudeOfFooter" th:value="33.450701"/>
-<input type="hidden" th:name="longitudeOfFooter" th:value="126.570667"/>
+<input type="hidden" th:name="latitudeOfFooter" th:value="'37.4923615'"/>
+<input type="hidden" th:name="longitudeOfFooter" th:value="'127.0292881'"/>
 <input type="hidden" th:name="checkpointAddressOfFooter" th:value="'서울시 강남구'"/>
 
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
 <script type="text/javascript" th:src="@{//dapi.kakao.com/v2/maps/sdk.js(appkey=${apiKey})}"></script>
 <script type="text/javascript">
+
+
+
 $(function() {
 	$("img[name='타임라인']").on("click", function() {
 		self.location = "/timeline/getTimelineList?userId=user1";
 	});
 	
-	let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
-	let recordTitle = $('input[name="recordTitleOfFooter"]').val();
-	let checkpointAddress = $('input[name="checkpointAddressOfFooter"]').val();
 	$("img[name='체크포인트']").on("click", function() {
 		
 		if (navigator.geolocation) {
@@ -48,36 +47,52 @@ $(function() {
 		    // GeoLocation을 이용해서 접속 위치를 얻어옵니다
 		    navigator.geolocation.getCurrentPosition(function(position) {
 		        
-		        var lat = position.coords.latitude; // 위도
-		        var lon = position.coords.longitude; // 경도
+		    	var lat = position.coords.latitude; // 위도
+		    	var lon = position.coords.longitude; // 경도
+		        console.log(lat);
+		        console.log(lon);
+		    	$('input[name="latitudeOfFooter"]').val(lat).trigger('change');
+		        $('input[name="longitudeOfFooter"]').val(lon);
 		      });
 		    
 		} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
 			let message = 'geolocation을 사용할수 없어요..'
 			alert(message);
 		}
+	})
 		
-		$.ajax("https://dapi.kakao.com/v2/local/geo/coord2address.",{
+	$('input[name="latitudeOfFooter"]').on("change",function(){
+		let latitude = $('input[name="latitudeOfFooter"]').val();
+		let longitude = $('input[name="longitudeOfFooter"]').val();
+		$.ajax("https://dapi.kakao.com/v2/local/geo/coord2address.json",{
 			method : "GET",
 			dataType : "json",
 			headers : {
-				"Authorization" : "KakaoAK [[${REST_API_KEY}]]"
+				"Authorization" : "KakaoAK [[${restKey}]]",
+				"Content-type" : "application/json;charset=UTF-8"
 			},
 			data : {
-				x : lon,
-				y : lat
+				x : longitude,
+				y : latitude
 			},
 			success : function(response,status){
-				alert(response.text);
-				console.log(JSON.stringify(response));
-				$('div[name="'+imageNo+'"]').remove();
+				console.log(response.documents[0].address.address_name);
+		    	$('input[name="checkpointAddressOfFooter"]')
+		    	.val(response.documents[0].address.address_name)
+		    	.trigger('change');
 			},
             error: function(xhr, status, error) {
                 alert('Error: ' + error);
             }
 			
+			})
 		})
 		
+		$('input[name="checkpointAddressOfFooter"]').on("change",function(){
+			let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
+			let latitude = $('input[name="latitudeOfFooter"]').val();
+			let longitude = $('input[name="longitudeOfFooter"]').val();
+			let checkpointAddress = $('input[name="checkpointAddressOfFooter"]').val();
 			$.ajax("/timeline/rest/addTimeline",{
 				method : "POST",
 				dataType : "json",
@@ -86,20 +101,19 @@ $(function() {
 					"Accept" : "application/json; charset = UTF-8"
 				},
 				data : JSON.stringify({
-				    recordUserId : recordUserId,
-				    recordTitle : recordTitle,
-				    latitude : latitude,
-				    longitude : longitude,
-				    checkpointAddress : checkpointAddress
+		  		  	recordUserId : recordUserId,
+		    		latitude : latitude,
+		    		longitude : longitude,
+		    		checkpointAddress : checkpointAddress
 				}),
 				success : function(response,status){
 					alert(JSON.stringify(response));
 					console.log(JSON.stringify(response));
 				},
-                error: function(xhr, status, error) {
-                    alert('Error: ' + error);
-                }
-				
+        		error: function(xhr, status, error) {
+            		alert('Error: ' + error);
+        		}
+		
 			})
 		})
 	})
