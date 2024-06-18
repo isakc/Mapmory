@@ -39,9 +39,12 @@ public class LoginServiceImpl implements LoginService {
 	
 	public boolean setSession(String userId, byte role, String sessionId, boolean keepLogin) {
 		
+		int isKeepLogin = (keepLogin ? 1 : 0);
+		
 		SessionData sessionData = SessionData.builder()
 				.userId(userId)
 				.role(role)
+				.isKeepLogin(isKeepLogin)
 				.build();
 		
 		if (keepLogin == false)

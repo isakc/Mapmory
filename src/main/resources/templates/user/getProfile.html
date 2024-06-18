@@ -25,6 +25,8 @@
 	
 	<script th:inline="javascript">
 	
+		const userId = [[${profile.user.userId}]];  // targetId
+	
 		$(function(){
 	
 			const myProfile = [[${myProfile}]];
@@ -54,9 +56,7 @@
 
 		});
 	
-		$(function() { 
-			
-			const userId = [[${profile.user.userId}]];
+		$(function() { 	
 
 			$('#back').on('click', function() {
 				

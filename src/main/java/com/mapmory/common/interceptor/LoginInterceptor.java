@@ -31,8 +31,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
+
+		// 세션 연장 임시 조치
+		return redisUtil.updateSession(request, response);
+
 		// TODO Auto-generated method stub
-		
+		/*
 		String requestURI = request.getRequestURI();
 		System.out.println("requestURI : " + requestURI);
 		
@@ -56,7 +60,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 							// 정지된 사용자의 경우에는 로그인 유지할 쿠키를 제거해서 재접속 불가능하게 만듦.
 							if(userService.checkSuspended(temp.getUserId()).equals("true")) {
 								
-								Cookie deleteCookie = createTempCookie("JSESSIONID", "");
+								Cookie deleteCookie = CookieUtil.createCookie("JSESSIONID", "");
 								
 								response.addCookie(deleteCookie);
 								response.sendRedirect("/");
@@ -111,17 +115,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		response.sendRedirect(loginPath);
 		
 		return false;
-	}
-	
-	private Cookie createTempCookie(String cookieId, String sessionId) {
-		
-		Cookie cookie = new Cookie(cookieId, sessionId);
-		cookie.setPath("/");
-		// cookie.setDomain("mapmory.co.kr");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(true);
-		cookie.setMaxAge(60 * 10);
-		
-		return cookie;
+		*/
+
 	}
 }

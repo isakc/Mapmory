@@ -1,7 +1,23 @@
 <script>
+	$(function() {
+		
+		$.ajax({
 
+			url: `/community/rest/getReplyList/user/${userId}?currentPage=1`,
+		      method: "GET",
+		      contentType:"application/json",
+		      // dataType: "application/json",
+		      success: function(response) {
+			    	  
+		    	 console.log(response); 
+		    	  
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+			
+		});
+		
+	});
 </script>
-
-<div>
-
-</div>

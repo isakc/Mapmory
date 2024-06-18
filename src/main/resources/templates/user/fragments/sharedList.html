@@ -5,8 +5,7 @@
 		const userId = `[[${profile.user.userId}]]`;
 		
 		$.ajax({
-	
-			// currentPage sessionStroage로 처리하자.
+
 			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=1`,
 		      method: "GET",
 		      // contentType:"application/json",
@@ -15,7 +14,7 @@
 			    	  
 		    	  response.timelineList.forEach((timeline) => {
 		    		  
-		    		  console.log(timeline);
+		    		  // console.log(timeline);
 		    		  let thumbnailName = null;
 		    		  if(timeline.imageTagList.length > 0)
 		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
@@ -62,4 +61,5 @@
 	});
 	
 	// 무한 스크롤 적용 필요
+	// currentPage java 전역변수로 처리하자.
 </script>
