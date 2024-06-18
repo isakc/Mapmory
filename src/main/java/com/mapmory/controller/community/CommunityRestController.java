@@ -9,6 +9,7 @@ import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -86,7 +87,7 @@ public class CommunityRestController {
 	
 	//공유 기록 목록 무한스크롤
 	@GetMapping("/rest/getSharedRecordList")
-    public List<SharedRecordDto> getSharedRecordList(@RequestParam(defaultValue = "1") int currentPage,
+    public List<SharedRecordDto> getSharedRecordList(@RequestParam int currentPage,
     												@RequestParam(defaultValue = "10") int limit,
     												HttpServletRequest request) throws Exception {
 		
@@ -101,7 +102,7 @@ public class CommunityRestController {
 		.build();
 
 		return timelineService.getSharedRecordList(search);
-}
+	}
 
 	//댓글 추가
 	@PostMapping("/rest/addReply")
@@ -152,6 +153,17 @@ public class CommunityRestController {
 	    }
 	}  		
 
+	//이미지 불러오기
+	@GetMapping("/rest/replyImage/{uuid}")
+	public byte[] getImage(@PathVariable String uuid) throws Exception {
+		
+		byte[] imageName = objectStorageUtil.getImageBytes(uuid, replyFolder);
+
+		return imageName;
+		
+	}
+	
+	
 	//기록별 댓글 목록 조회
 	@GetMapping("/rest/getReplyList/{recordNo}")
 	public ResponseEntity<Map<String, Object>> getReplyList(Search search, @PathVariable int recordNo) throws Exception {
@@ -184,6 +196,24 @@ public class CommunityRestController {
 		System.out.println("replyData :: "+ replyData);
 		return ResponseEntity.ok(replyData);	
 	}
+
+	//좋아요한 댓글 목록
+	@GetMapping("/rest/getReplyLikeList/{userId}")
+	public ResponseEntity<Map<String, Object>> getReplyLikeList(Search search, @PathVariable String userId, @RequestParam Integer currentPage) throws Exception {
+		
+		System.out.println("userId :: " + userId);
+		if(search == null) {
+			search = Search.builder()
+					.userId(userId)
+					.currentPage(currentPage)
+					.limit(10)
+					.build();
+		}		
+		
+		return ResponseEntity.ok(null);
+	}
+	
+	
 	
 	//사용자별 커뮤니티 로그 기록
 	@GetMapping("/rest/getCommunityLogsList/{userId}")
@@ -203,7 +233,7 @@ public class CommunityRestController {
 	@PostMapping("/rest/updateReply/{replyNo}")
 	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, @RequestParam("userId") String userId, 
 												String updateReplyText, int recordNo, HttpServletRequest request, 
-												@RequestParam(value = "replyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
+												@RequestParam(value = "updateReplyImageName", required = false) MultipartFile updateReplyImageName) throws Exception {
 
 		userId = redisUtil.getSession(request).getUserId();
 		
@@ -254,8 +284,8 @@ public class CommunityRestController {
 	public ResponseEntity<Integer> getReplyUserTotalCount(Search search, String userId) throws Exception {
 		int userReplyCount = communityDao.getReplyUserTotalCount(search, userId);
 		return ResponseEntity.ok(userReplyCount);
-	}	
-	
+	}
+		
 	//좋아요 싫어요 중복 체크
 	@PostMapping("/rest/checkLogs")
 	public ResponseEntity<CommunityLogs> checkLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {

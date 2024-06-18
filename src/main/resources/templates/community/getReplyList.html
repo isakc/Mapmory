@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<title>댓글</title>
 <head>
 	<meta charset="UTF-8">
-	<title>댓글</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="/css/common/footer.css"> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -78,6 +78,7 @@
 				console.log("6. replyNo :", replyNo);
 				
 				// 새로운 댓글을 추가할 행을 생성
+				var replyImageURL = '/community/rest/replyImage/'+replyImageName;
 				var newRow = '<div class="card mb-3">' +
 		        '<div class="card-body">' +
 		        '<h6>' +
@@ -88,7 +89,7 @@
 		        '</h6>' +
 		        '<h4>' +
 		        '<span class="replyText">' + replyText + '</span>' +
-		        '<span>' + replyImageName + '</span>' +
+		        '<img alt="" class="replyImageName" src="'+replyImageURL+'">'+
 		        '<span style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
 		        '<i class="bi bi-hand-thumbs-down" id="replyDislike" style="float: right; margin-left: 10px;"></i>' +
 		        '<span style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
@@ -158,8 +159,9 @@
 	}
 	
 	function closeModal() {
-		console.log("닫힘");
+		console.log("닫힘1");
 		document.getElementById("moreModal").style.display = "none";
+		console.log("닫힘2");
 	}
 	
 	function openUpdateModal() {
@@ -189,23 +191,24 @@
 				var replyNo = currentRow.find('.replyNo').text();
 				console.log("13.replyNo :", replyNo);
 			}
-			openUpdateModal();
 			closeModal();
+			openUpdateModal();
 
 			$('#updateReplyForm').submit(function(event) {
 				event.preventDefault();
 	   
 	        	var formData = new FormData(this);
-				var updatedReplyText = $('#updateReplyText').val().trim();	        
+				var updatedReplyText = $('#updateReplyText').val().trim();
+				var updateReplyImageName = $('#updateReplyImageName').val();
 				var recordNo = $('#recordNo').val();
 				
+				console.log(updateReplyImageName);
 				console.log("14.기록번호 : "+recordNo);
 
 				if(updatedReplyText === '') {
 					alert('댓글 내용을 입력해주세요');
 					return;
 				}
-
 				formData.append("recordNo", recordNo);
 				formData.append("userId", userId);
 
@@ -215,9 +218,11 @@
 					replyText : updatedReplyText,
 					replyImageName : updateReplyImageName
 				};
-
+				console.log("!3 "+JSON.stringify(updateReply));
 				formData.append("updateReply", JSON.stringify(updateReply));
-	        
+	        	
+				console.log("15 "+formData);
+				
 				if(currentRow) {
 					var userId = userId
 					var replyNo = currentRow.find('.replyNo').text();
@@ -233,7 +238,9 @@
 							console.log('15.댓글 수정 완료 :', data);
 							
 							currentRow.find('.replyText').text(data	.replyText);
-							
+		                    var replyImageUUID = data.replyImageName; // 서버에서 반환한 UUID 값
+		                    var replyImageURL = '/community/rest/replyImage/' + replyImageUUID;
+		                    currentRow.find('.replyImageName').attr('src', replyImageURL);						
 							closeUpdateModal();
 						},
 						error : function(xhr, status, error) {
@@ -323,9 +330,9 @@
 	<!-- 댓글 좋아요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#likeButton', function() {
+		$(document).on("click", '.replyLike', function() {
 			var userId = userId;
-			var row = $(this).closest('tr');
+			var row = $(this).closest('div');
 			var recordNo = row.find('.recordNo').text();
 			var replyNo = row.find('.replyNo').text();
 			var logsType = 2;
@@ -345,6 +352,14 @@
 				success : function(response) {
 					console.log('21.좋아요 성공');
 					updateLikes(row, recordNo, replyNo, logsType);
+					
+				    if (button.hasClass('bi-hand-thumbs-up')) {
+				        likeIcon.removeClass('bi-hand-thumbs-up');
+				        likeIcon.addClass('bi-hand-thumbs-up-fill');
+				    } else {
+				        likeIcon.removeClass('bi-hand-thumbs-up-fill');
+				        likeIcon.addClass('bi-hand-thumbs-up');
+				    }
 				},
 				error : function(xhr, status, error) {
 					console.error('22.좋아요 실패');
@@ -359,14 +374,14 @@
 			replyNo : replyNo,
 			logsType : logsType
 		};
-		
 		$.ajax({
 			type : 'POST',
 			url : '/community/rest/getReactionLikeTotalCount',
 			contentType: 'application/json',
 			data : JSON.stringify(data),
 			success : function(likeCount) {
-				row.find('td').eq(6).text(likeCount);
+	            var likeCountElement = row.find('.likeCount'); 
+	            likeCountElement.text(likeCount); 
 			},
 			error : function(xhr, status, error) {
 				console.log("23.데이터 가져오기 실패");
@@ -379,9 +394,9 @@
 	<!-- 댓글 싫어요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#dislikeButton', function() {
+		$(document).on("click", '.replyDislike', function() {
 			var userId = userId;
-			var row = $(this).closest('tr');
+			var row = $(this).closest('div');
 			var recordNo = row.find('.recordNo').text();
 			var replyNo = row.find('.replyNo').text();
 			var logsType = 3;
@@ -400,6 +415,14 @@
 				success : function(response) {
 					console.log('24. 싫어요 성공');
 					updateDislikes(row, recordNo, replyNo, logsType);
+
+				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down');
+				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    } else {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
+				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    }					
 				},
 				error : function(xhr, status, error) {
 					console.error('25. 싫어요 실패');
@@ -420,7 +443,8 @@
 			contentType : 'application/json',
 			data : JSON.stringify(data),
 			success : function(dislikeCount) {
-				row.find('td').eq(8).text(dislikeCount);
+	            var dislikeCountElement = row.find('.dislikeCount'); 
+	            dislikeCountElement.text(dislikeCount); 
 			},
 			error : function(xhr, status, error) {
 				console.log("26. 데이터 가져오기 실패");
@@ -535,7 +559,15 @@
 		#replyText {
 			width : 100%;
 			resize : vertical;
-		}	
+		}
+		
+		.replyImageName {
+		    max-width: 100%; 
+		    max-height: 100%;
+		    height: auto; 
+		    width: auto; 
+		}		
+			
 	</style>
 	
 </head>
@@ -551,23 +583,23 @@
 						<div class="row">
 						<h6>
 							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-							<a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
+							<a th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
 							<span th:text="${reply.subscriptionEndDate}"></span>
 							<i class="bi bi-three-dots" style="float: right;"></i>
 						</h6>
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span>
-							<span th:text="${reply.replyImageName}"></span>
-							<span th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
-							<i class="bi bi-hand-thumbs-down" id="replyDislike" style="float: right; margin-left: 10px;"></i>
-							<span th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
-							<i class="bi bi-hand-thumbs-up" id="replyLike" style="float: right;"></i>
+							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
+							<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>
+							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
+							<i class="bi bi-hand-thumbs-up replyLike"  style="float: right;"></i>
 							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
 							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
 							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
 						</h4>
 						<h6>
-							<span th:text="${reply.replyDate}"></span>								
+							<span th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
 						</h6>
 						</div>
 					</div>
@@ -619,7 +651,7 @@
 		<!-- 댓글 수정 모달창 -->
 		<div class="updateModal" id="updateModal">
 			<div class="modal-dialog" role="document">
-				<div class="modal-content-update">
+				<div class="modal-content update">
 					<div class="modal-header">
 						<h5 class="modal-title">댓글수정</h5>
 						<button type="button" id="closeUpdateModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
