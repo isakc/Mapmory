@@ -65,6 +65,7 @@ import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
+
 @RestController
 @RequestMapping("/user/rest")
 public class UserRestController {
@@ -538,7 +539,7 @@ public class UserRestController {
     
     @GetMapping("/{type}/{uuid}")
     public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
-    	
+    	System.out.println("run");
     	byte[] bytes; 
     	switch(type) {
     	
