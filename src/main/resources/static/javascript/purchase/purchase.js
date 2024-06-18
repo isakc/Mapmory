@@ -42,7 +42,7 @@ function getPaymentMethod(paymentMethod) {
 }//getSubscriptionPaymentMethod: 결제수단 확인
 
 function getLastFourDigits(cardNumber) {
-	return cardNumber.slice(-4); // 마지막 4자리 반환
+	return cardNumber.slice(0, 4); // 마지막 4자리 반환
 }//getLastFourDigits: 카드번호 마지막 4자리 가져오기
 
 function getSubscriptionPG(selectedValue) {

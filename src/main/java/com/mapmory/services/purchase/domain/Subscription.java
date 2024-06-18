@@ -19,6 +19,7 @@ public class Subscription {
 	private int subscriptionNo;
 	private String userId;
 	private int nextSubscriptionPaymentMethod;
+	private String nextSubscriptionPaymentMethodString;
 	private String nextSubscriptionCardType;
 	private String nextSubscriptionLastFourDigits;
 	private LocalDateTime nextSubscriptionPaymentDate;

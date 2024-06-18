@@ -13,6 +13,9 @@
 			color: #fff;
 		}
 		
+		.full-height {
+            height: 85vh; /* Viewport height to fill the screen */
+        }
 	</style>
 	
 	<script src="/javascript/config/key.js"></script>
@@ -29,27 +32,25 @@
   	  const currentDate = getCurrentDate();
 	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
 	  const pg = getSubscriptionPG(selectedValue);
-	  const userId = /*[[${userId}]]*/ 'user3';
+	  const userId = $('input[name="userId"]').val();
         
         IMP.request_pay( // IMP.request_pay(param, callback) 호출
           {
             pg: pg,
-            merchant_uid: "update_"+"user7"+"_"+currentDate, // 빌링키 발급용 주문번호
-            customer_uid: "user7", // 카드(빌링키)와 1:1로 대응하는 값
+            merchant_uid: "update_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
+            customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
             name: "결제 수단 변경",
             amount: 0, // 0 으로 설정하여 할 시 빌링키만 발급
-            m_redirect_url: "index"
+            m_redirect_url: "/purchase/getDetailSubscription"
           },//빌링키 요청
 
           function (rsp) {
           	console.log(rsp);
-          	
-          	$('input[name="userId"]').val("user7");
+
             $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
             $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
             $('input[name="nextSubscriptionLastFourDigits"]').val(getLastFourDigits(rsp.card_number));
             $('input[name="customerUid"]').val(rsp.customer_uid);
-            $('input[name="merchantUid"]').val("subscription_" + userId + "_" + currentDate);
           	
           	if(rsp.success){ //빌링키 발급 성공
 
@@ -68,46 +69,46 @@
 	<div class="container mt-3">
 		<h1 class="fs-1 fw-bold text-center">구독 결제 수단 변경</h1>
 		
+		<div th:if="${ currentSubscription == null || currentSubscription.isSubscribed == false}" class="text-center full-height d-flex align-items-center justify-content-center">
+			<div>
+				<h1>현재 구독 중이 아닙니다!</h1>
+				
+				<p>
+					<a th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${productSubscription.productNo}) }" class="btn btn-primary">구독하러 가기</a>
+				</p>
+			
+			</div>
+        </div>
+        
+        <div th:if="${ currentSubscription != null && currentSubscription.isSubscribed == true}">
 		<form class="mt-5">
-			<input type="hidden" name="userId" value="user7" readonly>
+			<input type="hidden" name="userId" th:value="${currentSubscription.userId}" readonly>
         	<input type="hidden" name="nextSubscriptionPaymentMethod" readonly>
         	<input type="hidden" name="nextSubscriptionCardType" readonly>
         	<input type="hidden" name="nextSubscriptionLastFourDigits" readonly>
-        	<input type="hidden" name="nextSubscriptionPaymentDate" readonly>
-        	<input type="hidden" name="subscriptionStartDate" readonly>
-        	<input type="hidden" name="subscriptionEndDate" readonly>
         	<input type="hidden" name="customerUid" readonly>
-        	<input type="hidden" name="merchantUid" readonly>
 
 			<fieldset>
 				<div class="form-check mb-5">
-					<input class="form-check-input" type="radio" name="paymentMethod"
-						id="card" value="1"> <label class="form-check-label"
-						for="card"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/card.png"
-						alt="카드결제" />
-					</label>
+					<input class="form-check-input" type="radio" name="paymentMethod" id="card" value="1"> 
+					<label class="form-check-label" for="card"> <img src="/purchase/image/card.png" alt="카드결제" /> </label>
 				</div>
 
 				<div class="form-check mb-5">
-					<input class="form-check-input" type="radio" name="paymentMethod"
-						id="kakaopay" value="2"> <label class="form-check-label"
-						for="kakaopay"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/kakaopay.png"
-						alt="카카오페이" />
-					</label>
+					<input class="form-check-input" type="radio" name="paymentMethod" id="kakaopay" value="2">
+					<label class="form-check-label" for="kakaopay"> <img src="/purchase/image/kakaopay.png" alt="카카오페이" /> </label>
 				</div>
 
 				<div class="form-check mb-5">
-					<input class="form-check-input" type="radio" name="paymentMethod"
-						id="payco" value="3"> <label class="form-check-label"
-						for="payco"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/payco.png"
-						alt="페이코" />
-					</label>
+					<input class="form-check-input" type="radio" name="paymentMethod" id="payco" value="3">
+					<label class="form-check-label" for="payco"> <img src="/purchase/image/payco.png" alt="페이코" /> </label>
 				</div>
 			</fieldset>
 		</form>
 		
 		<div class="d-grid">
 			<button class="btn change-color fs-1" onclick="updatePaymentMethod()">결제 수단 변경</button>
+		</div>
 		</div>
 	</div>
 	</div>

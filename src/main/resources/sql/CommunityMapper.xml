@@ -101,7 +101,7 @@
 			<set> 
 				<if test = "replyText != null"> reply_text = #{replyText}, </if>
 				reply_image_name = #{replyImageName},
-				reply_update_date = current_timestamp
+				reply_update_date = CURRENT_TIMESTAMP
 			</set>   
 		WHERE reply_no = #{replyNo}
 	</update>
@@ -337,7 +337,7 @@
 	<!-- 좋아요한 댓글 목록 -->
 	<select id="getReplyLikeList" parameterType="search" resultMap="replySelectMap">
 		SELECT r.*,
-			(SELECT r2.record_title FROM record r2 WHERE r.record_no = r2.record_no) AS recordTitle
+			(SELECT r2.record_title FROM record r2 WHERE r.record_no = r2.record_no) AS record_title
 		FROM reply r
 		WHERE EXISTS
 			(SELECT 1 FROM community_logs l
