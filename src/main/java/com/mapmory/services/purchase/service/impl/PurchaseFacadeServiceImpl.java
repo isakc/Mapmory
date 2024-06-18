@@ -1,5 +1,7 @@
 package com.mapmory.services.purchase.service.impl;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,10 @@ public class PurchaseFacadeServiceImpl implements PurchaseFacadeService {
 		
 		if(subscriptionService.updatePaymentMethod(subscription)) {
 			if( subscriptionService.cancelSubscriptionPortOne(subscription.getUserId()) ) {
+				Subscription currentSubscription = subscriptionService.getDetailSubscription(subscription.getUserId());
 				
+				subscription.setNextSubscriptionPaymentDate(currentSubscription.getNextSubscriptionPaymentDate());
+				subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
 				return subscriptionService.schedulePay(subscription, product);
 			}else {
 				throw new SubscriptionException();

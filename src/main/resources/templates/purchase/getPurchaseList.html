@@ -6,6 +6,67 @@
 	
 	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
 	<link rel="stylesheet" href="/css/common/footer.css">
+	
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	<script>
+    	let currentPage = 1;
+   		let loading = false;
+    	let endOfData = false; 
+    
+		$(window).scroll(function() {
+        	if (!endOfData && !loading) {
+            	if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                	loading = true;
+                	currentPage++;
+                	loadMorePurchase();
+            	}
+        	}
+    	});
+		
+		function loadMorePurchase() {
+            $.ajax({
+                url: '/purchase/rest/getPurchaseList',
+                method: 'GET',
+                data: {
+                    currentPage: currentPage
+                },
+                success: function(response) {
+                    response.forEach(function(item) {
+                    	var formattedPrice = new Intl.NumberFormat('ko-KR', { style: 'decimal' }).format(item.price) + '원';
+                        let html =
+                    	`
+                    	<li class="list-group-item justify-content-between align-items-center border-0">
+                            <div class="card mb-3">
+                                <div class="card-header fs-3">결제완료</div>
+                                <div class="card-body">
+                                    <p class="card-text text-body-tertiary">${item.purchaseDateString} 결제</p>
+                                    <h4 class="card-title fs-3 fw-bold">${item.productTitle}</h4>
+                                    <p class="card-text fs-3 fw-bold">${formattedPrice}</p>
+                            		${item.paymentMethod !== 1 ? `<span class="card-text fs-3 fw-bold">${item.paymentMethodString}</span>` : ''}
+                                    ${item.paymentMethod === 1 ? `<span class="card-text fs-3 fw-bold">${item.cardType} ${item.lastFourDigits}</span>` : ''}
+                                </div>
+                            </div>
+                        </li>
+    					`;
+    					
+                        $('.list-group').append(html);
+                        loading = false;
+                        checkIfMoreContentNeeded(response.length);
+                    });
+                },
+                error: function() {
+                    console.log('Error occurred while loading more products.');
+                    loading = false;
+                }
+            });
+        } // loadMoreProducts
+
+        function checkIfMoreContentNeeded(dataLength) {
+            if (dataLength === 0) {
+                endOfData = true;
+            }
+        } // checkIfMoreContentNeeded
+	</script>
 </head>
 <body>
 	
@@ -22,7 +83,7 @@
     					<p class="card-text text-body-tertiary" th:text="${item.purchaseDateString} +'결제'"></p>
     					<h4 class="card-title fs-3 fw-bold" th:text="${item.productTitle}"></h4>
     					<p class="card-text fs-3 fw-bold" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|"></p>
-    					<span class="card-text fs-3 fw-bold" th:text="${item.paymentMethodString}"></span>
+    					<span class="card-text fs-3 fw-bold" th:if="${item.paymentMethod} != 1" th:text="${item.paymentMethodString}"></span>
     					<span class="card-text fs-3 fw-bold" th:if="${item.paymentMethod} == 1" th:text="${item.cardType} + ${item.lastFourDigits}"></span>
   					</div><!-- card-body -->
 				</div><!-- card -->

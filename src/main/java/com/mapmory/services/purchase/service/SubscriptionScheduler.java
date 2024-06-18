@@ -37,6 +37,7 @@ public class SubscriptionScheduler {
 	
 	private Subscription updateSubscription(Subscription subscription) {
         subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
+        subscription.setNextSubscriptionPaymentDate(LocalDateTime.now().plusMonths(1));
         
         return subscription;
     }//updateSubscription: merchantUid, 결제일, 구독 시작일, 구독 종료일 업데이트

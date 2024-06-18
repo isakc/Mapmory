@@ -101,7 +101,7 @@
     		p.user_id = #{searchKeyword}
     	ORDER BY
 			p.purchase_date DESC
-		LIMIT #{limit} OFFSET #{offset}
+		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
 	<select id="getPurchaseTotalCount" parameterType="search" resultType="int">
@@ -111,7 +111,7 @@
     		purchase
     	WHERE 
     		user_id = #{searchKeyword}
-		LIMIT #{limit} OFFSET #{offset}
+		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 	
 	<delete id="deletePurchase" parameterType="int">

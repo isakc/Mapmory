@@ -12,13 +12,16 @@
 			background-color: #03c75a;
 			color: #fff;
 		}
+		
+		.full-height {
+            height: 85vh; /* Viewport height to fill the screen */
+        }
 	</style>
 	
-	<script src="/javascript/config/key.js"></script>
-	<script src="/javascript/purchase/purchase.js"></script>
-	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+	<script src="/javascript/config/key.js"></script> <!-- key관련 JS -->
+	<script src="/javascript/purchase/purchase.js"></script> <!-- purchase 관련 유틸 JS -->
+	<script src="https://cdn.iamport.kr/v1/iamport.js"></script><!-- 결제 iamport JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOx"></script>
 	<script>
 	
       var IMP = window.IMP;
@@ -75,6 +78,8 @@
             function (rsp) {
             	console.log(rsp);
             	
+              	$('input[name="cardType"]').val(rsp.card_name);
+              	$('input[name="lastFourDigits"]').val(getLastFourDigits(rsp.card_number));
             	$('input[name="userId"]').val(userId);
                 $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
                 $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
@@ -98,10 +103,16 @@
 <body>
 	
 	<div id=content-for-footer>
-	<div th:if="${message != null}">
-		<span>현재 구독 중입니다!</span>
-		<a href="/purchase/getDetailSubscription">내 구독으로 가기</a>
-	</div>
+		<div th:if="${message != null}" class="text-center full-height d-flex align-items-center justify-content-center">
+			<div>
+				<h1>현재 구독 중입니다!</h1>
+				
+				<p>
+					<a href="/purchase/getDetailSubscription" class="btn btn-primary">내 구독으로 가기</a>
+				</p>
+			
+			</div>
+		</div><!-- 사용자가 현재 구독 중인 경우 나오는 div -->
 	
 	<div class="container mt-3" th:if="${message == null}">
 		<h1 class="fs-1 fw-bold text-center">결제하기</h1>
@@ -142,22 +153,22 @@
 					<fieldset>
 						<div class="form-check mb-5">
 							<input class="form-check-input" type="radio" name="paymentMethod" id="card" value="1">
-							<label class="form-check-label" for="card"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/card.png" alt="카드결제"/> </label>
+							<label class="form-check-label" for="card"> <img src="/purchase/image/card.png" alt="카드결제" /> </label>
 						</div>
 
 						<div class="form-check mb-5">
 							<input class="form-check-input" type="radio" name="paymentMethod" id="kakaopay" value="2">
-							<label class="form-check-label" for="kakaopay"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/kakaopay.png" alt="카카오페이"/> </label>
+							<label class="form-check-label" for="kakaopay"> <img src="/purchase/image/kakaopay.png" alt="카카오페이" /> </label>
 						</div>
 
 						<div class="form-check mb-5">
 							<input class="form-check-input" type="radio" name="paymentMethod" id="payco" value="3">
-							<label class="form-check-label" for="payco"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/payco.png" alt="페이코"/> </label>
+							<label class="form-check-label" for="payco"> <img src="/purchase/image/payco.png" alt="페이코" /> </label>
 						</div>
 						
 						<div class="form-check mb-5" th:if="${product.period == 0}">
 							<input class="form-check-input" type="radio" name="paymentMethod" id="tosspay" value="4">
-							<label class="form-check-label" for="tosspay"> <img src="https://bcuacdphgdfn24694507.cdn.ntruss.com/purchaseImage/tosspay.png" alt='토스페이'/> </label>
+							<label class="form-check-label" for="tosspay"> <img src="/purchase/image/tosspay.png" alt='토스페이'/> </label>
 						</div>
 					</fieldset>
 			</fieldset>
