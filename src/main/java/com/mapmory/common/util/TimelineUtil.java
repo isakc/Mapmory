@@ -54,6 +54,9 @@ public class TimelineUtil {
 	
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
+    
+    @Value("${cdn.url}")
+    private String cdnUrl;
 	
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
@@ -219,12 +222,16 @@ public class TimelineUtil {
 			String[] hashtagArr=hashtagText.replace(" ", "").split("#");
 			List<ImageTag> hashtagList=new ArrayList<ImageTag>();
 			for(int i=1;i<hashtagArr.length;i++) {
+				if(i<=20) {
+					if(hashtagArr[i].length()<=20) {
 					hashtagList.add(ImageTag
 						.builder()
 						.imageTagText("#"+hashtagArr[i])
 						.imageTagType(0)
 						.recordNo(recordNo)
 						.build());
+					}
+				}
 			}
 			return hashtagList;
 		}
@@ -271,6 +278,14 @@ public class TimelineUtil {
 	            return null;
 	        }
 	    }
+	    
+	    public static String updateCountToText(int updateCount) {
+			String text="";
+			if(updateCount==-1) text+="미기록";
+			if(updateCount==0) text+="기록됨";
+			if(updateCount>0) text+=updateCount+"번째 수정됨";
+	    	return text;
+	    }
 		
 		public Record imageNameToUrl(Record record) {
 			if (!(record.getImageName() == null)) {
@@ -290,8 +305,22 @@ public class TimelineUtil {
 			}
 			return record;
 		}
+
+		public String imageUrlToName(String imageUrl) {
+			if (!(imageUrl == null || imageUrl.equals(""))) {
+				imageUrl = imageUrl.replace(cdnUrl+imageFileFolder+"/","");
+			}
+			return imageUrl;
+		}
+
+		public String mediaUrlToName(String mediaUrl) {
+			if (!(mediaUrl == null || mediaUrl.equals(""))) {
+				mediaUrl = mediaUrl.replace(cdnUrl+mediaFileFolder+"/","");
+			}
+			return mediaUrl;
+		}
 		
-		public Record imageFileUpload(Record record,List<MultipartFile> imageFile) throws Exception {
+		public Record uploadImageFile(Record record,List<MultipartFile> imageFile) throws Exception {
 			List<ImageTag> imageName=new ArrayList<ImageTag>();
 			if( imageFile!=null && !imageFile.isEmpty() ) {
 				
@@ -319,7 +348,7 @@ public class TimelineUtil {
 			
 		}
 		
-		public Record mediaFileUpload(Record record,MultipartFile mediaFile) throws Exception {
+		public Record uploadMediaFile(Record record,MultipartFile mediaFile) throws Exception {
 
 			if (mediaFile.isEmpty() || mediaFile.getOriginalFilename() == null
 					|| mediaFile.getOriginalFilename().isEmpty()) {
@@ -332,6 +361,18 @@ public class TimelineUtil {
 
 			return record;
 			
+		}
+		
+		public void deleteImageFile(String imageName) throws Exception {
+			imageName = imageUrlToName(imageName);
+			objectStorageUtil.deleteFile(imageName, imageFileFolder);
+			System.out.println("deleteImageFile : "+ imageName);
+		}
+		
+		public void deleteMediaFile(String mediaName) throws Exception {
+			mediaName = mediaUrlToName(mediaName);
+			objectStorageUtil.deleteFile(mediaName, mediaFileFolder);
+			System.out.println("deleteImageFile : "+ mediaName);
 		}
 		
 	    public SingleMessageSentResponse sendOne(String toPhoneNumber, String text) {

@@ -26,11 +26,11 @@
     <div class="row">
     	<div class="form-check form-switch d-flex justify-content-end">
     		<div>
-				<span class="badge bg-primary" th:text="*{updateCount}+'번째 수정' "></span>
+				<span class="badge bg-primary" th:text="${updateCountText}"></span>
 				&nbsp &nbsp
 			</div> 
 			<div class="form-check form-switch">
-        		<input class="form-check-input" type="checkbox" id="sharedDateType" th:name="sharedDateType" th:checked="*{sharedDate!=null ? 'true' : 'false'}">
+        		<input class="form-check-input" type="checkbox" id="sharedDateType" th:name="sharedDateType" th:value="1" th:checked="*{sharedDate!=null ? 'true' : 'false'}">
         		<label class="badge bg-primary" for="sharedDateType" th:text="*{sharedDate!=null ? '공유됨' : '비공유'}"></label>
       		</div>
 		</div>
@@ -40,6 +40,10 @@
     	<label for="recordTitle" class="form-label mt-4" th:text="'제목'"></label>
     	<input type="text" class="form-control" th:field="*{recordTitle}" placeholder="제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.">
 		<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
+		<div id="recordTitleHelp3" class="d-none">
+			<small class="form-text text-muted" 
+			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+    	</div>
     </div>
 		
     <div class="row">
@@ -61,18 +65,20 @@
       <input type="text" class="form-control" th:field="*{checkpointAddress}" readonly="readonly" autocomplete="off">
     </div>
     <br/>
-    
+    <div id=mediaAppend></div>
     <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
 		<video width="320" height="240" controls>
         	<source th:src="${record.mediaName}" type="video/mp4">
     	</video>
-    	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" th:text="x"></button>
-		<span th:text="'영상 파일 이름 : _'+${record.mediaName}+'_'"></span>
+    	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" 
+    	th:data-medianame="${record.mediaName}" th:text="x"></button><br/>
+		<!-- <span th:text="'영상 파일 이름 : _'+${record.mediaName}+'_'"></span> -->
+	<small id="mediaNameHelp" class="form-text text-muted" th:text="'영상 파일은 1개만 업로드 가능합니다. 수정 시 삭제해주세요.'"></small>
     </div>
-    <div class="row">
+    <div class="row" th:if="${record.mediaName==null || record.mediaName.equals('')}"><!--  id="uploadMediaDiv" style="display: none;" -->
       <label for="mediaFile" class="form-label mt-4" th:text="'영상 파일'"></label>
       <input type="file" class="form-control" id="mediaFile" th:name="mediaFile" autocomplete="off">
-	<small id="mediaFileHelp" class="form-text text-muted" th:text="'200MB까지 업로드 가능합니다.'"></small>
+	<small id="mediaFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.'"></small>
     </div>
     
 	<div th:each="image : *{imageName}">
@@ -80,7 +86,8 @@
 		<img th:src="${image.imageTagText}" />
 		<!-- <span th:text="${image.imageTagText}"></span> -->
 		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
-		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" th:data-imagetagorder="${image.imageTagOrder}" th:text="x"></button>
+		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
+		th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>
     </div>
     </div>
     <div class="row">
@@ -95,12 +102,21 @@
 		placeholder="#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다." autocomplete="off">
 		<small id="hashtagTextHelp" class="form-text text-muted" 
 		th:text="'#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.'"></small>
+		<div id="hashtagTextHelp3" class="d-none">
+			<small class="form-text text-muted" 
+			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+    	</div>
     </div>
     
     <div class="row">
      	<label for="recordText" class="form-label mt-4" th:text="'텍스트'"></label>
      	<input type="text" class="form-control" th:field="*{recordText}" autocomplete="off">
-		<small id="recordTextHelp" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
+		<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : \\안녕\\'"></small>
+		<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
+		<div id="recordTextHelp3" class="d-none">
+			<small class="form-text text-muted" 
+			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+    	</div>
     </div>
     
 	</fieldset>
@@ -119,6 +135,170 @@
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script type="text/javascript">
+function updateLabel() {
+    const checkbox = document.getElementById('sharedDateType');
+    const label = document.querySelector('label[for="sharedDateType"]');
+
+    if (checkbox.checked) {
+        label.textContent = '공유됨';
+    } else {
+        label.textContent = '비공유';
+    }
+}
+
+//입력된 해시태그를 처리하는 함수
+function processHashtags() {
+    // 입력된 해시태그 텍스트 가져오기
+    var hashtagText = document.getElementById('hashtagText').value.trim();
+
+    // 첫 번째 문자가 #이 아닌 경우 처리
+    if (!hashtagText.startsWith('#')) {
+        alert("해시태그는 '#'로 시작해야 합니다.");
+        return false;
+    }
+
+    // 해시태그를 # 기준으로 분리하여 배열로 만듭니다
+    var hashtags = hashtagText.split('#').filter(Boolean); // Boolean을 사용하여 빈 문자열을 제거합니다
+
+    // 최대 입력 가능한 해시태그 개수는 20개입니다
+    if (hashtags.length > 20) {
+        alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
+        return false;
+    }
+
+    // 각 해시태그의 길이가 20자 이하인지 검사합니다
+    for (var i = 0; i < hashtags.length; i++) {
+        var hashtag = hashtags[i];
+        if (hashtag.length > 20) {
+            alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+            return false;
+        }
+    }
+
+    // 해시태그를 배열 형태로 처리하거나 필요한 로직을 추가할 수 있습니다
+    //console.log("처리된 해시태그 배열:", hashtags);
+
+    // 여기서 추가적으로 필요한 로직을 수행하거나 서버에 전송할 수 있습니다
+
+    return true; // 유효성 검사를 모두 통과했을 경우 true 반환
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.body.addEventListener('change', function(event) {
+        if (event.target && event.target.matches('#mediaFile')) {
+            const file = event.target.files[0];
+            const maxSize = 2 * 1024 * 1024; // 200MB in bytes
+            
+            if (file) {
+                const allowedExtensions = ['mp4', 'avi', 'mkv']; // 허용할 확장자 목록
+                const fileName = file.name;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                if (!allowedExtensions.includes(fileExtension)) {
+                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                    event.target.value = ''; // Clear the file input
+                }
+            }
+            
+            if (file && file.size > maxSize) {
+                alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+                event.target.value = ''; // Clear the file input
+            }
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('sharedDateType');
+    // 페이지가 로드될 때 초기 상태에 따라 라벨을 설정합니다.
+    updateLabel();
+
+    // 체크박스의 상태가 변경될 때마다 라벨을 업데이트합니다.
+    checkbox.addEventListener('change', updateLabel);
+});
+
+function validateFileCount() {
+    // 현재 페이지의 이미지 갯수를 가져옵니다.
+    const existingImages = document.querySelectorAll('input[name="imageNameText"]').length;
+    
+    // 선택된 파일 갯수를 가져옵니다.
+    const fileInput = document.getElementById('imageFile');
+    const selectedFiles = fileInput.files.length;
+
+    // 총 파일 갯수를 계산합니다.
+    const totalFiles = existingImages + selectedFiles;
+
+    // 총 파일 갯수가 9개를 넘는지 확인합니다.
+    if (totalFiles > 9) {
+        alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
+        fileInput.value = '';
+        return false;
+    }
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']; // 허용할 이미지 확장자 목록
+    
+    const fileInput = document.getElementById('imageFile');
+    fileInput.addEventListener('change', validateFileCount);
+
+    document.body.addEventListener('change', function(event) {
+        if (event.target && event.target.matches('#imageFile')) {
+            const files = event.target.files;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                if (!allowedExtensions.includes(fileExtension)) {
+                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                    event.target.value = ''; // Clear the file input
+                    break;
+                }
+            }
+        }
+    })
+});
+
+function badWord(text, idName){
+        //console.log('Space bar was pressed and released');
+        $.ajax("/timeline/rest/checkBadWord",{
+			method : "GET",
+			dataType : "json",
+			data : {
+				text : text
+			},
+			success : function(response,status){
+				if (response.badWord) {
+				    document.getElementById(idName).classList.replace('d-none', 'd-block');
+				} else {
+				    document.getElementById(idName).classList.replace('d-block', 'd-none');
+				}
+
+			},
+            error: function(xhr, status, error) {
+                alert('Error: ' + error);
+            }
+		})
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+	let text1 = $('input[name="recordText"]').val();
+    let idName1 = 'recordTextHelp3';
+    badWord(text1, idName1);
+
+    text2 = $('input[name="recordTitle"]').val();
+    idName2 = 'recordTitleHelp3';
+    badWord(text2, idName2);
+
+    text3 = $('input[name="hashtagText"]').val();
+    idName3 = 'hashtagTextHelp3';
+    badWord(text3, idName3);
+});
+
+
+
 $(function() {
 	
 	let recordNo=$('input[name="recordNo"]').val();
@@ -139,16 +319,27 @@ $(function() {
 	})
 	
 	$("button[name='mediaX']").click(function() {
+		let mediaName=$(this).data('medianame');
 			$.ajax("/timeline/rest/deleteMedia",{
 				method : "GET",
 				dataType : "json",
 				data : {
-					recordNo : recordNo
+					recordNo : recordNo,
+					mediaName : mediaName
 				},
 				success : function(response,status){
-					alert(JSON.stringify(response));
+					alert(response.text);
 					console.log(JSON.stringify(response));
 					$('div[name="mediaName"]').remove();
+					
+					let text=
+						'<div class="row">'
+						+'<label for="mediaFile" class="form-label mt-4">영상 파일</label>'
+				      	+'<input type="file" class="form-control" id="mediaFile" name="mediaFile" autocomplete="off">'
+						+'<small id="mediaFileHelp" class="form-text text-muted">'
+						+'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.</small>'
+				    	+'</div>';
+				    document.getElementById('mediaAppend').innerHTML += text;
 				},
                 error: function(xhr, status, error) {
                     alert('Error: ' + error);
@@ -159,15 +350,17 @@ $(function() {
 	
 	$("button[name='imageX']").click(function() {
 		let imageNo=$(this).data('imagetagorder');
-		console.log(imageNo);
+		let imageName=$(this).data('imagename');
+		//console.log(imageNo);
 		$.ajax("/timeline/rest/deleteImage",{
 			method : "GET",
 			dataType : "json",
 			data : {
-				imageNo : imageNo
+				imageNo : imageNo,
+				imageName : imageName
 			},
 			success : function(response,status){
-				alert(JSON.stringify(response));
+				alert(response.text);
 				console.log(JSON.stringify(response));
 				$('div[name="'+imageNo+'"]').remove();
 			},
@@ -177,6 +370,40 @@ $(function() {
 			
 		})
 	})
+	
+	$('input[name="recordText"]').on('keyup',function(event){
+		let text=$('input[name="recordText"]').val();
+		let idName='recordTextHelp3';
+		if (event.keyCode === 32 || event.keyCode === 8) {
+			badWord(text,idName);
+		}
+	})
+	
+	$('input[name="recordTitle"]').on('keyup',function(event){
+		let text=$('input[name="recordTitle"]').val();
+		let idName='recordTitleHelp3';
+		if (event.keyCode === 32 || event.keyCode === 8) {
+			badWord(text,idName);
+		}
+	})
+	
+	$('input[name="hashtagText"]').on('keyup',function(event){
+		
+		if (event.keyCode !== 32 || event.keyCode !== 8) {
+   			if(processHashtags()){
+    			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
+    		}else{
+    			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
+    		}
+		}
+		
+		let text=$('input[name="hashtagText"]').val();
+		let idName='hashtagTextHelp3';
+		if (event.keyCode === 32 || event.keyCode === 8) {
+			badWord(text,idName);
+		}
+	})
+	
 })
 </script>
 </body>

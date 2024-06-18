@@ -20,9 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.TimelineUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -52,6 +54,9 @@ public class TimelineRestController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
+	
+	@Autowired
+	private TimelineUtil timelineUtil;
 	
 	@Autowired
 	private ObjectStorageUtil objectStorageUtil;
@@ -84,12 +89,14 @@ public class TimelineRestController {
 	
 	@GetMapping("deleteImage")
 	public ResponseEntity<Map<String,Object>> deleteImage(
-			@RequestParam int imageNo,
+			@RequestParam(name = "imageNo", required = true) int imageNo,
+			@RequestParam(name = "imageName", required = true) String imageName,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
 		String text="";
 		int deleteSuccess=timelineService.deleteImage(imageNo);
 		if(deleteSuccess!=0) {
+			timelineUtil.deleteImageFile(imageName);
 			text+="사진 삭제 완료.";
 		}else {
 			text = "사진 삭제 실패.";
@@ -99,17 +106,29 @@ public class TimelineRestController {
 	}
 	
 	@GetMapping("deleteMedia")
-	public ResponseEntity<Map<String, Object>> deleteMedia(Map<String, Object> map,
-			@RequestParam(name = "recordNo", required = true) int recordNo) throws Exception, IOException {
+	public ResponseEntity<Map<String, Object>> deleteMedia(
+			@RequestParam(name = "recordNo", required = true) int recordNo,
+			@RequestParam(name = "mediaName", required = true) String mediaName,
+			Map<String, Object> map) throws Exception, IOException {
 		map = new HashMap<String, Object>();
 		String text="";
 		int deleteSuccess=timelineService.deleteMedia(recordNo);
 		if(deleteSuccess!=0) {
+			timelineUtil.deleteMediaFile(mediaName);
 			text = "영상 삭제 완료.";
 		} else {
 			text = "영상 삭제 실패.";
 		}
 		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("checkBadWord")
+	public ResponseEntity<Map<String, Object>> checkBadWord(
+			@RequestParam(name = "text", required = true) String text,
+			Map<String, Object> map) throws Exception, IOException {
+		map = new HashMap<String, Object>();
+		map.put("badWord", ContentFilterUtil.checkBadWord(text) );
 		return ResponseEntity.ok(map);
 	}
 	

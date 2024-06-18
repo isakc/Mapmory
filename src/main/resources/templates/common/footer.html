@@ -31,6 +31,7 @@
 
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
+<script type="text/javascript" th:src="@{//dapi.kakao.com/v2/maps/sdk.js(appkey=${apiKey})}"></script>
 <script type="text/javascript">
 $(function() {
 	$("img[name='타임라인']").on("click", function() {
@@ -39,11 +40,44 @@ $(function() {
 	
 	let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
 	let recordTitle = $('input[name="recordTitleOfFooter"]').val();
-	let latitude = $('input[name="latitudeOfFooter"]').val();
-	let longitude = $('input[name="longitudeOfFooter"]').val();
 	let checkpointAddress = $('input[name="checkpointAddressOfFooter"]').val();
-	/* $("a[href='#']:contains('체크포인트')").on("click", function() { */
 	$("img[name='체크포인트']").on("click", function() {
+		
+		if (navigator.geolocation) {
+		    
+		    // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+		    navigator.geolocation.getCurrentPosition(function(position) {
+		        
+		        var lat = position.coords.latitude; // 위도
+		        var lon = position.coords.longitude; // 경도
+		      });
+		    
+		} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+			let message = 'geolocation을 사용할수 없어요..'
+			alert(message);
+		}
+		
+		$.ajax("https://dapi.kakao.com/v2/local/geo/coord2address.",{
+			method : "GET",
+			dataType : "json",
+			headers : {
+				"Authorization" : "KakaoAK [[${REST_API_KEY}]]"
+			},
+			data : {
+				x : lon,
+				y : lat
+			},
+			success : function(response,status){
+				alert(response.text);
+				console.log(JSON.stringify(response));
+				$('div[name="'+imageNo+'"]').remove();
+			},
+            error: function(xhr, status, error) {
+                alert('Error: ' + error);
+            }
+			
+		})
+		
 			$.ajax("/timeline/rest/addTimeline",{
 				method : "POST",
 				dataType : "json",

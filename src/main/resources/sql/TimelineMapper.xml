@@ -253,6 +253,8 @@ FROM
 		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
 	</if>
 </trim>
+ORDER BY checkpoint_date ASC,
+checkpoint_date IS NULL DESC
 </sql>
 
 <select id="selectTimelineList" parameterType="search" resultMap="recordResultMap">

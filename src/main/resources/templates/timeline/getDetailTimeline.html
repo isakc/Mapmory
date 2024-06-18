@@ -18,7 +18,7 @@
  				<span th:text="${record.recordTitle}"></span>
  				<img/>
  				<span class="badge bg-primary" th:text="${record.categoryName}"></span>
- 				<span class="badge bg-primary" th:text="${record.updateCount}+'번째 수정됨'"></span>
+ 				<span class="badge bg-primary" th:text="${updateCountText}"></span>
  				<span class="badge bg-primary" th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span>
  			</h4>
     		<div class="card-text">
@@ -26,10 +26,12 @@
  				<span th:text="${record.checkpointDate}"></span><br/>
     			<span class="badge bg-primary" th:text="'주소'"></span>
  				<span th:text="${record.checkpointAddress}"></span><br/><br/>
+ 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
  				<video width="320" height="240" controls>
         			<source th:src="${record.mediaName}" type="video/mp4">
     			</video><br/>
 				<!-- <span th:text="${record.mediaName}"></span><br/> -->
+				</div>
 				<div th:each="image : ${record.imageName}">
 					<img th:src="${image.imageTagText}" /><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->

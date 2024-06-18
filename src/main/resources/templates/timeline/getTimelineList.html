@@ -132,9 +132,6 @@ body{margin-top:20px;}
     <a th:href="@{/timeline/getAdminCategoryList}" th:text="${'getAdminCategoryList'}"></a><br/>
     <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
     <a href="/timeline/getDetailTimeline3" th:text="${'getDetailTimeline3'}"></a><br/>
-    
-	<div th:include="timeline/component/tMap::tMap"></div>
-	
 
 			<div class="btn-group d-flex justify-content-end" role="group" aria-label="Button group with nested dropdown">
             	<div class="btn-group" role="group">
@@ -147,6 +144,7 @@ body{margin-top:20px;}
         			</div>
             	</div>
         	</div>
+	<div th:if="${!( timelineList==null || timelineList.isEmpty() )}" th:include="timeline/component/tMap::tMap"></div>
   	
 <div class="container">
 <div class="row">

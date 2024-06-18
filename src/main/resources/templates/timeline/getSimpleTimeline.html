@@ -36,7 +36,8 @@ $(function() {
 	
 	$("div[name='getKakaoMap']").click(function() {
 		let userId=$(this).data('userid');
-		uri="?userId="+userId;
+		let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
+		uri="?userId="+userId+"&selectDay="+selectDay;
 		self.location.replace("/timeline/getTimelineList"+uri);
 	})
 	
