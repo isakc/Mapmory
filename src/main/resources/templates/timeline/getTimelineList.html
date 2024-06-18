@@ -5,6 +5,7 @@
 	<title>Insert title here</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
+<link rel="stylesheet" href="/css/common/footer.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
 <style type="text/css">
 body{margin-top:20px;}
@@ -126,6 +127,7 @@ body{margin-top:20px;}
     </style>
 </head>
 <body>
+<div id=content-for-footer>
 	<h1 th:text="${'getTimelineList'}"></h1>
 	
     <a th:href="@{/timeline/getUserCategoryList}" th:text="${'getUserCategoryList'}"></a><br/>
@@ -195,6 +197,7 @@ body{margin-top:20px;}
 </div>
 </div>
 
+</div>
 <div th:include="common/footer::defaultFooter"></div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
