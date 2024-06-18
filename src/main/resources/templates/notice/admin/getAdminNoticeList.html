@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <title>공지사항</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .notice-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .notice-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box .form-group {
+            margin-right: 10px;
+        }
+
+        .search-box .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .search-box .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .notice-table {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .notice-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .notice-table td {
+            vertical-align: middle;
+        }
+
+        .notice-table .notice-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .notice-table .notice-reg-date {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .add-notice {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .add-notice .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .add-notice .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 30px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="notice-header">
+            <h2><i class="bi bi-megaphone"></i> 자주하는질문 목록</h2>
+        </div><!-- 검색창 -->
+        <div class="container">
+            <div class="search-box">
+                <form th:action="@{/notice/getAdminNoticeList}" method="get" class="input-group">
+                    <div class="form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
+                            </ul>
+                            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+                        </div>
+                    </div>
+                    <div class="form-group flex-grow-1">
+                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">검색</button>
+                </form>
+            </div>
+
+            <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
+                <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+            </form>
+
+            <table class="table table-hover notice-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70%;">제목</th>
+                        <th style="width: 30%;">작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="notice, status : ${noticeList}" scope="row">
+                        <td>
+                            <a class="notice-title" th:href="@{/notice/admin/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+                            <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+                        </td>
+                        <td th:text="${notice.noticeRegDate}" class="text-center"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="add-notice">
+                <a th:href="@{/notice/addNoticeOrFaq}" class="btn btn-primary">공지 추가</a>
+            </div>
+
+            <div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/notice/getAdminNoticeList')}"></div>
+        </div>
+
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                $('.dropdown-item').click(function(e) {
+                    e.preventDefault();
+                    var condition = $(this).data('condition');
+                    $('#searchCondition').val(condition);
+                    $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+                });
+            });
+        </script>
+</body>
+
+</html>

@@ -2,31 +2,42 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<!--  <script src="/javascript/common/modalScreen.js"></script>  -->
-	<!--  <link rel="stylesheet" href="/css/common/modalScreen.css">  -->
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link href="/css/user/profile-image.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/common/footer.css">
 	<title>프로필</title>
 	
 	<style>
-	
-	.showBlock {
-	  border: 2px solid red; /* 빨간색 실선 테두리 */
-	}
+
 		
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+		
+		.category {
+			display: flex;
+    		align-items: center;
+		}
 	</style>
+	
+	
 	
 	<script th:inline="javascript">
 	
+		const userId = [[${profile.user.userId}]];  // targetId
+	
 		$(function(){
-			
-			console.log([[${profile.user.profileImageName}]])
-			
+	
 			const myProfile = [[${myProfile}]];
 			const isFollow = [[${isFollow}]];
+			
+			console.log("내 프로필 : " + myProfile);
 			
 			if(myProfile == true || myProfile == "true") {
 				
 				$('#myProfile').css('display','block');
+				
 					
 			} else {
 				
@@ -45,11 +56,8 @@
 
 		});
 	
-		$(function() { 
-			
-			const userId = [[${profile.user.userId}]];
-			
-			console.log(userId);
+		$(function() { 	
+
 			$('#back').on('click', function() {
 				
 				// window.location.href="/timeline/getTimelineList?userId="+userId;
@@ -58,6 +66,7 @@
 			
 			$('#follow-list').on('click', function() {
 				
+				console.log("flag");
 				window.location.href="/user/getFollowList?userId="+userId;
 			});
 			
@@ -140,7 +149,7 @@
 			
 			$('#chat').on('click', function() {
 				
-				const sessionId = [[${sessionId}]];
+				const sessionId = `[[${sessionId}]]`;
 				
 				$.ajax({
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
@@ -166,82 +175,251 @@
 				});
 			});
 		});
-		
-		/* community getDetailSharedList.html참고
-		$(function() {
+
+		$(function(){
 			
-			$('#toggleButton').on('click', function() {
+			$('#sharedRecordList').css('display', 'block');
+			$('#replyList').css('display', 'none');
+			$('#bookMarkList').css('display', 'none');
+			$('#reactListDiv').css('display', 'none');
+			$('#reactRecordList').css('display', 'none');
+			$('#reactReplyList').css('display', 'none');
+			
+			$('#sharedRecordListBtn').on('click', function() {
 				
-				openModal();
+				$('#sharedRecordList').css('display', 'block');
+				$('#replyList').css('display', 'none');
+				$('#bookMarkList').css('display', 'none');
+				$('#reactListDiv').css('display', 'none');
+				
+				
+			});
+						
+			$('#replyListBtn').on('click', function() {
+							
+				$('#sharedRecordList').css('display', 'none');
+				$('#replyList').css('display', 'block');
+				$('#bookMarkList').css('display', 'none');
+				$('#reactListDiv').css('display', 'none');	
+				
+			});
+						
+			$('#bookMarkListBtn').on('click', function() {
+				
+				$('#sharedRecordList').css('display', 'none');
+				$('#replyList').css('display', 'none');
+				$('#bookMarkList').css('display', 'block');
+				$('#reactListDiv').css('display', 'none');	
+				
+			});
+			
+			$('#reactListBtn').on('click', function() {
+				
+				$('#sharedRecordList').css('display', 'none');
+				$('#replyList').css('display', 'none');
+				$('#bookMarkList').css('display', 'none');
+				$('#reactListDiv').css('display', 'block');
+				$('#reactRecordList').css('display', 'block');
+				$('#reactReplyList').css('display', 'none');
+				
+			});
+			
+			$('#reactRecordListBtn').on('click', function() {
+				
+				$('#sharedRecordList').css('display', 'none');
+				$('#replyList').css('display', 'none');
+				$('#bookMarkList').css('display', 'none');
+				$('#reactListDiv').css('display', 'block');
+				$('#reactRecordList').css('display', 'block');
+				$('#reactReplyList').css('display', 'none');
+				
+			});
+			
+			$('#reactReplyListBtn').on('click', function() {
+				
+				$('#sharedRecordList').css('display', 'none');
+				$('#replyList').css('display', 'none');
+				$('#bookMarkList').css('display', 'none');
+				$('#reactListDiv').css('display', 'block');
+				$('#reactRecordList').css('display', 'none');
+				$('#reactReplyList').css('display', 'block');
 				
 			});
 			
 		});
-		*/
+		
+		
+		$(function() {
+			
+			$('#reportUser').on('click', function(){
+				
+				const reportData = {
+						userId : [[${sessionId}]] ,
+						targetUserId : [[${profile.user.userId}]]
+				}
+				
+				sessionStorage.setItem('reportData', JSON.stringify(reportData));
+				
+				window.location.href="/community/addReport";
+				
+			});
+			
+			/* 사용자 차단하기
+			$('#blockUser').on('click', function(){
+				
+				$.ajax({
+			      url: "/community/rest/doReport",
+			      method: "POST",
+			      contentType:"application/json",
+			      data: JSON.stringify({
+			        targetId: userId
+			      }),
+			      success: function(response) {
+			        
+					if(response == true || response == "true") {
+						
+						$('#deleteFollow').css('display', 'block');
+						$('#addFollow').css('display', 'none');
+						
+						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
+						
+					} else {
+						
+						console.log('false');
+						alert('변경 실패...');
+						
+					}
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			      }
+			    });
+				
+			});
+			*/
+		});
 
 		</script>
 	
 </head>
 <body>
 	
-	<button type="button" id="back">뒤로 가기</button>
-	
-	<button type="button" id="toggleButton">=</button>
-
-	<ul class="profile-info">
-	  <li id="shared-list" class="showBlock">
-	    <span class="label">공유기록 수</span>
-	    <span class="value" th:text="${profile.totalSharedListCount}"></span>
-	  </li>
-	  <li id="follow-list" class="showBlock">
-	    <span class="label">팔로워</span>
-	    <span class="value" th:text="${profile.totalFollowCount}"></span>
-	  </li>
-	  <li id="follower-list" class="showBlock">
-	    <span class="label">팔로잉</span>
-	    <span class="value" th:text="${profile.totalFollowerCount}"></span>
-	  </li>
-	</ul>
-	
-	<h3>자기소개</h3>
-	<p th:text="${profile.user.introduction}"></p>
-
-	<div id="myProfile" style="display:none;">
-		<button type="button" id="updateProfile">내 프로필 수정</button>
-		<button type="button" id="myChatList">내 채팅 목록으로 이동</button>
-	</div>
-	<div id="otherProfile" style="display:none;">
-		<div>
-			<button type="button" id="deleteFollow" style="display:none;">언팔로우</button>
-			<button type="button" id="addFollow" style="display:none;">팔로우</button>
+	<div class="container mt-3" id="content-for-footer">
+		<div class="row">
+			<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+			<div class="col-10 mt-2">
+				<strong><span class="align-middle" th:text="${profile.user.nickname}"></span></strong>
+				<p th:if="${profile.isSubscribed == true}">☑️</p>
+			</div>
+			<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
 		</div>
-		<button type="button" id="chat">메세지 보내기</button>
-	</div>
-	
-
-	<!-- 현재 REST 지원 안됨. -->
-	<!-- 다음 주에 rest 지원 예쩡 -->
-	<button type="button" id="sharedRecordListBtn">공유한 기록</button>
-	<button type="button" id="replyListBtn">작성한 댓글</button>
-	<button type="button" id="bookMarkListBtn">즐겨찾기한 기록</button>
-	<button type="button" id="reactRecordListBtn">좋아요한 기록 목록</button>
-	<button type="button" id="reactReplyListBtn">좋아요한 댓글 목록</button>
-	
-	
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="sharedRecordList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="replyList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="bookMarkList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactRecordList"></div>
-	<div th:replace="~{/user/fragments/sharedList}" style="display:none;" id="reactReplyList"></div>	
-	
-	
-	<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${profile.user.profileImageName})}">
-	
-	
-	<!-- modal -->
-	<div id="toggle" class="modal">
 		
+		<div class="row row-cols-5 text-center">
+			<div class="profile-box col">
+				<img class="profile" alt="" th:src="@{/user/rest/profile/{uuid}(uuid=${profile.user.profileImageName})}">
+			</div>
 	
+			  <div id="shared-list" class="col">
+			  	<div class="mt-4">
+				    <span>sharing</span>
+				    <br/>
+				    <span class="value" th:text="${profile.totalSharedListCount}"></span>
+			    </div>
+			  </div>
+			  <div id="follow-list" class="col">
+			  	<div class="mt-4">
+		    		<span>follow</span>
+		    		<br/>
+		    		<span class="value" th:text="${profile.totalFollowCount}"></span>
+			    </div>
+			  </div>
+			  <div id="follower-list" class="col">
+			  	<div class="mt-4">
+				    <span>follower</span>
+				    <br/>
+			    	<span class="value" th:text="${profile.totalFollowerCount}"></span>
+			    </div>
+			  </div>
+	
+		</div>
+		
+		<p class="row mt-3" th:text="${profile.user.introduction}"></p>
+
+		<div id="myProfile" style="display:none;">
+			<div class="d-flex justify-content-evenly">
+				<button type="button" id="updateProfile" class="btn btn-info w-50">내 프로필 수정</button>
+				<button type="button" id="myChatList" class="btn btn-info w-50">나의 채팅</button>
+			</div>
+		</div>	
+		<div id="otherProfile" style="display:none;">
+			<div class="d-flex justify-content-evenly ">
+				<button type="button" id="deleteFollow" class="btn btn-info" style="display:none;">언팔로우</button>
+				<button type="button" id="addFollow" class="btn btn-info" style="display:none;">팔로우</button>
+				<button type="button" id="chat" class="btn btn-info">메세지 보내기</button>
+			</div>
+		</div>
+
+		<hr/>
+	
+		<!-- 현재 REST 지원 안됨. -->
+		<!-- 다음 주에 rest 지원 예쩡 -->
+		<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
+		<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
+		<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
+		<div class="row">
+			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한 기록</button>
+			<button class="col btn btn-light" type="button" id="replyListBtn">작성한 댓글</button>
+			<th:block th:if="${myProfile==true}">
+				<button class="col btn btn-light" type="button" id="bookMarkListBtn">즐겨찾기</button>
+			</th:block>
+			<button class="col btn btn-light" type="button" id="reactListBtn">좋아요 목록</button>
+		</div>
+		<hr/>
+		
+		
+		<div th:insert="~{/user/fragments/sharedList}" id="sharedRecordList"></div>
+		<div th:insert="~{/user/fragments/replyList}" id="replyList"></div>
+		<th:block th:if="${myProfile==true}">
+			<div th:insert="~{/user/fragments/bookMarkList}" id="bookMarkList"></div>
+		</th:block>
+		<div id="reactListDiv">
+			<div>
+				<button type="button" id="reactRecordListBtn" class="col btn btn-light">좋아요한 기록 목록</button>
+				<button type="button" id="reactReplyListBtn" class="col btn btn-light">좋아요한 댓글 목록</button>
+			</div>
+			<hr/>
+			<div th:insert="~{/user/fragments/reactRecordList}" id="reactRecordList"></div>
+			<div th:insert="~{/user/fragments/reactReplyList}" id="reactReplyList"></div>
+		</div>
+		
+		<!-- Modal -->
+		<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content text-center">
+		      <div class="modal-header">
+		        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+		      	  <th:block th:if="${myProfile == false}">
+				  <h2 class="fs-5" id="reportUser">사용자 신고하기</h2>
+				  <hr>
+				  <h2 class="fs-5" id="blockUser">사용자 차단하기</h2>
+				  </th:block>
+				  <th:block th:if="${myProfile == true}">
+					  <h2 class="fs-5">내 프로필 숨기기</h2>
+				  </th:block>
+				</div>
+		      <div class="modal-footer">
+		        
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

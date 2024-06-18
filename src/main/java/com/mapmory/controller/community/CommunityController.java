@@ -2,26 +2,24 @@ package com.mapmory.controller.community;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
-import com.mapmory.common.util.ImageFileUtil;
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.controller.timeline.TimelineController;
-import com.mapmory.services.community.domain.Reply;
-import com.mapmory.services.community.domain.Report;
+import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -39,55 +37,86 @@ public class CommunityController {
 	
     @Autowired
     private ObjectStorageUtil objectStorageUtil;	
+    
+    @Autowired
+    private RedisUtil<SessionData> redisUtil;
 	
 	@Value("${page.Unit}")
 	private int pageUnit;
 	
 	@Value("${page.Size}")
-	int pageSize;
+	private int pageSize;
 	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
-	TimelineController timelineController = new TimelineController();
+	@Value("${timeline.kakaomap.apiKey}")
+	private String apiKey;
 	
+	TimelineController timelineController = new TimelineController();
 	
 	//공유 기록 목록 조회
 	@GetMapping("/getSharedRecordList")
-	public String getSharedRecordList(Search search, Model model) throws Exception {
-		search = Search.builder()
-				.currentPage(1)
-				.limit(10)
-				.build();
+	public String getSharedRecordList(Search search, String userId, Model model, HttpServletRequest request) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);
+	    
 		model.addAttribute("sharedRecordlist",timelineService.getSharedRecordList(search));	
 		return "community/getSharedRecordList";
 	}
 	
 	//공유 기록 상세 조회
 	@GetMapping("/getDetailSharedRecord/{recordNo}")
-	public String getDetailSharedRecord(Model model, Search search, @PathVariable int recordNo) throws Exception{
-		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo));
+	public String getDetailSharedRecord(Search search, String userId, Model model, @PathVariable int recordNo, HttpServletRequest request) throws Exception{
+		
+		userId = redisUtil.getSession(request).getUserId();
+			
+		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    model.addAttribute("userId", userId);
+	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
+	    
+	    CommunityLogs communityLogs = CommunityLogs.builder()
+	    		.userId(userId)
+	    		.recordNo(recordNo)
+	    		.logsType(0)
+	    		.build();
+	    		
+	    communityService.addCommunityLogs(communityLogs);		
+	    
+	    System.out.println("model :"+model);
 		return "community/getDetailSharedRecord";
 	}
 
 	//댓글 목록 조회
 	@GetMapping("/getReplyList/{recordNo}")
-	public String getReplyList(Search search, @PathVariable int recordNo, Model model) throws Exception {
-		if(search == null) {
+	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+
 		search = Search.builder()
-				.currentPage(1)
-				.limit(10)
+				.userId(userId)
+				.currentPage(search.getCurrentPage())
+				.limit(search.getLimit())
 				.build();
-		}
+		
+		System.out.println("12 " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
 
+	    System.out.println("model :"+model);
+	    
 		return "community/getReplyList";
     }	
 	
@@ -107,16 +136,18 @@ public class CommunityController {
 	
 	//사용자 신고 목록 조회	
 	@GetMapping("/getUserReportList/{userId}")
-	public String getUserReportListt(Search search, @PathVariable String userId, Model model) throws Exception {
-		if(search == null) {
-			search = Search.builder()
-					.currentPage(1)
-					.limit(10)
-					.build();
+	public String getUserReportListt(@Param("search")Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
+    
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
 		}
 	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
-		userId = "user5";
+		System.out.println("테스트 : "+userId);
 		model.addAttribute("reportList",  reportList.get("list"));
 		model.addAttribute("totalCount", reportList.get("totalCount"));
 		
@@ -139,11 +170,11 @@ public class CommunityController {
 		
 		search.setPageSize(pageSize);
 		
-			Map<String, Object> allReportList = communityService.getAdminReportList(search);
+		Map<String, Object> allReportList = communityService.getAdminReportList(search);
 
-			model.addAttribute("allReportList", allReportList.get("list"));
-			model.addAttribute("totalCount", allReportList.get("totalCount"));
-			model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
+		model.addAttribute("allReportList", allReportList.get("list"));
+		model.addAttribute("totalCount", allReportList.get("totalCount"));
+		model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
 			
 			return "community/admin/getAdminReportList";
 	}

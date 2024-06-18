@@ -40,10 +40,13 @@ public interface CommunityService {
 	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
 
 	//커뮤니티 활동 삭제
-	public void deleteCommunityLogs(String userId, int recordNo, Integer replyNo) throws Exception;
+	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
 	//커뮤니티 로그 목록 조회
-	public Map<String, Object> getCommunityLogsList(Search search, String userId, int logsType) throws Exception;	
+	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;	
+	
+	//커뮤니티 로그 중복 체크
+	public void checkLog(CommunityLogs communityLogs) throws Exception;
 	
 	//신고 정보 가져가지
 	public void addReport(Report report) throws Exception;
@@ -66,6 +69,9 @@ public interface CommunityService {
 	//사용자 차단
 	public void addBlockUser(FollowBlock followBlock) throws Exception;
 	
+	//차단 업데이트
+	public void updateBlockUser(FollowBlock followBlock) throws Exception;
+	
 	//차단한 사용자 목록 조회
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception;
 	
@@ -74,6 +80,9 @@ public interface CommunityService {
 	
 	//사용자 차단해제
 	public void deleteBlockedUser(String userId, String targetId) throws Exception;
+	
+	//좋아요한 댓글 목록
+	public Map<String, Object> getReplyLikeList(Search search, String userId) throws Exception;
 	
 //	//기록 삭제 시 댓글 삭제
 //	public void deleteReplyByRecord(int recordNo) throws Exception;

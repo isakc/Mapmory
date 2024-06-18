@@ -1,30 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
 	<title>결제하기</title>
 	
-	<script src="/javascript/config/key.js"></script>
-	<script src="/javascript/purchase/purchase.js"></script>
-	<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
+	<link rel="stylesheet" href="/css/common/footer.css">
+	
+	<style>
+		.change-color{
+			background-color: #03c75a;
+			color: #fff;
+		}
+		
+		.full-height {
+            height: 85vh; /* Viewport height to fill the screen */
+        }
+	</style>
+	
+	<script src="/javascript/config/key.js"></script> <!-- key관련 JS -->
+	<script src="/javascript/purchase/purchase.js"></script> <!-- purchase 관련 유틸 JS -->
+	<script src="https://cdn.iamport.kr/v1/iamport.js"></script><!-- 결제 iamport JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 	<script>
+	
       var IMP = window.IMP;
       IMP.init(API_KEYS.imp);
-
+      
       function nomralRequestPay() {
     	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
+    	  const pg = getSubscriptionPG(selectedValue);
+    	  const price = $('input[name="price"]').val();
     	  const productTitle = $("#productTitle").val();
-    	  const price = $("#price").val()
     	  const currentDate = getCurrentDate();
-    	  const userId = /*[[${userId}]]*/ 'user1';
-    	  
+    	  const userId = $('input[name="userId"]').val();
+
           IMP.request_pay({
               pg: selectedValue == 1 ? 'html5_inicis' : getPaymentMethod(selectedValue),
               pay_method: getPaymentMethod(selectedValue),
               merchant_uid: "purchase_"+userId+"_"+currentDate,   // 주문번호
               name: $("#productTitle").val(),
               amount: price,              // 숫자 타입
+              m_redirect_url: "index"
           },
           function (rsp) { // callback
             console.log(rsp);
@@ -40,9 +57,12 @@
       } //nomralRequestPay
       
       function monthlyRequestPay() {
-    	  const currentDate = getCurrentDate();
     	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
     	  const pg = getSubscriptionPG(selectedValue);
+    	  const price = $('input[name="price"]').val();
+    	  const productTitle = $("#productTitle").val();
+    	  const currentDate = getCurrentDate();
+    	  const userId = $('input[name="userId"]').val();
     	  
           // IMP.request_pay(param, callback) 호출
           IMP.request_pay(
@@ -51,12 +71,15 @@
               merchant_uid: "billingKey_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
               customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
               name: "정기 구독 결제",
-              amount: 0 // 0으로 설정하여 할 시 빌링키만 발급
+              amount: 0, // 0으로 설정하여 할 시 빌링키만 발급
+              m_redirect_url: "index"
             },//빌링키 요청
 
             function (rsp) {
             	console.log(rsp);
             	
+              	$('input[name="cardType"]').val(rsp.card_name);
+              	$('input[name="lastFourDigits"]').val(getLastFourDigits(rsp.card_number));
             	$('input[name="userId"]').val(userId);
                 $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
                 $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
@@ -79,43 +102,27 @@
 </head>
 <body>
 	
-	<label for="productTitle">상품이름: </label>
-	<input type="text" id="productTitle" th:field="${product.productTitle}">
+	<div id=content-for-footer>
+		<div th:if="${message != null}" class="text-center full-height d-flex align-items-center justify-content-center">
+			<div>
+				<h1>현재 구독 중입니다!</h1>
+				
+				<p>
+					<a href="/purchase/getDetailSubscription" class="btn btn-primary">내 구독으로 가기</a>
+				</p>
+			
+			</div>
+		</div><!-- 사용자가 현재 구독 중인 경우 나오는 div -->
 	
-	<label for="price">Price</label>
-	<input type="number" name="price" th:field="${product.price}" readonly ><br><br>
-	
-	<label>Payment Method:</label><br>
-	
-	<div>
-		<input type="radio" name="paymentMethod" value="1">
-		<label for="paymentMethod">카드결제</label>
-	</div>
-	
-	<div>
-		<input type="radio" name="paymentMethod" value="2">
-		<label for="paymentMethod">카카오페이</label>
-	</div>
-	
-	<div>
-		<input type="radio" name="paymentMethod" value="3">
-		<label for="paymentMethod">페이코</label>
-	</div>
-	
-	<div th:if="${product.period == 0}">
-		<input type="radio" name="paymentMethod" value="4">
-		<label for="paymentMethod">토스페이</label>
-	</div>
-	
-	    	
-	<div>
-		<form id="subscriptionForm">
+	<div class="container mt-3" th:if="${message == null}">
+		<h1 class="fs-1 fw-bold text-center">결제하기</h1>
 		
-        	<input type="hidden" name="productNo" th:field="${product.productNo}">
+		<form>
+			<input type="hidden" name="productNo" th:value="${product.productNo}">
         	<input type="hidden" name="cardType">
         	<input type="hidden" name="lastFourDigits" >
         	<input type="hidden" name="purchaseDate">
-			<input type="hidden" name="price" th:value="${product.price}" readonly ><br><br>
+        	<input type="hidden" name="price" th:value="${product.price}">
 		
         	<input type="hidden" name="userId" th:value="${userId}" readonly>
         	<input type="hidden" name="nextSubscriptionPaymentMethod" readonly>
@@ -124,16 +131,59 @@
         	<input type="hidden" name="customerUid" readonly>
         	<input type="hidden" name="merchantUid" readonly>
         	
-    	</form>
-    	
-    	<div th:if="${product.period == 0}">
-			<button onclick="nomralRequestPay()">결제하기</button>
-		</div>
-    	
-    	<div th:if="${product.period == 30}">
-			<button onclick="monthlyRequestPay()">구독결제</button>
-		</div>
+			<fieldset>
+					<div class="row mb-3 align-items-center border-bottom">
+						<label for="productTitle" class="col-4 col-form-label fs-1 fw-bold ">상품명</label>
+						<div class="col-8">
+							<input type="text" readonly="" class="form-control-plaintext fs-1" 
+							id="productTitle" th:value="${product.productTitle}">
+						</div>
+					</div>
+
+					<div class="row mb-3 align-items-center border-bottom">
+						<label for="price" class="col-4 col-form-label fs-1 fw-bold">가격</label>
+						<div class="col-custom col-8">
+							<input type="text" readonly="" class="form-control-plaintext fs-1"
+								id="price" th:value="|${#numbers.formatInteger(product.price, 0, 'COMMA')}원|" />
+						</div>
+					</div>
+					
+					<h2 class="fs-1 fw-bold mb-5">결제 수단</h2>
+					
+					<fieldset>
+						<div class="form-check mb-5">
+							<input class="form-check-input" type="radio" name="paymentMethod" id="card" value="1">
+							<label class="form-check-label" for="card"> <img src="/purchase/image/card.png" alt="카드결제" /> </label>
+						</div>
+
+						<div class="form-check mb-5">
+							<input class="form-check-input" type="radio" name="paymentMethod" id="kakaopay" value="2">
+							<label class="form-check-label" for="kakaopay"> <img src="/purchase/image/kakaopay.png" alt="카카오페이" /> </label>
+						</div>
+
+						<div class="form-check mb-5">
+							<input class="form-check-input" type="radio" name="paymentMethod" id="payco" value="3">
+							<label class="form-check-label" for="payco"> <img src="/purchase/image/payco.png" alt="페이코" /> </label>
+						</div>
+						
+						<div class="form-check mb-5" th:if="${product.period == 0}">
+							<input class="form-check-input" type="radio" name="paymentMethod" id="tosspay" value="4">
+							<label class="form-check-label" for="tosspay"> <img src="/purchase/image/tosspay.png" alt='토스페이'/> </label>
+						</div>
+					</fieldset>
+			</fieldset>
+		</form>
 		
+		<div th:if="${product.period == 0}" class="d-grid">
+			<button class="btn change-color fs-1" onclick="nomralRequestPay()">결제</button>
+		</div>
+    	
+    	<div th:if="${product.period == 30}" class="d-grid">
+    		<button class="btn change-color fs-1" onclick="monthlyRequestPay()">구독결제</button>
+		</div>
 	</div>
+	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

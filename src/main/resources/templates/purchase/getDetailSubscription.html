@@ -1,23 +1,147 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8">
-	<title>구독 상세 정보</title>
+    <meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+    <title>구독 상세 정보</title>
+    
+    <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
+    <link rel="stylesheet" href="/css/common/modalScreen.css"> <!-- Bootstrap modal watch min.css -->
+    <link rel="stylesheet" href="/css/common/footer.css"> <!-- footer css -->
+    
+    <style>
+        .change-color {
+            background-color: #03c75a;
+            color: #fff;
+        }
+        
+        .change-unsub-color {
+            background-color: #fff;
+            color: #03c75a;
+        }
+        
+        .full-height {
+            height: 85vh; /* Viewport height to fill the screen */
+        }
+    </style>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script>
+		  function showModal(event) {
+	          event.preventDefault(); // 기본 동작을 막습니다.
+	          
+	          const href = event.target.href;
+	          $('#confirmModal').data('href', href).modal('show');
+	      }
+	  
+		  function confirmAction() {
+	            const href = $('#confirmModal').data('href');
+	            window.location.href = href;
+	        }
+	</script> <!-- 모달 관련 JS -->
 </head>
 <body>
-	<h1 th:text="${subscription.userId}"></h1>
-    <p>Subscription No: <span th:text="${subscription.subscriptionNo}"></span></p>
-    <p>Next Subscription Payment Method: <span th:text="${subscription.nextSubscriptionPaymentMethod}"></span></p>
-    <p>Next Subscription Card Type: <span th:text="${subscription.nextSubscriptionCardType}"></span></p>
-    <p>Next Subscription Last Four Digits: <span th:text="${subscription.nextSubscriptionLastFourDigits}"></span></p>
-    <p>Next Subscription Payment Date: <span th:text="${subscription.nextSubscriptionPaymentDate}"></span></p>
-    <p>Subscription Start Date: <span th:text="${subscription.subscriptionStartDate}"></span></p>
-    <p>Subscription End Date: <span th:text="${subscription.subscriptionEndDate}"></span></p>
-    <p>Is Subscribed: <span th:text="${subscription.isSubscribed}"></span></p>
-    <p>Customer UID: <span th:text="${subscription.customerUid}"></span></p>
-    <p>Merchant UID: <span th:text="${subscription.merchantUid}"></span></p>
+	<div id=content-for-footer>
+    <div class="container mt-3">
+        <h1 class="fs-1 fw-bold text-center">구독 조회</h1>
+        
+        <div class="card mb-3" th:if="${ subscription !=null && subscription.isSubscribed}">
+            <div class="card-header fs-1 fw-bold" th:text="${purchase.productTitle}"></div>
+            <div class="card-body p-0">
+                <div class="row mt-4">
+                    <label for="productTitle" class="col-4 fs-5 fw-bold">구독기간</label>
+                    <span class="card-text col-3 fs-5" th:text="${subscription.subscriptionStartDateString}"></span>
+                    <span class="col-1 fs-5">~</span>
+                    <span class="card-text col-3 fs-5" th:text="${subscription.subscriptionEndDateString}"></span>
+                </div>
+                
+                <div class="row mt-4">
+                    <label for="productTitle" class="col-4 fs-3 fw-bold">가격</label>
+                    <span class="card-text col-8 fs-3" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
+                </div>
+                
+                <div class="row mt-4">
+                    <label for="productTitle" class="col-4 fs-3 fw-bold">결제수단</label>
+                    <span class="card-text col-8 fs-3" th:if="${purchase != null && purchase.paymentMethod == 1}" 
+                    th:text="${purchase.cardType} + ${purchase.lastFourDigits}"></span>
+                    
+                    <span class="card-text col-8 fs-3" th:if="${purchase != null && purchase.paymentMethod != 1}" 
+                    th:text="${purchase.paymentMethodString}"></span>
+                </div>
+                
+            </div><!-- card-body -->
+        </div><!-- card -->
+        
+        <div class="card mb-3" th:if="${ subscription !=null && subscription.isSubscribed}">
+            <div class="card-header fs-3 fw-bold">다음 결제 예정</div>
+            <div class="card-body p-0" th:if="${subscription.nextSubscriptionPaymentDate != null}">
+            	<div class="row mt-4">
+                    <label for="productTitle" class="col-5 fs-3 fw-bold">결제예정일</label>
+                    <p class="card-text col-7 fs-3" th:text="${subscription.nextSubscriptionPaymentDateString}"></p>
+                </div>
+                
+                <div class="row mt-4">
+                    <label for="productTitle" class="col-5 fs-3 fw-bold">가격</label>
+                    <span class="card-text col-7 fs-3" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
+                </div>
+                
+                <div class="row mt-4">
+                    <label for="productTitle" class="col-5 fs-3 fw-bold">다음 결제</label>
+                    <p class="card-text col-7 fs-3" th:if="${subscription.nextSubscriptionPaymentMethod == 1}" 
+                    th:text="${subscription.nextSubscriptionCardType} + ${subscription.nextSubscriptionLastFourDigits}"></p>
+                    
+                    <p class="card-text col-7 fs-3" th:if="${subscription.nextSubscriptionPaymentMethod != 1}" 
+                    th:text="${subscription.nextSubscriptionPaymentMethodString}"></p>
+                </div>
+                
+            </div><!-- card-body -->
+            
+            <a href="/purchase/reSubscription" class="btn btn-primary" th:if="${subscription.nextSubscriptionPaymentDate == null}">다시 구독하기</a>
+        </div><!-- card -->
+        
+        <div th:if="${ subscription == null || subscription.isSubscribed == false}" class="text-center full-height d-flex align-items-center justify-content-center">
+			<div>
+				<h1>현재 구독 중이 아닙니다!</h1>
+				
+				<p>
+					<a th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${productSubscription.productNo}) }" class="btn btn-primary">구독하러 가기</a>
+				</p>
+			
+			</div>
+        </div>
+    </div>
+    
+    <div class="mt-5 d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">
+        <a href="/purchase/updatePaymentMethod" class="btn btn-dark change-color">결제수단 변경</a>
+    </div>
+    
+    <div class="d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">
+    	<a href="/purchase/cancelSubscription" class="btn btn-dark change-unsub-color" onclick="showModal(event)">구독해지</a>
+    </div>
 
-	<a href="/purchase/updatePaymentMethod">결제수단 변경 7</a>
-    <a href="/purchase/cancelSubscription">구독해지 7</a>
-</body>	
+	<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">구독 해지</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true"></span>
+					</button>
+				</div>
+				
+				<div class="modal-body">
+					<p>정기결제를 해지하시겠습니까?</p>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" onclick="confirmAction()">네</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">아니요</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
+</body>    
 </html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+	<title>구독 메뉴</title>
+	
+	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
+	<link rel="stylesheet" href="/css/common/footer.css">
+	
+	<style>
+		.full-size-link {
+        	display: flex;
+        	align-items: center;
+        	justify-content: center;
+        	width: 100%;
+        	height: 100%;
+        	text-align: center;
+      	}
+	</style>
+</head>
+<body>
+	<div id=content-for-footer>
+	<div class="container mt-3 text-center">
+		<h1 class="fs-1 fw-bold">구독 메뉴</h1>
+		
+		<ul class="list-group mt-5">
+			<li class="list-group-item justify-content-between align-items-center border-start-0 border-end-0">
+				<a class="btn btn-outline-dark btn-lg border-0 fs-1 fw-bold full-size-link" th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${subscription.productNo}) }">구독하기</a>
+			</li>
+			
+			<li class="list-group-item justify-content-between align-items-center border-start-0 border-end-0">
+				<a class="btn btn-outline-dark btn-lg border-0 fs-1 fw-bold full-size-link" href="/purchase/getDetailSubscription">내 구독 조회</a>
+			</li>
+			
+			<li class="list-group-item justify-content-between align-items-center border-start-0 border-end-0">
+				<a class="btn btn-outline-dark btn-lg border-0 fs-1 fw-bold full-size-link" href="/purchase/getSubscriptionList">구독 내역</a>
+			</li>
+			
+			<li class="list-group-item justify-content-between align-items-center border-start-0 border-end-0">
+				<a class="btn btn-outline-dark btn-lg border-0 fs-1 fw-bold full-size-link" href="/purchase/updatePaymentMethod">결제 수단 변경</a>
+			</li>
+		</ul>
+	</div>
+	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
+</body>	
+</html>

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.PurchaseUtil;
 import com.mapmory.exception.purchase.PaymentValidationException;
 import com.mapmory.services.purchase.dao.PurchaseDao;
 import com.mapmory.services.purchase.domain.Purchase;
@@ -77,10 +78,13 @@ public class PurchaseServiceImpl implements PurchaseService {
 	@Override
 	public List<PurchaseDTO> getPurchaseList(Search search) throws Exception {
 		List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+   	 	search.setOffset(offset);
 
 		for (PurchaseDTO purchase : purchaseList) {
-			purchase.setPurchaseDateString(purchase.getPurchaseDate().format(formatter));
+			purchase.setPaymentMethodString(PurchaseUtil.paymentChange(purchase.getPaymentMethod()));
+			purchase.setPurchaseDateString(PurchaseUtil.purchaseDateChange(purchase.getPurchaseDate()));
 		}
 
 		return purchaseList;
@@ -113,4 +117,13 @@ public class PurchaseServiceImpl implements PurchaseService {
 		
 		return purchaseDao.deletePurchase(purchaseNo) == 1;
 	}// deletePurchase: 구매 삭제
+
+	@Override
+	public PurchaseDTO getSubscriptionPurchase(Purchase purchase) throws Exception {
+		PurchaseDTO subscriptionPurchase = purchaseDao.getSubscriptionPurchase(purchase);
+
+		subscriptionPurchase.setPaymentMethodString(PurchaseUtil.paymentChange(subscriptionPurchase.getPaymentMethod()));
+		
+		return subscriptionPurchase;
+	}
 }

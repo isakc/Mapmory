@@ -183,13 +183,21 @@ public class UserServiceImpl implements UserService {
 		}
 		*/
 		
-
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
 		userId="user2";
 		userPassword="password2";	
 		updatePassword(userId, userPassword);
+		userId="user3";
+		userPassword="password3";	
+		updatePassword(userId, userPassword);
+		userId="user4";
+		userPassword="password4";	
+		updatePassword(userId, userPassword);
+		userId="user7";
+		userPassword="password7";	
+		updatePassword(userId, userPassword);			
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
@@ -581,6 +589,7 @@ public class UserServiceImpl implements UserService {
 					
 				} else {
 					contents.append(nextLine).append("\n");
+					// contents.append(nextLine).append("<br/>");
 				}
 			}
 
@@ -734,6 +743,19 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}	
 
+	@Override
+	public boolean updateFollowToBlock(String myUserId, String targetId) {
+		
+		FollowBlock follow = FollowBlock.builder()
+				.userId(myUserId)
+				.targetId(targetId)
+				.build();
+		
+		int result = userDao.updateFollowToBlock(follow);
+		
+		return intToBool(result);
+	}
+	
 	@Override
 	public boolean deleteFollow(String userId, String targetId) {
 		// TODO Auto-generated method stub
@@ -981,7 +1003,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException {
 		
-		long userCode = Integer.parseInt(googleUserOtpCheck.getUserCode());
+		int userCode = googleUserOtpCheck.getUserCode();
 		String encodedKey = googleUserOtpCheck.getEncodedKey();
 		
 		long I = new Date().getTime();
@@ -1067,47 +1089,86 @@ public class UserServiceImpl implements UserService {
 	
 	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
 
+		/*
 		// Parameter로 전달할 속성들 추가
-	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-	    params.add("client_id", clientId);
-	    params.add("client_secret", clientSecret);
-	    params.add("code", code);
-	    params.add("grant_type","authorization_code");
-	    params.add("redirect_uri", redirectUri);
+	    Map<String, String> params = new HashMap<>();
+	    params.put("grant_type","authorization_code");
+	    params.put("client_id", clientId);
+	    params.put("client_secret", clientSecret);
+	    params.put("code", code);
+	    params.put("redirect_uri", redirectUri);
 	    
-	    /// get access token
-	    // Http 메시지 생성
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
 	    
-	    System.out.println(googleTokenRequest);
-	    
+	    URL url = new URL(googleTokenRequestUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        conn.setDoOutput(true);
 
-	    // TOKEN_REQUEST_URL로 Http 요청 전송
-	    RestTemplate rt = new RestTemplate();
-	    ResponseEntity<String> tokenResponse = rt.exchange(
-	            googleTokenRequestUrl,
-	            HttpMethod.POST,
-	            googleTokenRequest,
-	            String.class
-	    );
+        // 파라미터 문자열 생성
+        StringBuilder postData = new StringBuilder();
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            if (postData.length() != 0) postData.append('&');
+            postData.append(param.getKey());
+            postData.append('=');
+            postData.append(param.getValue());
+        }
 
-	    /*
-	    // ObjectMapper를 통해 GoogleResponse 객체로 매핑
- 		ObjectMapper objectMapper = new ObjectMapper();
- 		GoogleToken googleToken = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
- 	    
- 	    String[] chunks = googleToken.getId_token().split("\\.");
- 	    
- 	    Base64.Decoder decoder = Base64.getUrlDecoder();
- 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
- 	    
-		GoogleJwtPayload payload = objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
-		return payload;
-		*/
+        // 파라미터 전송
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = postData.toString().getBytes("UTF-8");
+            os.write(input, 0, input.length);
+        }
+
+        // 응답 읽기
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuilder res = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            res.append(inputLine);
+        }
+        in.close();
 	    
-	    return null;
+	    System.out.println(res);
+        */
+		
+		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
+		
+		/*
+		GoogleToken token = userService.getGoogleToken(code);
+		System.out.println(token);
+		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
+
+		
+		
+		
+		String googleId = payload.getSub();
+		String userId = userService.getUserIdBySocialId(googleId);
+		
+		if(userId == null) {
+			
+			String uuid = UUID.randomUUID().toString();
+        	String keyName = "g-"+uuid;
+            redisUtilString.insert(keyName, googleId, 10L); 
+            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
+            response.addCookie(cookie);
+	    	
+	    	// model.addAttribute("googleId", googleId);
+	    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    	
+		} else {
+	    	
+	    	User user = userService.getDetailUser(userId);
+        	byte role=user.getRole();
+        	
+	    	acceptLogin(userId, role, response, false);
+	    	return "redirect:/map";
+	    	
+	    }
+				*/
+		
+		return null;
 	}
 	
 	///////////////////////////////////////////////////////////////////////

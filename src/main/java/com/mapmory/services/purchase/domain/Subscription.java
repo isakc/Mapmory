@@ -19,11 +19,15 @@ public class Subscription {
 	private int subscriptionNo;
 	private String userId;
 	private int nextSubscriptionPaymentMethod;
+	private String nextSubscriptionPaymentMethodString;
 	private String nextSubscriptionCardType;
 	private String nextSubscriptionLastFourDigits;
 	private LocalDateTime nextSubscriptionPaymentDate;
+	private String nextSubscriptionPaymentDateString;
 	private LocalDateTime subscriptionStartDate;
+	private String subscriptionStartDateString;
 	private LocalDateTime subscriptionEndDate;
+	private String subscriptionEndDateString;
 	private boolean isSubscribed;
 	private String customerUid;
 	private String merchantUid;

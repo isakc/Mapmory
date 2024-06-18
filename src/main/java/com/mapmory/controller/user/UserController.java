@@ -102,6 +102,31 @@ public class UserController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	@Value("${kakao.client.Id}")
+    private String kakaoClientId;
+    
+    @Value("${kakao.redirect.uri}")
+    private String kakaoRedirectUri;
+    
+    @Value("${naver.client.id}")
+	private String naverClientId;
+    
+    @Value("${naver.client.secret}")
+	private String naverClientSecret;
+    
+	@Value("${naver.redirect.uri}")
+	private String naverRedirectUri;
+    
+	@Value("${naver.token.request.url}")
+	private String naverTokenRequestUrl;
+	
+	@Value("${naver.profile.request.url}")
+	private String profileRequestUrl;
+	
+	@Value("${naver.state}")
+	private String naverState;
+	
+	/*
 	@Value("${google.client.id}")
 	private String clientId;
 	
@@ -113,7 +138,8 @@ public class UserController {
 
 	@Value("${google.redirect.uri}")
 	private String googleTokenRequestUrl;
-
+	*/
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -206,15 +232,19 @@ public class UserController {
 	
 
 	@GetMapping("/getSecondaryAuthView")
-	public void getSecondaryAuthView(Model model, HttpServletRequest request, @RequestParam String userId) {
+	public void getSecondaryAuthView() {
 		
 		// login interceptor에서 직접 접근하는 것을 막아야 함
-		
+		/*
 		Cookie cookie = findCookie("SECONDARYAUTH", request);
+		if(cookie == null) 
+			return "redirect:/";
+		*/
+		
 		// Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
 		// String userId = map.get("userId");
 		
-		model.addAttribute("userId", userId);
+		// model.addAttribute("userId", userId);
 	}
 	
 	@GetMapping("/getUserInfo")
@@ -223,7 +253,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/getProfile")
-	public void getProfile(HttpServletRequest request, @RequestParam(required=false) String userId, Model model) throws Exception {
+	public void getProfile(HttpServletRequest request, @RequestParam String userId, Model model) throws Exception {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 
@@ -301,17 +331,22 @@ public class UserController {
 	}
 
 	@GetMapping("/getUpdateProfileView")
-	public void getUpdateProfileView(Model model) throws Exception {
+	public void getUpdateProfileView(Model model, HttpServletRequest requset) throws Exception {
 		
-		String userId = "user1";
+		String userId = redisUtil.getSession(requset).getUserId();
 		
 		User user = userService.getDetailUser(userId);
 		
 		// String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
 		
+		/*
 		ByteArrayResource cdnPath = objectStorageUtil.getImageResource(user.getProfileImageName(), PROFILE_FOLDER_NAME);
+		System.out.println(cdnPath);
 		
 		model.addAttribute("profileImage", cdnPath);
+		*/
+		
+		model.addAttribute("user",user );
 		
 	}
 
@@ -405,86 +440,27 @@ public class UserController {
 	@RequestMapping("/google/auth/callback")
 	public void googleLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
 
-		System.out.println("code : " + code);
+		// System.out.println("code : " + code);
 		
-		/*
-		// Parameter로 전달할 속성들 추가
-	    Map<String, String> params = new HashMap<>();
-	    params.put("grant_type","authorization_code");
-	    params.put("client_id", clientId);
-	    params.put("client_secret", clientSecret);
-	    params.put("code", code);
-	    params.put("redirect_uri", redirectUri);
-	    
-	    
-	    URL url = new URL(googleTokenRequestUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-        conn.setDoOutput(true);
-
-        // 파라미터 문자열 생성
-        StringBuilder postData = new StringBuilder();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            if (postData.length() != 0) postData.append('&');
-            postData.append(param.getKey());
-            postData.append('=');
-            postData.append(param.getValue());
-        }
-
-        // 파라미터 전송
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = postData.toString().getBytes("UTF-8");
-            os.write(input, 0, input.length);
-        }
-
-        // 응답 읽기
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuilder res = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            res.append(inputLine);
-        }
-        in.close();
-	    
-	    System.out.println(res);
-        */
+		 userService.getGoogleProfie(code);
+	}
+	
+	@GetMapping("/getNaverLoginView")
+	public String getNaverLoginView() {
 		
-		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
+		String naverAuthUrl = "https://nid.naver.com/oauth2.0/authorize?client_id="+naverClientId+"&redirect_url="+naverRedirectUri+"&response_type=code&state="+naverState;
 		
-		/*
-		GoogleToken token = userService.getGoogleToken(code);
-		System.out.println(token);
-		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
-
+		return "redirect:"+naverAuthUrl;
 		
+	}
+	
+	@GetMapping("/getGoogleLoginView")
+	public String getGoogleLoginView() {
 		
+		String googleAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
 		
-		String googleId = payload.getSub();
-		String userId = userService.getUserIdBySocialId(googleId);
+		return "redirect:"+googleAuthUrl;
 		
-		if(userId == null) {
-			
-			String uuid = UUID.randomUUID().toString();
-        	String keyName = "g-"+uuid;
-            redisUtilString.insert(keyName, googleId, 10L); 
-            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
-            response.addCookie(cookie);
-	    	
-	    	// model.addAttribute("googleId", googleId);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
-		} else {
-	    	
-	    	User user = userService.getDetailUser(userId);
-        	byte role=user.getRole();
-        	
-	    	acceptLogin(userId, role, response, false);
-	    	return "redirect:/map";
-	    	
-	    }
-				*/
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -597,6 +573,16 @@ public class UserController {
             throw new Exception(e.getMessage());
         }
     }
+	
+	
+	@GetMapping("/getKakaoLoginView")
+	public String getKakaoLoginView() {
+		
+		String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
+		
+		return "redirect:"+kakaoAuthUrl;
+		
+	}
 
 	/*
 	// redis에 맞게 session 방식 변경 필요

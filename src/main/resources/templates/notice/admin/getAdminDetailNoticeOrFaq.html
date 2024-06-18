@@ -3,17 +3,147 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>상품 상세</title>
+    <title>공지사항 상세</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 36px;
+        }
+
+        .product-detail {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .product-detail h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .product-detail p {
+            color: #6c757d;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .action-links {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .action-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .action-links a:hover {
+            background-color: #0056b3;
+        }
+
+        .modal-header {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            font-size: 18px;
+        }
+
+        .modal-footer .btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+
+        .action-links a.delete-link {
+            background-color: #dc3545;
+        }
+
+        .action-links a.delete-link:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>상품 상세</h1>
-    <div>
-        <h2 th:text="${notice.noticeTitle}">상품 제목</h2>
-        <p th:text="${notice.noticeText}">가격</p>
-        <a th:href="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}">수정</a>
-        <a th:href="@{/notice/deleteNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+    <div class="container">
+        <h1>공지사항 상세</h1>
+        <div class="product-detail">
+            <h2 th:text="${notice.noticeTitle}">공지사항 제목</h2>
+            <p th:text="${notice.noticeText}">공지사항 내용</p>
+            <div class="action-links">
+                <a th:href="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}">수정</a>
+                <a class="delete-link" data-toggle="modal" data-target="#confirmDeleteModal">삭제</a>
+            </div>
+        </div>
+    </div><!-- 삭제 확인 모달 창 -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">삭제 확인</h5>
+                </div>
+                <div class="modal-body">
+                    <p>정말로 삭제하시겠습니까?</p>
+                </div>
+                <div class="modal-footer">
+                    <a th:href="@{/notice/deleteNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" class="btn btn-danger">삭제</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.min.js"></script>
+
+    <!-- 모달 관련 스크립트 -->
+    <script>
+        $(document).ready(function() {
+            $('.delete-link').click(function() {
+                $('#confirmDeleteModal').modal('show');
+            });
+
+            $('#confirmDeleteModal .btn-secondary').click(function() {
+                $('#confirmDeleteModal').modal('hide');
+            });
+        });
+    </script>
 </body>
 
 </html>

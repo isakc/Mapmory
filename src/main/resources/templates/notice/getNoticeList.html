@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .notice-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            /* 수정: 왼쪽과 오른쪽 정렬 */
+            align-items: center;
+            /* 세로 방향 가운데 정렬 */
+        }
+
+        .notice-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            /* 수정: inline-flex 제거 */
+            align-items: center;
+            /* 아이콘과 텍스트를 세로 방향으로 가운데 정렬 */
+        }
+
+        .notice-header .icon-wrapper {
+            margin-right: 10px;
+            /* 아이콘과 텍스트 사이의 간격 설정 */
+        }
+
+        .notice-header .icon-wrapper i {
+            font-size: 24px;
+            /* 아이콘 사이즈 조정 */
+        }
+
+        .notice-header a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .notice-table {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .notice-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .notice-table td {
+            vertical-align: middle;
+        }
+
+        .notice-table .notice-reg-date {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-box .form-group {
+            margin-right: 10px;
+        }
+
+        .search-box .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .search-box .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .notice-content-row {
+            background-color: #f8f9fa;
+        }
+
+        .notice-content-row td {
+            padding: 20px;
+        }
+
+        .bi-caret-down-fill,
+        .bi-caret-up-fill {
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        @media (max-width: 576px) {
+
+            .notice-table th,
+            .notice-table td {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id=content-for-footer>
+        <div class="container">
+            <div class="notice-header">
+                <div class="icon-wrapper">
+                    <a th:href="@{/notice/noticeMenu}">
+                        <i class="bi bi-chevron-left"></i> <!-- 수정된 부분: Bootstrap Icons 클래스 추가 -->
+                    </a>
+                </div>
+                <h2><i class="bi bi-question-octagon-fill"></i> 공지사항 목록</h2>
+                <div></div> <!-- 빈 div 추가 -->
+            </div>
+            <div class="search-box">
+                <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
+                    <div class="form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
+                            </ul>
+                            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+                        </div>
+                    </div>
+                    <div class="form-group flex-grow-1">
+                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">검색</button>
+                </form>
+            </div>
+
+            <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
+                <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+            </form>
+
+            <table class="table table-hover notice-table">
+                <thead>
+                    <tr>
+                        <th>제목</th>
+                        <th>자세히보기</th>
+                    </tr>
+                </thead>
+                <tbody class="notice-list">
+                    <!-- Thymeleaf 반복문을 사용하여 초기 데이터 로드 -->
+                    <tr th:each="notice, status : ${noticeList}">
+                        <td>
+                            <div>
+                                <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+                                <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
+                            <input type="hidden" th:value="${notice.noticeNo}">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="common/footer::defaultFooter"></div>
+    <script th:inline="javascript">
+        let currentPage = 2; // 초기 페이지 설정
+        let loading = false;
+        let endOfData = false; // 데이터를 모두 로드했는지 확인하는 변수
+        let isSearchActive = false; // 검색 활성화 여부 확인 변수
+
+        $(document).ready(function() {
+            loadMoreNotices();
+        });
+
+        $(window).scroll(function() {
+            if (!endOfData && !loading && !isSearchActive) {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    loading = true;
+                    currentPage++;
+                    loadMoreNotices();
+                }
+            }
+        });
+
+        function loadMoreNotices() {
+            $.ajax({
+                url: '/rest/notice/getNoticeList',
+                method: 'GET',
+                data: {
+                    currentPage: currentPage
+                },
+                success: function(response) {
+                    let html = '';
+                    response.noticeList.forEach(function(notice) {
+                        html += '<tr>';
+                        html += '<td><a href="/notice/getDetailNotice/' + notice.noticeNo + '">' + notice.noticeTitle + '</a>';
+                        html += '<div class="notice-reg-date">' + formatDate(notice.noticeRegDate) + '</div></td>';
+                        html += '<td class="text-center">';
+                        html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>'; // id를 고유하게 변경
+                        html += '<input type="hidden" value="' + notice.noticeNo + '">';
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+                    $('.notice-list').append(html);
+                    loading = false;
+                    checkIfMoreContentNeeded(response.noticeList.length);
+                    bindToggleEvent(); // 추가된 목록에 이벤트 바인딩
+                },
+                error: function() {
+                    console.log('Error occurred while loading more notices.');
+                    loading = false;
+                }
+            });
+        }
+
+        function checkIfMoreContentNeeded(dataLength) {
+            if (dataLength === 0) {
+                endOfData = true;
+            }
+        }
+
+        function bindToggleEvent() {
+            $(".notice-list").find(".bi-caret-down-fill").off("click").on("click", function() {
+                var noticeNo = $(this).next().val();
+                var $tr = $(this).closest("tr");
+                var $nextTr = $tr.next(".notice-content-row");
+
+                if ($(this).hasClass("bi-caret-down-fill")) {
+                    if ($nextTr.length === 0) {
+                        $.ajax({
+                            url: "/rest/notice/getDetailNotice/" + noticeNo,
+                            method: "GET",
+                            dataType: "json",
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            success: function(JSONData) {
+                                var newContentRow = '<tr class="notice-content-row"><td colspan="2">' + JSONData.noticeText + '</td></tr>';
+                                $tr.after(newContentRow);
+                                $("#caret-" + noticeNo).toggleClass("bi-caret-down-fill bi-caret-up-fill");
+                            },
+                            error: function() {
+                                console.log('Error occurred while loading notice detail.');
+                            }
+                        });
+                    } else {
+                        $nextTr.remove();
+                        $("#caret-" + noticeNo).toggleClass("bi-caret-up-fill bi-caret-down-fill");
+                    }
+                } else {
+                    $nextTr.remove();
+                    $("#caret-" + noticeNo).toggleClass("bi-caret-up-fill bi-caret-down-fill");
+                }
+            });
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const year = String(date.getFullYear()).slice(-4);
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function bindSearchForm() {
+            $(document).on('submit', '.search-box form', function(e) {
+                e.preventDefault();
+                const searchCondition = $('#searchCondition').val();
+                const searchKeyword = $('#searchKeyword').val();
+                currentPage = 1;
+                endOfData = false;
+                isSearchActive = true;
+                $.ajax({
+                    url: '/rest/notice/getNoticeList',
+                    method: 'GET',
+                    data: {
+                        currentPage: currentPage,
+                        searchCondition: searchCondition,
+                        searchKeyword: searchKeyword
+                    },
+                    success: function(response) {
+                        let html = '';
+                        response.noticeList.forEach(function(notice) {
+                            html += '<tr>';
+                            html += '<td><a href="/notice/getDetailNotice/' + notice.noticeNo + '">' + notice.noticeTitle + '</a>';
+                            html += '<div class="notice-reg-date">' + formatDate(notice.noticeRegDate) + '</div></td>';
+                            html += '<td class="text-center">';
+                            html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>'; // id를 고유하게 변경
+                            html += '<input type="hidden" value="' + notice.noticeNo + '">';
+                            html += '</td>';
+                            html += '</tr>';
+                        });
+                        $('.notice-list').html(html);
+                        loading = false;
+                        checkIfMoreContentNeeded(response.noticeList.length);
+                        bindToggleEvent(); // 추가된 목록에 이벤트 바인딩
+                        isSearchActive = false;
+                    },
+                    error: function() {
+                        console.log('Error occurred while loading notices.');
+                        loading = false;
+                    }
+                });
+            });
+        }
+
+        $(document).ready(function() {
+            bindSearchForm();
+        });
+
+        $(document).ready(function() {
+            $('.dropdown-item').click(function(e) {
+                e.preventDefault();
+                var condition = $(this).data('condition');
+                $('#searchCondition').val(condition);
+                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+            });
+        });
+        // 페이지 로드 후 첫 번째 페이지 목록에 이벤트 바인딩
+        bindToggleEvent();
+    </script>

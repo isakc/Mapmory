@@ -19,6 +19,7 @@
 		<result property="replyImageName" 		column="reply_image_name"		jdbcType="VARCHAR"/>
 		<result property="replyDate" 			column="reply_date"				jdbcType="TIMESTAMP"/>
 		<result property="replyUpdateDate" 		column="reply_update_date"		jdbcType="TIMESTAMP"/>
+		<result property="recordTitle"			column="record_title"			jdbcType="VARCHAR"/>
 	</resultMap>
 	
 	<resultMap id="communityLogsSelectMap" type="communityLogs">
@@ -52,7 +53,9 @@
 
 	<!-- 댓글 목록 조회 -->
 	<select id="getReplyList" parameterType="search" resultMap="replySelectMap">
-		SELECT *,
+		SELECT reply_no, record_no, user_id, reply_text, reply_image_name,
+		DATE_FORMAT(reply_date, '%Y-%m-%d %H:%i') AS reply_date,
+		DATE_FORMAT(reply_update_date, '%Y-%m-%d %H:%i') AS reply_update_date,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
 			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
@@ -68,7 +71,8 @@
 		SELECT *,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
+			(SELECT r.record_title FROM record r WHERE r.record_no = r2.record_no) AS record_title,
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate
 		FROM reply r2
 		WHERE r2.user_id = #{userId}
 		ORDER BY reply_date
@@ -97,7 +101,7 @@
 			<set> 
 				<if test = "replyText != null"> reply_text = #{replyText}, </if>
 				reply_image_name = #{replyImageName},
-				reply_update_date = current_timestamp
+				reply_update_date = CURRENT_TIMESTAMP
 			</set>   
 		WHERE reply_no = #{replyNo}
 	</update>
@@ -131,7 +135,7 @@
 		INSERT INTO community_logs (user_id, record_no, reply_no, logs_type)
 		VALUES(#{userId}, #{recordNo}, #{replyNo}, #{logsType})
 	</insert>		
-	
+		
 	<!--  커뮤니티 활동 로그 선택 -->
 	<select id="getCommunityLogs" parameterType="int" resultMap="communityLogsSelectMap">
 		SELECT *
@@ -155,6 +159,24 @@
 		AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
 	</select>
 	
+	<!-- 커뮤니티 좋아요 싫어요 체크 -->
+	<select id="checkConflictLogs" parameterType ="communityLogs" resultType ="int">
+    SELECT COUNT(*) FROM community_logs 
+    WHERE user_id = #{userId}
+		AND record_no = #{recordNo}
+      	AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+      	AND (
+        	(logs_type = 2 AND #{logsType} = 3) OR
+        	(logs_type = 3 AND #{logsType} = 2)
+      	)	
+	</select>
+	
+	<!-- 기록 조회수 Count -->
+	<select id="getSharedRecordViewCount" parameterType="search" resultType="int">
+		SELECT COUNT(*)
+		FROM community_logs
+		WHERE record_no = #{recordNo} AND logsType = 0
+	</select>
 	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
@@ -168,10 +190,10 @@
 	<!-- 커뮤니티 활동 삭제 -->
 	<delete id="deleteCommunityLogs" parameterType="communityLogs">
 		DELETE FROM community_logs
-		WHERE 
-			( user_id = #{userId} ) 
-		OR
-			( reply_no = #{replyNo} )	
+		WHERE user_id = #{userId}
+			AND record_no = #{recordNo}
+			AND logs_type = #{logsType}
+			AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))				
 	</delete>
 
 	<!-- 기록 삭제 시 커뮤니티 활동 삭제 -->
@@ -184,7 +206,9 @@
 	<select id="getCommunityLogsList" parameterType="search" resultMap="communityLogsSelectMap">
 		SELECT *
 		FROM community_logs
-		WHERE user_id = #{userId} AND logs_type = #{logsType}
+		WHERE user_id = #{userId} 
+			AND logs_type IN (1, 2)
+		LIMIT #{search.pageSize} OFFSET #{search.offset}
 	</select>
 	
 	<!-- 좋아요 Count -->			
@@ -221,10 +245,11 @@
 	</insert>	
 
 	<!--  사용자 신고 리스트 조회 -->
-	<select id="getUSerReportList" parameterType="search" resultMap="reportSelectMap">
+	<select id="getUSerReportList" parameterType="map" resultMap="reportSelectMap">
 		SELECT *
 		FROM report
 		WHERE user_id = #{userId}
+		LIMIT #{search.pageSize} OFFSET #{search.offset}
 	</select>
 
 	<!--  전체 신고 리스트 조회 -->
@@ -272,9 +297,17 @@
 	<!-- 사용자 차단 -->			
 	<insert id="addBlockUser" parameterType="followBlock">
 		INSERT INTO follow_block(user_id, target_id, fb_type)
-		VALUES(#{userId}, #{targetId}, #{fb_type})
+		VALUES(#{userId}, #{targetId}, 1)
 	</insert>	
 
+	<!-- 차단 업데이트 -->
+	<update id="updateFollowBlock" parameterType="followBlock">
+		UPDATE follow_block
+		SET fb_type = 0
+		WHERE
+		user_id = #{userId} AND target_id = #{targetId}
+	</update>
+	
 	<!-- 차단 목록 조회 -->			
 	<select id="getBlockedList" parameterType="search" resultMap="followBlockSelectMap">
 		SELECT user_id, target_id, fb_type 
@@ -285,14 +318,14 @@
 	<!-- 사용자의 차단 Count -->
 	<select id="getBlockedTotalCount" parameterType="search" resultType="int">
 		SELECT COUNT(*) FROM follow_block
-		WHERE user_id = #{userId} AND fb_type = 1
+		WHERE user_id = #{userId} AND fb_type = 2
 	</select>
 	
 	<!-- 차단 상세 조회 -->			
 	<select id="getBlockedUser" parameterType="java.lang.String" resultMap="followBlockSelectMap">
 		SELECT user_id, target_id, fb_type 
 		FROM follow_block
-		WHERE user_id = #{userId} AND target_id = #{targetId} AND fb_type = 1
+		WHERE user_id = #{userId} AND target_id = #{targetId} AND fb_type = 2
 	</select>
 	
 	<!-- 차단 해제 -->			
@@ -300,5 +333,19 @@
 		DELETE FROM follow_block
 		WHERE user_id = #{userId} AND target_id = #{targetId}	
 	</delete>
+
+	<!-- 좋아요한 댓글 목록 -->
+	<select id="getReplyLikeList" parameterType="search" resultMap="replySelectMap">
+		SELECT r.*,
+			(SELECT r2.record_title FROM record r2 WHERE r.record_no = r2.record_no) AS record_title
+		FROM reply r
+		WHERE EXISTS
+			(SELECT 1 FROM community_logs l
+			WHERE l.reply_no = r.reply_no
+			AND logs_type = 2
+			AND l.user_id = #{userId} )
+	</select>
+
+	
 
 </mapper>

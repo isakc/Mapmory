@@ -79,7 +79,7 @@ public class MainController {
 	}
 	
 	// test용
-	@GetMapping("/test")
+	@GetMapping("/common/footer")
 	public void getFooter() {
 		
 	}
