@@ -31,6 +31,7 @@ public class Reply {
 	private String replyUpdateDate;
 	private Integer likeCount;
 	private Integer dislikeCount;
+	private String recordTitle;
 	
 	//Constructor
 	

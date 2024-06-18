@@ -4,12 +4,13 @@
 	<meta charset="UTF-8">
 	<title>댓글</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="stylesheet" href="/css/common/footer.css"> 	
+	<link rel="stylesheet" href="/css/common/footer.css"> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></script>	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">		
 	
 	<!-- 댓글 작성 시작 -->
@@ -77,37 +78,43 @@
 				console.log("6. replyNo :", replyNo);
 				
 				// 새로운 댓글을 추가할 행을 생성
-				var newRow = '<tr>' +
-					'<td><a href="/user/getProfile/' + userId + '">' + nickname + '</a></td>' +
-					'<td>' + profileImageName + '</td>' +
-					'<td style="text-align: center;">' + subscriptionEndDate + '</td>' +
-					'<td class="replyText">' + replyText + '</td>' +
-					'<td>' + replyImageName + '</td>' +
-					'<td>' + replyDate + '</td>' +
-					'<td style="text-align: center;">' + likeCount + '</td>' +
-					'<td>'+
-						'<button type="button" id="likeButton">좋아요</button>'+
-					'</td>'+
-					'<td style="text-align: center;">' + dislikeCount + '</td>' +
-					'<td>'+
-						'<button type="button" id="dislikeButton">싫어요</button>'+
-					'</td>'+
-					'<td class="recordNo" style="display:none;">'+recordNo+'</td>'+
-		            '<td class="replyNo" style="display:none;">' +replyNo +'</td>' +
-		        	'<td class="userId" style="display:none;">'+userId+'</td>'+
-			        '<td>' +
-			            '<button type="button" class="moreBtn">더보기</button>' +
-		        	'</td>' +
-					'</tr>';            	
+				var newRow = '<div class="card mb-3">' +
+		        '<div class="card-body">' +
+		        '<h6>' +
+		        '<img alt="" class="profileImage" src="/user/rest/image/' + profileImageName + '">' +
+		        '<a href="/user/getProfile/' + userId + '">' + nickname + '</a>' +
+		        '<span>' + subscriptionEndDate + '</span>' +
+		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
+		        '</h6>' +
+		        '<h4>' +
+		        '<span class="replyText">' + replyText + '</span>' +
+		        '<span>' + replyImageName + '</span>' +
+		        '<span style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-down" id="replyDislike" style="float: right; margin-left: 10px;"></i>' +
+		        '<span style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-up" id="replyLike" style="float: right;"></i>' +
+		        '<span class="recordNo" style="display:none;" data-replyno="' + recordNo + '">' + recordNo + '</span>' +
+		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
+		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
+		        '</h4>' +
+		        '<h6>' +
+		        '<span>' + replyDate + '</span>' +
+		        '</h6>' +
+		        '</div>' +
+		        '</div>';
 					
 				console.log("7.현재행 : "+newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('table tbody').append(newRow);	
+				$('#container').append(newRow);
+				
+			    if ($('.card.mb-3').length > 1) {
+			        $('.card.mb-3').eq(-2).after('<div class="separator"></div>');
+			    }
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
-				$('#replyImageName').val('');
+				$('#replyImageName').val('');	
             }   
         });
     }); 
@@ -151,6 +158,7 @@
 	}
 	
 	function closeModal() {
+		console.log("닫힘");
 		document.getElementById("moreModal").style.display = "none";
 	}
 	
@@ -168,8 +176,8 @@
 	
 	
 	$(function() {
-		$('table').on("click", ".moreBtn", function() {
-			var $row = $(this).closest('tr');
+		$('#container').on("click", ".bi-three-dots", function() {
+			var $row = $(this).closest('div');
 			openModal($row);
 		});
 		
@@ -254,6 +262,8 @@
 					success : function(data) {
 						console.log('18.댓글 삭제 완료 :', data);
 						closeModal();
+						var separator = currentRow.parent().find('.separator');
+	                    separator.remove();
 						currentRow.remove();
 					},
 					error : function(xhr, status, error) {
@@ -287,13 +297,13 @@
 			}
 		});
 		
-		$('.close').on("click", function() {
+		$('.btn-close').on("click", function() {
 			$('#replyText').val('');
 			$('#replyImageName').val('');
 			closeModal();
 		});
 		
-		$('.close2').on("click", function() {
+		$('.btn-close').on("click", function() {
 			$('#replyText').val('');
 			$('#replyImageName').val('');
 			closeUpdateModal();
@@ -420,8 +430,19 @@
 	</script>
 	<!-- 댓글 싫어요 -->	
 	
+	<script>
+	function autoResize() {
+		const textarea = documnet.getElemenetById('replyText');
+		textarea.style.height = 'auto';
+		
+		const computedHeight = textarea.scrollHeight;
+		
+		textarea.style.height = Math.max(computedHeight, 100)+'px';
+	}
+	</script>
+	
 	<style>
-		.modal {
+		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
 		  z-index: 1;
@@ -455,7 +476,7 @@
 		  width: 80%;
 		}
 		
-		.modal-content2 {
+		.modal-content-update {
 		  background-color: #fefefe;
 		  margin: 15% auto;
 		  padding: 20px;
@@ -489,83 +510,146 @@
 		  color: black;
 		  text-decoration: none;
 		  cursor: pointer;
-		}		
+		}
+		
+		.profileImage {
+			border-radius: 50%;
+			width : 50px;
+			height : 50px;
+		}
+		
+		.bi-three-dots {
+			font-size : 30px;
+		}			
+		
+		.separator {
+			border-top : 2px solid;
+			margin-top : 10px;
+		}	
+
+		.separator2 {
+			border-top : 2px solid;
+			margin-top : 10px;
+		}					
+			
+		#replyText {
+			width : 100%;
+			resize : vertical;
+		}	
 	</style>
 	
 </head>
 <body>
 	<div id=content-for-footer>
-	<h1>댓글 목록</h1>
-	<table>
-		<tbody>
-			<tr>
-				<th>닉네임</th>
-				<th>프로필사진</th>
-				<th>구독유무</th>
-				<th>댓글내용</th>
-				<th>댓글사진</th>
-				<th>작성일자</th>
-				<th>좋아요수</th>
-				<th></th>
-				<th>싫어요수</th>
-				<th></th>
-				<th>더보기</th>
-			</tr>
-			<tr th:each="reply, rowStat : ${replyList}">
-				<td><a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a></td>
-				<td th:text="${reply.profileImageName}"></td>
-				<td th:style="'text-align: center;'" th:text="${reply.subscriptionEndDate}"></td>	
-				<td class="replyText" th:text="${reply.replyText}"></td>
-				<td th:text="${reply.replyImageName}"></td>
-				<td th:text="${reply.replyDate}"></td>
-				<td th:style="'text-align: center;'" th:text="${reply.likeCount}"></td>
-				<td><button type="button" id="likeButton">좋아요</button></td>
-				<td th:style="'text-align: center;'" th:text="${reply.dislikeCount}"></td>
-				<td><button type="button" id="dislikeButton">싫어요</button></td>
-				<td class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></td>
-				<td class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></td>
-				<td class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></td>
-				<td>
-				<button type="button" class="moreBtn">더보기</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<form id="replyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">	
-		<label for="replyText">댓글 내용</label><br> 
-		<textarea id="replyText" name="replyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
-		<label for="replyImageName">사진 첨부</label>
-		<input type = "file" id="replyImageName" name="replyImageName" class="form-control">
-		<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
-		<input type="hidden" id="userId" th:value="${userId}">		
-		<button type ="submit" id = "add">댓글작성</button>
-	</form>
+		<div id="container">
+			<div class="card mb-3">
+				<h4>
+					<span th:text="'댓글 ' + ${totalCount}"></span>
+				</h4>
+				<div th:each="reply, rowStat : ${replyList}" class="col-sm-4">
+					<div class="card-body">
+						<div class="row">
+						<h6>
+							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+							<a th:href="@{'/user/getProfile/' + ${reply.userId}}" th:text="${reply.nickname}"></a>
+							<span th:text="${reply.subscriptionEndDate}"></span>
+							<i class="bi bi-three-dots" style="float: right;"></i>
+						</h6>
+						<h4>
+							<span class="replyText" th:text="${reply.replyText}" ></span>
+							<span th:text="${reply.replyImageName}"></span>
+							<span th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
+							<i class="bi bi-hand-thumbs-down" id="replyDislike" style="float: right; margin-left: 10px;"></i>
+							<span th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
+							<i class="bi bi-hand-thumbs-up" id="replyLike" style="float: right;"></i>
+							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
+							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
+							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
+						</h4>
+						<h6>
+							<span th:text="${reply.replyDate}"></span>								
+						</h6>
+						</div>
+					</div>
+				<div th:if="${rowStat.last == false}" class="separator"></div>	
+				</div>	
+			</div>	
+		</div>
 		
-	<div id="moreModal" class="modal">
-		<div class="modal-content">
-			<button type="button" id="update">수정</button>
-			<button type="button" id="delete">삭제</button>
-			<button type="button" id="addReport">댓글신고하기</button>
-			<span class="close">&times;</span>
-		</div>
-	</div>
-
-	<div id="updateModal" class="updateModal">
-		<div class="modal-content2">
-			<h4>댓글 수정</h4>
-				<form id="updateReplyForm" th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">	
-					<label for="updateReplyText">댓글 내용</label><br> 
-					<textarea id="updateReplyText" name="updateReplyText" rows="4" cols="50" placeholder ="댓글을 입력하세요"></textarea><br/><br/>
-					<label for="updateReplyImageName">사진 첨부</label>
-					<input type = "file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
-					<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">		
-					<button type ="submit" id="updateBtn">댓글수정</button>
-				</form>
-			<span class="close2">&times;</span>
-		</div>
-	</div>
-	</div>
-	<div th:replace="common/footer::defaultFooter"></div>	 
+		<div class="separator2"></div>		
 	
-</body>	
+		<br/>
+		
+		<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
+			<fieldset id="replyField">
+			<legend>댓글작성</legend>
+				<div class="row">
+					<label for="replyText" class="form-label mt-4">댓글 내용</label>
+					<textarea id="replyText" name="replyText" class="form=control" style ="height : 100px;" placeholder="댓글을 입력해주세요."></textarea>
+				</div>
+				<div>
+					<label for="replyImageName" class="form-label mt-4">사진 첨부</label>
+					<input type="file" id="replyImageName" name="replyImageName" class="form-control">
+					<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
+					<input type="hidden" id="userId" th:value="${userId}">
+    			</div>
+				<button type="submit" class="btn btn-success">댓글 작성</button>
+  			</fieldset>
+		</form>	
+		
+		<!-- 더보기 모달창 -->
+		<div class="moreModal" id="moreModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">더보기</h5>
+						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"></span>
+						</button>
+					</div>
+					<div class="modal-body">	
+						<button type="button" id="update" class="btn btn-primary">수정</button>
+						<button type="button" id="delete" class="btn btn-warning">삭제</button>
+						<button type="button" id="addReport" class="btn btn-danger">댓글 신고하기</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 댓글 수정 모달창 -->
+		<div class="updateModal" id="updateModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content-update">
+					<div class="modal-header">
+						<h5 class="modal-title">댓글수정</h5>
+						<button type="button" id="closeUpdateModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"></span>
+						</button>
+					</div>
+					<div class="modal-body">	
+						<form id="updateReplyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
+							<fieldset id="updateReplyField">
+								<div class="row">
+									<label for="updateReplyText" class="form-label mt-4">댓글 내용</label>
+									<textarea id="updateReplyText" name="updateReplyText" class="form-control" style="height: 100px;" placeholder="댓글을 입력해주세요."></textarea>
+								</div>
+								<div>
+									<label for="updateReplyImageName" class="form-label mt-4">사진 첨부</label>
+									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
+									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
+									<input type="hidden" id="userId" th:value="${userId}">
+				    			</div>
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-success">댓글 수정</button>
+								</div>
+				  			</fieldset>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<div th:replace="common/footer::defaultFooter"></div>	
+</body>			
 </html>

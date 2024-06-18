@@ -39,6 +39,7 @@ import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
+import com.mapmory.services.user.service.UserService;
 
 import retrofit2.http.Path;
 
@@ -53,6 +54,10 @@ public class CommunityRestController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
+	
+	@Autowired
+	@Qualifier("userServiceImpl") 
+	private UserService userService;
 	
 	@Autowired
 	private CommunityDao communityDao;
@@ -98,9 +103,6 @@ public class CommunityRestController {
 		return timelineService.getSharedRecordList(search);
 }
 
-	
-	
-	
 	//댓글 추가
 	@PostMapping("/rest/addReply")
 	public ResponseEntity<Reply> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
@@ -334,6 +336,10 @@ public class CommunityRestController {
 	//사용자 차단
 	@PostMapping("/rest/addBlockUser")
 	public ResponseEntity<FollowBlock> addBlockUser(@RequestBody FollowBlock followBlock) throws Exception{
+		
+		if (userService.checkFollow(followBlock.getUserId(), followBlock.getTargetId()) == true) {
+			communityService.updateBlockUser(followBlock);
+		} 
 		communityService.addBlockUser(followBlock);
 		return ResponseEntity.ok(followBlock);
 	}
