@@ -1,12 +1,12 @@
 <script>
 
+	let sharedListCurrentPage = 1;
+
 	$(function() {
-		
-		const userId = `[[${profile.user.userId}]]`;
 		
 		$.ajax({
 
-			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=1`,
+			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=${sharedListCurrentPage}`,
 		      method: "GET",
 		      // contentType:"application/json",
 		      // dataType: "application/json",

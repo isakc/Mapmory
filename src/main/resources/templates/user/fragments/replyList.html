@@ -1,9 +1,12 @@
 <script>
+
+	let replyListCurrentPage = 1;
+	
 	$(function() {
 		
 		$.ajax({
 
-			url: `/community/rest/getReplyList/user/${userId}?currentPage=1`,
+			url: `/community/rest/getReplyList/user/${userId}?currentPage=${replyListCurrentPage}`,
 		      method: "GET",
 		      contentType:"application/json",
 		      // dataType: "application/json",
@@ -50,7 +53,7 @@
 		});
 		
 	});
+	
+	<!-- 무한 스크롤 구현 필요 -->
 </script>
 
-<!-- 기록 제목, 작성 내용, 작성 일시 , recordNo -->
-<!-- getReplyList/${recordNo} -->

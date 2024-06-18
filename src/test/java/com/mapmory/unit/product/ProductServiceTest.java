@@ -78,6 +78,7 @@ public class ProductServiceTest {
     	
     }
     
+    /*
     //@Test
     public void testUpdateProduct() throws Exception {
         // Given
@@ -114,6 +115,7 @@ public class ProductServiceTest {
         assertTrue(updatedImageUuids.contains("updated_test_image_uuid.jpg"));
         assertTrue(updatedImageUuids.contains("test_update_image_uuid.jpg"));
     }
+    */
     
     //@Test
     public void testDeleteImage() throws Exception {
