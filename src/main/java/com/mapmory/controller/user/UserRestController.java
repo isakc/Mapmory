@@ -513,7 +513,7 @@ public class UserRestController {
 			// redisUtilString.insert(keyName, encodedKey, 60*24*90L);
 			acceptLogin(userId, role, response, keep);
 
-			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/"));
+			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/user"));
 			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
 		}
 		
