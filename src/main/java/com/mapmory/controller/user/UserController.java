@@ -232,15 +232,19 @@ public class UserController {
 	
 
 	@GetMapping("/getSecondaryAuthView")
-	public void getSecondaryAuthView(Model model, HttpServletRequest request, @RequestParam String userId) {
+	public void getSecondaryAuthView() {
 		
 		// login interceptor에서 직접 접근하는 것을 막아야 함
-		
+		/*
 		Cookie cookie = findCookie("SECONDARYAUTH", request);
+		if(cookie == null) 
+			return "redirect:/";
+		*/
+		
 		// Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
 		// String userId = map.get("userId");
 		
-		model.addAttribute("userId", userId);
+		// model.addAttribute("userId", userId);
 	}
 	
 	@GetMapping("/getUserInfo")
