@@ -7,10 +7,11 @@
     <title>공지사항</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-         body {
+        body {
             background-color: #f8f9fa;
         }
 
@@ -118,67 +119,69 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="notice-header">
-            <div class="icon-wrapper">
-                <a th:href="@{/notice/noticeMenu}">
-                    <i class="bi bi-chevron-left"></i> <!-- 수정된 부분: Bootstrap Icons 클래스 추가 -->
-                </a>
+    <div id=content-for-footer>
+        <div class="container">
+            <div class="notice-header">
+                <div class="icon-wrapper">
+                    <a th:href="@{/notice/noticeMenu}">
+                        <i class="bi bi-chevron-left"></i> <!-- 수정된 부분: Bootstrap Icons 클래스 추가 -->
+                    </a>
+                </div>
+                <h2><i class="bi bi-question-octagon-fill"></i> 공지사항 목록</h2>
+                <div></div> <!-- 빈 div 추가 -->
             </div>
-            <h2><i class="bi bi-question-octagon-fill"></i> 공지사항 목록</h2>
-            <div></div> <!-- 빈 div 추가 -->
-        </div>
-        <div class="search-box">
-            <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
-                <div class="form-group">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
-                            <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
-                        </ul>
-                        <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
-                    </div>
-                </div>
-                <div class="form-group flex-grow-1">
-                    <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
-                </div>
-                <button type="submit" class="btn btn-primary">검색</button>
-            </form>
-        </div>
-
-        <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
-            <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
-        </form>
-
-        <table class="table table-hover notice-table">
-            <thead>
-                <tr>
-                    <th>제목</th>
-                    <th>자세히보기</th>
-                </tr>
-            </thead>
-            <tbody class="notice-list">
-                <!-- Thymeleaf 반복문을 사용하여 초기 데이터 로드 -->
-                <tr th:each="notice, status : ${noticeList}">
-                    <td>
-                        <div>
-                            <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
-                            <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+            <div class="search-box">
+                <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
+                    <div class="form-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
+                            </ul>
+                            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
                         </div>
-                    </td>
-                    <td class="text-center">
-                        <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
-                        <input type="hidden" th:value="${notice.noticeNo}">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                    </div>
+                    <div class="form-group flex-grow-1">
+                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">검색</button>
+                </form>
+            </div>
 
-        <script th:inline="javascript">
+            <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
+                <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+            </form>
+
+            <table class="table table-hover notice-table">
+                <thead>
+                    <tr>
+                        <th>제목</th>
+                        <th>자세히보기</th>
+                    </tr>
+                </thead>
+                <tbody class="notice-list">
+                    <!-- Thymeleaf 반복문을 사용하여 초기 데이터 로드 -->
+                    <tr th:each="notice, status : ${noticeList}">
+                        <td>
+                            <div>
+                                <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+                                <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
+                            <input type="hidden" th:value="${notice.noticeNo}">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="common/footer::defaultFooter"></div>
+    <script th:inline="javascript">
         let currentPage = 2; // 초기 페이지 설정
         let loading = false;
         let endOfData = false; // 데이터를 모두 로드했는지 확인하는 변수

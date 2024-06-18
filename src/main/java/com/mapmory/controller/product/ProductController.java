@@ -1,10 +1,15 @@
 package com.mapmory.controller.product;
 
 import com.mapmory.services.product.domain.Product;
+import com.mapmory.services.product.domain.ProductImage;
 import com.mapmory.services.product.service.ProductService;
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/product/*")
 public class ProductController {
@@ -36,6 +43,9 @@ public class ProductController {
 
     @Autowired
     private ObjectStorageUtil objectStorageUtil; // ObjectStorageUtil 추가
+    
+    @Autowired
+    private RedisUtil<SessionData> redisUtil;
     
     @Value("${page.Unit}")
     int pageUnit;
@@ -97,51 +107,91 @@ public class ProductController {
         return "product/getProductList";
     }
     
+    @GetMapping("/getAdminProductList") //상품 목록 조회 
+    public String getAdminProductList(@ModelAttribute("search") Search search, Model model) throws Exception {
+    	
+    	if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+		
+		search.setPageSize(pageSize);
+		
+        Map<String, Object> map = productService.getProductList(search);
+        
+        Page resultPage = new Page(search.getCurrentPage(),((Integer)map.get("productTotalCount")).intValue(),pageUnit,pageSize);
+        
+        System.out.println("상품 페이지 확인용 ::::::::::::::::: " + resultPage);
+        
+
+        model.addAttribute("productList", map.get("productList"));
+        model.addAttribute("search", search);
+        model.addAttribute("resultPage", resultPage);
+
+        return "product/admin/getAdminProductList";
+    }
+    
     @GetMapping("/getDetailProduct/{productNo}") //상품 상세보기
     public String getDetailProduct(@PathVariable int productNo, Model model) throws Exception {
     	System.out.println("GetDetailProduct Start......");
     	
     	Product product = productService.getDetailProduct(productNo);
     	model.addAttribute("product",product);
-    	return "product/admin/getDetailProduct";
+    	return "product/getDetailProduct";
+    }
+    
+    @GetMapping("/getAdminDetailProduct/{productNo}") //상품 상세보기
+    public String getAdminDetailProduct(@PathVariable int productNo, Model model) throws Exception {
+    	System.out.println("GetDetailProduct Start......");
+    	
+    	Product product = productService.getDetailProduct(productNo);
+    	model.addAttribute("product",product);
+    	return "product/admin/getAdminDetailProduct";
     }
     
     
-    @PostMapping("/updateProduct/{productNo}") //상품 업데이트 
+    @PostMapping("/updateProduct/{productNo}")
     public String updateProduct(@ModelAttribute("update") Product product,
+                                Model model,
                                 @PathVariable int productNo,
                                 @RequestParam(value = "uploadFile", required = false) List<MultipartFile> files,
-                                @RequestParam(value = "deleteImageUuids", required = false) List<String> deleteImageUuids) throws Exception {
-
-    	product.setUserId("admin");
-        List<String> uuidFileName = new ArrayList<>();
-        List<String> originalFileNames = new ArrayList<>();
+                                @RequestParam(value = "deleteImageUuids", required = false) List<String> deleteImageUuids,
+                                @RequestParam(value = "imageTags", required = false) List<String> imageTags,
+                                @RequestParam(value = "newImageTags", required = false) List<String> newImageTags,
+                                HttpServletRequest request) throws Exception {
+        product.setUserId("admin");
+        System.out.println("이미지 태그입니다 ::::::::::::::::::::::: " + imageTags);
+        product.setNewImageTags(newImageTags);
+        product.setImageTags(imageTags); // 상품에 이미지 태그 설정
 
         // 새로운 이미지 파일 업로드 및 UUID 생성
-        if (files != null && !files.isEmpty()) {
+        List<String> uuidFileNames = new ArrayList<>();
+        List<String> originalFileNames = new ArrayList<>();
+        if (files != null) {
             for (MultipartFile file : files) {
-                if (!file.isEmpty()) { // 빈 파일이 아닌 경우에만 처리
+                if (!file.isEmpty()) {
                     String uuid = ImageFileUtil.getImageUUIDFileName(file.getOriginalFilename());
                     String originalFilename = file.getOriginalFilename();
                     objectStorageUtil.uploadFileToS3(file, uuid, folderName); // 파일 업로드
-                    uuidFileName.add(uuid);
+                    uuidFileNames.add(uuid);
                     originalFileNames.add(originalFilename);
                 }
             }
         }
 
         // 삭제할 이미지 UUID 목록 처리
-        if (deleteImageUuids != null && !deleteImageUuids.isEmpty()) {
+        if (deleteImageUuids != null) {
             for (String uuid : deleteImageUuids) {
-                productService.deleteImage(uuid,folderName);
+                productService.deleteImage(uuid, folderName);
             }
         }
 
         // 상품 정보 업데이트
-        productService.updateProduct(product, uuidFileName,originalFileNames);
+        productService.updateProduct(product, uuidFileNames, originalFileNames,imageTags,newImageTags);
 
         return "redirect:/product/getProductList";
     }
+
+
     
     @GetMapping("/updateProduct/{productNo}") //상품 업데이트 
     public String showUpdateProductForm(@PathVariable int productNo, Model model) throws Exception {
@@ -172,7 +222,6 @@ public class ProductController {
     @ResponseBody
     public byte[] getImage(@PathVariable String uuid) throws Exception {
         byte[] bytes = productService.getImageBytes(uuid, folderName);
-        System.out.println("바이트 입니다 ::::::::::::::::::::::" + Arrays.toString(bytes));
         return bytes;
     }
    
