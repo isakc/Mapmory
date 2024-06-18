@@ -28,12 +28,12 @@
 		    		  temp += '<div id="'+recordNo+'" class="record">';
 			    		  if(thumbnailName != null)
 			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
-			    		  temp += '<p>'+title+'</p>';
+			    		  temp += '<p class="fw-bold">'+title+'</p>';
 			    		  temp += '<div class="category">'
 				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
 				    		  temp += '<p>'+categoryName+'</p>';
 			    		  temp += '</div>'
-			    		  temp += '<p>'+regDate+'</p>';
+			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 			    		  temp += '</div>';
 		    		  temp += '<hr/>';
 		    		  $('#sharedRecordList').append(temp);

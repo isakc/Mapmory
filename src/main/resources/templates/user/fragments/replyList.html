@@ -9,7 +9,25 @@
 		      // dataType: "application/json",
 		      success: function(response) {
 			    	  
-		    	 console.log(response); 
+		    	 console.log(response.list); 
+		    	 
+		    	 response.list.forEach((reply) => {
+		    		
+		    		 const title = reply.recordTitle;
+		    		 const replyText = reply.replyText;
+		    		 const regDate = reply.replyDate;
+		    		 const recordNo = reply.recordNo;
+		    		 
+		    		 let temp = '';
+		    		 temp += '<div id="'+recordNo+'" class="reply">';
+		    		 temp += '<p class="fw-bold">'+title+'</p>';
+		    		 temp += '<p>'+replyText+'</p>';
+		    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+		    		 temp += '</div>';
+		    		 temp += '<hr/>';
+		    		 $('#replyList').append(temp);
+		    		 
+		    	 });
 		    	  
 		      },
 		      error: function(xhr, status, error) {
@@ -20,4 +38,19 @@
 		});
 		
 	});
+	
+	$(function(){
+		
+		$(document).on('click', '.reply', function(){
+			
+			const recordNo = $(this).attr('id');
+			
+			window.location.href=`/community/getReplyList/${recordNo}`;
+			
+		});
+		
+	});
 </script>
+
+<!-- 기록 제목, 작성 내용, 작성 일시 , recordNo -->
+<!-- getReplyList/${recordNo} -->
