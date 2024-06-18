@@ -429,13 +429,13 @@ SELECT
 	UPDATE_COUNT,
     (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
     (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
-    CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+    CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
     (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
     (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
     (SELECT category_name FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
     (SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
     (SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
-    (SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) logs_count
+    (SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) AS logs_count
 FROM 
     record r
 <trim prefix="where" prefixOverrides="AND||OR">

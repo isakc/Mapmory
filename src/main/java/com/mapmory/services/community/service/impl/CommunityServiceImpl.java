@@ -120,7 +120,7 @@ public class CommunityServiceImpl implements CommunityService {
 					.replyNo(communityLogs.getReplyNo())
 					.logsType(communityLogs.getLogsType())
 					.build();
-			communityDao.addCommunityLogs(communityLogs);		
+			communityDao.addCommunityLogs(newCommunityLogs);		
 		}
 	}	
 	

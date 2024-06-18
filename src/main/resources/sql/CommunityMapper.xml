@@ -167,6 +167,12 @@
       	)	
 	</select>
 	
+	<!-- 기록 조회수 Count -->
+	<select id="getSharedRecordViewCount" parameterType="search" resultType="int">
+		SELECT COUNT(*)
+		FROM community_logs
+		WHERE record_no = #{recordNo} AND logsType = 0
+	</select>
 	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
