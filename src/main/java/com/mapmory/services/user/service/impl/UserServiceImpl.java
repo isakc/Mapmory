@@ -878,6 +878,7 @@ public class UserServiceImpl implements UserService {
 			
 			System.out.println("suspensionDetailList : " + list);
 			int count = list.size();
+			map.put("suspentionCount", String.valueOf(count));
 			LocalDateTime lastSuspensionDate = list.get(count-1).getStartSuspensionDate();
 			LocalDateTime now = LocalDateTime.now();
 			switch(count) {
@@ -1092,10 +1093,10 @@ public class UserServiceImpl implements UserService {
 	}
 	*/
 	
-	
+	/*
 	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
 
-		/*
+		
 		// Parameter로 전달할 속성들 추가
 	    Map<String, String> params = new HashMap<>();
 	    params.put("grant_type","authorization_code");
@@ -1137,11 +1138,11 @@ public class UserServiceImpl implements UserService {
         in.close();
 	    
 	    System.out.println(res);
-        */
+ 		
 		
 		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
 		
-		/*
+		
 		GoogleToken token = userService.getGoogleToken(code);
 		System.out.println(token);
 		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
@@ -1172,10 +1173,11 @@ public class UserServiceImpl implements UserService {
 	    	return "redirect:/map";
 	    	
 	    }
-				*/
+				s
 		
 		return null;
 	}
+	*/
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

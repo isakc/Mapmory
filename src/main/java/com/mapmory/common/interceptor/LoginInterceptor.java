@@ -32,14 +32,24 @@ public class LoginInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		
+		/*
+		String requestURI = request.getRequestURI();
+		System.out.println("requestURI = " + requestURI);
+		if(requestURI.equals("/") || requestURI.equals("/user/rest/login"))
+			return true;
+		*/
+		
+		
 		// 세션 연장 임시 조치
 		// 현재 여전히 타임아웃 시 cookie는 살아있고 세션은 죽는 문제 존재. cookie만 살아 있는 경우, cookie를 제거해주는 로직 필요
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
 		
 		if(cookie == null) {
-			
-			return true;
+
+			// System.out.println("쿠키가 만료되었어요. 다시 로그인해주세요...");
+			response.sendRedirect("/");
+			return false;
 		}
 			
 			
@@ -55,7 +65,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 				cookie.setPath("/");
 				response.addCookie(cookie);
 				response.sendRedirect("/");
-				return true;
+				return false;
 				
 			} else {
 			

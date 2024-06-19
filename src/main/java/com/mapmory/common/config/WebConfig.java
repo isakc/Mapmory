@@ -39,7 +39,12 @@ public class WebConfig implements WebMvcConfigurer{
 		registry.addInterceptor(loginInterceptor())
 				.order(1)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/css/**", "/*.ico", "/error");
+				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**")
+				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", 
+						"/user/google/auth/callback", "/user/getNaverLoginView", "/user/getGoogleLoginView",
+						"/user/kakaoCallback", "/user/getKakaoLoginView", "/user/naver/auth/callback",
+						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",
+						"/user/getSignUpView", "/user/setupForTest");
 	}
 
 }
