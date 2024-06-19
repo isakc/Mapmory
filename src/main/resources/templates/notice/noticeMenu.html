@@ -8,19 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/common/footer.css">
+    <link rel="stylesheet" href="/css/common/chatBot.css">
+    
     <style>
-        .notice-header {
-            background-color: #2780e3;
-            color: #fff;
+        body {
             padding: 20px;
+        }
+
+        .notice-header {
+            background-color: #00A7F5;
+            color: #fff;
+            padding: 15px;
             text-align: center;
             margin-bottom: 30px;
             border-radius: 10px;
         }
 
-        .notice-header h2 {
+        .notice-header h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
         }
 
@@ -34,7 +40,7 @@
             display: block;
             padding: 15px;
             background-color: #fff;
-            color: #2780e3;
+            color: #2780E3;
             text-decoration: none;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -42,8 +48,13 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .notice-menu-item:hover {
-            background-color: #2780e3;
+        .notice-menu-item:nth-child(1):hover {
+            background-color: #00C6E1;
+            color: #fff;
+        }
+
+        .notice-menu-item:nth-child(2):hover {
+            background-color: #00DFB6;
             color: #fff;
         }
 
@@ -56,9 +67,8 @@
 <body>
     <div id=content-for-footer>
         <div class="container">
-
             <div class="notice-header">
-                <h2><i class="bi bi-question-octagon-fill"></i> 메뉴</h2>
+                <h1><i class="bi bi-view-stacked"></i> 메뉴</h1>
             </div>
             <div class="notice-menu">
                 <a th:href="@{/notice/getNoticeList}" class="notice-menu-item">
@@ -70,6 +80,7 @@
             </div>
         </div>
     </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="/common/footer::defaultFooter"></div>
 </body>
 

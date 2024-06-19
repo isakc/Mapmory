@@ -83,4 +83,9 @@ public class MainController {
 	public void getFooter() {
 		
 	}
+	
+	@GetMapping("/test")
+	public String test() {
+		return "/test.html";
+	}
 }
