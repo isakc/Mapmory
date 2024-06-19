@@ -27,6 +27,8 @@ public interface TimelineService {
 	//image만 삭제
 	public int deleteImage(int imageNo) throws Exception;
 	
+	public int deleteMedia(int recordNo) throws Exception;
+	
 	//Category CRUD
 	public void addCategory(Category category) throws Exception;
 	

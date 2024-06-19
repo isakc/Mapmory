@@ -253,6 +253,8 @@ FROM
 		AND <![CDATA[checkpoint_date BETWEEN #{selectDay1} AND #{selectDay2}]]>
 	</if>
 </trim>
+ORDER BY checkpoint_date ASC,
+checkpoint_date IS NULL DESC
 </sql>
 
 <select id="selectTimelineList" parameterType="search" resultMap="recordResultMap">
@@ -322,6 +324,11 @@ LIMIT #{limit} OFFSET #{offset}
 <delete id="deleteImageToImageNo" parameterType="Integer">
     DELETE FROM image_tag WHERE image_tag_order=#{imageTagOrder} AND image_tag_type=1
 </delete>
+
+<update id='updateMedia' parameterType='Integer'>
+	UPDATE record SET media_name = NULL
+	WHERE record_no = #{recordNo:NUMERIC}
+</update>
 
 	<!-- Create -->
     <insert id="insertCategory" parameterType="category">
@@ -625,11 +632,43 @@ ORDER BY
    		record a1
    	LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no AND a2.image_tag_type=1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
-   	WHERE
-   		a1.record_user_id = #{userId}
-   	AND a1.shared_date IS NOT NULL
-   	AND a1.temp_type=1
-   	AND a1.timecapsule_type=0
+   	<!-- LEFT JOIN community_logs a4 ON a1.record_no = a4.record_no -->
+	<trim prefix="where" prefixOverrides="AND||OR">
+	<if test="!(logsType==null)">
+		<if test="logsType==0">
+   			a1.record_user_id = #{userId}
+   			AND a1.shared_date IS NOT NULL
+   			AND a1.temp_type=1
+   			AND a1.timecapsule_type=0
+   		</if>
+		<if test="logsType==1">
+   			OR (
+   			a1.record_no IN (
+   				SELECT record_no 
+   				FROM community_logs 
+   				WHERE user_id = #{userId} 
+   				AND logs_type=1
+   				)
+   			AND a1.shared_date IS NOT NULL
+   			AND a1.temp_type=1
+   			AND a1.timecapsule_type=0
+   			)
+   		</if>
+		<if test="logsType==2">
+   			OR (
+   			a1.record_no IN (
+   				SELECT record_no 
+   				FROM community_logs 
+   				WHERE user_id = #{userId} 
+   				AND logs_type=2
+   				)
+   			AND a1.shared_date IS NOT NULL
+   			AND a1.temp_type=1
+   			AND a1.timecapsule_type=0
+   			)
+   		</if>
+   	</if>
+   	</trim>
    	ORDER BY
     a1.record_add_date IS NULL DESC, 
     a1.record_add_date DESC

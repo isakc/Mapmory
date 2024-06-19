@@ -4,16 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,14 +20,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
+import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.TimelineUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +57,9 @@ public class TimelineRestController {
 	private TimelineService timelineService;
 	
 	@Autowired
+	private TimelineUtil timelineUtil;
+	
+	@Autowired
 	private ObjectStorageUtil objectStorageUtil;
 	
 	@Value("${speech.folderName}")
@@ -76,6 +77,7 @@ public class TimelineRestController {
 			@RequestBody Record record,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
+		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now().toString().replace("T"," ").split("\\.")[0]);
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
 		if(recordNo!=0) {
@@ -89,15 +91,46 @@ public class TimelineRestController {
 	
 	@GetMapping("deleteImage")
 	public ResponseEntity<Map<String,Object>> deleteImage(
-			@RequestParam int imageNo,
+			@RequestParam(name = "imageNo", required = true) int imageNo,
+			@RequestParam(name = "imageName", required = true) String imageName,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
 		String text="";
 		int deleteSuccess=timelineService.deleteImage(imageNo);
 		if(deleteSuccess!=0) {
-			text+="사진 삭제 완료";
+			timelineUtil.deleteImageFile(imageName);
+			text+="사진 삭제 완료.";
+		}else {
+			text = "사진 삭제 실패.";
 		}
 		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("deleteMedia")
+	public ResponseEntity<Map<String, Object>> deleteMedia(
+			@RequestParam(name = "recordNo", required = true) int recordNo,
+			@RequestParam(name = "mediaName", required = true) String mediaName,
+			Map<String, Object> map) throws Exception, IOException {
+		map = new HashMap<String, Object>();
+		String text="";
+		int deleteSuccess=timelineService.deleteMedia(recordNo);
+		if(deleteSuccess!=0) {
+			timelineUtil.deleteMediaFile(mediaName);
+			text = "영상 삭제 완료.";
+		} else {
+			text = "영상 삭제 실패.";
+		}
+		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("checkBadWord")
+	public ResponseEntity<Map<String, Object>> checkBadWord(
+			@RequestParam(name = "text", required = true) String text,
+			Map<String, Object> map) throws Exception, IOException {
+		map = new HashMap<String, Object>();
+		map.put("badWord", ContentFilterUtil.checkBadWord(text) );
 		return ResponseEntity.ok(map);
 	}
 	
