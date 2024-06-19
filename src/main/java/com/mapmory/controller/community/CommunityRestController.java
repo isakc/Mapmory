@@ -5,27 +5,22 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.catalina.startup.ClassLoaderFactory.Repository;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -77,32 +72,42 @@ public class CommunityRestController {
 	}
 	
 	@Value("${page.Unit}")
-	int PageUnit;
+	int pageUnit;
 	
 	@Value("${page.Size}")
-	int PageSize;
+	int pageSize;
 	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
-	//공유 기록 목록 무한스크롤
-	@GetMapping("/rest/getSharedRecordList")
-    public List<SharedRecordDto> getSharedRecordList(@RequestParam int currentPage,
-    												@RequestParam(defaultValue = "10") int limit,
-    												HttpServletRequest request) throws Exception {
-		
-		System.out.println("REST 시작");
-		
-		String userId = redisUtil.getSession(request).getUserId();
-		
-		Search search = Search.builder()
-		.currentPage(currentPage)
-		.limit(limit)
-		.userId(userId)
-		.build();
-
-		return timelineService.getSharedRecordList(search);
-	}
+	//공유 기록 목록 무한스크롤 리스트 호출
+    @GetMapping("/rest/getSharedRecordList")
+    public ResponseEntity<?> getSharedRecordList(Search search, @RequestParam(required = true) int currentPage,  
+    												HttpServletRequest request) throws Exception{
+        
+    	System.out.println("REST 시작");
+    	
+        String userId = redisUtil.getSession(request).getUserId();
+        
+        currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : currentPage;
+        int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+        
+        // pageSize를 search 객체에 설정
+        search.setPageSize(pageSize);
+        
+        int offset = (currentPage - 1) * pageSize;
+        search.setLimit(pageSize);
+        search.setOffset(offset);
+        
+        System.out.println("현재 페이지: " + currentPage);
+        System.out.println("페이지 사이즈: " + pageSize);
+        System.out.println("계산된 offset 값: " + offset);
+        System.out.println("Search 객체: " + search);
+        
+	    List<SharedRecordDto> list = timelineService.getSharedRecordList(search);
+        
+        return ResponseEntity.ok(List.of("list" , list));
+    }
 
 	//댓글 추가
 	@PostMapping("/rest/addReply")
@@ -162,8 +167,7 @@ public class CommunityRestController {
 		return imageName;
 		
 	}
-	
-	
+
 	//기록별 댓글 목록 조회
 	@GetMapping("/rest/getReplyList/{recordNo}")
 	public ResponseEntity<Map<String, Object>> getReplyList(Search search, @PathVariable int recordNo) throws Exception {
@@ -210,8 +214,6 @@ public class CommunityRestController {
 		System.out.println("좋아요 댓글 목록 :: "+replyLikeList);
 		return ResponseEntity.ok(replyLikeList);
 	}
-	
-	
 	
 	//사용자별 커뮤니티 로그 기록
 	@GetMapping("/rest/getCommunityLogsList/{userId}")

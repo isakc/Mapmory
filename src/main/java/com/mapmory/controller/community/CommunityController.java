@@ -65,8 +65,9 @@ public class CommunityController {
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setLimit(pageSize);
 	    search.setOffset((currentPage - 1) * pageSize);
-	    
+	  
 		model.addAttribute("sharedRecordlist",timelineService.getSharedRecordList(search));	
+		System.out.println("목록 :"+model);
 		return "community/getSharedRecordList";
 	}
 	
@@ -78,6 +79,14 @@ public class CommunityController {
 			
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
+	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);		
+		
+		System.out.println("페이지 값1 : " +search);
+
+	    
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("apiKey", apiKey);	    
@@ -102,20 +111,21 @@ public class CommunityController {
 		
 		userId = redisUtil.getSession(request).getUserId();
 
-		search = Search.builder()
-				.userId(userId)
-				.currentPage(search.getCurrentPage())
-				.limit(search.getLimit())
-				.build();
+		search.setUserId(userId);
 		
-		System.out.println("12 " +search);
+	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);
+				
+		System.out.println("페이지 값: " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
 	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
 
-	    System.out.println("model :"+model);
+	    System.out.println("댓글 리스트 :"+model);
 	    
 		return "community/getReplyList";
     }	

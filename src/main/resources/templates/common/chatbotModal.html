@@ -1,78 +1,140 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<meta charset="UTF-8">
 <head>
     <title>Chatbot</title>
-    <style>
-        #chat-container {
-            width: 300px;
-            height: 400px;
-            border: 1px solid #ccc;
-            overflow-y: scroll;
-            margin: 20px auto;
-        }
-
-        #chat-log {
-            padding: 10px;
-        }
-
-        #chat-input {
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-
-        #user-input {
-            width: 70%;
-            padding: 5px;
-            margin-right: 5px;
-        }
-
-        #send-button {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="/css/common/chatBot.css">
 </head>
 <body>
-    <div id="chat-container">
+    <div id="chat-container" class="closed">
+        <div id="chat-header">
+            <h3>Mapmory Bot</h3>
+            <button id="close-chat-button"><i class="fas fa-times"></i></button>
+        </div>
         <div id="chat-log"></div>
         <div id="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message here...">
-            <button id="send-button">Send</button>
+            <input type="text" id="user-input" placeholder="메세지 입력란">
+            <button id="send-button"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
-    <script th:inline="javascript">
-        $(document).ready(function() {
-            $("#send-button").click(function() {
-                var userInput = $("#user-input").val();
-                sendMessage(userInput);
-                $("#user-input").val(""); // Clear input field
+    <button id="open-chat-button">&#129302;</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("send-button").addEventListener("click", sendMessage);
+            document.getElementById("open-chat-button").addEventListener("click", openChat);
+            document.getElementById("close-chat-button").addEventListener("click", closeChat);
+            document.getElementById("user-input").addEventListener("keydown", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    sendMessage();
+                }
             });
+
+            // 페이지 로드 시 웰컴 메시지 가져오기
+            fetch("/bot/welcome")
+                .then(response => response.json())
+                .then(data => {
+                    var welcomeMessage = data.message;
+                    displayBotMessage(welcomeMessage);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
         });
 
-        function sendMessage(message) {
-            $("#chat-log").append("<div>You: " + message + "</div>");
-            $.ajax({
-                type: "POST",
-                url: "/bot/chat",
-                contentType: "application/json",
-                data: JSON.stringify(message),
-                success: function(response) {
-                    var respon = JSON.parse(response);
+        function openChat() {
+            document.getElementById("chat-container").style.display = "flex";
+            document.getElementById("open-chat-button").style.display = "none";
+        }
+
+        function closeChat() {
+            document.getElementById("chat-container").style.display = "none";
+            document.getElementById("open-chat-button").style.display = "flex";
+        }
+
+        function sendMessage() {
+            var userInput = document.getElementById("user-input").value;
+            if (userInput.trim() !== "") {
+                displayUserMessage(userInput);
+                document.getElementById("user-input").value = "";
+
+                fetch("/bot/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(userInput)
+                })
+                .then(response => response.json())
+                .then(respon => {
                     if (respon.bubbles && respon.bubbles.length > 0) {
-                        var botResponse = respon.bubbles[0].data.description;
-                        $("#chat-log").append("<div>Bot: " + botResponse + "</div>");
+                    	respon.bubbles.forEach(bubble => {
+                    	    if (bubble.type === "text") {
+                    	        var botResponse = bubble.data.description;
+                    	        displayBotMessage(botResponse);
+                    	    } else if (bubble.type === "template") {
+                    	        var botResponse = bubble.data.cover.data.description;
+                    	        var buttons = [];
+                    	        
+                    	        if (bubble.data.contentTable && bubble.data.contentTable.length > 0) {
+                    	            bubble.data.contentTable.forEach(row => {
+                    	                row.forEach(cell => {
+                    	                    if (cell.data && cell.data.type === "button") {
+                    	                        buttons.push({
+                    	                            title: cell.data.title,
+                    	                            url: cell.data.data.action.data.url
+                    	                        });
+                    	                    }
+                    	                });
+                    	            });
+                    	        }
+                    	        
+                    	        displayBotMessage(botResponse, buttons);
+                    	    }
+                    	});
                     } else {
                         console.error("Error: Empty response or invalid format");
                     }
-                    $("#chat-log").scrollTop($("#chat-log")[0].scrollHeight); // Scroll to bottom
-                },
-                error: function(xhr, status, error) {
+                    document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
+                })
+                .catch(error => {
                     console.error("Error:", error);
-                }
-            });
+                });
+            }
+        }
+
+        function displayUserMessage(message) {
+            var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var userMessage = document.createElement("div");
+            userMessage.className = "message-row user-message";
+            userMessage.innerHTML = "<div class='message-content'><div class='message-bubble'>" + message + "</div><div class='message-time'>" + currentTime + "</div></div>";
+            document.getElementById("chat-log").prepend(userMessage);
+        }
+
+        function displayBotMessage(message, buttons) {
+            var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var botMessage = document.createElement("div");
+            botMessage.className = "message-row bot-message";
+            
+            var messageContent = "<div class='profile-image'>&#129302;</div><div class='message-content'><div class='message-bubble'>" + message + "</div>";
+            
+            if (buttons && buttons.length > 0) {
+                messageContent += "<div class='button-container'>";
+                buttons.forEach(function(button) {
+                    messageContent += "<a href='" + button.url + "' target='_blank' class='message-button'>" + button.title + "</a>";
+                });
+                messageContent += "</div>";
+            }
+            
+            messageContent += "<div class='message-time'>" + currentTime + "</div></div>";
+            botMessage.innerHTML = messageContent;
+            document.getElementById("chat-log").prepend(botMessage);
         }
     </script>
 </body>

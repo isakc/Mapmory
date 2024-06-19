@@ -9,72 +9,121 @@
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 댓글 아이콘 클릭 댓글 목록 이동 -->
+	<script>
+	$(function () {
+		$('.container').on("click", ".bi-chat-square-text-fill", function() {
+			var $row = $(this).closest('div.col-sm-4');
+			var recordNo = $row.data('record-no');
+			console.log(recordNo);
+			window.location.href = '/community/getReplyList/'+recordNo;
+		});
+	});	
+	</script>
+
 	<!-- 무한 스크롤 -->
 	<script th:inline="javascript">
-		var offset = 0;
-		var limit = 10;
+		var currentPage = 2;
 		var loading = false; 
+		var endOfData = false;
 		
-		function getSharedRecordList() {
-			console.log("최초 호출");
-            if (loading) return; 
+		$(document).ready(function() {
+			loadSharedRecordList();
+		});
+		
+        $(window).scroll(function() {
+        	console.log("스크롤 시작");
+        	if (!loading && !endOfData) {
+        		if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    loading = true;
+                    currentPage++;
+                    loadSharedRecordList();
+        		}
+        	}
+        });	
+        
+		function loadSharedRecordList() {
+			console.log("호출 시작, 현재 페이지 :"+currentPage);
 
-            loading = true;
 			$.ajax({
 				url : '/community/rest/getSharedRecordList',
-				data : { 
-						currentPage : (offset / limit ) + 1, 
-						limit : limit 
+				type : 'GET',
+				data: { 
+				    currentPage: currentPage
 				},
-				success : function(data) {
+				success : function(response) {
 					console.log("ajax 요청 시도");
-					if(data.length ===0) {
-						console.log("데이터 완료")	;
-					} else {
-						console.log("데이터 가져오기");
-						offset += limit;
-                        data.forEach(function(sharedRecord) {
-                            var recordHtml = '<div class="card mb-3">';
-                            recordHtml += '<h3 class="card-header">' + sharedRecord.recordTitle + '</h3>';
-                            recordHtml += '<div class="card-body">';
-                            recordHtml += '<h4>';
-                            recordHtml += '<img alt="" class="profileImage" src="/user/rest/image/' + sharedRecord.profileImageName + '">';
-                            recordHtml += '<a href="/user/getProfile?userId=' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</a>';
-                            recordHtml += '<span>' + sharedRecord.subscriptionEndDate + '</span>';
-                            recordHtml += '</h4>';
-                            recordHtml += '</div>';
-                            if (sharedRecord.imageTagType != null && sharedRecord.imageTagText != null) {
-                                recordHtml += '<div>';
-                                recordHtml += '<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">';
-                                recordHtml += '<rect width="100%" height="100%" fill="#868e96"></rect>';
-                                recordHtml += '<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>';
-                                recordHtml += '</svg>';
-                                recordHtml += '</div>';
-                            }
-                            recordHtml += '<div class="card-body">';
-                            recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
-                            recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
-                            recordHtml += '</div>';
-                            recordHtml += '<div class="card-body">';
-                            recordHtml += '<h3 class="card-title">';
-                            recordHtml += '<a href="/community/getDetailSharedRecord/' + sharedRecord.recordNo + '">' + sharedRecord.recordTitle + '</a>';
-                            recordHtml += '<span>' + sharedRecord.categoryName + '</span>';
-                            recordHtml += '<span>' + sharedRecord.categoryImoji + '</span>';
-                            recordHtml += '</h3>';
-                            recordHtml += '</div>';
-                            recordHtml += '<div class="card-footer text-muted">';
-                            recordHtml += '<span>' + sharedRecord.sharedDate + '</span>';
-                            recordHtml += '<span>' + sharedRecord.updateCount + '회 수정됨</span>';
-                            recordHtml += '</div>';
-                            recordHtml += '</div>';
+					
+					var sharedRecordList = response[1]
 
-                            $('#shared-record-list').append(recordHtml);
-                        });
-                    }
+					if (sharedRecordList.length === 0) {
+						endOfData = true;
+						console.log("데이터 끝에 도달");
+						loading = false;
+						return;
+					}						
+					
+					var days = ['일', '월', '화', '수', '목', '금', '토'];	
+					var addrecordHtml = '';
+					console.log(sharedRecordList);
+					sharedRecordList.forEach(function(sharedRecord) {
+			            var sharedDate = sharedRecord.sharedDate;
+			            var dateObj = new Date(sharedDate[0], 
+			            						sharedDate[1] - 1, 
+			            						sharedDate[2], 
+			            						sharedDate[3],
+			            						sharedDate[4], 
+			            						sharedDate[5]);
+			            var dayOfWeek = days[dateObj.getDay()]; // 요일
+
+			            // yyyy-mm-dd (E) 형식으로 변환
+			            var formattedDate = sharedDate[0] + '-' + 
+			                                (sharedDate[1].toString().padStart(2, '0')) + '-' + 
+			                                (sharedDate[2].toString().padStart(2, '0')) + 
+			                                ' (' + dayOfWeek + ')';
+						
+					var recordHtml = '<div class="col-sm-4 card mb-3" th:data-record-no="' + sharedRecord.recordNo + '">';
+					recordHtml += '<h3 class="card-header">' + sharedRecord.recordTitle + '</h3>';
+					recordHtml += '<div class="card-body">';
+					recordHtml += '<h4>';
+					recordHtml += '<img alt="" class="profileImage" src="/user/rest/image/' + sharedRecord.profileImageName + '">';
+					recordHtml += '<a href="/user/getProfile?userId=' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</a>';
+					recordHtml += '<span>' + sharedRecord.subscriptionEndDate + '</span>';
+					recordHtml += '</h4>';
+					recordHtml += '</div>';
+					if (sharedRecord.imageTagType != null && sharedRecord.imageTagText != null) {
+						recordHtml += '<div>';
+						recordHtml += '<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">';
+						recordHtml += '<rect width="100%" height="100%" fill="#868e96"></rect>';
+						recordHtml += '<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>';
+						recordHtml += '</svg>';
+						recordHtml += '</div>';
+					}
+					recordHtml += '<div class="card-body">';
+					recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
+					recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
+					recordHtml += '</div>';
+					recordHtml += '<div class="card-body">';
+					recordHtml += '<h3 class="card-title">';
+					recordHtml += '<a href="/community/getDetailSharedRecord/' + sharedRecord.recordNo + '">' + sharedRecord.recordTitle + '</a>';
+					recordHtml += '<span>' + sharedRecord.categoryName + '</span>';
+					recordHtml += '<span>' + sharedRecord.categoryImoji + '</span>';
+					recordHtml += '</h3>';
+					recordHtml += '</div>';
+					recordHtml += '<div class="card-footer text-muted">';
+					recordHtml += '<span>' + formattedDate + '</span>';
+					recordHtml += '<span class="list-footer">조회수: ' + sharedRecord.logsCount + '</span>';
+					recordHtml += '<span>' + sharedRecord.updateCount + '회 수정됨</span>';
+					recordHtml += '</div>';
+					recordHtml += '</div>';
+				
+					addrecordHtml += recordHtml;
+					});	
+					$('#shared-record-list').append(addrecordHtml);
 					 loading = false;
                 },
                 error : function(xhr, status, error) {
@@ -83,21 +132,8 @@
                 }
             });
         }
-		
-		$(document).ready(function() {
-			console.log("준비 완료");
-			getSharedRecordList();
-			
-            $(window).scroll(function() {
-            	console.log("스크롤 시작");
-                if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100) {
-                	console.log("하단 도착");
-                	getSharedRecordList(); 
-                }
-            });
-        });
 	</script>
-
+	
 	<style>
 		.reply-count {
 			font-size : 18px;
@@ -119,6 +155,22 @@
 			width : 50px;
 			height : 50px;
 		}
+
+		.col-sm-4 {
+			border: 3px solid green;
+			padding: 10px;
+			margin-bottom: 15px;
+			border-radius: 5px;
+		}
+				
+        .list-footer {
+            display: inline-block;
+            margin-right: 40px; /* 각 span 태그의 오른쪽에 20px의 마진을 추가 */
+        }
+        .card-footer .list-footer:last-child {
+            margin-right: 0; /* 마지막 요소의 오른쪽 마진을 제거 */
+        }		
+		
 	</style>
 		
 </head>
@@ -126,42 +178,42 @@
 	<div id=content-for-footer>	
 		<div class="container">
 			<div class="card mb-3">
-				<h3 class="card-header">공유기록목록</h3>
-					<div th:each="sharedRecord, iterStat  : ${sharedRecordlist}" class="col-sm-4">
-						<div class="card-body">
-							<h4>
-								<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${sharedRecord.profileImageName})}">
-								<a th:href="@{/user/getProfile(userId=${sharedRecord.recordUserId})}" th:text="${sharedRecord.nickname}"></a>
-								<span th:text="${sharedRecord.subscriptionEndDate}"></span>
-							</h4> 
-						</div>
-						<div th:if="${sharedRecord.imageTagType != null and sharedRecord.imageTagText !=null}">
-							<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
-								<rect width="100%" height="100%" fill="#868e96"></rect>
-								<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
-							</svg>					
-						</div>
-						<div class="card-body">
-							<i class="bi bi-chat-square-text-fill"></i>				
-							<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
-						</div>
-						
-						<div class="card-body">
-							<h3 class="card-title">
-								<a th:href="@{'/community/getDetailSharedRecord/' + ${sharedRecord.recordNo}}" th:text="${sharedRecord.recordTitle}" class="title"></a>
-								<span th:text="${sharedRecord.categoryName}"></span>
-								<span th:text="${sharedRecord.categoryImoji}"></span>
-							</h3>
-	
-						</div>
-						<div class="card-footer text-muted">
-							<span th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span>
-							<span th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span>
-							<span th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
-						</div>
+				<h3 class="card-header col-sm-4" >공유기록목록</h3>
+				<div id="shared-record-list">
+				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="col-sm-4" th:data-record-no="${sharedRecord.recordNo}">
+					<div class="card-body">
+						<h4>
+							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${sharedRecord.profileImageName})}">
+							<a th:href="@{/user/getProfile(userId=${sharedRecord.recordUserId})}" th:text="${sharedRecord.nickname}"></a>
+							<span th:text="${sharedRecord.subscriptionEndDate}"></span>
+						</h4> 
 					</div>
-				<div id="shared-record-list" class="container">
-   				</div>	
+					<div th:if="${sharedRecord.imageTagType != null and sharedRecord.imageTagText !=null}">
+						<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+							<rect width="100%" height="100%" fill="#868e96"></rect>
+							<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+						</svg>					
+					</div>
+					<div class="card-body">
+						<i class="bi bi-chat-square-text-fill"></i>				
+						<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
+					</div>
+					
+					<div class="card-body">
+						<h3 class="card-title">
+							<a th:href="@{'/community/getDetailSharedRecord/' + ${sharedRecord.recordNo}}" th:text="${sharedRecord.recordTitle}" class="title"></a>
+							<span th:text="${sharedRecord.categoryName}"></span>
+							<span th:text="${sharedRecord.categoryImoji}"></span>
+						</h3>
+
+					</div>
+					<div class="card-footer text-muted">
+						<span class="list-footer" th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span> 
+						<span class="list-footer" th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span> 
+						<span class="list-footer" th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
+					</div>
+				</div>
+			</div>	
 			</div>
 		</div>
 	</div>

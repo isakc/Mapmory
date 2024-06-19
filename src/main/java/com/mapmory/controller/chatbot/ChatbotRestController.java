@@ -49,15 +49,11 @@ public class ChatbotRestController {
 		    }
 
 		    // NAVER Cloud ChatBot
-		    @RequestMapping("chat")
+		    @RequestMapping(value = "chat", produces = "application/json; charset=UTF-8")
 		    public ResponseEntity<String> chatBotconn(@RequestBody String text) {
 
 		        // 최종 결과값 리턴시 사용할 변수 선언
 		        JSONObject chatbotMessage = new JSONObject();
-
-//		        String apiUrl = config.getProperty("api.bot.url");
-//		        String secretKey = config.getProperty("api.bot.client.secret");
-
 		        // 사용자 질문 텍스트 Request
 		        String message = getReqMessage(text);
 
@@ -165,29 +161,62 @@ public class ChatbotRestController {
 
 		            obj.put("bubbles", bubbles_array);
 
-//		            if (Objects.equals(text, "동영상 보여줘")) {
-//		                obj.put("event", "open");
-//		            } else {
-		                obj.put("event", "send");
-//		            }
+		            obj.put("event", "send");
+
 		            requestBody = obj.toString();
 		        } catch (Exception e) {
 		            logger.error("Failed to create the request message", e);
 		        }
 		        return requestBody;
 		    }
+		    
+		    @RequestMapping(value = "welcome", produces = "application/json; charset=UTF-8")
+		    public ResponseEntity<String> welcomeMessage() {
+		        String welcomeMessage = getWelcomeMessage();
+		        JSONObject response = new JSONObject();
+		        response.put("message", welcomeMessage);
+		        return ResponseEntity.ok(response.toString());
+		    }
 
-		    // 페이지 내비게이션 서비스
-		    @RequestMapping("navi")
-		    public ResponseEntity<Map<String, String[]>> pageNavigation(@RequestBody(required = false) Map<String, String[]> data, HttpServletRequest request) throws Exception {
-		        if (data != null && data.containsKey("url")) {
-		            String[] urls = data.get("url");
-		            if (urls != null && urls.length > 0) {
-		                String[] responseData = new String[]{urls[0]};
+		    private String getWelcomeMessage() {
+		        try {
+		            HttpURLConnection con = (HttpURLConnection) new URL(apiUrl).openConnection();
+		            con.setRequestMethod("POST");
+		            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+		            con.setRequestProperty("X-NCP-CHATBOT_SIGNATURE", makeSignature("", secretKey));
 
-		                return ResponseEntity.ok().body(Collections.singletonMap("url", responseData));
+		            BufferedReader br;
+		            String decodedString;
+
+		            int responseCode = con.getResponseCode();
+
+		            if (responseCode == 200) {
+		                br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+		            } else {
+		                logger.error("API request failed with response code: " + responseCode);
+		                br = new BufferedReader(new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8));
+		                return "API request failed with response code: " + responseCode;
 		            }
+
+		            StringBuilder response = new StringBuilder();
+		            while ((decodedString = br.readLine()) != null) {
+		                response.append(decodedString);
+		            }
+		            br.close();
+
+		            JSONObject responseJson = new JSONObject(response.toString());
+		            System.out.println("웰컴 테스트용 ::::::::::::::::::: " + responseJson);
+
+		            boolean success = responseJson.getBoolean("success");
+		            if (success) {
+		                return "성공적으로 웰컴 메시지를 가져왔습니다.";
+		            } else {
+		                String resultMessage = responseJson.getString("resultMessage");
+		                return "안녕하세요! 무엇을 도와드릴까요?";
+		            }
+		        } catch (Exception e) {
+		            logger.error("Failed to get welcome message", e);
+		            return "안녕하세요! 무엇을 도와드릴까요?";
 		        }
-		        return ResponseEntity.badRequest().build();
 		    }
 		}
