@@ -606,7 +606,6 @@ public class UserRestController {
     		default:
     			bytes = null;
     	}
-    	System.out.println(bytes);
         return bytes;
     }
 	
