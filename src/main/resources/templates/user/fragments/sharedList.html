@@ -6,16 +6,6 @@
 	$(function() {
 		
 		loadMoreSharedList();
-		
-		$(document).on('click', '.record', function() {
-			
-			const recordNo = $(this).attr('id');
-			window.location.href=`/timeline/getDetailTimeline?recordNo=${recordNo}`;
-		});
-		
-	});
-	
-	$(function() {
 
 		$(window).scroll(function() {
 			
@@ -33,7 +23,7 @@
 			
 			// console.log("is end? : "+  (scrollTop + windowHeight >= documentHeight - 100) );
 			
-			console.log( "isValid? " + (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
+			// console.log( "isValid? " + (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
 			
 			
 			// 끝이 나지 않았을 경우에만 다음 page 호출
@@ -44,7 +34,7 @@
                 	sharedListCurrentPage++;
                 	loadMoreSharedList().then(() => {
                 		
-                		console.log("shared list completely load");
+                		// console.log("shared list completely load");
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
