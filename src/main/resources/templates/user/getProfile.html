@@ -30,6 +30,8 @@
 	
 		const profileUserId = [[${profile.user.userId}]];
 		const sessionId = `[[${sessionId}]]`;
+		let isLoading = false;
+		let pageType = null;
 		
 		// console.log('profileUserId : ' + userId);
 	
@@ -37,6 +39,11 @@
 	
 			const myProfile = [[${myProfile}]];
 			const isFollow = [[${isFollow}]];
+			pageType = $('#pageType');
+			pageType.text('sharedList');
+			console.log(pageType.html());
+			console.log("pageType = " + pageType.text());
+			
 			
 			console.log("내 프로필 : " + myProfile);
 			
@@ -203,6 +210,9 @@
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
 				
+				pageType.text('sharedRecord');
+				console.log(pageType.text());
+				
 			});
 						
 			$('#replyListBtn').on('click', function() {
@@ -217,6 +227,8 @@
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
 				
+				pageType.text('replyList');
+				console.log(pageType.text());
 			});
 						
 			$('#bookMarkListBtn').on('click', function() {
@@ -407,14 +419,8 @@
 			</div>
 			<hr/>
 		</div>
-	
-	
-	
-		<!-- 현재 REST 지원 안됨. -->
-		<!-- 다음 주에 rest 지원 예쩡 -->
-		<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
-		<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
-		<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
+		
+		<p id="pageType" style="display:none;"></p>
 		<div class="row mx-2">
 			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한<br/>기록</button>
 			<button class="col btn btn-light" type="button" id="replyListBtn">작성한<br/>댓글</button>

@@ -1,6 +1,7 @@
 <script>
 
 	let sharedListCurrentPage = 1;
+	let sharedListEndOfData = false;// 데이터를 모두 로드했는지 확인하는 변수
 
 	$(function() {
 		
@@ -14,15 +15,6 @@
 		
 	});
 	
-	// 무한 스크롤
-	let sharedListEndOfData = false;// 데이터를 모두 로드했는지 확인하는 변수
-	let isLoading = false; // 플래그 변수 추가
-	/*
-	let replyListEndOfData = false;
-	let bookMarkListEndOfData = false;
-	let reactRecordListEndOfData = false;
-	let reactReplyListEndOfData = false;
-	*/
 	$(function() {
 
 		$(window).scroll(function() {
@@ -31,23 +23,28 @@
 			let windowHeight =  $(window).height();
 			let documentHeight = $(document).height();
 			
+			// console.log("I'm in shared list", pageType.text());
+			
 			/*
 			console.log("scrollTop = "+ scrollTop);
 			console.log("windowHeight = "+ windowHeight);
 			console.log("documentHeight = "+documentHeight);
 			*/
 			
-			console.log("is end? : "+  (scrollTop + windowHeight >= documentHeight - 100) );
+			// console.log("is end? : "+  (scrollTop + windowHeight >= documentHeight - 100) );
+			
+			console.log( "isValid? " + (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
+			
 			
 			// 끝이 나지 않았을 경우에만 다음 page 호출
-            if (!sharedListEndOfData && !isLoading) {
+            if (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")) {
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
                 	isLoading = true; // 로딩 시작
                 	sharedListCurrentPage++;
                 	loadMoreSharedList().then(() => {
                 		
-                		console.log("completely load");
+                		console.log("shared list completely load");
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
@@ -56,6 +53,7 @@
                 }
             }
         });
+
 	});
 	
 	function loadMoreSharedList() {
@@ -71,12 +69,6 @@
     		      // contentType:"application/json",
     		      // dataType: "application/json",
     		      success: function(response) {
-    		    	  
-    		    	  console.log("==========================================");
-    		    	  console.log("==========================================");
-    		    	  console.log("response = " + response, response == true);
-    		    	  console.log("==========================================");
-    		    	  console.log("==========================================");
     		    	  
     		    	  if(response == true)
     		    		  sharedListEndOfData = true;

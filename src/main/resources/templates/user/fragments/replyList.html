@@ -1,59 +1,90 @@
 <script>
-
+		
 	let replyListCurrentPage = 1;
+	let replyListEndOfData = false;
 	
 	$(function() {
 		
-		$.ajax({
-
-			url: `/community/rest/getReplyList/user/${profileUserId}?currentPage=${replyListCurrentPage}`,
-		      method: "GET",
-		      contentType:"application/json",
-		      // dataType: "application/json",
-		      success: function(response) {
-			    	  
-		    	 // console.log(response.list); 
-		    	 
-		    	 response.list.forEach((reply) => {
-		    		
-		    		 const title = reply.recordTitle;
-		    		 const replyText = reply.replyText;
-		    		 const regDate = reply.replyDate;
-		    		 const recordNo = reply.recordNo;
-		    		 
-		    		 let temp = '';
-		    		 temp += '<div id="'+recordNo+'" class="reply">';
-		    		 temp += '<p class="fw-bold">'+title+'</p>';
-		    		 temp += '<p>'+replyText+'</p>';
-		    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
-		    		 temp += '</div>';
-		    		 temp += '<hr/>';
-		    		 $('#replyList').append(temp);
-		    		 
-		    	 });
-		    	  
-		      },
-		      error: function(xhr, status, error) {
-		        console.error("네트워크 오류:", error);
-		        alert("네트워크 오류");
-		      }
-			
-		});
+		loadMoreReplyList();
 		
-	});
-	
-	$(function(){
-		
-		$(document).on('click', '.reply', function(){
+		$(document).on('click', '.reply', function() {
 			
 			const recordNo = $(this).attr('id');
-			
 			window.location.href=`/community/getReplyList/${recordNo}`;
-			
 		});
 		
 	});
 	
-	<!-- 무한 스크롤 구현 필요 -->
+	$(function() {
+
+			$(window).scroll(function() {
+				
+				let scrollTop = $(window).scrollTop();
+				let windowHeight =  $(window).height();
+				let documentHeight = $(document).height();
+				
+				// console.log("I'm in reply list", pageType.text());
+	
+				// 끝이 나지 않았을 경우에만 다음 page 호출
+	            if (!replyListEndOfData && !isLoading && (pageType.text() == "replyList")) {
+	                if ( scrollTop + windowHeight >= documentHeight - 100) {
+	                	
+	                	isLoading = true; // 로딩 시작
+	                	replyListCurrentPage++;
+	                	loadMoreReplyList().then(() => {
+	                		
+	                		console.log("reply list completely load");
+	                		isLoading = false; // 로딩 완료 후 플래그 재설정
+	                		
+	                	}).catch(() => {
+	                        isLoading = false; // 에러 발생 시 플래그 재설정
+	                    });
+	                }
+	            }
+	        });
+	});
+
+	function loadMoreReplyList() {
+		
+		return new Promise((resolve, reject) => {
+			$.ajax({
+	
+				url: `/community/rest/getReplyList/user/${profileUserId}?currentPage=${replyListCurrentPage}`,
+			      method: "GET",
+			      contentType:"application/json",
+			      success: function(response) {
+	
+			    	 if(response == true)
+	   		    	   sharedListEndOfData = true;
+			    	  
+			    	 response.list.forEach((reply) => {
+			    		
+			    		 const title = reply.recordTitle;
+			    		 const replyText = reply.replyText;
+			    		 const regDate = reply.replyDate;
+			    		 const recordNo = reply.recordNo;
+			    		 
+			    		 let temp = '';
+			    		 temp += '<div id="'+recordNo+'" class="reply">';
+			    		 temp += '<p class="fw-bold">'+title+'</p>';
+			    		 temp += '<p>'+replyText+'</p>';
+			    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+			    		 temp += '</div>';
+			    		 temp += '<hr/>';
+			    		 $('#replyList').append(temp);
+			    		 
+			    		 resolve();
+			    	 });
+			    	  
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			        reject();
+			      }
+				
+			});
+		})
+	}
 </script>
 
