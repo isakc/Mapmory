@@ -16,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @ToString
 public class Search {
+	//공통
 	private int searchCondition;
 	private String searchKeyword;
 	private String userId;
@@ -26,19 +27,21 @@ public class Search {
 	private int startRowNum;	
 	private int limit;
 	private int offset;
-	
+	//타임라인
 	private Integer sharedType;
 	private Integer tempType;
 	private Integer timecapsuleType;
 	private Date selectDate;
 	private String selectDay1;
 	private String selectDay2;
-
+	//지도
 	private int radius;
 	private Double latitude;
 	private Double longitude;
 	private Integer followType;
 	private Integer privateType;
+	//회원
+	private Integer logsType;
 
 	public void setPageSize(int paseSize) {
 		this.pageSize = paseSize;

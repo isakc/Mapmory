@@ -425,14 +425,14 @@ public class TimelineController {
 //				.timecapsuleType(0)
 //				.build();
 //		model.addAttribute("list5",timelineService.getTimelineList(search));
-		search=Search.builder()
-				.currentPage(1)
-				.limit(5)
-				.sharedType(0)
-				.tempType(0)
-				.timecapsuleType(1)
-				.build();
-		model.addAttribute("list6",timelineService.getTimelineList(search));
+//		search=Search.builder()
+//				.currentPage(1)
+//				.limit(5)
+//				.sharedType(0)
+//				.tempType(0)
+//				.timecapsuleType(1)
+//				.build();
+//		model.addAttribute("list6",timelineService.getTimelineList(search));
 //		//d_day보다 현재 날짜가 위에 있으면 갖고오는 조건식
 //		search=Search.builder()
 //				.currentPage(1)
@@ -442,16 +442,28 @@ public class TimelineController {
 //				.timecapsuleType(1)
 //				.build();
 //		model.addAttribute("list7",timelineService.getTimelineList(search));
-//		//대민 지원
-//		search=Search.builder()
-//				.userId(" user2 ").
-//				currentPage(1)
-//				.limit(5)
-//				.sharedType(1)
-//				.tempType(1)
-//				.timecapsuleType(0)
-//				.build();
-//		model.addAttribute("list8",timelineService.getTimelineList(search));
+		//대민 지원
+		search=Search.builder()
+				.userId("user1")
+				.currentPage(1)
+				.limit(5)
+				.logsType(0)
+				.build();
+		model.addAttribute("list8",timelineService.getProfileTimelineList(search));
+		search=Search.builder()
+				.userId("user1")
+				.currentPage(1)
+				.limit(5)
+				.logsType(1)
+				.build();
+		model.addAttribute("list8_1",timelineService.getProfileTimelineList(search));
+		search=Search.builder()
+				.userId("user1")
+				.currentPage(1)
+				.limit(5)
+				.logsType(2)
+				.build();
+		model.addAttribute("list8_2",timelineService.getProfileTimelineList(search));
 //		//재용 지원
 //		search=Search.builder()
 //				.currentPage(1)
