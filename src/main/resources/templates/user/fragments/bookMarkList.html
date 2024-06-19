@@ -1,54 +1,95 @@
 <script>
 
 	let reactBookMarkListCurrentPage = 1; 
+	let reactBookMarkListEndOfData = false;
 
 	$(function() {
 		
-		$.ajax({
+		loadMoreBookMarkList();
 
-			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=${reactBookMarkListCurrentPage}`,
-		      method: "GET",
-		      // contentType:"application/json",
-		      // dataType: "application/json",
-		      success: function(response) {
-			    	  
-		    	  response.timelineList.forEach((timeline) => {
-		    		  
-		    		  // console.log(timeline);
-		    		  let thumbnailName = null;
-		    		  if(timeline.imageTagList.length > 0)
-		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
-		    		  const title = timeline.recordTitle;
-		    		  const categoryName = timeline.categoryName;
-		    		  const categoryEmoji = timeline.categoryImoji;
-		    		  const regDate = timeline.recordAddDate;
-		    		  const recordNo = timeline.recordNo;
-		    		  
-		    		  let temp = '';
-		    		  temp += '<div id="'+recordNo+'" class="record">';
-			    		  if(thumbnailName != null)
-			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
-			    		  temp += '<p class="fw-bold">'+title+'</p>';
-			    		  temp += '<div class="category">'
-				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
-				    		  temp += '<p>'+categoryName+'</p>';
-			    		  temp += '</div>'
-			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
-			    		  temp += '</div>';
-		    		  temp += '<hr/>';
-		    		  $('#sharedRecordList').append(temp);
-		    	  })
-		    	  
-		    	  
-		      },
-		      error: function(xhr, status, error) {
-		        console.error("네트워크 오류:", error);
-		        alert("네트워크 오류");
-		      }
+		$(window).scroll(function() {
 			
-		});
-		
+			let scrollTop = $(window).scrollTop();
+			let windowHeight =  $(window).height();
+			let documentHeight = $(document).height();
+			
+			// console.log("I'm in reply list", pageType.text());
+
+			// 끝이 나지 않았을 경우에만 다음 page 호출
+            if (!replyListEndOfData && !isLoading && (pageType.text() == "bookMarkList")) {
+                if ( scrollTop + windowHeight >= documentHeight - 100) {
+                	
+                	isLoading = true; // 로딩 시작
+                	reactBookMarkListCurrentPage++;
+                	loadMoreBookMarkList().then(() => {
+                		
+                		isLoading = false; // 로딩 완료 후 플래그 재설정
+                		
+                	}).catch(() => {
+                        isLoading = false; // 에러 발생 시 플래그 재설정
+                    });
+                }
+            }
+        });
 	});
+	
+	
+	function loadMoreBookMarkList() {
+		
+		return new Promise((resolve, reject) => {
+			
+			$.ajax({
+
+				url: `/timeline/rest/getProfileTimelineList?userId=${profileUserId}&currentPage=${reactBookMarkListCurrentPage}&logsType=1`,
+			      method: "GET",
+			      success: function(response) {
+				    	  
+			    	  if(response == true)
+			    		  reactBookMarkListEndOfData = true;
+			    	  
+			    	  response.timelineList.forEach((timeline) => {
+
+			    		  let thumbnailName = null;
+			    		  if(timeline.imageTagList.length > 0)
+			    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
+			    		  const title = timeline.recordTitle;
+			    		  const categoryName = timeline.categoryName;
+			    		  const categoryEmoji = timeline.categoryImoji;
+			    		  const regDate = timeline.recordAddDate;
+			    		  const recordNo = timeline.recordNo;
+
+			    		  
+			    		  let temp = '';
+			    		  temp += '<div id="'+recordNo+'" class="record">';
+				    		  if(thumbnailName != null)
+				    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
+				    		  temp += '<p class="fw-bold">'+title+'</p>';
+				    		  temp += '<div class="category">'
+					    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+					    		  temp += '<p>'+categoryName+'</p>';
+				    		  temp += '</div>'
+				    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+				    		  temp += '</div>';
+			    		  temp += '<hr/>';
+			    		  $('#bookMarkList').append(temp);
+			    		  
+			    		  resolve();
+			    	  });
+			    	  
+			      },
+			      error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			        reject();
+			      }
+				
+			});
+			
+			
+			})
+		};
+		
+		
 
 </script>
 

@@ -413,6 +413,12 @@ public class UserServiceImpl implements UserService {
 		return null;
 	}
 
+	/**
+	 * searchCondition :: 0 = ID, 1 = 닉네임
+	 * searchKeyword :: 검색어
+	 * pageSize :: 보여지는 개수
+	 * currentPage :: 현재 페이지
+	 */
 	@Override
 	public Map<String, Object> getUserList(Search search) {
 		// TODO Auto-generated method stub
