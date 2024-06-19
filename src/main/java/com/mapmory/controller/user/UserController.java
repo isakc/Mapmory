@@ -522,12 +522,8 @@ public class UserController {
 		
 		Map<String, Object> map = userService.getUserList(search);
 		Page resultPage = new Page(search.getCurrentPage(),((Integer)map.get("count")).intValue(),pageUnit,pageSize);
-		        
-<<<<<<< HEAD
+
        //  model.addAttribute("userList", (List<User>) map.get("userList"));
-=======
-       //  model.addAttribute("productList", (List<User>) map.get("userList"));
->>>>>>> refs/remotes/origin/master
         model.addAttribute("userList",  map.get("userList"));
         model.addAttribute("search", search);
         model.addAttribute("resultPage", resultPage);
