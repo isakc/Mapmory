@@ -13,6 +13,59 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 신고 모달 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		
+        var userId = /*[[${userId}]]*/
+        console.log(userId);
+        var recordUserId = /*[[${record.recordUserId}]]*/
+        console.log(recordUserId);
+        if (userId === recordUserId) {
+            $('.bi-three-dots').hide(); // "더보기" 아이콘 숨기기
+        }		
+		$('.bi-three-dots').on("click", function() {
+			var userId = /*[[${userId}]]*/
+			console.log(userId);
+			openModal();
+		});
+	
+		function openModal() {
+			document.getElementById("moreModal").style.display = "block";
+		}
+	
+		$('#addReport').on("click", function() {
+			var reporterUserId = /*[[${userId}]]*/
+			console.log(reporterUserId);
+			var recordUserId =  /*[[${record.recordUserId}]]*/
+			console.log(recordUserId);
+			var recordTitle = $('.recordTitle').text();
+			var recordNo = $('.recordNo').text();
+			var reportData = {
+				userId: reporterUserId,
+				targetUserId: recordUserId,
+				recordTitle: recordTitle,
+				recordNo: recordNo
+			};
+			console.log("1. 신고 데이터 :" + reportData);
+	
+			sessionStorage.setItem('reportData', JSON.stringify(reportData));
+	
+			window.location.href = '/community/addReport';
+			closeModal();
+		});
+	
+		$('.btn-close').on("click", function() {
+		    closeModal();
+		});		
+		
+	    function closeModal() {
+			document.getElementById("moreModal").style.display = "none";
+	    }
+	});
+	</script>
+	<!-- 신고 모달 -->
+
 	<!-- 기록 좋아요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -199,55 +252,8 @@
 	</script>
 	<!-- 기록 즐겨찾기 -->
 	
-	<!-- 신고 모달 -->
-	<script th:inline="javascript">
-	$(document).ready(function() { 
-
-	function openModal() {
-		document.getElementById("moreModal").style.display = "block";	
-	}
-	
-	function closeModal() {
-		document.getElementById("moreModal").style.display = "none";
-	}
-	
-	$(function() {
-		$('table').on("click", ".moreBtn", function() {
-			var userId = /*[[${userId}]]*/
-				console.log(userId);
-			
-			openModal();
-						
-			$('#addReport').on("click", function() {
-				var reporterUserId = userId;
-				var recordUserId = $('.recordUserId').text();
-				var recordTitle = $('.recordTitle').text();
-				var recordNo = $('.recordNo').text();
-				var reportData = {
-					userId : reporterUserId,
-					targetUserId : recordUserId,
-					recordTitle	: recordTitle,
-					recordNo : recordNo
-				};
-				console.log("1. 신고 데이터 :"+reportData);
-				
-				sessionStorage.setItem('reportData', JSON.stringify(reportData));
-				
-				window.location.href = '/community/addReport';
-				closeModal();
-			});
-			
-			$('.close').on("click", function() {
-				closeModal();
-			});
-		});
-	});
-	});
-	</script>
-	<!-- 신고 모달 -->
-		
 	<style>
-		.modal {
+		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
 		  z-index: 1;
@@ -303,7 +309,11 @@
 		    max-height: 100%;
 		    height: auto; 
 		    width: auto; 
-		}	
+		}
+		
+		.bi-three-dots {
+			font-size : 30px;
+		}					
 					
 	</style>	
 	
@@ -318,7 +328,7 @@
 						<a th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:text="${record.subscriptionEndDate}"></span>
-						<i class="bi bi-three-dots" style="float: right;"></i>									
+						<i id="moreIcon" class="bi bi-three-dots" style="float: right;"></i>									
 					</h4> 
 				</div>
 				<div class="card=body">
@@ -379,6 +389,23 @@
 			<i class="bi bi-chat-square-text-fill"></i>					
 			<span th:text="${record.replyCount}" class="reply-count"></span>	
 	    </div>
+	    
+  		<!-- 더보기 모달창 -->
+		<div class="moreModal" id="moreModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">더보기</h5>
+						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"></span>
+						</button>
+					</div>
+					<div class="modal-body">	
+						<button type="button" id="addReport" class="btn btn-danger">공유기록 신고하기</button>
+					</div>
+				</div>
+			</div>
+		</div>  
 	</div>
 	<div th:replace="common/footer::defaultFooter"></div>	 
 </body>	

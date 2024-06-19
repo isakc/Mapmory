@@ -178,7 +178,6 @@
 		document.getElementById("updateModal").style.display ="none";
 	}	
 	
-	
 	$(function() {
 		$('#container').on("click", ".bi-three-dots", function() {
 			var $row = $(this).closest('div');
@@ -260,9 +259,10 @@
 		$('#moreModal').on("click", "#delete", function() {
 			
 			if(currentRow) {
-				var userId = userId;
+				var userId = /*[[${search.userId}]]*/ 
+					console.log("111 :"+userId);
 				var replyNo = currentRow.find('.replyNo').text();
-
+			
 				console.log("17.댓글번호 :"+replyNo);
 				
 				$.ajax({
@@ -271,7 +271,10 @@
 					success : function(data) {
 						console.log('18.댓글 삭제 완료 :', data);
 						closeModal();
-						var separator = currentRow.parent().find('.separator');
+						
+						console.log('currentRow:', currentRow);
+						var separator = currentRow.next('.separator');
+						console.log('separator:', separator);
 	                    separator.remove();
 						currentRow.remove();
 					},
