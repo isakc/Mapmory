@@ -39,4 +39,5 @@ public class User {
     private Byte hideProfile = 0;        // hide_profile TINYINT DEFAULT 0
     private LocalDateTime leaveAccountDate; // leave_account_date DATETIME
     private LocalDate endSuspensionDate; // end_suspension_date DATE
+    // private Integer suspensionCount;
 }
