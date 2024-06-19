@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공지사항</title>
+    <title>Mapmory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/common/chatBot.css">
@@ -19,7 +19,7 @@
             padding: 20px;
         }
 
-        .notice-header {
+        .notice-header-left {
             background-color: #00A7F5;
             color: #fff;
             padding: 10px;
@@ -31,7 +31,13 @@
             align-items: center;
         }
 
-        .notice-header h1 {
+        .notice-header-text {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .notice-header-text h1 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
@@ -39,12 +45,17 @@
             align-items: center;
         }
 
-        .notice-header .icon-wrapper {
+        .notice-header-left .icon-wrapper {
             margin-right: 10px;
         }
 
-        .notice-header .icon-wrapper i {
+        .notice-header-left .icon-wrapper i {
             font-size: 24px;
+        }
+
+        .empty-div {
+            width: 24px;
+            /* 아이콘과 동일한 너비 */
         }
 
         .notice-header a {
@@ -127,17 +138,21 @@
 </head>
 
 <body>
-    <div id=content-for-footer>
+    <div id=content-for-left>
         <div class="container">
-            <div class="notice-header">
+            <div class="notice-header-left">
                 <div class="icon-wrapper">
                     <a th:href="@{/notice/noticeMenu}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </div>
-                <h1><i class="bi bi-question-circle"></i> 자주하는질문 목록</h1>
-                <div></div>
+                <div class="notice-header-text">
+                    <h1><i class="bi bi-bell"></i> 자주하는질문 목록</h1>
+                </div>
+                <div class="empty-div"></div>
             </div>
+        </div>
+    </div>
             <div class="search-box">
                 <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
                     <div class="form-group">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang = "ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <meta charset="UTF-8">
 <head>
     <title>Chatbot</title>
@@ -13,7 +13,7 @@
 <body>
     <div id="chat-container" class="closed">
         <div id="chat-header">
-            <h3>Chatbot</h3>
+            <h3>Mapmory Bot</h3>
             <button id="close-chat-button"><i class="fas fa-times"></i></button>
         </div>
         <div id="chat-log"></div>
@@ -35,6 +35,17 @@
                     sendMessage();
                 }
             });
+
+            // 페이지 로드 시 웰컴 메시지 가져오기
+            fetch("/bot/welcome")
+                .then(response => response.json())
+                .then(data => {
+                    var welcomeMessage = data.message;
+                    displayBotMessage(welcomeMessage);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
         });
 
         function openChat() {
@@ -50,10 +61,7 @@
         function sendMessage() {
             var userInput = document.getElementById("user-input").value;
             if (userInput.trim() !== "") {
-                var userMessage = document.createElement("div");
-                userMessage.className = "message-container";
-                userMessage.innerHTML = "<div class='message user-message'>" + userInput + "</div><i class='fas fa-user message-icon'></i>";
-                document.getElementById("chat-log").prepend(userMessage);
+                displayUserMessage(userInput);
                 document.getElementById("user-input").value = "";
 
                 fetch("/bot/chat", {
@@ -66,11 +74,30 @@
                 .then(response => response.json())
                 .then(respon => {
                     if (respon.bubbles && respon.bubbles.length > 0) {
-                        var botResponse = respon.bubbles[0].data.description;
-                        var botMessage = document.createElement("div");
-                        botMessage.className = "message-container";
-                        botMessage.innerHTML = "<i class='fas fa-robot message-icon'></i><div class='message bot-message'>" + botResponse + "</div>";
-                        document.getElementById("chat-log").prepend(botMessage);
+                    	respon.bubbles.forEach(bubble => {
+                    	    if (bubble.type === "text") {
+                    	        var botResponse = bubble.data.description;
+                    	        displayBotMessage(botResponse);
+                    	    } else if (bubble.type === "template") {
+                    	        var botResponse = bubble.data.cover.data.description;
+                    	        var buttons = [];
+                    	        
+                    	        if (bubble.data.contentTable && bubble.data.contentTable.length > 0) {
+                    	            bubble.data.contentTable.forEach(row => {
+                    	                row.forEach(cell => {
+                    	                    if (cell.data && cell.data.type === "button") {
+                    	                        buttons.push({
+                    	                            title: cell.data.title,
+                    	                            url: cell.data.data.action.data.url
+                    	                        });
+                    	                    }
+                    	                });
+                    	            });
+                    	        }
+                    	        
+                    	        displayBotMessage(botResponse, buttons);
+                    	    }
+                    	});
                     } else {
                         console.error("Error: Empty response or invalid format");
                     }
@@ -80,6 +107,34 @@
                     console.error("Error:", error);
                 });
             }
+        }
+
+        function displayUserMessage(message) {
+            var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var userMessage = document.createElement("div");
+            userMessage.className = "message-row user-message";
+            userMessage.innerHTML = "<div class='message-content'><div class='message-bubble'>" + message + "</div><div class='message-time'>" + currentTime + "</div></div>";
+            document.getElementById("chat-log").prepend(userMessage);
+        }
+
+        function displayBotMessage(message, buttons) {
+            var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var botMessage = document.createElement("div");
+            botMessage.className = "message-row bot-message";
+            
+            var messageContent = "<div class='profile-image'>&#129302;</div><div class='message-content'><div class='message-bubble'>" + message + "</div>";
+            
+            if (buttons && buttons.length > 0) {
+                messageContent += "<div class='button-container'>";
+                buttons.forEach(function(button) {
+                    messageContent += "<a href='" + button.url + "' target='_blank' class='message-button'>" + button.title + "</a>";
+                });
+                messageContent += "</div>";
+            }
+            
+            messageContent += "<div class='message-time'>" + currentTime + "</div></div>";
+            botMessage.innerHTML = messageContent;
+            document.getElementById("chat-log").prepend(botMessage);
         }
     </script>
 </body>
