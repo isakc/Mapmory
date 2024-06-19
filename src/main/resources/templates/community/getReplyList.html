@@ -161,9 +161,7 @@
 	}
 	
 	function closeModal() {
-		console.log("닫힘1");
 		document.getElementById("moreModal").style.display = "none";
-		console.log("닫힘2");
 	}
 	
 	function openUpdateModal() {
@@ -294,11 +292,14 @@
 				var targetUserId = currentRow.find('.userId').text();
 				var replyNo = currentRow.find('.replyNo').text();
 				var replyText = currentRow.find('.replyText').text();
+				var nickname = currentRow.find('.nickname').text();
+				console.log("11:"+nickname);
 				var reportData = {
 					userId : reporterUserId,	
 					targetUserId : targetUserId,
 					replyNo : replyNo,
-					replyText : replyText
+					replyText : replyText,
+					nickname : nickname
 				}; 
 				console.log("19.신고 확인 : "+reportData);
 				
@@ -588,7 +589,7 @@
 						<div class="row">
 						<h6>
 							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-							<a th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
+							<a class="nickname" th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
 							<span th:text="${reply.subscriptionEndDate}"></span>
 							<i class="bi bi-three-dots" style="float: right;"></i>
 						</h6>

@@ -30,11 +30,12 @@
     	    var recordTitle = storedReportData.recordTitle;
 			var replyNo = storedReportData.replyNo;
     	    var replyText = storedReportData.replyText;
-
+			var	nickname = storedReportData.nickname;
+    	    
     	    console.log("1.사용자ID :"+userId);
     	    
     	    $('#reporter').val(userId);
-			$('#target').val(maskedTarget);
+			$('#target').val(nickname +'('+maskedTarget+')');
 			$('#recordNo').val(storedReportData.recordNo);
 			$('#recordTitle').val(storedReportData.recordTitle);
 			$('#replyText').val(storedReportData.replyText);

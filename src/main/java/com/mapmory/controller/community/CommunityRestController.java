@@ -184,10 +184,7 @@ public class CommunityRestController {
 	//사용자별 댓글 목록 조회
 	@GetMapping("/rest/getReplyList/user/{userId}")
 	public ResponseEntity<Map<String, Object>> getReplyListByUser(Search search, @PathVariable String userId, @RequestParam Integer currentPage, HttpServletRequest request) throws Exception {
-		
-		userId = redisUtil.getSession(request).getUserId();
-		
-		System.out.println("userId :: " + userId);
+			
 		if(search == null) {
 			search = Search.builder()
 					.userId(userId)

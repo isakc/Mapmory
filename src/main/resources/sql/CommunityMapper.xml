@@ -245,7 +245,7 @@
 	</insert>	
 
 	<!--  사용자 신고 리스트 조회 -->
-	<select id="getUSerReportList" parameterType="map" resultMap="reportSelectMap">
+	<select id="getUserReportList" parameterType="map" resultMap="reportSelectMap">
 		SELECT *
 		FROM report
 		WHERE user_id = #{userId}

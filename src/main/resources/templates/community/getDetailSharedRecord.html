@@ -41,11 +41,13 @@
 			console.log(recordUserId);
 			var recordTitle = $('.recordTitle').text();
 			var recordNo = $('.recordNo').text();
+			var nickname = $('.nickname').text();
 			var reportData = {
 				userId: reporterUserId,
 				targetUserId: recordUserId,
 				recordTitle: recordTitle,
-				recordNo: recordNo
+				recordNo: recordNo,
+				nickname : nickname
 			};
 			console.log("1. 신고 데이터 :" + reportData);
 	
@@ -325,7 +327,7 @@
 				<div>
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
-						<a th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
+						<a class="nickname" th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:text="${record.subscriptionEndDate}"></span>
 						<i id="moreIcon" class="bi bi-three-dots" style="float: right;"></i>									
