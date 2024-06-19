@@ -83,4 +83,9 @@ public class MainController {
 	public void getFooter() {
 		
 	}
+	
+	@GetMapping("/common/toolBar")
+	public void getToolBar() {
+		
+	}
 }
