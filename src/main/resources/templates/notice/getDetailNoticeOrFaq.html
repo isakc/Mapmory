@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/css/common/footer.css">
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/common/chatBot.css">
+
     <style>
         .notice-header {
             background-color: #007bff;
@@ -104,6 +105,7 @@
         </div>
     </div>
     </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
 </body>
 </html>
