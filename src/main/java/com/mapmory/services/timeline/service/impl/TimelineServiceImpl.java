@@ -93,6 +93,11 @@ public class TimelineServiceImpl implements TimelineService {
 		return timelineDao.deleteImageToImageNo(imageNo);
 	}
 	
+	@Override
+	public int deleteMedia(int recordNo) throws Exception {
+		return timelineDao.updateMedia(recordNo);
+	}
+
 	//Category CRUD
 	@Override
 	public void addCategory(Category category) throws Exception {
