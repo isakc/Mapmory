@@ -24,24 +24,34 @@ public class RedisUtil<T> {
 	@Autowired
 	RedisTemplate<String, T> redisTemplate;
 	
-	private final static long EXPIRE_TIME = 30L;
+	private final static long SESSION_EXPIRE_TIME = 30L;
+	
+	public RedisUtil() {
+		System.out.println("redisUtil"); 
+		
+	}
 	
 	/**
-	 * redis에게 데이터를 넣는다.
+	 * redis에게 데이터를 넣는다. (3O분만 유지됨)
 	 * @param keyName  : 지정할 key 이름
 	 * @param t  : 주입할 domain 객체
 	 * @return  : transaction 등에서 문제가 발생하여 값을 넣지 못하면 false, 성공하면 true
 	 */
+	@Deprecated
 	public boolean insert(String keyName, T t) {
 
-		redisTemplate.opsForValue().set(keyName, t);
-		boolean successed = redisTemplate.expire(keyName, EXPIRE_TIME, TimeUnit.MINUTES);
+		redisTemplate.opsForValue().set(keyName, t, SESSION_EXPIRE_TIME, TimeUnit.MINUTES);
+		// boolean successed = redisTemplate.expire(keyName, 10, TimeUnit.SECONDS);
+		/*
+		boolean successed = redisTemplate.expire(keyName, 1, TimeUnit.SECONDS);
 		
 		if( !successed) {
 			System.out.println("Transaction 오류");
 			return false;
 		} else
 			return true;
+			*/
+		return true;
 	}
 	
 	/**
@@ -57,7 +67,7 @@ public class RedisUtil<T> {
 		boolean successed = redisTemplate.expire(keyName, expireTime, TimeUnit.MINUTES);
 		
 		if( !successed) {
-			System.out.println("Transaction 오류");
+			System.out.println("Transaction 오류"); 
 			return false;
 		} else
 			return true;
@@ -83,7 +93,7 @@ public class RedisUtil<T> {
 	 */
 	public boolean update(String keyName, T t) {
 		
-		return insert(keyName, t, EXPIRE_TIME);
+		return insert(keyName, t, SESSION_EXPIRE_TIME);
 	}
 	
 	/**
@@ -151,7 +161,7 @@ public class RedisUtil<T> {
 		} else {
 			cookie.setPath("/");
 			cookie.setMaxAge(60*30);
-			successed = redisTemplate.expire(key, 60*30, TimeUnit.MINUTES);
+			successed = redisTemplate.expire(key, 30, TimeUnit.MINUTES);
 		}
 			
 		response.addCookie(cookie);

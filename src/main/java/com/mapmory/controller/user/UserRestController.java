@@ -197,6 +197,7 @@ public class UserRestController {
 					
 				} else {
 					
+					
 					acceptLogin(userId, role, response, keep);
 					
 					
@@ -207,6 +208,7 @@ public class UserRestController {
 						
 					} else {
 
+						System.out.println("role : " + role);
 						if(role == 1)
 							return ResponseEntity.ok("user");
 						else
@@ -454,6 +456,8 @@ public class UserRestController {
 		// 기존 키가 없으면 새로 발급
 		if(encodedKey == null) {
 			
+			System.out.println("new");
+			
 			encodedKey = new String(userService.generateSecondAuthKey());
 			// client에 저장하기 보다는 redis에 저장해서 client가 오동작해도 키가 증발하지 않게 한다. (localStorage에 저장했다가 삭제하는 것이 베스트)
 			
@@ -480,8 +484,9 @@ public class UserRestController {
 
 	}
 	
+	//////////////////// 2단계 인증 key가 날라가는 문제를 확인. 왜 날라갔지? ////////////////////
 	@PostMapping("/checkSecondaryKey")
-	public ResponseEntity<Boolean> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
 		// 5분안에 인증 못하면 세션 날라가서 keyname 날라감. 다시 로그인해서 발급받게 만들어서 보안 강화.
@@ -517,7 +522,8 @@ public class UserRestController {
 			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
 		}
 		
-		return ResponseEntity.ok(result);
+		tempMap.put("result", String.valueOf(result));
+		return ResponseEntity.ok(tempMap);
 	}
 	
 	

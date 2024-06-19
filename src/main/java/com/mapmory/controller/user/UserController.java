@@ -280,6 +280,7 @@ public class UserController {
 		}
 				
 		System.out.println(profile);
+		model.addAttribute("userId", myUserId);
 		model.addAttribute("sessionId", myUserId);
 		model.addAttribute("profile", profile);
 		// model.addAttribute("profileImage", objectStorageUtil.getImageBytes(profile.getUser().getProfileImageName(), PROFILE_FOLDER_NAME));
@@ -297,6 +298,7 @@ public class UserController {
 		
 		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
+		model.addAttribute("sessionId", myUserId);
 		// model.addAttribute("sessionId", myUserId);
 		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
