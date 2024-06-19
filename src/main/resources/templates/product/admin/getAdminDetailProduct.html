@@ -100,8 +100,8 @@
     <div class="container">
         <h1>상품 상세</h1>
         <div class="product-detail">
-            <h2 th:text="${product.productTitle}">상품 제목</h2>
-            <p th:text="${'가격: ' + product.price + '원'}">가격</p>
+            <h2 th:text="${product.productTitle}"></h2>
+            <p th:text="${'가격: ' + product.price + '원'}"></p>
             <div class="product-image">
                 <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" class="img-fluid rounded">
             </div>

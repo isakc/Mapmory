@@ -3,8 +3,71 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
+
+<link rel="stylesheet" href="/css/common/toolBar.css">
 <body>
 
+	<div th:fragment="defaultToolBar">
+		<nav class="navbar navbar-expand-lg" data-bs-theme="dark" th:fragment="defalutToolbar">
+		  <div class="container-fluid">
+		    <a class="navbar-brand" href="/user/getAdminMain">Mapmory</a>
+		    <button class="navbar-toggler collapsed"  type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+		      <span class="navbar-toggler-icon"></span>
+		    </button>
+		    <div class="navbar-collapse collapse" id="navbarColor01" >
+		      <ul class="navbar-nav me-auto">
+		        <li class="nav-item">
+		      	 <li class="nav-item dropdown">
+		          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">사용자 관리</a>
+		          <div class="dropdown-menu">
+		            <a class="dropdown-item" href="/user/admin/getAdminUserList">사용자 목록 조회</a>
+		            <a class="dropdown-item" name="신고된사용자목록" value="${userId}">신고된 사용자 목록</a>
+		          </div>
+		       	 </li>
+		        <li class="nav-item">
+		          <a class="nav-link" href="/user/getTermsAndConditionsList">이용약관 목록 조회</a>
+		        </li>
+		        <li class="nav-item">
+		          <a class="nav-link" href="/notice/getNoticeList">공지사항 목록 조회</a>
+		        </li>
+		        <li class="nav-item">
+		          <a class="nav-link" href="/notice/getFaqList">FnQ목록 조회</a>
+		        </li>
+		        <li class="nav-item">
+		          <a class="nav-link" href="/timeline/getAdminCategoryList">카테고리 목록 조회</a>
+		        </li>
+		        <li class="nav-item">
+		          <a class="nav-link" href="/product/getProductList">상점 목록 조회</a>
+		        </li>
+		        
+		        
+		      </ul>
+		    </div>
+		  </div>
+		</nav>
+		
+		<script type="text/javascript">
+			$(function() {
+				$('<link>')
+					.appendTo('head')
+					.attr({
+						type: 'text/css',
+						rel: 'stylesheet',
+						href: '/css/common/toolBar.css'
+				});
+				
+				$.getScript('/javascript/common/toolBar.js');
+			   
+			});
+			
+		</script>
+		
+	</div>
 </body>	
+
 </html>

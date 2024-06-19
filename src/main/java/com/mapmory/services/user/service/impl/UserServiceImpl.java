@@ -423,6 +423,9 @@ public class UserServiceImpl implements UserService {
 	public Map<String, Object> getUserList(Search search) {
 		// TODO Auto-generated method stub
 		
+		if(search.getSearchCondition() == 0)
+			search.setSearchCondition(-1);
+		
 		List<User> userList = userDao.selectUserList(search);
 		int count = userDao.getUserListTotalCount(search);
 		

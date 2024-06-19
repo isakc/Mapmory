@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,6 +67,7 @@ import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
 
+@CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000","https://mapmory.co.kr"},allowCredentials = "true")
 @RestController
 @RequestMapping("/user/rest")
 public class UserRestController {
@@ -612,6 +614,7 @@ public class UserRestController {
 	}
 
     
+
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
