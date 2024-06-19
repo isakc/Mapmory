@@ -4,21 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공지사항</title>
+    <title>Mapmory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="/css/common/chatBot.css">
-    
+
     <style>
         body {
             background-color: #f8f9fa;
             padding: 20px;
         }
 
-        .notice-header {
+        .notice-header-left {
             background-color: #00A7F5;
             color: #fff;
             padding: 10px;
@@ -30,7 +30,13 @@
             align-items: center;
         }
 
-        .notice-header h1 {
+        .notice-header-text {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .notice-header-text h1 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
@@ -38,12 +44,17 @@
             align-items: center;
         }
 
-        .notice-header .icon-wrapper {
+        .notice-header-left .icon-wrapper {
             margin-right: 10px;
         }
 
-        .notice-header .icon-wrapper i {
+        .notice-header-left .icon-wrapper i {
             font-size: 24px;
+        }
+
+        .empty-div {
+            width: 24px;
+            /* 아이콘과 동일한 너비 */
         }
 
         .notice-header a {
@@ -126,64 +137,68 @@
 </head>
 
 <body>
-    <div id=content-for-footer>
+    <div id=content-for-left>
         <div class="container">
-            <div class="notice-header">
+            <div class="notice-header-left">
                 <div class="icon-wrapper">
                     <a th:href="@{/notice/noticeMenu}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </div>
-                <h1><i class="bi bi-bell"></i> 공지사항 목록</h1>
-                <div></div>
+                <div class="notice-header-text">
+                    <h1><i class="bi bi-bell"></i> 공지사항 목록</h1>
+                </div>
+                <div class="empty-div"></div>
             </div>
-            <div class="search-box">
-                <form th:action="@{/notice/getNoticeList}" method="get" class="input-group">
-                    <div class="form-group">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
-                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
-                            </ul>
-                            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
-                        </div>
-                    </div>
-                    <div class="form-group flex-grow-1">
-                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">검색</button>
-                </form>
-            </div>
-            <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
-                <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
-            </form>
-
-            <table class="table table-hover notice-table">
-                <thead>
-                    <tr>
-                        <th>제목</th>
-                        <th>자세히보기</th>
-                    </tr>
-                </thead>
-                <tbody class="notice-list">
-                    <tr th:each="notice, status : ${noticeList}">
-                        <td>
-                            <div>
-                                <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
-                                <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
-                            <input type="hidden" th:value="${notice.noticeNo}">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
+    </div>
+    <div class="search-box">
+        <form th:action="@{/notice/getNoticeList}" method="get" class="input-group">
+            <div class="form-group">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                        <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
+                    </ul>
+                    <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+                </div>
+            </div>
+            <div class="form-group flex-grow-1">
+                <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+            </div>
+            <button type="submit" class="btn btn-primary">검색</button>
+        </form>
+    </div>
+    <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
+        <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+    </form>
+
+    <table class="table table-hover notice-table">
+        <thead>
+            <tr>
+                <th>제목</th>
+                <th>자세히보기</th>
+            </tr>
+        </thead>
+        <tbody class="notice-list">
+            <tr th:each="notice, status : ${noticeList}">
+                <td>
+                    <div>
+                        <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+                        <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
+                    <input type="hidden" th:value="${notice.noticeNo}">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
     </div>
     <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
