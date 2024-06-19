@@ -58,7 +58,7 @@
 		    }
 		});
         function maskId(id) {
-            // 예시로 처음 3글자만 노출하고 나머지를 * 처리합니다
+            //처음 3글자만 노출하고 나머지를 * 처리합니다
             var maskedId = id.substring(0, 3) + '*'.repeat(id.length - 3);
             return maskedId;
         }
@@ -79,7 +79,6 @@
 			var recordNo = $('#recordNo').val();
 			var replyNo = $('#replyNo').val();
 
-			
 			if(reportTitle === '' || reportText ==='') {
 				alert('신고 제목과 신고내용을 입력해주세요.');
 				return;

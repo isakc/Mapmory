@@ -254,6 +254,16 @@
 	</script>
 	<!-- 기록 즐겨찾기 -->
 	
+	<!-- 댓글 목록으로 아동 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", '#moreReply', function() {
+			var recordNo = /*[[${record.recordNo}]]*/
+			window.location.href = "/community/getReplyList/"+recordNo;
+		});
+	});	
+	</script>
+	
 	<style>
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
@@ -324,6 +334,13 @@
 	<div id=content-for-footer>	
 		<div class="container">
 			<div class="card mb-3">
+				<ul class="nav nav-pills flex-column">
+					<li class="nav-item">
+						<a class="nav-link active" href="#">
+							<i class="bi bi-journal-richtext">공유기록상세조회</i>
+				    	</a>
+					</li>
+				</ul>
 				<div>
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
@@ -346,7 +363,7 @@
 				<div class="card-body">
 					<span th:text="${record.latitude}"></span>
 					<span th:text="${record.longitude}"></span>
-					<div th:include="timeline/component/map::kakaoMap"></div>
+					<div th:include="timeline/component/map::kakaoMap" ></div>
 					<p th:text="${record.checkpointAddress}"></p>
 				</div>
 				<div class="card-body">
@@ -383,7 +400,8 @@
 			<div th:if="${iterStat.index < 5}" class="separator2"></div>
 		</div>		
 		<div class="card-body">
-			<a th:href="@{'/community/getReplyList/' + ${record.recordNo}}">댓글 더보기</a>
+			<button type="button" id="moreReply" class="btn btn-primary">댓글 더보기</button>
+
 	    </div>
 	    <br/>
 	    <div class="card-body">

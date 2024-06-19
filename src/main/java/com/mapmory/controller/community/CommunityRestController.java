@@ -349,6 +349,24 @@ public class CommunityRestController {
 		return ResponseEntity.ok(report);
 	}
 	
+	//사용자 신고 목록
+	@GetMapping("/rest/getUserReportList/{userId}")
+	public ResponseEntity<Map<String, Object>> getUserReportList(Search search, @PathVariable String userId, @RequestParam int currentPage, HttpServletRequest request) throws Exception {
+	
+		userId = redisUtil.getSession(request).getUserId();
+		
+		if(search == null) {
+		search = Search.builder()		
+				.currentPage(1)
+				.limit(10)
+				.build();
+		}
+		
+		Map<String, Object> report = communityService.getUserReportList(search, userId);
+		return ResponseEntity.ok(report);
+	}
+ 	
+	
 	//사용자 신고 건수
 	@GetMapping("/rest/getUserReportTotalCount")
 	public ResponseEntity<Integer> getUserReportTotalCount(Search search, @RequestParam String userId) throws Exception {

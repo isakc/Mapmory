@@ -74,8 +74,11 @@ public class MainController {
 	}
 	
 	@GetMapping("/common/menu")
-	public void getMenu() {
-		
+	public void getMenu(HttpServletRequest request, Model model) {
+
+		SessionData sessionData = redisUtil.getSession(request);
+	
+		model.addAttribute("userId", sessionData.getUserId());		
 	}
 	
 	// test용

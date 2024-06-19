@@ -42,6 +42,7 @@
 		<result property="reportDate"		column="report_date"		jdbcType="TIMESTAMP"/>
 		<result property="reportStatus"		column="report_status"		jdbcType="INTEGER"/>
 		<result property="reportResult"		column="report_result"		jdbcType="INTEGER"/>
+		<result property="nickname" 		column="nickname"			jdbcType="VARCHAR"/>			
 	</resultMap>
 
 	<resultMap id="followBlockSelectMap" type="followBlock">
@@ -246,8 +247,9 @@
 
 	<!--  사용자 신고 리스트 조회 -->
 	<select id="getUserReportList" parameterType="map" resultMap="reportSelectMap">
-		SELECT *
-		FROM report
+		SELECT *,
+		(SELECT nickname FROM users u WHERE u.USER_ID = r.target_user_ID) AS nickname
+		FROM report r
 		WHERE user_id = #{userId}
 		LIMIT #{search.pageSize} OFFSET #{search.offset}
 	</select>
@@ -279,8 +281,9 @@
 
 	<!-- 신고 조회 -->			
 	<select id="getReport" parameterType="int" resultMap="reportSelectMap">
-		SELECT *
-		FROM report
+		SELECT *,
+		(SELECT nickname FROM users u WHERE u.USER_ID = r.target_user_ID) AS nickname		
+		FROM report r
 		WHERE report_no = #{reportNo}
 	</select>
 

@@ -146,20 +146,26 @@ public class CommunityController {
 	
 	//사용자 신고 목록 조회	
 	@GetMapping("/getUserReportList/{userId}")
-	public String getUserReportListt(@Param("search")Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
+	public String getUserReportListt(@PathVariable String userId, @Param("search")Search search,  Model model, HttpServletRequest request) throws Exception {
     
+		System.out.println("PathVariable userId: " + userId);
+		userId = redisUtil.getSession(request).getUserId();
+		System.out.println("Session userId: " + userId);
+		
 		if(search.getCurrentPage() == 0) {
 			search.setCurrentPage(1);
 		}
 	
 		search.setPageSize(pageSize);
 		
-		userId = redisUtil.getSession(request).getUserId();
+		search.setUserId(userId);
 		
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
 		System.out.println("테스트 : "+userId);
 		model.addAttribute("reportList",  reportList.get("list"));
 		model.addAttribute("totalCount", reportList.get("totalCount"));
+		
+		System.out.println("model :"+model);
 		
 		return "community/getUserReportList";
 	}	
