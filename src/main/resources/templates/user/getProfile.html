@@ -28,7 +28,8 @@
 	
 	<script th:inline="javascript">
 	
-		const userId = [[${profile.user.userId}]];  // targetId
+		const profileUserId = [[${profile.user.userId}]];
+		const sessionId = `[[${sessionId}]]`;
 		
 		// console.log('profileUserId : ' + userId);
 	
@@ -72,17 +73,17 @@
 			$('#follow-list').on('click', function() {
 				
 				console.log("flag");
-				window.location.href="/user/getFollowList?userId="+userId;
+				window.location.href="/user/getFollowList?userId="+profileUserId;
 			});
 			
 			$('#follower-list').on('click', function() {
 				
-				window.location.href="/user/getFollowerList?userId="+userId;
+				window.location.href="/user/getFollowerList?userId="+profileUserId;
 			});
 			
 			$('#updateProfile').on('click', function() {
 				
-				window.location.href="/user/getUpdateProfileView?userId="+userId;
+				window.location.href="/user/getUpdateProfileView?userId="+profileUserId;
 			});
 					
 			$('#deleteFollow').on('click', function() {
@@ -92,7 +93,7 @@
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			        targetId: profileUserId
 			      }),
 			      success: function(response) {
 			        
@@ -122,7 +123,7 @@
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			        targetId: profileUserId
 			      }),
 			      success: function(response) {
 			        
@@ -154,15 +155,13 @@
 			
 			$('#chat').on('click', function() {
 				
-				const sessionId = `[[${sessionId}]]`;
-				
 				$.ajax({
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
 	               method: "POST",
 	               contentType:"application/json",
 	               data: JSON.stringify({
 	                userId: sessionId,
-	                 opponent: userId
+	                 opponent: profileUserId
 	               }),
 	               success: function(response) {
 	                 
@@ -277,16 +276,19 @@
 			});
 			
 		});
+
 		
-		
+		// modal event
 		$(function() {
 			
 			$('#reportUser').on('click', function(){
 				
+				const profileUserNickname = [[${profile.user.nickname}]];
+				
 				const reportData = {
-						userId : [[${sessionId}]] ,
-						targetUserId : [[${profile.user.userId}]],
-						nickname : [[${profile.user.nickname}]],
+						userId : sessionId ,
+						targetUserId : profileUserId,
+						nickname : profileUserNickname,
 				}
 				
 				sessionStorage.setItem('reportData', JSON.stringify(reportData));
@@ -295,15 +297,18 @@
 				
 			});
 			
-			/* 사용자 차단하기
+			// 사용자 차단하기
 			$('#blockUser').on('click', function(){
 				
+				// 정말 차단하시겠습니까?
+				
 				$.ajax({
-			      url: "/community/rest/doReport",
+			      url: "/community/rest/addBlockUser",
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			    	  userId : sessionId,
+			          targetId: userId
 			      }),
 			      success: function(response) {
 			        
@@ -328,7 +333,7 @@
 			    });
 				
 			});
-			*/
+			
 		});
 
 		</script>
@@ -441,7 +446,7 @@
 		  <div class="modal-dialog">
 		    <div class="modal-content text-center">
 		      <div class="modal-header">
-		        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+		        <!-- <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>  -->
 		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		      </div>
 		      <div class="modal-body">

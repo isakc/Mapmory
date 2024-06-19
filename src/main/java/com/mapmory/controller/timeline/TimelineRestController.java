@@ -68,6 +68,9 @@ public class TimelineRestController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	@Value("${page.Unit}")
+	private int pageUnit;
+	
 	public TimelineRestController(){
 		System.out.println("TimelineRestController default Contrctor call : " + this.getClass());
 	}
@@ -196,7 +199,10 @@ public class TimelineRestController {
 			@RequestParam(name = "currentPage", required = true) int currentPage,
 			@RequestParam(name = "logsType", required = true) Integer logsType) throws Exception, IOException {
 		map = new HashMap<String, Object>();
-		Search search = Search.builder().userId(userId).limit(pageSize).currentPage(currentPage).logsType(logsType).build();
+		
+		System.out.println("currentPage = " + currentPage);
+		
+		Search search = Search.builder().userId(userId).pageSize(pageSize).limit(pageUnit).currentPage(currentPage).logsType(logsType).build();
 		map.put("timelineList", timelineService.getProfileTimelineList(search));
 		return ResponseEntity.ok(map);
 	}
