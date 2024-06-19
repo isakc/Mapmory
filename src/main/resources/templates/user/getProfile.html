@@ -28,12 +28,22 @@
 	
 	<script th:inline="javascript">
 	
-		const userId = [[${profile.user.userId}]];  // targetId
+		const profileUserId = [[${profile.user.userId}]];
+		const sessionId = `[[${sessionId}]]`;
+		let isLoading = false;
+		let pageType = null;
+		
+		// console.log('profileUserId : ' + userId);
 	
 		$(function(){
 	
 			const myProfile = [[${myProfile}]];
 			const isFollow = [[${isFollow}]];
+			pageType = $('#pageType');
+			pageType.text('sharedList');
+			console.log(pageType.html());
+			console.log("pageType = " + pageType.text());
+			
 			
 			console.log("내 프로필 : " + myProfile);
 			
@@ -70,17 +80,17 @@
 			$('#follow-list').on('click', function() {
 				
 				console.log("flag");
-				window.location.href="/user/getFollowList?userId="+userId;
+				window.location.href="/user/getFollowList?userId="+profileUserId;
 			});
 			
 			$('#follower-list').on('click', function() {
 				
-				window.location.href="/user/getFollowerList?userId="+userId;
+				window.location.href="/user/getFollowerList?userId="+profileUserId;
 			});
 			
 			$('#updateProfile').on('click', function() {
 				
-				window.location.href="/user/getUpdateProfileView?userId="+userId;
+				window.location.href="/user/getUpdateProfileView?userId="+profileUserId;
 			});
 					
 			$('#deleteFollow').on('click', function() {
@@ -90,7 +100,7 @@
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			        targetId: profileUserId
 			      }),
 			      success: function(response) {
 			        
@@ -120,7 +130,7 @@
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			        targetId: profileUserId
 			      }),
 			      success: function(response) {
 			        
@@ -152,15 +162,13 @@
 			
 			$('#chat').on('click', function() {
 				
-				const sessionId = `[[${sessionId}]]`;
-				
 				$.ajax({
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
 	               method: "POST",
 	               contentType:"application/json",
 	               data: JSON.stringify({
 	                userId: sessionId,
-	                 opponent: userId
+	                 opponent: profileUserId
 	               }),
 	               success: function(response) {
 	                 
@@ -202,6 +210,9 @@
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
 				
+				pageType.text('sharedRecord');
+				// console.log(pageType.text());
+				
 			});
 						
 			$('#replyListBtn').on('click', function() {
@@ -216,6 +227,7 @@
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
 				
+				pageType.text('replyList');
 			});
 						
 			$('#bookMarkListBtn').on('click', function() {
@@ -229,6 +241,8 @@
 				$('#replyListBtn').removeClass('btn-secondary-custom');
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom').addClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
+				
+				pageType.text('bookMarkList');
 				
 			});
 			
@@ -248,6 +262,8 @@
 				
 				$('#reactRecordListBtn').removeClass('btn-secondary-custom').addClass('btn-secondary-custom');
 				$('#reactReplyListBtn').removeClass('btn-secondary-custom');
+				
+				pageType.text('reactRecordList');
 			});
 			
 			$('#reactRecordListBtn').on('click', function() {
@@ -260,6 +276,9 @@
 				$('#reactReplyList').css('display', 'none');
 				$('#reactRecordListBtn').removeClass('btn-secondary-custom').addClass('btn-secondary-custom');
 				$('#reactReplyListBtn').removeClass('btn-secondary-custom');
+				
+				
+				pageType.text('reactRecordList');
 			});
 			
 			$('#reactReplyListBtn').on('click', function() {
@@ -272,18 +291,35 @@
 				$('#reactReplyList').css('display', 'block');
 				$('#reactRecordListBtn').removeClass('btn-secondary-custom');
 				$('#reactReplyListBtn').removeClass('btn-secondary-custom').addClass('btn-secondary-custom');
+				
+				pageType.text('reactReplyList');
 			});
-			
+
+			$(document).on('click', '.record', function() {
+				
+				const recordNo = $(this).attr('id');
+				window.location.href=`/timeline/getDetailTimeline?recordNo=${recordNo}`;
+			});
+
+			$(document).on('click', '.reply', function() {
+				
+				const recordNo = $(this).attr('id');
+				window.location.href=`/community/getReplyList/${recordNo}`;
+			});
 		});
+
 		
-		
+		// modal event
 		$(function() {
 			
 			$('#reportUser').on('click', function(){
 				
+				const profileUserNickname = [[${profile.user.nickname}]];
+				
 				const reportData = {
-						userId : [[${sessionId}]] ,
-						targetUserId : [[${profile.user.userId}]]
+						userId : sessionId ,
+						targetUserId : profileUserId,
+						nickname : profileUserNickname,
 				}
 				
 				sessionStorage.setItem('reportData', JSON.stringify(reportData));
@@ -292,15 +328,18 @@
 				
 			});
 			
-			/* 사용자 차단하기
+			// 사용자 차단하기
 			$('#blockUser').on('click', function(){
 				
+				// 정말 차단하시겠습니까?
+				
 				$.ajax({
-			      url: "/community/rest/doReport",
+			      url: "/community/rest/addBlockUser",
 			      method: "POST",
 			      contentType:"application/json",
 			      data: JSON.stringify({
-			        targetId: userId
+			    	  userId : sessionId,
+			          targetId: userId
 			      }),
 			      success: function(response) {
 			        
@@ -325,7 +364,7 @@
 			    });
 				
 			});
-			*/
+			
 		});
 
 		</script>
@@ -339,7 +378,7 @@
 			<div class="d-flex">
 				<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
 				<div class="col-10 mt-2 d-flex">
-					<strong><span class="align-middle me-2" th:text="${profile.user.nickname}"></span></strong>
+					<strong><span class="align-middle me-2 h4" th:text="${profile.user.nickname}"></span></strong>
 					<p th:if="${profile.isSubscribed == true}">☑️</p>
 				</div>
 				<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
@@ -399,21 +438,15 @@
 			</div>
 			<hr/>
 		</div>
-	
-	
-	
-		<!-- 현재 REST 지원 안됨. -->
-		<!-- 다음 주에 rest 지원 예쩡 -->
-		<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
-		<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
-		<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
-		<div class="row">
-			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한 기록</button>
-			<button class="col btn btn-light" type="button" id="replyListBtn">작성한 댓글</button>
+		
+		<p id="pageType" style="display:none;"></p>
+		<div class="row mx-2">
+			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한<br/>기록</button>
+			<button class="col btn btn-light" type="button" id="replyListBtn">작성한<br/>댓글</button>
 			<th:block th:if="${myProfile==true}">
 				<button class="col btn btn-light" type="button" id="bookMarkListBtn">즐겨찾기</button>
 			</th:block>
-			<button class="col btn btn-light" type="button" id="reactListBtn">좋아요 목록</button>
+			<button class="col btn btn-light" type="button" id="reactListBtn">좋아요<br/>목록</button>
 		</div>
 		<hr/>
 		
@@ -438,7 +471,7 @@
 		  <div class="modal-dialog">
 		    <div class="modal-content text-center">
 		      <div class="modal-header">
-		        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+		        <!-- <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>  -->
 		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		      </div>
 		      <div class="modal-body">

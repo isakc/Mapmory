@@ -40,6 +40,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -99,6 +100,9 @@ public class UserController {
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
+	@Value("${page.Unit}")
+    int pageUnit;
+
 	@Value("${page.Size}")
 	private int pageSize;
 	
@@ -501,8 +505,21 @@ public class UserController {
 	}
 	
 	@GetMapping("/admin/getAdminUserList")
-	public void getAdminUserList() {
+	public void getAdminUserList(Model model, HttpServletRequest request, @ModelAttribute Search search) {
+
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
 		
+		search.setPageSize(pageSize);
+		
+		Map<String, Object> map = userService.getUserList(search);
+		Page resultPage = new Page(search.getCurrentPage(),((Integer)map.get("count")).intValue(),pageUnit,pageSize);
+		        
+       //  model.addAttribute("productList", (List<User>) map.get("userList"));
+        model.addAttribute("productList",  map.get("userList"));
+        model.addAttribute("search", search);
+        model.addAttribute("resultPage", resultPage);
 	}
 	
 	@GetMapping("/admin/getAdminDetailUser")

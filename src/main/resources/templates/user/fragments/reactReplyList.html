@@ -3,18 +3,16 @@
 	let reactReplyListCurrentPage = 1; 
 	
 	$(function() {
-		
-		
-		
+
 		$.ajax({
 	
-			url: `/community/rest/getReplyLikeList/${userId}?currentPage=${reactReplyListCurrentPage}`,
+			url: `/community/rest/getReplyLikeList/${profileUserId}?currentPage=${reactReplyListCurrentPage}`,
 		      method: "GET",
 		      contentType:"application/json",
 		      // dataType: "application/json",
 		      success: function(response) {
 			    	  
-		    	 console.log(response.list); 
+		    	 // console.log(response.list); 
 		    	 
 		    	 response.list.forEach((reply) => {
 		    		
@@ -23,10 +21,12 @@
 		    		 const regDate = reply.replyDate;
 		    		 const recordNo = reply.recordNo;
 		    		 
+		    		 /*
 		    		 console.log(title);
 		    		 console.log(replyText);
 		    		 console.log(regDate);
 		    		 console.log(recordNo);
+		    		 */
 		    		 
 		    		 let temp = '';
 		    		 temp += '<div id="'+recordNo+'" class="reply">';

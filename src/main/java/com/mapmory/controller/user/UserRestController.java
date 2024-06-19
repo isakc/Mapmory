@@ -220,6 +220,32 @@ public class UserRestController {
 		}
 	}
 
+
+	
+	////////// 이미지 가져오기 용
+    @GetMapping("/{type}/{uuid}")
+    public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
+    	
+    	byte[] bytes; 
+    	switch(type) {
+    	
+    		case "profile" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
+    			break;
+    		case "thumbnail" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
+    			break;
+    		case "emoji" :
+    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
+    			break;
+    		default:
+    			bytes = null;
+    	}
+
+        return bytes;
+    }
+	
+	
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -586,27 +612,6 @@ public class UserRestController {
 	}
 
     
-    @GetMapping("/{type}/{uuid}")
-    public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
-    	
-    	byte[] bytes; 
-    	switch(type) {
-    	
-    		case "profile" :
-    			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
-    			break;
-    		case "thumbnail" :
-    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
-    			break;
-    		case "emoji" :
-    			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
-    			break;
-    		default:
-    			bytes = null;
-    	}
-
-        return bytes;
-    }
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

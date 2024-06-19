@@ -33,6 +33,13 @@ public interface UserDao {
 	
 	public User selectUser(User user);
 	
+	/**
+	 * searchCondition :: 0 : ID 검색, 1 : 닉네임 검색
+	 * searchKeyword :: 검색어
+	 * startRowNum & endRowNum 사용
+	 * @param search
+	 * @return
+	 */
 	public List<User> selectUserList(Search search);
 	
 	public List<FollowMap> selectFollowList(FollowSearch search);
