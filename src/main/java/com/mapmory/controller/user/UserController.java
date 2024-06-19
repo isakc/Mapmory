@@ -517,7 +517,7 @@ public class UserController {
 		Page resultPage = new Page(search.getCurrentPage(),((Integer)map.get("count")).intValue(),pageUnit,pageSize);
 		        
        //  model.addAttribute("productList", (List<User>) map.get("userList"));
-        model.addAttribute("productList",  map.get("userList"));
+        model.addAttribute("userList",  map.get("userList"));
         model.addAttribute("search", search);
         model.addAttribute("resultPage", resultPage);
 	}
@@ -527,14 +527,17 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		Map<String, String> map= userService.checkSuspended(userId);
+		Map<String, String> suspendMap= userService.checkSuspended(userId);
 		
-		String isSuspended = map.get("isSuspended");
+		String isSuspended = suspendMap.get("isSuspended");
 		
 		if(isSuspended.equals("true"))
-			user.setEndSuspensionDate(java.time.LocalDate.parse(map.get("endSuspensionDate")));
+			user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		
+		System.out.println(suspendMap.get("endSuspensionDate"));
 		
 		model.addAttribute("user", user);
+		model.addAttribute("suspendMap", suspendMap);
 	}
 	
 	///////////////////////////////////////////////////////////////////////

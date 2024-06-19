@@ -255,7 +255,7 @@
 		<artifactId>bcpkix-jdk15on</artifactId>
 		<version>1.68</version> <!-- 최신 안정 버전을 사용할 것을 권장합니다. -->
 	</dependency>
-
+	
 	</dependencies>
 
 	<build>
