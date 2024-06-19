@@ -136,16 +136,15 @@
 			FROM (
 				SELECT
 				*
-				FROM users
-			WHERE 
-			<if test="searchCondition == 0">user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
-			<if test="searchCondition == 1">nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				FROM users 
+			<if test="searchCondition == 0">WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+			<if test="searchCondition == 1">WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
 			ORDER BY reg_date DESC
 			) origin,
 			(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}
+		
 	</select>
 	
 	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">

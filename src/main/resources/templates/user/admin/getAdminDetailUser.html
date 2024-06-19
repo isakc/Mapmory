@@ -2,8 +2,146 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<title>사용자 상세 조회</title>
+   <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 36px;
+        }
+
+        .product-detail {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .product-detail h2, .product-detail p {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .product-detail p {
+            color: #6c757d;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .action-links {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .action-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .action-links a:hover {
+            background-color: #0056b3;
+        }
+
+        .modal-header {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            font-size: 18px;
+        }
+
+        .modal-footer .btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+
+        .action-links a.delete-link {
+            background-color: #dc3545;
+        }
+
+        .action-links a.delete-link:hover {
+            background-color: #c82333;
+        }
+    </style>
+    
+    <title>사용자 상세 조회</title>    
+</head>
+<body>
+    <div class="container">
+        <h1>사용자 상세 조회</h1>
+        <div class="product-detail">
+            <h2>사용자 정보</h2>
+            <p><strong>사용자 ID:</strong> <span th:text="${user.userId}">사용자아이디</span></p>
+            
+            <p><strong>이름:</strong> <span th:text="${user.userName}">사용자이름</span></p>
+            
+            <p><strong>닉네임:</strong> <span th:text="${user.nickname}">닉네임</span></p>
+            
+            <p><strong>생일:</strong> <span th:text="${user.birthday}">생일</span></p>
+            
+            <p><strong>성별:</strong> 
+                <span th:if="${user.sex == 0}">남</span>
+                <span th:if="${user.sex == 1}">여</span>
+            </p>
+            
+            <p><strong>이메일:</strong> <span th:text="${user.email}">이메일</span></p>
+            
+            <p><strong>휴대전화번호:</strong> <span th:text="${user.phoneNumber}">휴대전화번호</span></p>
+            
+            <p><strong>가입일자:</strong> <span th:text="${#temporals.format(user.regDate, 'yyyy-MM-dd')}">regDate</span></p>
+            
+            <p><strong>계정 정지 상태:</strong>
+			    <span th:if="${suspendMap['isSuspended']}">정지중</span>
+			    <span th:unless="${suspendMap['isSuspended']}">정지아님</span>
+			</p>
+
+			<p><strong>계정 정지 종료 일자:</strong>
+			    <span th:text="${suspendMap['endSuspensionDate']} ?: '정지중이 아님'">계정 정지 종료 일자</span>
+			</p>
+			
+			<p><strong>마지막 로그인 일자:</strong> 
+				<span th:text="${user['leaveAccountDate']} ?: '로그인중임'">마지막 로그인 일자</span>
+			</p>
+			          
+            <div class="action-links">
+                <button type="button" id="suspendUser" class="btn btn-primary">사용자 정지</button>
+                <button type="button" id="cancelSuspendUser" class="btn btn-secondary">정지 해제</button>
+            </div>
+        </div>
+    </div>
+	
+	<button type="button" id="suspendUser">사용자 정지</button>
+	<button type="button" id="cancelSuspendUser" >정지 해제</button>
 	
 	<script th:inline="javascript">
 	
@@ -91,15 +229,16 @@
 			});
 			
 		});
-	</script>
-</head>
-<body>
+		
+		$(document).ready(function() {
+            $('.delete-link').click(function() {
+                $('#confirmDeleteModal').modal('show');
+            });
 
-	<h1>사용자 상세 조회</h1>
-	
-	[[${user}]]
-	
-	<button type="button" id="suspendUser">사용자 정지</button>
-	<button type="button" id="cancelSuspendUser" >정지 해제</button>
+            $('#confirmDeleteModal .btn-secondary').click(function() {
+                $('#confirmDeleteModal').modal('hide');
+            });
+        });
+	</script>
 </body>	
 </html>
