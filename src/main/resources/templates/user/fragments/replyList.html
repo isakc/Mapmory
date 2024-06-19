@@ -1,15 +1,36 @@
 <script>
+
+	let replyListCurrentPage = 1;
+	
 	$(function() {
 		
 		$.ajax({
 
-			url: `/community/rest/getReplyList/user/${userId}?currentPage=1`,
+			url: `/community/rest/getReplyList/user/${userId}?currentPage=${replyListCurrentPage}`,
 		      method: "GET",
 		      contentType:"application/json",
 		      // dataType: "application/json",
 		      success: function(response) {
 			    	  
-		    	 console.log(response); 
+		    	 console.log(response.list); 
+		    	 
+		    	 response.list.forEach((reply) => {
+		    		
+		    		 const title = reply.recordTitle;
+		    		 const replyText = reply.replyText;
+		    		 const regDate = reply.replyDate;
+		    		 const recordNo = reply.recordNo;
+		    		 
+		    		 let temp = '';
+		    		 temp += '<div id="'+recordNo+'" class="reply">';
+		    		 temp += '<p class="fw-bold">'+title+'</p>';
+		    		 temp += '<p>'+replyText+'</p>';
+		    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+		    		 temp += '</div>';
+		    		 temp += '<hr/>';
+		    		 $('#replyList').append(temp);
+		    		 
+		    	 });
 		    	  
 		      },
 		      error: function(xhr, status, error) {
@@ -20,4 +41,19 @@
 		});
 		
 	});
+	
+	$(function(){
+		
+		$(document).on('click', '.reply', function(){
+			
+			const recordNo = $(this).attr('id');
+			
+			window.location.href=`/community/getReplyList/${recordNo}`;
+			
+		});
+		
+	});
+	
+	<!-- 무한 스크롤 구현 필요 -->
 </script>
+

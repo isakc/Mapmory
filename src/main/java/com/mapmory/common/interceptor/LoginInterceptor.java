@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.mapmory.common.domain.SessionData;
+import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
@@ -33,7 +34,37 @@ public class LoginInterceptor implements HandlerInterceptor {
 			throws Exception {
 
 		// 세션 연장 임시 조치
-		return redisUtil.updateSession(request, response);
+		// 현재 여전히 타임아웃 시 cookie는 살아있고 세션은 죽는 문제 존재. cookie만 살아 있는 경우, cookie를 제거해주는 로직 필요
+		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
+		
+		if(cookie == null) {
+			
+			return true;
+		}
+			
+			
+		
+		else {
+			
+			String sessionKeyName = cookie.getValue(); 
+			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
+			
+			if(sessionData == null) {
+		
+				cookie.setMaxAge(0);
+				cookie.setPath("/");
+				response.addCookie(cookie);
+				response.sendRedirect("/");
+				return true;
+				
+			} else {
+			
+				return redisUtil.updateSession(request, response);
+				
+			}
+				
+		}
+		
 
 		// TODO Auto-generated method stub
 		/*

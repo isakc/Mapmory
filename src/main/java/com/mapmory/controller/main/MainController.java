@@ -80,7 +80,11 @@ public class MainController {
 	
 	// test용
 	@GetMapping("/common/footer")
-	public void getFooter() {
+	public void getFooter(HttpServletRequest request, Model model) {
+		
+		SessionData sessionData = redisUtil.getSession(request);
+		
+		model.addAttribute("userId", sessionData.getUserId());
 		
 	}
 	

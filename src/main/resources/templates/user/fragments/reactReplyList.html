@@ -1,7 +1,66 @@
 <script>
-
+	
+	let reactReplyListCurrentPage = 1; 
+	
+	$(function() {
+		
+		
+		
+		$.ajax({
+	
+			url: `/community/rest/getReplyLikeList/${userId}?currentPage=${reactReplyListCurrentPage}`,
+		      method: "GET",
+		      contentType:"application/json",
+		      // dataType: "application/json",
+		      success: function(response) {
+			    	  
+		    	 console.log(response.list); 
+		    	 
+		    	 response.list.forEach((reply) => {
+		    		
+		    		 const title = reply.recordTitle;
+		    		 const replyText = reply.replyText;
+		    		 const regDate = reply.replyDate;
+		    		 const recordNo = reply.recordNo;
+		    		 
+		    		 console.log(title);
+		    		 console.log(replyText);
+		    		 console.log(regDate);
+		    		 console.log(recordNo);
+		    		 
+		    		 let temp = '';
+		    		 temp += '<div id="'+recordNo+'" class="reply">';
+		    		 temp += '<p class="fw-bold">'+title+'</p>';
+		    		 temp += '<p>'+replyText+'</p>';
+		    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+		    		 temp += '</div>';
+		    		 temp += '<hr/>';
+		    		 $('#reactReplyList').append(temp);
+		    		 
+		    	 });
+		    	  
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+			
+		});
+		
+	});
+	
+	$(function(){
+		
+		$(document).on('click', '.reply', function(){
+			
+			const recordNo = $(this).attr('id');
+			
+			window.location.href=`/community/getReplyList/${recordNo}`;
+			
+		});
+		
+	});
+	
+	// 무한 스크롤 필요
+	
 </script>
-
-<div>
-<li th:each="item : ${list8}" th:text="${' 대민 recordList: '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
-</div>
