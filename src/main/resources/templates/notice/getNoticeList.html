@@ -10,43 +10,40 @@
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/css/common/chatBot.css">
+    
     <style>
         body {
             background-color: #f8f9fa;
+            padding: 20px;
         }
 
         .notice-header {
-            background-color: #007bff;
+            background-color: #00A7F5;
             color: #fff;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
             margin-bottom: 30px;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
-            /* 수정: 왼쪽과 오른쪽 정렬 */
             align-items: center;
-            /* 세로 방향 가운데 정렬 */
         }
 
-        .notice-header h2 {
+        .notice-header h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
             display: flex;
-            /* 수정: inline-flex 제거 */
             align-items: center;
-            /* 아이콘과 텍스트를 세로 방향으로 가운데 정렬 */
         }
 
         .notice-header .icon-wrapper {
             margin-right: 10px;
-            /* 아이콘과 텍스트 사이의 간격 설정 */
         }
 
         .notice-header .icon-wrapper i {
             font-size: 24px;
-            /* 아이콘 사이즈 조정 */
         }
 
         .notice-header a {
@@ -62,7 +59,8 @@
         }
 
         .notice-table th {
-            background-color: #f8f9fa;
+            background-color: #2780E3;
+            color: #fff;
             font-weight: bold;
             text-align: center;
         }
@@ -85,13 +83,13 @@
         }
 
         .search-box .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #00C6E1;
+            border-color: #00C6E1;
         }
 
         .search-box .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
+            background-color: #00DFB6;
+            border-color: #00DFB6;
         }
 
         .notice-content-row {
@@ -106,6 +104,7 @@
         .bi-caret-up-fill {
             font-size: 1.2em;
             cursor: pointer;
+            color: #8EF087;
         }
 
         @media (max-width: 576px) {
@@ -114,6 +113,14 @@
             .notice-table td {
                 white-space: nowrap;
             }
+        }
+
+        .dropdown-menu {
+            background-color: #F9F871;
+        }
+
+        .dropdown-item:hover {
+            background-color: #8EF087;
         }
     </style>
 </head>
@@ -124,14 +131,14 @@
             <div class="notice-header">
                 <div class="icon-wrapper">
                     <a th:href="@{/notice/noticeMenu}">
-                        <i class="bi bi-chevron-left"></i> <!-- 수정된 부분: Bootstrap Icons 클래스 추가 -->
+                        <i class="bi bi-chevron-left"></i>
                     </a>
                 </div>
-                <h2><i class="bi bi-question-octagon-fill"></i> 공지사항 목록</h2>
-                <div></div> <!-- 빈 div 추가 -->
+                <h1><i class="bi bi-bell"></i> 공지사항 목록</h1>
+                <div></div>
             </div>
             <div class="search-box">
-                <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
+                <form th:action="@{/notice/getNoticeList}" method="get" class="input-group">
                     <div class="form-group">
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -150,7 +157,6 @@
                     <button type="submit" class="btn btn-primary">검색</button>
                 </form>
             </div>
-
             <form id="noticeForm" th:action="@{/notice/getNoticeList}" method="post">
                 <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
             </form>
@@ -163,7 +169,6 @@
                     </tr>
                 </thead>
                 <tbody class="notice-list">
-                    <!-- Thymeleaf 반복문을 사용하여 초기 데이터 로드 -->
                     <tr th:each="notice, status : ${noticeList}">
                         <td>
                             <div>
@@ -180,6 +185,7 @@
             </table>
         </div>
     </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     <script th:inline="javascript">
         let currentPage = 2; // 초기 페이지 설정
@@ -339,3 +345,6 @@
         // 페이지 로드 후 첫 번째 페이지 목록에 이벤트 바인딩
         bindToggleEvent();
     </script>
+</body>
+
+</html>

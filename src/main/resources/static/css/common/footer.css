@@ -42,6 +42,6 @@
 	}
 	
 	div#content-for-footer {
-				min-height: 90vh;
+				min-height: 90dvh;
 				/* footer 추가시 body내부에 있는 모든태그 <div id=content></div> 로 묶어주고 추가해줄 것.*/ 
 			}

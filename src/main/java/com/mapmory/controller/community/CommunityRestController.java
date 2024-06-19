@@ -209,7 +209,7 @@ public class CommunityRestController {
 					.currentPage(currentPage)
 					.limit(10)
 					.build();
-		}		
+		}
 		Map<String,Object> replyLikeList = communityService.getReplyLikeList(search, userId);
 		System.out.println("좋아요 댓글 목록 :: "+replyLikeList);
 		return ResponseEntity.ok(replyLikeList);

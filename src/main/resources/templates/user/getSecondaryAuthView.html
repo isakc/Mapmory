@@ -78,9 +78,18 @@
 
 					console.log(responseBody);
 					
-					if(responseBody == true || responseBody == 'true') {
+					const isValid = responseBody.result;
+					const role = responseBody.role;
+					
+					if(isValid == true || isValid == 'true') {
 						
-						window.location.href="/map";
+						
+						if(role == 0)
+							window.location.href="/user/admin/getAdminMain";
+						else if (role == 1)
+							window.location.href="/map";
+						else
+							alert('server error');
 						
 					}
 					
