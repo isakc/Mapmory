@@ -443,13 +443,20 @@ public class UserController {
 	    }
 	}
 	
+	/// 현재 문제가 있다.
+	/*
 	@RequestMapping("/google/auth/callback")
 	public void googleLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
 
 		// System.out.println("code : " + code);
 		
-		 userService.getGoogleProfie(code);
+		 // userService.getGoogleProfie(code);
+		
+		GoogleToken token = userService.getGoogleToken(code);
+		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
+		System.out.println(payload);
 	}
+	*/
 	
 	@GetMapping("/getNaverLoginView")
 	public String getNaverLoginView() {
@@ -516,8 +523,12 @@ public class UserController {
 		Map<String, Object> map = userService.getUserList(search);
 		Page resultPage = new Page(search.getCurrentPage(),((Integer)map.get("count")).intValue(),pageUnit,pageSize);
 		        
+<<<<<<< HEAD
+       //  model.addAttribute("userList", (List<User>) map.get("userList"));
+=======
        //  model.addAttribute("productList", (List<User>) map.get("userList"));
-        model.addAttribute("productList",  map.get("userList"));
+>>>>>>> refs/remotes/origin/master
+        model.addAttribute("userList",  map.get("userList"));
         model.addAttribute("search", search);
         model.addAttribute("resultPage", resultPage);
 	}
@@ -527,14 +538,17 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		Map<String, String> map= userService.checkSuspended(userId);
+		Map<String, String> suspendMap= userService.checkSuspended(userId);
 		
-		String isSuspended = map.get("isSuspended");
+		String isSuspended = suspendMap.get("isSuspended");
 		
 		if(isSuspended.equals("true"))
-			user.setEndSuspensionDate(java.time.LocalDate.parse(map.get("endSuspensionDate")));
+			user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		
+		System.out.println(suspendMap.get("endSuspensionDate"));
 		
 		model.addAttribute("user", user);
+		model.addAttribute("suspendMap", suspendMap);
 	}
 	
 	///////////////////////////////////////////////////////////////////////
