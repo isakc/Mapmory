@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/css/common/chatBot.css">
+    
     <style>
         body {
             background-color: #f5f5f5;
@@ -16,7 +18,7 @@
         }
 
         .product-header {
-            background-color: #2780e3;
+            background-color: #00A7F5;
             color: #fff;
             padding: 15px;
             text-align: center;
@@ -31,6 +33,16 @@
             margin: 0;
             font-size: 20px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .product-header .icon-wrapper {
+            margin-right: 10px;
+        }
+
+        .product-header .icon-wrapper i {
+            font-size: 24px;
         }
 
         .product-header a {
@@ -98,6 +110,11 @@
         .product-actions a:hover {
             color: #1c67c2;
         }
+
+        .product-actions p {
+            color: #6c757d;
+            font-size: 12px;
+        }
     </style>
 </head>
 
@@ -105,19 +122,20 @@
     <div id=content-for-footer>
         <div class="container">
             <div class="product-header">
-                <div class="d-flex align-items-center">
-                    <a th:href="@{/common/menu}" class="btn btn-light me-2"><i class="bi bi-chevron-left"></i></a>
-                    <h1><i class="bi bi-bag"></i> 상품 목록</h1>
+                <div class="icon-wrapper">
+                    <a th:href="@{/common/menu}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
                 </div>
+                <h1><i class="bi bi-bag"></i> 상품 목록</h1>
+                <div></div>
             </div>
             <table class="table table-hover product-table">
                 <tbody class="product-list">
                     <!-- 상품 목록이 여기 추가됩니다 -->
                 </tbody>
             </table>
-        </div>
-
-        <!-- Modal for Image Slideshow -->
+        </div><!-- Modal for Image Slideshow -->
         <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
@@ -144,6 +162,7 @@
             </div>
         </div>
     </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script>

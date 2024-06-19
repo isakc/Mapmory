@@ -87,4 +87,9 @@ public class MainController {
 		model.addAttribute("userId", sessionData.getUserId());
 		
 	}
+	
+	@GetMapping("/test")
+	public String test() {
+		return "/test.html";
+	}
 }

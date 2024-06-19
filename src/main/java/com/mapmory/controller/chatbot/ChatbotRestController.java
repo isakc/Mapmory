@@ -49,7 +49,7 @@ public class ChatbotRestController {
 		    }
 
 		    // NAVER Cloud ChatBot
-		    @RequestMapping("chat")
+		    @RequestMapping(value = "chat", produces = "application/json; charset=UTF-8")
 		    public ResponseEntity<String> chatBotconn(@RequestBody String text) {
 
 		        // 최종 결과값 리턴시 사용할 변수 선언

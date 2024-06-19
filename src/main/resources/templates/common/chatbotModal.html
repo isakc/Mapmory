@@ -1,78 +1,85 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang = "ko">
+<meta charset="UTF-8">
 <head>
     <title>Chatbot</title>
-    <style>
-        #chat-container {
-            width: 300px;
-            height: 400px;
-            border: 1px solid #ccc;
-            overflow-y: scroll;
-            margin: 20px auto;
-        }
-
-        #chat-log {
-            padding: 10px;
-        }
-
-        #chat-input {
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-
-        #user-input {
-            width: 70%;
-            padding: 5px;
-            margin-right: 5px;
-        }
-
-        #send-button {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="/css/common/chatBot.css">
 </head>
 <body>
-    <div id="chat-container">
+    <div id="chat-container" class="closed">
+        <div id="chat-header">
+            <h3>Chatbot</h3>
+            <button id="close-chat-button"><i class="fas fa-times"></i></button>
+        </div>
         <div id="chat-log"></div>
         <div id="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message here...">
-            <button id="send-button">Send</button>
+            <input type="text" id="user-input" placeholder="메세지 입력란">
+            <button id="send-button"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
-    <script th:inline="javascript">
-        $(document).ready(function() {
-            $("#send-button").click(function() {
-                var userInput = $("#user-input").val();
-                sendMessage(userInput);
-                $("#user-input").val(""); // Clear input field
+    <button id="open-chat-button">&#129302;</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("send-button").addEventListener("click", sendMessage);
+            document.getElementById("open-chat-button").addEventListener("click", openChat);
+            document.getElementById("close-chat-button").addEventListener("click", closeChat);
+            document.getElementById("user-input").addEventListener("keydown", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    sendMessage();
+                }
             });
         });
 
-        function sendMessage(message) {
-            $("#chat-log").append("<div>You: " + message + "</div>");
-            $.ajax({
-                type: "POST",
-                url: "/bot/chat",
-                contentType: "application/json",
-                data: JSON.stringify(message),
-                success: function(response) {
-                    var respon = JSON.parse(response);
+        function openChat() {
+            document.getElementById("chat-container").style.display = "flex";
+            document.getElementById("open-chat-button").style.display = "none";
+        }
+
+        function closeChat() {
+            document.getElementById("chat-container").style.display = "none";
+            document.getElementById("open-chat-button").style.display = "flex";
+        }
+
+        function sendMessage() {
+            var userInput = document.getElementById("user-input").value;
+            if (userInput.trim() !== "") {
+                var userMessage = document.createElement("div");
+                userMessage.className = "message-container";
+                userMessage.innerHTML = "<div class='message user-message'>" + userInput + "</div><i class='fas fa-user message-icon'></i>";
+                document.getElementById("chat-log").prepend(userMessage);
+                document.getElementById("user-input").value = "";
+
+                fetch("/bot/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(userInput)
+                })
+                .then(response => response.json())
+                .then(respon => {
                     if (respon.bubbles && respon.bubbles.length > 0) {
                         var botResponse = respon.bubbles[0].data.description;
-                        $("#chat-log").append("<div>Bot: " + botResponse + "</div>");
+                        var botMessage = document.createElement("div");
+                        botMessage.className = "message-container";
+                        botMessage.innerHTML = "<i class='fas fa-robot message-icon'></i><div class='message bot-message'>" + botResponse + "</div>";
+                        document.getElementById("chat-log").prepend(botMessage);
                     } else {
                         console.error("Error: Empty response or invalid format");
                     }
-                    $("#chat-log").scrollTop($("#chat-log")[0].scrollHeight); // Scroll to bottom
-                },
-                error: function(xhr, status, error) {
+                    document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
+                })
+                .catch(error => {
                     console.error("Error:", error);
-                }
-            });
+                });
+            }
         }
     </script>
 </body>
