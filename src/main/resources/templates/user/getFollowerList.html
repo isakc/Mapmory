@@ -18,8 +18,11 @@
 <body>
 	
 	<div class="container">
-		<button type="button" id="back">◀</button>
-		<h1>팔로워 목록</h1>
+		<div class="row sticky-top mt-4" style="background:#FFFFFF;">
+			<a class="col-1 text-end fs-1" href="javascript:history.back()">⇦</a>
+			<div class="col-6"></div>
+			<p class="h2 col-5 mt-2">팔로워 목록</p>
+		</div>
 	
 		<th:block th:replace="~{/user/fragments/followList}"></th:block>
 	</div>

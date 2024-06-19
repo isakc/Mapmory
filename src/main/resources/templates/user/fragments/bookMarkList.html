@@ -6,7 +6,7 @@
 		
 		$.ajax({
 
-			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=${reactBookMarkListCurrentPage}`,
+			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=${reactBookMarkListCurrentPage}&logsType=1`,
 		      method: "GET",
 		      // contentType:"application/json",
 		      // dataType: "application/json",
@@ -24,6 +24,13 @@
 		    		  const regDate = timeline.recordAddDate;
 		    		  const recordNo = timeline.recordNo;
 		    		  
+		    		  console.log(thumbnailName);
+		    		  console.log(title);
+		    		  console.log(categoryName);
+		    		  console.log(categoryEmoji);
+		    		  console.log(regDate);
+		    		  console.log(recordNo);
+		    		  
 		    		  let temp = '';
 		    		  temp += '<div id="'+recordNo+'" class="record">';
 			    		  if(thumbnailName != null)
@@ -36,9 +43,8 @@
 			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 			    		  temp += '</div>';
 		    		  temp += '<hr/>';
-		    		  $('#sharedRecordList').append(temp);
-		    	  })
-		    	  
+		    		  $('#bookMarkList').append(temp);
+		    	  });
 		    	  
 		      },
 		      error: function(xhr, status, error) {

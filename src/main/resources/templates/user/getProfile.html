@@ -29,6 +29,8 @@
 	<script th:inline="javascript">
 	
 		const userId = [[${profile.user.userId}]];  // targetId
+		
+		// console.log('profileUserId : ' + userId);
 	
 		$(function(){
 	
@@ -283,7 +285,8 @@
 				
 				const reportData = {
 						userId : [[${sessionId}]] ,
-						targetUserId : [[${profile.user.userId}]]
+						targetUserId : [[${profile.user.userId}]],
+						nickname : [[${profile.user.nickname}]],
 				}
 				
 				sessionStorage.setItem('reportData', JSON.stringify(reportData));
@@ -339,7 +342,7 @@
 			<div class="d-flex">
 				<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
 				<div class="col-10 mt-2 d-flex">
-					<strong><span class="align-middle me-2" th:text="${profile.user.nickname}"></span></strong>
+					<strong><span class="align-middle me-2 h4" th:text="${profile.user.nickname}"></span></strong>
 					<p th:if="${profile.isSubscribed == true}">☑️</p>
 				</div>
 				<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
@@ -407,13 +410,13 @@
 		<!-- TimelineRestController의 /timeline/rest/getProfileTimelineList 에서 값을 받아올 것 -->
 		<!-- Map으로 받아옴. key 이름은 TimelineMapper의 recordResultMap을 참고할 것. -->
 		<!-- recordTitle, categoryName, categoryImogi, recordAddDate, imageTagList.imageTagOrder, imageTagList.imageTagType, imageTagList.imageTagText -->
-		<div class="row">
-			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한 기록</button>
-			<button class="col btn btn-light" type="button" id="replyListBtn">작성한 댓글</button>
+		<div class="row mx-2">
+			<button class="col btn btn-light" type="button" id="sharedRecordListBtn">공유한<br/>기록</button>
+			<button class="col btn btn-light" type="button" id="replyListBtn">작성한<br/>댓글</button>
 			<th:block th:if="${myProfile==true}">
 				<button class="col btn btn-light" type="button" id="bookMarkListBtn">즐겨찾기</button>
 			</th:block>
-			<button class="col btn btn-light" type="button" id="reactListBtn">좋아요 목록</button>
+			<button class="col btn btn-light" type="button" id="reactListBtn">좋아요<br/>목록</button>
 		</div>
 		<hr/>
 		

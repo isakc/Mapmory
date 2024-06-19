@@ -1,7 +1,59 @@
 <script>
+	
+	let reactRecordListCurrentPage = 1; 
+	
+	$(function() {
+		
+		$.ajax({
+	
+			url: `/timeline/rest/getProfileTimelineList?userId=${userId}&currentPage=${reactBookMarkListCurrentPage}&logsType=2`,
+		      method: "GET",
+		      // contentType:"application/json",
+		      // dataType: "application/json",
+		      success: function(response) {
+			    	  
+		    	  response.timelineList.forEach((timeline) => {
+		    		  
+		    		  // console.log(timeline);
+		    		  let thumbnailName = null;
+		    		  if(timeline.imageTagList.length > 0)
+		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
+		    		  const title = timeline.recordTitle;
+		    		  const categoryName = timeline.categoryName;
+		    		  const categoryEmoji = timeline.categoryImoji;
+		    		  const regDate = timeline.recordAddDate;
+		    		  const recordNo = timeline.recordNo;
+		    		  
+		    		  console.log(thumbnailName);
+		    		  console.log(title);
+		    		  console.log(categoryName);
+		    		  console.log(categoryEmoji);
+		    		  console.log(regDate);
+		    		  console.log(recordNo);
+		    		  
+		    		  let temp = '';
+		    		  temp += '<div id="'+recordNo+'" class="record">';
+			    		  if(thumbnailName != null)
+			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
+			    		  temp += '<p class="fw-bold">'+title+'</p>';
+			    		  temp += '<div class="category">'
+				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+				    		  temp += '<p>'+categoryName+'</p>';
+			    		  temp += '</div>'
+			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
+			    		  temp += '</div>';
+		    		  temp += '<hr/>';
+		    		  $('#reactRecordList').append(temp);
+		    	  });
+		    	  
+		      },
+		      error: function(xhr, status, error) {
+		        console.error("네트워크 오류:", error);
+		        alert("네트워크 오류");
+		      }
+			
+		});
+		
+	});
 
 </script>
-
-<div>
-<li th:each="item : ${list8}" th:text="${' 대민 recordList: '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}"></li>
-</div>
