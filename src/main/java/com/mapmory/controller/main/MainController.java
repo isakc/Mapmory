@@ -92,4 +92,9 @@ public class MainController {
 	public String test() {
 		return "/test.html";
 	}
+	
+	@GetMapping("/common/toolBar")
+	public void getToolBar() {
+		
+	}
 }

@@ -5,15 +5,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,15 +36,21 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.LoginService;
+import com.mapmory.services.user.service.UserService;
 
-@CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000","https://mapmory.co.kr"},allowCredentials = "true")
 @RestController
 @RequestMapping("/chat/*")
 public class ChattingRestController {
 	
 	@Value("${mongoURL}")
 	String mongoURL;
+	
+	@Autowired
+	@Qualifier("userServiceImpl")
+	private UserService userService;
 	
 	@Value("${aitems.Access_Key}")
     private String aitems_Access_Key;
@@ -132,6 +141,19 @@ public class ChattingRestController {
 
         return resultSrc;
     }
+ 	
+ 	@PostMapping("json/getOponentProfile")
+ 	public User getOponentProfile(@RequestBody Map<String,Object> json) throws Exception{
+ 		
+ 		String opponent = json.get("opponent").toString();
+ 		
+ 		System.out.println("==================userID================"+opponent);
+ 		User user = userService.getDetailUser(opponent);
+ 		
+ 		System.out.println(user);
+ 		
+ 		return user;
+ 	}
 	
 	
 	
