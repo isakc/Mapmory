@@ -6,12 +6,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,14 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @RestController
 @RequestMapping("/bot/*")
 public class ChatbotRestController {
-	
+		//ㅎㅎ
 		@Value("${chatbot.api.url}")
 		private String apiUrl;
 		@Value("${chatbot.api.secret.key}")
@@ -112,7 +109,9 @@ public class ChatbotRestController {
 		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to perform chatbot request");
 		        }
 
-		        return ResponseEntity.ok(chatbotMessage.toString());
+		        return ResponseEntity.ok()
+		                .contentType(MediaType.APPLICATION_JSON)
+		                .body(chatbotMessage.toString());
 		    }
 
 		    public static String makeSignature(String message, String secretKey) {
@@ -184,8 +183,6 @@ public class ChatbotRestController {
 		        response.put("message", welcomeMessage);
 		        return ResponseEntity.ok(response.toString());
 		    }
-
-
 		    // 페이지 내비게이션 서비스
 		    @RequestMapping("navi")
 		    public ResponseEntity<Map<String, String[]>> pageNavigation(@RequestBody(required = false) Map<String, String[]> data, HttpServletRequest request) throws Exception {
