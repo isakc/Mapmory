@@ -5,15 +5,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,12 +36,18 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.service.LoginService;
+import com.mapmory.services.user.service.UserService;
 
 @CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000"},allowCredentials = "true")
 @RestController
 @RequestMapping("/chat/*")
 public class ChattingRestController {
+	
+	@Autowired
+	@Qualifier("userServiceImpl")
+	private UserService userService;
 	
 	@Value("${mongoURL}")
 	String mongoURL;
@@ -58,7 +67,8 @@ public class ChattingRestController {
 	
 	//mongoDB 접속 String 전달
 	@GetMapping("json/getMongo")
-	public String getMongo() throws Exception {	
+	public String getMongo() throws Exception {
+		System.out.println("qwe"+mongoURL);
 		return mongoURL;
 	}
 	
@@ -132,6 +142,15 @@ public class ChattingRestController {
 
         return resultSrc;
     }
+ 	
+ 	@PostMapping("json/getOpponentProfile")
+ 	public User getOpponentProfile(@RequestBody Map<String, String> payload) throws Exception {
+ 	    String userId = payload.get("opponent");  // JSON 요청 본문에서 userId를 가져옴
+ 	    
+ 	    User user = userService.getDetailUser(userId);
+ 	    
+ 	    return user;
+ 	}
 	
 	
 	
