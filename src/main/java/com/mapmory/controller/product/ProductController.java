@@ -80,7 +80,7 @@ public class ProductController {
             originalFileNames.add(originalFilename);
         }
         productService.addProduct(product, uuidFileNames, originalFileNames, imageTag);
-        return "redirect:/product/getProductList";
+        return "redirect:/product/getAdminProductList";
     }
     
     @GetMapping("/getProductList") //상품 목록 조회 

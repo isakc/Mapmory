@@ -176,6 +176,15 @@ public class ChatbotRestController {
 		        }
 		        return requestBody;
 		    }
+		    
+		    @RequestMapping(value = "welcome", produces = "application/json; charset=UTF-8")
+		    public ResponseEntity<String> welcomeMessage() {
+		        String welcomeMessage = "안녕하세요! 무엇을 도와드릴까요?";
+		        JSONObject response = new JSONObject();
+		        response.put("message", welcomeMessage);
+		        return ResponseEntity.ok(response.toString());
+		    }
+
 
 		    // 페이지 내비게이션 서비스
 		    @RequestMapping("navi")
