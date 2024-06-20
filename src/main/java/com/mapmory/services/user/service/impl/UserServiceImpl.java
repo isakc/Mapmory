@@ -694,6 +694,20 @@ public class UserServiceImpl implements UserService {
 		
 		return intToBool(result);
 	}
+	
+	
+	@Override
+	public boolean updateProfile(String userId, String introduction) {
+		
+		User tempUser = User.builder()
+				.userId(userId)
+				.introduction(introduction)
+				.build();
+
+		int result = userDao.updateUser(tempUser);
+		
+		return intToBool(result);
+	}
 
 	@Override
 	public boolean updatePassword(String userId, String rawPassword) {

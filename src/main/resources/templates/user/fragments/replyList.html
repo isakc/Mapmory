@@ -1,5 +1,6 @@
 <script>
 		
+	let sharedListSetup = true;
 	let replyListCurrentPage = 1;
 	let replyListEndOfData = false;
 	
@@ -13,8 +14,6 @@
 			let scrollTop = $(window).scrollTop();
 			let windowHeight =  $(window).height();
 			let documentHeight = $(document).height();
-			
-			// console.log("I'm in reply list", pageType.text());
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
             if (!replyListEndOfData && !isLoading && (pageType.text() == "replyList")) {
@@ -23,11 +22,12 @@
                 	isLoading = true; // 로딩 시작
                 	replyListCurrentPage++;
                 	loadMoreReplyList().then(() => {
-                		
-                		// console.log("reply list completely load");
+  
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
+                		
+                		console.log("load error");
                         isLoading = false; // 에러 발생 시 플래그 재설정
                     });
                 }
