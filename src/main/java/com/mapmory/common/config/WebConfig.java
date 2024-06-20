@@ -44,7 +44,8 @@ public class WebConfig implements WebMvcConfigurer{
 						"/user/google/auth/callback", "/user/getNaverLoginView", "/user/getGoogleLoginView",
 						"/user/kakaoCallback", "/user/getKakaoLoginView", "/user/naver/auth/callback",
 						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",
-						"/user/getSignUpView", "/user/setupForTest");
+						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest", 
+						"/user/getSecondaryAuthView", "/user/rest/checkSecondaryKey", "/user/rest/generateKey");
 	}
 
 }
