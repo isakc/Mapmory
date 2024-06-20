@@ -30,15 +30,15 @@ public interface TimelineService {
 	public int deleteMedia(int recordNo) throws Exception;
 	
 	//Category CRUD
-	public void addCategory(Category category) throws Exception;
+	public int addCategory(Category category) throws Exception;
 	
 	public Category getCategory(int categoryNo) throws Exception;
 	
 	public List<Category> getCategoryList() throws Exception;
 	
-	public void updateCategory(Category category) throws Exception;
+	public int updateCategory(Category category) throws Exception;
 	
-	public void deleteCategory(int categoryNo) throws Exception;
+	public int deleteCategory(int categoryNo) throws Exception;
 	
 	public CountAddressDto getCountAddress(Record record) throws Exception;
 	

@@ -178,7 +178,7 @@
 			
 			$('#footerView').on('click', function() {
 				
-				window.location.href="/test";
+				window.location.href="/timeline/getAdminCategoryList";
 			});
  		});
 
@@ -234,10 +234,9 @@
 			        
 			        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
 			        	<div class="my-3">
-					        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}">
+					        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}"></a>
 					        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
 				        </div>
-				        </a>
 						<div id="naverIdLogin" class="my-3">
 							<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
 							<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">
@@ -277,23 +276,19 @@
 				    </li>
 				  </ol>
 				  <br>
-				
-				  **번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 기존 코드를 주석처리하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.
-				</details>
-		         
-		        <br/>
-		        <br/>
-		        <button type="button" id="mapView">map으로 바로 이동</button>
-		        <button type="button" id="footerView">footer 실험실로 이동</button>
-	
-		    
-	    	
-	    	</div><!-- 추가시 여기 위에서만 작업할 것 -->
-	    	
+			
+			  <p>**번외:** 모든 사용자의 비밀번호를 암호화하고 싶다면, `UserServiceImpl`의 `setupForTest()`에서 기존 코드를 주석처리하고 위에 주석 처리된 부분을 활성화한 후 2번부터 시행해주세요.</p>
+			</details>
+	         
+	        <br/>
+	        <br/>
+	        <button type="button" id="mapView">map으로 바로 이동</button>
+	        <button type="button" id="footerView">getAdminCategoryList</button>
 	    
 	    <div class="userDiv" style="display:none;">
  			<div th:replace="common/footer::defaultFooter"></div>
-		</div>	
+		</div>
+		
     	</div>
     	
 

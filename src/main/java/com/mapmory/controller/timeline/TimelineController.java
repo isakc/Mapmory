@@ -151,8 +151,8 @@ public class TimelineController {
 		model.addAttribute("positions",jsonPostions);
 		model.addAttribute("positionParam",jsonParam);
 		}
-//		model.addAttribute("apiKey", kakaoMapApiKey);
-//		model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
@@ -204,6 +204,7 @@ public class TimelineController {
 	public String getSimpleTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
 		Record record=timelineService.getDetailTimeline(recordNo);
+		record=timelineUtil.imojiNameToUrl(record);
 		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
@@ -216,6 +217,7 @@ public class TimelineController {
 	public String getDetailTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
 		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
+		record=timelineUtil.imojiNameToUrl(record);
 		record=timelineUtil.mediaNameToUrl(record);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		
@@ -351,13 +353,19 @@ public class TimelineController {
 	
 	@GetMapping("getUserCategoryList")
 	public String getUserCategoryList(Model model) throws Exception,IOException{
-		model.addAttribute("categoryList", timelineService.getCategoryList());
+		model.addAttribute("categoryList", 
+				timelineUtil.categoryImojiListToUrl(
+						timelineService.getCategoryList()
+						)
+				);
 		return "timeline/getUserCategoryList";
 	}
 	
 	@GetMapping("getAdminCategoryList")
 	public String getAdminCategoryList(Model model) throws Exception,IOException{
-		model.addAttribute("categoryList", timelineService.getCategoryList());
+		List<Category> categoryList = timelineUtil.categoryImojiListToUrl(timelineService.getCategoryList());
+		System.out.println(categoryList);
+		model.addAttribute("categoryList", categoryList);
 		return "timeline/admin/getAdminCategoryList";
 	}
 	
@@ -366,11 +374,10 @@ public class TimelineController {
 		return "timeline/admin/addCategory";
 	}
 	
-	@PostMapping("addCategory")
-	public String addCategory(Model model,@ModelAttribute Category category) throws Exception,IOException {
-		timelineService.addCategory(category);
-		model.addAttribute("categoryList",timelineService.getCategoryList());
-		return "timeline/admin/getAdminCategoryList";
+	@GetMapping("updateCategory")
+	public String updateCategoryView(Model model,@RequestParam(name="categoryNo",required = true) int categoryNo) throws Exception,IOException {
+		model.addAttribute("category",timelineUtil.categoryImojiNameToUrl(timelineService.getCategory(categoryNo)));
+		return "timeline/admin/updateCategory";
 	}
 	
 	@GetMapping("footer")

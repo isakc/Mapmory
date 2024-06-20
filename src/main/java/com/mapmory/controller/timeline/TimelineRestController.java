@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.common.util.ObjectStorageUtil;
@@ -125,6 +127,43 @@ public class TimelineRestController {
 			text = "영상 삭제 실패.";
 		}
 		map.put("text", text);
+		return ResponseEntity.ok(map);
+	}
+	
+	@PostMapping("addCategory")
+	public ResponseEntity<Map<String, Object>> addCategory(@ModelAttribute Category category,
+			@RequestParam(name="categoryImojiFile",required = true) MultipartFile categoryImojiFile,
+			Map<String, Object> map
+			) throws Exception,IOException {
+		map = new HashMap<String, Object>();
+		category = timelineUtil.uploadImojiFile(category, categoryImojiFile) ;
+		boolean success=timelineService.addCategory(category)!=0 ? true:false;
+		map.put("success", success);
+		return ResponseEntity.ok(map);
+	}
+	
+	@PostMapping("updateCategory")
+	public ResponseEntity<Map<String, Object>> updateCategory(@ModelAttribute Category category,
+			@RequestParam(name="categoryImojiFile",required = false) MultipartFile categoryImojiFile,
+			Map<String, Object> map
+			) throws Exception,IOException {
+		//System.out.println("category : "+category);
+		map = new HashMap<String, Object>();
+		category.setCategoryImoji( timelineUtil.imojiUrlToName(category.getCategoryImoji()) );
+		category = timelineUtil.uploadImojiFile(category, categoryImojiFile) ;
+		boolean success=timelineService.updateCategory(category)!=0 ? true:false;
+		map.put("success", success);
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("deleteCategory")
+	public ResponseEntity<Map<String, Object>> deleteCategory(
+			@RequestParam(name="categoryNo",required = true) int categoryNo,
+			Map<String, Object> map
+			) throws Exception,IOException {
+		map = new HashMap<String, Object>();
+		boolean success=timelineService.deleteCategory(categoryNo)!=0 ? true:false;
+		map.put("success", success);
 		return ResponseEntity.ok(map);
 	}
 	
