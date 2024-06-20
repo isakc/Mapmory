@@ -17,15 +17,13 @@
 		var currentPage = 2;
 		var loading = false;
 		var endOfData = false;
-		var userId = /*[[${search.userId}]]*/ 	
+		var userId = [[${userId}]]	
 			console.log("12 :"+userId);
 		$(document).ready(function () {
 			loadReportList();
 		});
 		
 		$(window).scroll(function() {
-			
-	
 			console.log("스크롤 시작");
         	if (!loading && !endOfData) {
         		if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {

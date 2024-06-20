@@ -1,9 +1,9 @@
 @charset "EUC-KR";
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 .footer-container {
-		border-top: 2px solid black;
+		border-top: 2px solid #E6F4F1;
 		width : 100%;
-		height : 25%;
+		height : 30%;
 		margin: 0;
 		position: sticky;
 		bottom: 0;
@@ -13,12 +13,12 @@
 	}
 
 	.mobile-bottom-nav {
-	  /* z-index: 1000;
+	  z-index: 1000;
 	  will-change: transform;
-	  transform: translateZ(0); */
+	  transform: translateZ(0);
 	  display: flex;
-	  box-shadow: 0 -2px 5px -2px #333;
-	  background-color: #fff;
+	  /* box-shadow: 0 -2px 5px -2px #333; */
+	  background-color: #E3F0FF;
 	}
 	.mobile-bottom-nav__item {
 	  flex-grow: 1;
@@ -28,24 +28,27 @@
 	  flex-direction: column;
 	  justify-content: center;
 	}
+
 	.mobile-bottom-nav__item--active {
-	  
+	  color: #2780E3 !important;
 	}
+
 	.mobile-bottom-nav__item-content {
+		color: #00B1F6;
 		height: 100%;
 	  display: flex;
 	  flex-direction: column;
 	}
  
+
  .material-icons {
-		font-size: 2em; /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½â¸¦ ï¿½ï¿½ï¿½Ï´ï¿½ Å©ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ */
+		font-size: 2em; 
+		
+	 	.material-icons {
+			font-size: 2em; 
+	 }
 	}
 	
 	div#content-for-footer {
-				min-height: 90dvh;
-<<<<<<< HEAD
-				/* footer ï¿½ß°ï¿½ï¿½ï¿½ bodyï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½Â±ï¿½ <div id=content></div> ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö°ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½.*/ 
-=======
-				/* footer Ãß°¡½Ã body³»ºÎ¿¡ ÀÖ´Â ¸ðµçÅÂ±× <div id=content></div> ·Î ¹­¾îÁÖ°í Ãß°¡ÇØÁÙ °Í.*/ 
->>>>>>> refs/remotes/origin/master
-			}
+		min-height: 100dvh;
+	}

@@ -184,6 +184,7 @@ public class UserRestController {
 				
 				if(setSecondAuth == 1) {
 					
+					System.out.println("2단계 인증을 진행합니다..");
 					// 임시 인증 쿠키 생성
 					String uuid = UUID.randomUUID().toString();
 					Map<String, String> tempMap = new HashMap<>();
@@ -195,7 +196,8 @@ public class UserRestController {
 					redisUtilMap.insert(uuid, tempMap, 5L);
 					Cookie cookie = CookieUtil.createCookie("SECONDAUTH", uuid, 60*5, "/user");
 					response.addCookie(cookie);
-					return ResponseEntity.ok("secondAuth");
+					System.out.println("임시 cookie를 생성했습니다.");
+					return ResponseEntity.ok("secondAuth");  // REDIS에 값을 넣으니 자꾸 날라간다. RDBMS로 옮기고 다시 시도할 것.
 					
 				} else {
 					
@@ -365,14 +367,22 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response) {
+	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response, @RequestBody Map<String, String> map) {
 		
+		String userId = map.get("userId");
+		String password = map.get("userPassword");
 		
+		System.out.println("userId : " + userId);
+		System.out.println("userPassword : " + password);
 		
+		userService.updatePassword(userId, password);
+		/*
 		if(true)
 			return ResponseEntity.ok(true);
 		else
 			return ResponseEntity.ok(false);
+			*/
+		return ResponseEntity.ok(false);
 	}
 	
 	@PostMapping("/updateSecondaryAuth")

@@ -7,19 +7,24 @@
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
 <style type="text/css">
+#categorySpan{
+	background-color: #00C6E1;
+}
 </style>
 </head>
 <body>
 <div id=content-for-footer>
 	<div th:name="getKakaoMap" th:data-recordno="${record.recordNo}" th:include="timeline/component/map::kakaoMap"></div>
 	
-	<div class="card border-primary mb-3" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}"> <!-- style="max-width: 20rem;" -->
+	<div class="card border-primary mb-3" th:name="getDetailTimeline"> <!-- style="max-width: 20rem;" -->
  		<!-- <div class="card-header"></div> -->
   		<div class="card-body">
     		<h4 class="card-title">
  				<span th:text="${record.recordTitle}"></span>
- 				<img/>
- 				<span class="badge bg-primary" th:text="${record.categoryName}"></span>
+ 				<span th:if="${!(record.categoryName==null)}" id="categorySpan" class="badge">
+ 					<img th:src="${record.categoryImoji}" style="height:18px;"/>
+ 					<span th:text="${record.categoryName}"></span>
+ 				</span>
  				<span class="badge bg-primary" th:text="${updateCountText}"></span>
  				<span class="badge bg-primary" th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span>
  			</h4>
@@ -35,7 +40,7 @@
 				<!-- <span th:text="${record.mediaName}"></span><br/> -->
 				</div>
 				<div th:each="image : ${record.imageName}">
-					<img th:src="${image.imageTagText}" /><br/>
+					<img th:src="${image.imageTagText}" style="height:100px;"/><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->
  				</div>
     			<span class="badge bg-primary" th:text="'해시태그'"></span>

@@ -13,6 +13,30 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 기록 작성 유저 프로필로 이동 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", "#nickname", function() {
+			var userId = $(this).data('record-userid');
+			console.log(userId);
+			window.location.href = '/user/getProfile?userId='+userId;
+		});
+	});
+	</script>
+
+	<!-- 댓글 작성 유저 프로필로 이동 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", '.replyNickname', function() {
+			var $row = $(this).closest('span.replyNickname');
+			console.log($row);
+			var userId = $row.data('replyuser-id');
+			console.log("댓글 유저:"+userId);
+			window.location.href='/user/getProfile?userId='+userId;
+		});
+	}); 
+	</script>
+
 	<!-- 신고 모달 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -209,7 +233,7 @@
 	<!-- 기록 즐겨찾기 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '.bi.bi-heart', function() {
+		$(document).on("click", '#recordBookmark', function() {
 			var userId = /*[[${userId}]]*/
 			console.log("1.사용자 ID : "+userId);
 			var recordNo = /*[[${record.recordNo}]]*/
@@ -233,16 +257,16 @@
 					recordNo : recordNo,
 					logsType : 1 
 				}),
+				
 				success : function(response) {
 					console.log('즐겨찾기 성공');
-					updateBookmark(recordNo, replyNo, logsType);
 				    var bookmarkIcon = $('#recordBookmark');
 				    if (bookmarkIcon.hasClass('bi-heart')) {
 				    	bookmarkIcon.removeClass('bi-heart');
 				    	bookmarkIcon.addClass('bi-heart-fill');
 				    } else {
-				        dislikeIcon.removeClass('bi-heart-fill');
-				        dislikeIcon.addClass('bi-heart');
+				    	bookmarkIcon.removeClass('bi-heart-fill');
+				    	bookmarkIcon.addClass('bi-heart');
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -253,6 +277,140 @@
 	});
 	</script>
 	<!-- 기록 즐겨찾기 -->
+	
+	<!-- 댓글 좋아요 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+	    // 클릭 이벤트는 document에서 한 번만 처리
+	    $(document).on("click", '.replyLike', function() {
+	        var userId = /*[[${userId}]]*/'';
+	        var button = $(this);
+	        var row = button.closest('.row');
+	        var recordNo = row.find('[data-recordno]').data('recordno');
+	        var replyNo = row.find('[data-replyno]').data('replyno');
+	        var logsType = 2;
+
+	        var data = {
+	            userId : userId,
+	            recordNo : recordNo,
+	            replyNo : replyNo,
+	            logsType : logsType
+	        };
+	        
+	        console.log(data);
+
+	        $.ajax({
+	            type : 'POST',
+	            url  : '/community/rest/checkLogs',
+	            contentType : 'application/json',
+	            data : JSON.stringify(data),
+	            success : function(response) {
+	                console.log('좋아요 성공');
+	                updateReplyLikes(row, recordNo, replyNo, logsType);
+
+				    if (button.hasClass('bi-hand-thumbs-up')) {
+				        button.removeClass('bi-hand-thumbs-up');
+				        button.addClass('bi-hand-thumbs-up-fill');
+				    } else {
+				    	button.removeClass('bi-hand-thumbs-up-fill');
+				    	button.addClass('bi-hand-thumbs-up');
+				    }
+	            },
+	            error : function(xhr, status, error) {
+	                console.error('좋아요 실패');
+	            }
+	        });
+	    });
+	});
+
+	function updateReplyLikes(row, recordNo, replyNo, logsType) {
+	    var data = {
+	        recordNo : recordNo,
+	        replyNo : replyNo,
+	        logsType : logsType
+	    };
+
+	    $.ajax({
+	        type : 'POST',
+	        url : '/community/rest/getReactionLikeTotalCount',
+	        contentType: 'application/json',
+	        data : JSON.stringify(data),
+	        success : function(likeCount) {
+	            var likeCountElement = row.find('.replyLikeCount');
+	            likeCountElement.text(likeCount);
+	        },
+	        error : function(xhr, status, error) {
+	            console.error('데이터 가져오기 실패');
+	        }
+	    });
+	}	
+	</script>
+	
+	<!-- 댓글 싫어요 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", '.replyDislike', function() {
+			var userId = /*[[${userId}]]*/'';
+	        var button = $(this);			
+			var row = $(this).closest('.row');
+			var recordNo = row.find('[data-recordno]').data('recordno');
+			var replyNo = row.find('[data-replyno]').data('replyno');
+			var logsType = 3;
+			var data = {
+					userId : userId,
+					recordNo : recordNo,
+					replyNo : replyNo,
+					logsType : logsType
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url  : '/community/rest/checkLogs',
+				contentType : 'application/json',
+				data : JSON.stringify(data),
+				success : function(response) {
+					console.log('24. 싫어요 성공');
+					updateReplyDislikes(row, recordNo, replyNo, logsType);
+
+				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down');
+				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    } else {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
+				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    }					
+				},
+				error : function(xhr, status, error) {
+					console.error('25. 싫어요 실패');
+				}
+			});
+		});
+	});
+	
+	function updateReplyDislikes(row, recordNo, replyNo, logsType) {
+		var data = {
+			recordNo : recordNo,
+			replyNo : replyNo,
+			logsType : logsType
+		};
+		$.ajax({
+			type : 'POST',
+			url : '/community/rest/getReactionDisLikeTotalCount',
+			contentType : 'application/json',
+			data : JSON.stringify(data),
+			success : function(dislikeCount) {
+	            var dislikeCountElement = row.find('.replyDislikeCount'); 
+	            dislikeCountElement.text(dislikeCount); 
+			},
+			error : function(xhr, status, error) {
+				console.log("26. 데이터 가져오기 실패");
+			}
+		});			
+	}	
+	
+	</script>
+	
+	
 	
 	<!-- 댓글 목록으로 아동 -->
 	<script th:inline="javascript">
@@ -327,6 +485,37 @@
 			font-size : 30px;
 		}					
 					
+		#recordLike {
+			font-size : 30px;
+		}			
+		
+		#recordDislike {
+			font-size : 30px;
+		}
+		
+		.replyLike {
+			font-size : 25px;
+		}			
+		
+		.replyDislike {
+			font-size : 25px;
+		}				
+					
+		.bi-chat-square-text-fill {
+			font-size : 25px;
+		}					
+					
+		.bi-heart {
+			font-size : 25px;
+		}
+		
+		.bi-heart-fill {
+			font-size : 25px;
+		}		
+
+	    .icon-separator {
+	        margin: 10px;
+	    }					
 	</style>	
 	
 </head>
@@ -341,12 +530,14 @@
 				    	</a>
 					</li>
 				</ul>
-				<div>
+				<div class="profile">
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
-						<a class="nickname" th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
+						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
-						<span th:text="${record.subscriptionEndDate}"></span>
+						<span th:if="${record.subscriptionEndDate == 1}">
+							<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+						</span>
 						<i id="moreIcon" class="bi bi-three-dots" style="float: right;"></i>									
 					</h4> 
 				</div>
@@ -361,8 +552,6 @@
 					<span th:text="${record.categoryImoji}"></span>
 				</div>
 				<div class="card-body">
-					<span th:text="${record.latitude}"></span>
-					<span th:text="${record.longitude}"></span>
 					<div th:include="timeline/component/map::kakaoMap" ></div>
 					<p th:text="${record.checkpointAddress}"></p>
 				</div>
@@ -373,11 +562,24 @@
 					<p th:text="${record.recordText}"></p>			
 				</div>
 				<div class="card-body">
-					<i class="bi bi-hand-thumbs-up" id="recordLike"></i>					
-					<span class="likeCount" th:text="${record.likeCount}"></span>
-					<i class="bi bi-hand-thumbs-down" id="recordDislike"></i>			
-					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>	
-				</div>			
+				    <i th:if="${isLiked}" class="bi bi-hand-thumbs-up-fill" id="recordLike"></i>
+				    <i th:unless="${isLiked}" class="bi bi-hand-thumbs-up"id="recordLike"></i>
+					<span class="likeCount" th:text="${record.likeCount}"></span>				    
+				    <i th:if="${isDisliked}" class="bi bi-hand-thumbs-down-fill" id="recordDislike"></i>
+				    <i th:unless="${isDisliked}" class="bi bi-hand-thumbs-down" id="recordDislike"></i>
+					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>					
+				</div>	
+				
+			    <div class="card-body">
+					<div>
+					    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
+					    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>
+						<span class="icon-separator"></span> 
+						<i class="bi bi-chat-square-text-fill"></i>					
+						<span th:text="${record.replyCount}" class="reply-count"></span>
+					</div>	
+			    </div>				
+						
 				<div class="separator"></div>
 			</div>
 		</div>	
@@ -385,31 +587,33 @@
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
 			<div class="col-sm-2">
 				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-				<a th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
-				<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
+				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
+				<span th:if="${reply.subscriptionEndDate == '1'}">
+					<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+				</span>
 			</div>
 			<div class="col-sm-4">
-			<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></p>
-			<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
-			<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
-			<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>
-			<i class="bi bi-hand-thumbs-down" style="float: right; margin-left: 10px;"></i>
-			<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}" style="float: right; margin-left: 10px;"></span>						
-			<i class="bi bi-hand-thumbs-up" style="float: right; margin-left: 10px;"></i>			
+				<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}" th:data-recordno="${reply.recordNo}" th:data-replyno="${reply.replyNo}"></p>
+				<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+				<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
+				<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}" class="replyDislikeCount" style="float: right; margin-left: 10px;"></span>
+	            <span>
+	          		<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 10px;"></i>
+	            	<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>  
+	  			</span>
+	  			<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}" class="replyLikeCount" style="float: right; margin-left: 10px;"></span>	
+	            <span>
+	            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike" style="float: right; margin-left: 10px;"></i>
+	            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike" style="float: right; margin-left: 10px;"></i>
+	            </span>	
 			</div>
 			<div th:if="${iterStat.index < 5}" class="separator2"></div>
 		</div>		
+		<br/>
 		<div class="card-body">
 			<button type="button" id="moreReply" class="btn btn-primary">댓글 더보기</button>
+	    </div>
 
-	    </div>
-	    <br/>
-	    <div class="card-body">
-			<i class="bi bi-heart" id="recordBookmark"></i>
-			<i class="bi bi-chat-square-text-fill"></i>					
-			<span th:text="${record.replyCount}" class="reply-count"></span>	
-	    </div>
-	    
   		<!-- 더보기 모달창 -->
 		<div class="moreModal" id="moreModal">
 			<div class="modal-dialog" role="document">

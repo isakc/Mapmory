@@ -1,5 +1,7 @@
 package com.mapmory.controller.community;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +22,7 @@ import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.CommunityLogs;
+import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -79,6 +82,23 @@ public class CommunityController {
 			
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
+		List<CommunityLogs> userLogs = communityService.getUsersLogs(userId, recordNo);
+		model.addAttribute("userLogs", userLogs);
+		
+		//기록 플래그
+	    boolean isBookmarked = userLogs.stream()
+	            .anyMatch(log -> log.getReplyNo() == null && log.getLogsType() == 1);
+	    
+	    boolean isLiked = userLogs.stream()
+	            .anyMatch(log -> log.getReplyNo() == null && log.getLogsType() == 2);
+	    
+	    boolean isDisliked = userLogs.stream()
+	            .anyMatch(log -> log.getReplyNo() == null && log.getLogsType() == 3);
+	    
+	    model.addAttribute("isBookmarked", isBookmarked);
+	    model.addAttribute("isLiked", isLiked);
+	    model.addAttribute("isDisliked", isDisliked);	    
+	    	    
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setLimit(pageSize);
@@ -88,6 +108,25 @@ public class CommunityController {
 
 	    
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    
+	    //댓글에 대한 플래그
+	    Map<Integer, Boolean> likedReplies = new HashMap<>();
+	    Map<Integer, Boolean> dislikedReplies = new HashMap<>();	
+	    List<Reply> replies = (List<Reply>) replyData.get("list");
+	    
+	    for (Reply reply : replies) {
+
+	    	int replyNo = reply.getReplyNo();
+	        boolean likedReply = userLogs.stream()
+	                .anyMatch(log -> log.getReplyNo() != null && log.getRecordNo() == recordNo && log.getReplyNo() == replyNo && log.getLogsType() == 2);
+	        boolean isDislikedReply = userLogs.stream()
+	                .anyMatch(log -> log.getReplyNo() != null && log.getRecordNo() == recordNo && log.getReplyNo() == replyNo && log.getLogsType() == 3);
+	        likedReplies.put(replyNo, likedReply);
+	        dislikedReplies.put(replyNo, isDislikedReply);
+	    }	    
+	    model.addAttribute("likedReplies", likedReplies);
+	    model.addAttribute("dislikedReplies", dislikedReplies);	    
+	    
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
@@ -99,18 +138,18 @@ public class CommunityController {
 	    		.logsType(0)
 	    		.build();
 	    		
-	    communityService.addCommunityLogs(communityLogs);		
+	    communityService.addCommunityLogs(communityLogs);	
 	    
 	    System.out.println("model :"+model);
+	    
 		return "community/getDetailSharedRecord";
 	}
 
 	//댓글 목록 조회
 	@GetMapping("/getReplyList/{recordNo}")
-	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request) throws Exception {
+	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request, CommunityLogs communityLogs) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
-
 		search.setUserId(userId);
 		
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
@@ -121,6 +160,29 @@ public class CommunityController {
 		System.out.println("페이지 값: " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+
+		List<CommunityLogs> userLogs = communityService.getUsersLogs(userId, recordNo);
+		model.addAttribute("userLogs", userLogs);
+		
+	    // 댓글에 대한 좋아요/싫어요 여부를 모델에 추가
+	    List<Reply> replyList = (List<Reply>) replyData.get("list");
+	  
+	    Map<Integer, Boolean> likedReplies = new HashMap<>();
+	    Map<Integer, Boolean> dislikedReplies = new HashMap<>();
+	    
+	    for (Reply reply : replyList) {
+	    	
+	    	int replyNo = reply.getReplyNo();
+	        boolean likedReply = userLogs.stream()
+	                .anyMatch(log -> log.getReplyNo() != null && log.getRecordNo() == recordNo && log.getReplyNo() == replyNo && log.getLogsType() == 2);
+	        boolean isDislikedReply = userLogs.stream()
+	                .anyMatch(log -> log.getReplyNo() != null && log.getRecordNo() == recordNo && log.getReplyNo() == replyNo && log.getLogsType() == 3);
+	        likedReplies.put(replyNo, likedReply);
+	        dislikedReplies.put(replyNo, isDislikedReply);
+	    }	    
+	    
+	    model.addAttribute("likedReplies", likedReplies);
+	    model.addAttribute("dislikedReplies", dislikedReplies);
 	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
@@ -197,6 +259,24 @@ public class CommunityController {
 		return "community/admin/getAdminConfirmReport";
 	}	
 	
+	//차단 목록 조회
+	@GetMapping("/getBlockList/{userId}")
+	public String getBlockList(Search search, @PathVariable String userId, Model model, HttpServletRequest request) throws Exception {
+
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
+		System.out.println("테스트 : "+userId);
+		model.addAttribute("blockList", blockList.get("list"));
+		model.addAttribute("totalCount", blockList.get("totalCount"));		
+		return "community/getBlockList";
+	}
 	
 	
 	

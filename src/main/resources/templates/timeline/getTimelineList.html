@@ -124,16 +124,14 @@ body{margin-top:20px;}
     left: 0;
     right: -55.8px;
 }
-    </style>
+#datepicker{
+	width: 150px;
+}
+</style>
 </head>
 <body>
 <div id=content-for-footer>
-	<h1 th:text="${'getTimelineList'}"></h1>
-	
-    <a th:href="@{/timeline/getUserCategoryList}" th:text="${'getUserCategoryList'}"></a><br/>
-    <a th:href="@{/timeline/getAdminCategoryList}" th:text="${'getAdminCategoryList'}"></a><br/>
-    <a href="/timeline/getDetailTimeline2" th:text="${'getDetailTimeline2'}"></a><br/>
-    <a href="/timeline/getDetailTimeline3" th:text="${'getDetailTimeline3'}"></a><br/>
+	<h1 th:text="${'타임라인'}"></h1>
 
 			<div class="btn-group d-flex justify-content-end" role="group" aria-label="Button group with nested dropdown">
             	<div class="btn-group" role="group">

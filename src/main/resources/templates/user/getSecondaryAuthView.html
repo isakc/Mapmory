@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <title>2단계 인증</title>
 
+<th:block th:replace="~{/common/dependencies}"></th:block>
+<!-- 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+ -->
 
 <script th:inline="javascript">
 
@@ -34,7 +37,14 @@
 			success : function(responseBody, httpStatus){
 
 				console.log("_"+responseBody+"_");
+				// console.log("_"+JSON.parse(responseBody)+"_");
+				console.log("_"+responseBody.message+"_");
 				// console.log(responseBody == "")
+				
+				/*
+				if(responseBody.message == "no-cookie")
+					window.location.href = "/";
+				*/
 				
 				// $('.row:last').empty();
 				// $('form').empty();
@@ -54,7 +64,11 @@
 				
 				// $('.row:last').append(detail);
 				$('form').append(detail);
-			}
+			}, error: function(xhr, status, error) {
+  		        console.error("네트워크 오류:", error);
+  		        alert("네트워크 오류");
+  		        window.location.href="/";
+  		      }
 		});
 
 		$(document).on('click', '#checkKey', function() {
@@ -112,12 +126,17 @@
 
 		<form>
 			<div class='form-group'>
-				<label for="userName">인증번호</label>
+				<label class="form-label" for="userName">인증번호</label>
 				<input type="text" name="userCode" class="form-control" placeholder="인증번호 6자리 입력">
 			</div>
-			<div class='row'>
-				<button type="button" class="btn btn-default" id="checkKey">인증하기</button>
+			<div class="d-grid gap-2">
+			  <button class="btn btn-primary mt-3" type="button" id="checkKey">인증하기</button>
 			</div>
+			<!-- 
+			<div class='row'>
+				<button type="button" class="btn btn-primary w-100 mb-3" id="checkKey">인증하기</button>
+			</div>
+			 -->
 		</form>
 		<!-- 
 		<form>

@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	public void setupForTest() {
 
-		/*
+		
 		UserSearch search = UserSearch.builder()
 							.searchCondition(-1)
 							.role(0)
@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
 			
 			updatePassword(userId, userPassword);
 		}
-		*/
+		
 		
 		String userId="user1";
 		String userPassword="password1";
@@ -690,6 +690,20 @@ public class UserServiceImpl implements UserService {
 						.introduction(introduction)
 						.build();
 		
+		int result = userDao.updateUser(tempUser);
+		
+		return intToBool(result);
+	}
+	
+	
+	@Override
+	public boolean updateProfile(String userId, String introduction) {
+		
+		User tempUser = User.builder()
+				.userId(userId)
+				.introduction(introduction)
+				.build();
+
 		int result = userDao.updateUser(tempUser);
 		
 		return intToBool(result);
