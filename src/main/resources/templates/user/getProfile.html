@@ -17,11 +17,29 @@
 			text-decoration: none;
 		}
 		
-		.category {
+		.emoji {
+		
 			display: flex;
     		align-items: center;
+    		width: 20px;
+    		height: 20px; 
 		}
 		
+			/*
+		.category-custom {
+			display: flex;
+    		align-items: center;
+    		width: 20px;
+    		height: 20px; 
+		}
+		
+	
+		.category-box-custom {
+		    width: 50px;
+		    height: 50px;
+		    object-fit: cover;
+		}
+		*/
 	</style>
 	
 	
@@ -29,7 +47,7 @@
 	<script th:inline="javascript">
 	
 		const profileUserId = [[${profile.user.userId}]];
-		const sessionId = `[[${sessionId}]]`;
+		const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
 		let isLoading = false;
 		let pageType = null;
 		

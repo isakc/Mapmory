@@ -3,36 +3,88 @@
 <head>
 	<meta charset="UTF-8">
 	<title>내 프로필 수정</title>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link rel="stylesheet" href="/css/common/mapmory-color.css">
+	<link rel="stylesheet" href="/css/user/profile-image.css"  >
+	
+	<style>
+
+		
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	</style>
 	
 	<script th:inline="javascript">
 	$( function() {
 		
-		console.log([[${profileImage}]])
+		// console.log([[${profileImage}]])
 		
 		$('#back').on('click', function() {
 			
 			history.back();
 		});
 		
+		
+		$('input[type="file"]').on("change", (event) => updateImg(event) );
+		
+		
 		$('#submitButton').on('click', function() {
 			
 			$('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
 		});
 	});
+	
+	function updateImg(event) {
+
+		console.log('파일을 변경합니다...');
+		
+		const file = event.target.files[0];
+		const reader = new FileReader();
+
+		reader.onload = function(event) {
+			
+			const workElement = $('body img').attr('src', event.target.result)
+		}
+		
+		reader.readAsDataURL(file);
+	}
+	
 	</script>
 </head>
-<body>
-	<button type="button" id="back">뒤로 가기</button>
-		<div class="container">
-			<form>
-				<input type="file" name="profile" accept="image/*" class="form-control" />
-				<input type="text" name="introduction" class="form-control" placeholder="자기소개 작성" th:value="${user.introduction}" />
-				<button type="button" class="btn btn-primary" id="submitButton">제출</button>
-			</form>
-			
-			<!-- <img th:src="${profileImage}">  -->
-			<img alt="" th:src="@{/user/rest/image/{uuid}(uuid=${user.profileImageName})}">
+<body class="container mt-3">
+
+	<div class="d-flex">
+		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+		<div class="col-6"></div>
+		<p class="h2 mt-3 mb-3">프로필 수정</p>
+	</div>
+	<div>
+		<form>
+		<label class="form-label mt-4" for="profileImage">프로필 이미지</label>
+		<div class="d-flex" id="profileImage">
+			<div class="profile-box-custom">
+				<img class="profile-custom" alt="" th:src="@{/user/rest/profile/{uuid}(uuid=${user.profileImageName})}">
+				<!-- <input type="hidden" name="old-profile-name" th:value="${user.profileImageName">  --> 
+			</div>
+			<div class="row ms-2">
+				<!--  <label class="form-label mt-4" for="profileImage">프로필 이미지</label> -->
+				<input type="file" name="profile" accept="image/*" class="form-control"  />
+			</div>
 		</div>
+		<hr/>
+		<div>
+			<label class="form-label " for="introduction">자기소개</label>
+			<textarea type="text" name="introduction" id="introduction" class="form-control" placeholder="자기소개 작성" th:text="${user.introduction}" rows="4"></textarea>
+			<!-- <input type="text" name="introduction" id="introduction" class="form-control" placeholder="자기소개 작성" th:value="${user.introduction}" />  -->
+		</div>
+		</form>
+	</div>
+	
+	<div class="d-grid gap-2 fixed-bottom mb-3 col-11 mx-auto">
+	  <button type="button" class="btn btn-primary" id="submitButton">제출</button>
+	</div>
 </body>	
 </html>
