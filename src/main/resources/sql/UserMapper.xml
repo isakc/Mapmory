@@ -144,11 +144,6 @@
 			(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-<<<<<<< HEAD
-		<!-- WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}  -->
-=======
-		
->>>>>>> refs/remotes/origin/master
 	</select>
 	
 	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">
