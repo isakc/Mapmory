@@ -172,51 +172,9 @@ public class ChatbotRestController {
 		    
 		    @RequestMapping(value = "welcome", produces = "application/json; charset=UTF-8")
 		    public ResponseEntity<String> welcomeMessage() {
-		        String welcomeMessage = getWelcomeMessage();
+		        String welcomeMessage = "안녕하세요! 무엇을 도와드릴까요?";
 		        JSONObject response = new JSONObject();
 		        response.put("message", welcomeMessage);
 		        return ResponseEntity.ok(response.toString());
-		    }
-
-		    private String getWelcomeMessage() {
-		        try {
-		            HttpURLConnection con = (HttpURLConnection) new URL(apiUrl).openConnection();
-		            con.setRequestMethod("POST");
-		            con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		            con.setRequestProperty("X-NCP-CHATBOT_SIGNATURE", makeSignature("", secretKey));
-
-		            BufferedReader br;
-		            String decodedString;
-
-		            int responseCode = con.getResponseCode();
-
-		            if (responseCode == 200) {
-		                br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
-		            } else {
-		                logger.error("API request failed with response code: " + responseCode);
-		                br = new BufferedReader(new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8));
-		                return "API request failed with response code: " + responseCode;
-		            }
-
-		            StringBuilder response = new StringBuilder();
-		            while ((decodedString = br.readLine()) != null) {
-		                response.append(decodedString);
-		            }
-		            br.close();
-
-		            JSONObject responseJson = new JSONObject(response.toString());
-		            System.out.println("웰컴 테스트용 ::::::::::::::::::: " + responseJson);
-
-		            boolean success = responseJson.getBoolean("success");
-		            if (success) {
-		                return "성공적으로 웰컴 메시지를 가져왔습니다.";
-		            } else {
-		                String resultMessage = responseJson.getString("resultMessage");
-		                return "안녕하세요! 무엇을 도와드릴까요?";
-		            }
-		        } catch (Exception e) {
-		            logger.error("Failed to get welcome message", e);
-		            return "안녕하세요! 무엇을 도와드릴까요?";
-		        }
 		    }
 		}

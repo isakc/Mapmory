@@ -144,6 +144,15 @@
                 }
             });
         }
+		
+		$(document).ready(function() {
+            $('.dropdown-item').click(function(e) {
+                e.preventDefault();
+                var condition = $(this).data('condition');
+                $('#searchCondition').val(condition);
+                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+            });
+        });
 	</script>
 	
 	<style>
@@ -191,7 +200,7 @@
 		<div class="container">
 			<div class="card sm-4">
             	<div class="search">
-                <form th:action="@{/comminity/getSharedRecordList}" method="get" class="input-group" id="searachForm">
+                <form th:action="@{/community/getSharedRecordList}" method="get" class="input-group" id="searachForm">
                     <div class="form-group">
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
