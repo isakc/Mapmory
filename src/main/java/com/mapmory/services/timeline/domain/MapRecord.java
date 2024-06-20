@@ -45,9 +45,10 @@ public class MapRecord {
 	private int updateCount;
 	private Date d_DayDate;
 	private int timecapsuleType;
-	private int recordType;
+	private int markerType;
+	private String markerTypeString;
 	private String stringDistance;
-	
+	private boolean isSubscribed;
 	private Double distance;
 	
 //	public void setImageTagList(List<Map<String, Object>> imageTagList) {

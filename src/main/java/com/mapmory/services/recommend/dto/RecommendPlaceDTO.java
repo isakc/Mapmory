@@ -20,6 +20,7 @@ public class RecommendPlaceDTO {
     private String categoryName;
     private String addressName;
     private String phone;
+    private int markerType;
     private double latitude;
     private double longitude;
 }

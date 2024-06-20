@@ -1,6 +1,11 @@
 /**
  * 
  */
+
+let clickedMarkerImage = new kakao.maps.MarkerImage(markerImages[7], new kakao.maps.Size(40, 45) );
+let clickedMarker = null; // 클릭된 마커를 추적할 변수
+let beforeMarkerType = null;
+		
 function drawLine(arrPoint, mode) {
 	let polyline = new kakao.maps.Polyline({
 		path: arrPoint, // 선을 구성하는 좌표배열
@@ -14,95 +19,91 @@ function drawLine(arrPoint, mode) {
 	polylines.push(polyline); // 배열에 폴리라인 객체를 추가
 } // drawLine: 라인을 그리는 함수
 
-function setMarkers(coordinates) {
-	const markerImages = [API_KEYS.cdnUrl + API_KEYS.privateMarker,
-						  API_KEYS.cdnUrl + API_KEYS.pulicMarker,
-						 API_KEYS.cdnUrl + API_KEYS.followMarker,
-						  API_KEYS.cdnUrl + API_KEYS.recommendMarker,
-						 API_KEYS.cdnUrl + API_KEYS.currentMarker,
-						 API_KEYS.cdnUrl + API_KEYS.startMarker,
-						 API_KEYS.cdnUrl + API_KEYS.endMarker
-	];
-
-	coordinates.forEach(location => {
-		let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
-		let markerOptions = {
-			position: markerPosition,
-			clickable: true
-		};
-
-		if (location.markerType) {
-			let icon = new kakao.maps.MarkerImage( markerImages[location.markerType], new kakao.maps.Size(31, 35), {
-				offset: new kakao.maps.Point(16, 34)
-			});
-			markerOptions.image = icon;
-			markerOptions.zIndex = 4;
-		}
-
-		let marker = new kakao.maps.Marker(markerOptions);
-
-		marker.setMap(map);
-		markers.push(marker);
-		
-		kakao.maps.event.addListener(marker, 'mouseout', function() {
-			
-			map.setCursor(null);
-		});
-
-		kakao.maps.event.addListener(marker, 'mouseover', function() {
-			
-			map.setCursor('pointer');
-		});
-
-		kakao.maps.event.addListener(marker, 'click', function() {
-			selectLatitude = location.latitude;
-			selectLongitude = location.longitude;
-			
-			$.ajax({
-				url: "/map/rest/getDetailRecord", // 요청을 보낼 URL을 입력
-				contentType: 'application/json', // Content-Type을 JSON으로 설정
-				method: 'POST',
-				data: JSON.stringify({ recordNo: location.recordNo }),
-				success: function(response) {
-					console.log(response);
-
-					if (response.length != 0) {
-						deleteHTML();
-
-						let html = `
-	    		                <h2>Record Information</h2>
-	    		                <p><strong>Record Title:</strong> ${response.recordTitle}</p>
-	    		                <p><strong>Checkpoint Address:</strong> ${response.checkpointAddress}</p>
-	    		                <p><strong>Media Name:</strong> ${response.mediaName}</p>
-	    		                <h3>Image Tags</h3>
-	    		                <ul>
-	    		                	${response.imageName.map(tag => `<li><img src="https://kr.object.ncloudstorage.com/mapmory-object/productImage/test.png" alt="${tag.imageTagText}" /></li>`).join('')}
-	    		            	</ul>
-	    		                <h3>Hashtags</h3>
-	    		                <ul>
-	    		                    ${response.hashtag.map(tag => `<li>${tag.imageTagText}</li>`).join('')}
-	    		                </ul>
-	    		                <p><strong>Category Name:</strong> ${response.categoryName}</p>
-	    		                <p><strong>Category Imoji:</strong> <img src="@{/category/image/${response.categoryImoji} }" alt="Category Imoji" /></p>
-	    		                <p><strong>Record Text:</strong> ${response.recordText}</p>
-	    		                <p><strong>Record Add Date:</strong> ${response.recordAddDate}</p>
-	    		            `;
-
-						const resultDiv = document.getElementById('result');
-						resultDiv.innerHTML = html;
-					} else {
-						alert("해당하는 기록이 없습니다!!");
-					}//if~else
-
-				}, // success
-				error: function(error) {
-					console.log('ajax 에러 발생:', error);
-				} // error
-			}); //기록 검색 ajax
-		}); // 마커에 클릭이벤트를 등록
-
+function clickMarkerFromCard(index, contentList) {
+    // 마커 배열에서 해당 record을 가진 마커 찾기
+    const marker = markers.find(m => {
+    	if (m.locationData.markerType === 3) {
+        	return m.locationData.latitude === contentList[index].latitude &&
+               	m.locationData.longitude === contentList[index].longitude &&
+               	m.locationData.addressName === contentList[index].addressName;
+   		}else {
+        	return m.locationData.latitude === contentList[index].latitude && 
+        	       m.locationData.longitude === contentList[index].longitude &&
+                   m.locationData.recordNo === contentList[index].recordNo;
+    	}
 	});
-} // setMarkers
+    
+    if (marker) {
+        clickContentMarker(marker, index, contentList);
+    }
+}
+
+function setMarkers(contentList) {
+    contentList.forEach( (content, index) => {
+        let marker = createMarkerImage(content);
+        
+        marker.setMap(map);
+        marker.originalImage = markerImages[content.markerType]; // 마커에 원래 이미지를 저장
+        markers.push(marker);
+        marker.locationData = content;// 마커 객체에 location 정보 저장
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
+            	clickContentMarker(marker, index, contentList);
+			}
+        });// 마커에 클릭이벤트를 등록
+    });
+
+    kakao.maps.event.addListener(map, 'click', function() {
+        hideResult();
+        deleteDescription();
+        
+        if (clickedMarker) {
+			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+		}
+    });// 맵을 클릭한 경우 해제 시키기
+}
+	
+function createMarkerImage(location) {
+	let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
+	let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39) );//마커 이미지
+	
+	let markerOptions = {
+		position: markerPosition,
+		clickable: true,
+		image: icon,
+		zIndex: location.markerType === 4 ? 5 : 4
+	};
+
+	let marker = new kakao.maps.Marker(markerOptions);
+
+	return marker;
+}// 이미지 있는 마커 생성
+
+function clickContentMarker(marker, index, contentList) {
+    selectLatitude = contentList[index].latitude;
+    selectLongitude = contentList[index].longitude;
+    map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
+    
+    if (clickedMarker) {
+        clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+    }
+
+    beforeMarkerType = contentList[index].markerType;
+
+    marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
+    clickedMarker = marker; // 현재 클릭된 마커를 업데이트
+
+    hideResult();
+	deleteDescription();
+
+	if(contentList[0].markerType === 3){
+		$("#description").append(detailPlaceElement(index) );
+	}else{
+		$("#description").append(simpleRecordElement(index) );
+	}
+    
+} // 마커나 리스트에서 클릭했을 경우
 
 function clearPolylines() {
 	for (let i = 0; i < polylines.length; i++) {
@@ -146,14 +147,41 @@ function showMarkers() {
 
 	map.setBounds(bounds);
 	clearPolylines();
-	deleteHTML();
+	deleteResult();
 }
 
-function deleteHTML() {
+function deleteResult() {
 
-	const pathListDiv = document.getElementById('result');
-	pathListDiv.innerHTML = '';
+	const resultDiv = document.getElementById('result');
+	resultDiv.innerHTML = '';
 
+	const descriptionDiv = document.getElementById('description');
+	descriptionDiv.innerHTML = '';
+}
+
+function deleteDescription() {
+	const descriptionDiv = document.getElementById('description');
+	descriptionDiv.innerHTML = '';
+}
+
+function hideDescription(){
+	
+}
+
+function hideResult() {
+
+	const resultDiv = document.getElementById('result');
+	resultDiv.style.display = 'none';
+}
+
+function showResult() {
+	if (clickedMarker) {
+		clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+	}
+	
 	const pathDetailsDiv = document.getElementById('description');
 	pathDetailsDiv.innerHTML = '';
+	
+	const resultDiv = document.getElementById('result');
+	resultDiv.style.display = 'block';
 }
