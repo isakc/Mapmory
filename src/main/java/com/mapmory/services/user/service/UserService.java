@@ -166,6 +166,11 @@ public interface UserService {
 	 */
 	public boolean updateProfile(MultipartFile file, String userId, String profileImageName, String introduction) throws Exception;
 	
+	/**
+	 * 자시소개만 변경하는 경우에 사용
+	 */
+	public boolean updateProfile(String userId, String introduction);
+	
 	public boolean updatePassword(String userId, String userPassword);
 	
 	public boolean updateSecondaryAuth(String userId);

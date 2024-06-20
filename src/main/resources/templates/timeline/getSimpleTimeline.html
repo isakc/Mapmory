@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
 <style type="text/css">
+#categorySpan{
+	background-color: #00C6E1;
+}
 </style>
 </head>
 <body>
@@ -20,8 +23,10 @@
   		<div class="card-body">
     		<h4>
  				<span th:text="${record.recordTitle}"></span>
- 				<img/>
- 				<span class="badge bg-primary" th:text="${record.categoryName}"></span>
+ 				<span id="categorySpan" class="badge">
+ 					<img th:src="${record.categoryImoji}" style="height:18px;"/>
+ 					<span th:text="${record.categoryName}"></span>
+ 				</span>
  			</h4>
     		<p class="card-text">
  				<span th:text="${record.checkpointDate}"></span><br/>
@@ -29,7 +34,7 @@
  			</p>
  		</div>
 	</div>
-	</div>
+</div>
 <div th:include="common/footer::defaultFooter"></div>
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>

@@ -45,6 +45,9 @@ public interface CommunityService {
 	//커뮤니티 로그 목록 조회
 	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;	
 	
+	//사용자 로그 기록
+	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception;
+	
 	//커뮤니티 로그 중복 체크
 	public void checkLog(CommunityLogs communityLogs) throws Exception;
 	

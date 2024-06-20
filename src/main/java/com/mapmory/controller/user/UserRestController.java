@@ -367,14 +367,22 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response) {
+	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response, @RequestBody Map<String, String> map) {
 		
+		String userId = map.get("userId");
+		String password = map.get("userPassword");
 		
+		System.out.println("userId : " + userId);
+		System.out.println("userPassword : " + password);
 		
+		userService.updatePassword(userId, password);
+		/*
 		if(true)
 			return ResponseEntity.ok(true);
 		else
 			return ResponseEntity.ok(false);
+			*/
+		return ResponseEntity.ok(false);
 	}
 	
 	@PostMapping("/updateSecondaryAuth")

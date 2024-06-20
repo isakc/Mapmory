@@ -13,16 +13,16 @@
 	<div th:name="getKakaoMap" th:include="timeline/component/map::kakaoMap"></div>
 
 	<form th:action="@{/timeline/updateTimeline}" th:object="${record}" method="post" enctype="multipart/form-data">
-	<input type="text" th:field="*{recordNo}" />
-	<input type="text" th:field="*{recordUserId}" />
-	<input type="text" th:field="*{latitude}" />
-	<input type="text" th:field="*{longitude}" />
-	<input type="text"th:field="*{tempType}" />
-	<input type="text" th:field="*{recordAddDate}" />
-	<input type="text" th:field="*{d_DayDate}" />
-	<input type="text" th:field="*{timecapsuleType}" />
-	<input type="text" th:field="*{updateCount}" />
-	<input type="text" th:field="*{mediaName}" />
+	<input type="hidden" th:field="*{recordNo}" />
+	<input type="hidden" th:field="*{recordUserId}" />
+	<input type="hidden" th:field="*{latitude}" />
+	<input type="hidden" th:field="*{longitude}" />
+	<input type="hidden"th:field="*{tempType}" />
+	<input type="hidden" th:field="*{recordAddDate}" />
+	<input type="hidden" th:field="*{d_DayDate}" />
+	<input type="hidden" th:field="*{timecapsuleType}" />
+	<input type="hidden" th:field="*{updateCount}" />
+	<input type="hidden" th:field="*{mediaName}" />
 	<fieldset>
     <div class="row">
     	<div class="form-check form-switch d-flex justify-content-end">
@@ -53,7 +53,7 @@
 			<option th:value="0" th:text="'없음'"/>
 			<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
 		</select>
-		<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'전체\' 로 분류됩니다.'"></small>
+		<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'없음\' 로 분류됩니다.'"></small>
     </div>
     
     <div class="row">
@@ -94,7 +94,7 @@
     <div class="row">
 		<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
 		<input type="file" multiple class="form-control" id="imageFile" th:name="imageFile" autocomplete="off">
-		<small id="imageFileHelp" class="form-text text-muted" th:text="'최대 9장까지 업로드 됩니다.'"></small>
+		<small id="imageFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.jpg, .jpeg, .png, .gif, .bmp], 최대 9장까지 업로드 됩니다.'"></small>
     </div>
     
     <div class="row">
@@ -111,7 +111,7 @@
     
     <div class="row">
      	<label for="recordText" class="form-label mt-4" th:text="'텍스트'"></label>
-     	<input type="text" class="form-control" th:field="*{recordText}" autocomplete="off">
+     	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
 		<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : \\안녕\\'"></small>
 		<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
 		<div id="recordTextHelp3" class="d-none">
@@ -146,6 +146,33 @@ function updateLabel() {
         label.textContent = '비공유';
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('sharedDateType');
+    // 페이지가 로드될 때 초기 상태에 따라 라벨을 설정합니다.
+    updateLabel();
+
+    // 체크박스의 상태가 변경될 때마다 라벨을 업데이트합니다.
+    checkbox.addEventListener('change', updateLabel);
+});
+
+document.getElementById('recordTitle').addEventListener('input', function () {
+    var inputField = this;
+    let textInt=50;
+    if (inputField.value.length > textInt) {
+        inputField.value = inputField.value.substring(0, textInt);
+        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    }
+});
+
+document.getElementById('recordText').addEventListener('input', function () {
+    var inputField = this;
+    let textInt=1000;
+    if (inputField.value.length > textInt) {
+        inputField.value = inputField.value.substring(0, textInt);
+        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    }
+});
 
 //입력된 해시태그를 처리하는 함수
 function processHashtags() {
@@ -207,15 +234,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('sharedDateType');
-    // 페이지가 로드될 때 초기 상태에 따라 라벨을 설정합니다.
-    updateLabel();
-
-    // 체크박스의 상태가 변경될 때마다 라벨을 업데이트합니다.
-    checkbox.addEventListener('change', updateLabel);
 });
 
 function validateFileCount() {
@@ -285,7 +303,7 @@ function badWord(text, idName){
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-	let text1 = $('input[name="recordText"]').val();
+	let text1 = $('textarea[name="recordText"]').val();
     let idName1 = 'recordTextHelp3';
     badWord(text1, idName1);
 
@@ -372,8 +390,8 @@ $(function() {
 		})
 	})
 	
-	$('input[name="recordText"]').on('keyup',function(event){
-		let text=$('input[name="recordText"]').val();
+	$('textarea[name="recordText"]').on('keyup',function(event){
+		let text=$('textarea[name="recordText"]').val();
 		let idName='recordTextHelp3';
 		if (event.keyCode === 32 || event.keyCode === 8) {
 			badWord(text,idName);

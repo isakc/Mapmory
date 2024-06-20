@@ -49,11 +49,15 @@ public class ChatbotRestController {
 		    }
 
 		    // NAVER Cloud ChatBot
-		    @RequestMapping(value = "chat", produces = "application/json; charset=UTF-8")
+		    @RequestMapping("chat")
 		    public ResponseEntity<String> chatBotconn(@RequestBody String text) {
 
 		        // 최종 결과값 리턴시 사용할 변수 선언
 		        JSONObject chatbotMessage = new JSONObject();
+
+//		        String apiUrl = config.getProperty("api.bot.url");
+//		        String secretKey = config.getProperty("api.bot.client.secret");
+
 		        // 사용자 질문 텍스트 Request
 		        String message = getReqMessage(text);
 
@@ -161,8 +165,11 @@ public class ChatbotRestController {
 
 		            obj.put("bubbles", bubbles_array);
 
-		            obj.put("event", "send");
-
+//		            if (Objects.equals(text, "동영상 보여줘")) {
+//		                obj.put("event", "open");
+//		            } else {
+		                obj.put("event", "send");
+//		            }
 		            requestBody = obj.toString();
 		        } catch (Exception e) {
 		            logger.error("Failed to create the request message", e);
@@ -176,5 +183,18 @@ public class ChatbotRestController {
 		        JSONObject response = new JSONObject();
 		        response.put("message", welcomeMessage);
 		        return ResponseEntity.ok(response.toString());
+		    }
+		    // 페이지 내비게이션 서비스
+		    @RequestMapping("navi")
+		    public ResponseEntity<Map<String, String[]>> pageNavigation(@RequestBody(required = false) Map<String, String[]> data, HttpServletRequest request) throws Exception {
+		        if (data != null && data.containsKey("url")) {
+		            String[] urls = data.get("url");
+		            if (urls != null && urls.length > 0) {
+		                String[] responseData = new String[]{urls[0]};
+
+		                return ResponseEntity.ok().body(Collections.singletonMap("url", responseData));
+		            }
+		        }
+		        return ResponseEntity.badRequest().build();
 		    }
 		}

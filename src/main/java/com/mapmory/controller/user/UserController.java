@@ -284,7 +284,7 @@ public class UserController {
 		}
 				
 		System.out.println(profile);
-		model.addAttribute("userId", myUserId);
+		// model.addAttribute("userId", myUserId);
 		model.addAttribute("sessionId", myUserId);
 		model.addAttribute("profile", profile);
 		// model.addAttribute("profileImage", objectStorageUtil.getImageBytes(profile.getUser().getProfileImageName(), PROFILE_FOLDER_NAME));
@@ -370,16 +370,26 @@ public class UserController {
 
 	
 	
-	@PostMapping("/updateProfile")
-	public String postUpdateProfile(@RequestParam(name = "profile") MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
+	@PostMapping("/updateProfile")  // @RequestParam(name="old-profile-name") String oldProfileName, 
+	public String postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
 		
 		String userId = redisUtil.getSession(request).getUserId();
 		
-		if(contentFilterUtil.checkBadImage(file)) {
-			System.out.println("부적절한 이미지입니다.");
+		boolean result;
+		if( !file.isEmpty()) {
+			
+			if(contentFilterUtil.checkBadImage(file)) {
+				System.out.println("부적절한 이미지입니다.");
+			}
+			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
+			
+		} else {
+			
+			/// 자기소개만 변경하는 경우
+			
+			result = userService.updateProfile(userId, introduction);
 		}
-		
-		boolean result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
+
 		System.out.println(result);
 		
 		/*
