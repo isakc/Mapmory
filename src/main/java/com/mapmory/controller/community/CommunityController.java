@@ -199,6 +199,24 @@ public class CommunityController {
 		return "community/admin/getAdminConfirmReport";
 	}	
 	
+	//차단 목록 조회
+	@GetMapping("/getBlockList/{userId}")
+	public String getBlockList(Search search, @PathVariable String userId, Model model, HttpServletRequest request) throws Exception {
+
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
+		System.out.println("테스트 : "+userId);
+		model.addAttribute("blockList", blockList.get("list"));
+		model.addAttribute("totalCount", blockList.get("totalCount"));		
+		return "community/getBlockList";
+	}
 	
 	
 	

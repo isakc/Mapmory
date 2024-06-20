@@ -1,15 +1,194 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<title>차단목록</title>
 <head>
 	<meta charset="UTF-8">
-	<title>차단목록</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/css/common/footer.css"> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
+
+
+	<script th:inline="javascript">
+	$(function() {
+		$('.bi-three-dots').on("click", function() {
+			var userId = /*[[${userId}]]*/
+			console.log("2.사용자 :"+userId);		
+			var $row = $(this).closest('tr');
+			var targetId = $row.data('target-id');
+			console.log("3.차단한 ID :"+targetId);
+			openModal($row);	
+		});		
+		
+		$('.btn-close').on("click", function() {
+			closeModal();
+		});	
+		
+		$('#moreModal').on("click", "#deleteBlock", function() {
+			if(currentRow) {
+				var userId = /*[[${userId}]]*/ 
+				console.log("4.사용자 :"+userId);
+				var targetId = currentRow.find('.targetId').text();			
+				console.log("5.차단해제할 ID :"+targetId);
+				
+				$.ajax({
+					type : 'DELETE',
+					url: '/community/rest/deleteBlock/'+userId+'/'+targetId,
+					success : function(data) {
+						console.log('6.차단 해제 완료 :', data);
+						alert("차단해제 완료");
+						closeModal();
+						location.reload();
+						updateBlockList();
+					},
+					error : function(xhr, status, error) {
+						console.error('7. 차단 해제 실패 : ', error);
+					}
+				});				
+			}
+		});				
+	});
+	function openModal(row) {
+		currentRow = row;
+		console.log("현재행 : "+currentRow);
+		document.getElementById("moreModal").style.display = "block";	
+	}
+	
+	function closeModal() {
+		document.getElementById("moreModal").style.display = "none";
+	}	
+	
+// 	function updateBlockList() {
+// 		var userId = /*[[${userId}]]*/ '';
+// 			$.ajax({
+// 				type: 'GET',
+// 				url: '/community/rest/getBlockList/' + userId,
+// 				success: function(data) {
+// 					console.log('7새로운 차단 목록: ', data);
+// 					var $blockList = $('#blockList');
+// 					$blockList.empty(); // 기존 목록 비우기
+
+// 					data.blockList.forEach(function(block) {
+// 						var row = '<tr class="table-info" data-target-id="' + block.targetId + '">' +
+// 							'<td>' + block.nickname + '</td>' +
+// 							'<td><span class="targetId" style="display:none;" data-targetId="' + block.targetId + '">' + block.targetId + '</span></td>' +
+// 							'<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>' +
+// 							'</tr>';
+// 						$blockList.append(row);
+// 					});
+// 					// 새로 추가된 아이콘에 이벤트 다시 바인딩
+// 					$('.bi-three-dots').on("click", function() {
+// 						var $row = $(this).closest('tr');
+// 						var targetId = $row.data('target-id');
+// 						openModal($row);	
+// 					});
+// 				},
+// 				error: function(xhr, status, error) {
+// 					console.error('차단 목록 갱신 실패: ', error);
+// 				}
+// 			});
+// 		}
+	</script>
+
+	<style>
+		#moreIcon {
+			font-size: 20px;
+		}
+		
+		.moreModal {
+		  display: none; /* 모달 숨기기 */
+		  position: fixed;
+		  z-index: 1;
+		  left: 0;
+		  top: 0;
+		  width: 100%;
+		  height: 100%;
+		  overflow: auto;
+		  background-color: rgb(0,0,0);
+		  background-color: rgba(0,0,0,0.4);
+		}
+
+		.modal-content {
+		  background-color: #fefefe;
+		  margin: 15% auto;
+		  padding: 20px;
+		  border: 1px solid #888;
+		  width: 80%;
+		}	
+		
+		.close {
+		  color: #aaa;
+		  float: right;
+		  font-size: 28px;
+		  font-weight: bold;
+		}
+		
+		.close:hover,
+		.close:focus {
+		  color: black;
+		  text-decoration: none;
+		  cursor: pointer;
+		}		
+	</style>
 
 </head>
 <body>
-	<h1>차단목록조회</h1>
+	<div id=content-for-footer>
+		<div class="container">
+            <div class="block-header">
+                <div class="icon-wrapper">		
+				<ul class="nav nav-pills flex-column">
+					<li class="nav-item">
+						<div class="nav-link active">
+							<i class="bi bi-ban-fill"> 차단목록조회</i>
+							<span class="blockCount" th:text="'차단한 유저 : '+${totalCount}+'명'" style="float: right; margin-left: 10px;"></span>
+				    	</div>
+					</li>
+				</ul>		
+				<div>
 
+				<table class="table table-hover" id="blockTable">
+					<thead>
+						<tr class="table-active">
+							<th scope="col">닉네임</th>
+							<th></th>
+							<th scope="col" >더보기</th>
+						</tr>
+				  </thead>
+				  <tbody id="blockList">
+				  	<tr class="table-info" th:each="block, rowStat : ${blockList}" th:data-target-id="${block.targetId}">
+						<td th:text="${block.nickname}"></td>
+						<td><span class="targetId" style="display:none;" th:text="${block.targetId}" data-targetId = "${block.targetId}"></span></td>
+						<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>
+					</tr>	
+				  </tbody>
+				</table>
+				</div>
+			</div>
+			</div>
+		</div>
+  		<!-- 더보기 모달창 -->
+		<div class="moreModal" id="moreModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">차단해제</h6>
+						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"></span>
+						</button>
+					</div>
+					<div class="modal-body">	
+						<button type="button" id="deleteBlock" class="btn btn-danger">차단해제</button>
+					</div>
+				</div>
+			</div>
+		</div>  		
+	</div>	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>
