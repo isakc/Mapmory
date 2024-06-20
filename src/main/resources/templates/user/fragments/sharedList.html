@@ -61,6 +61,8 @@
     		      // dataType: "application/json",
     		      success: function(response) {
 
+    		    	  
+    		    	  console.log(response.timelineList);
     		    	  if(response.timelineList.length == 0) {
     		      		  
     		      		  sharedListEndOfData = true;
@@ -69,7 +71,8 @@
     		      		  
     		      	  } 
 
- 
+    		    	  sharedListCurrentPage++;
+    		    	  
     		    	  response.timelineList.forEach((timeline) => {
 
     		    		  let thumbnailName = null;
@@ -100,7 +103,7 @@
     		    	  if(sharedListSetup)
    		    		  	checkIfNeedToLoadMore(sharedListSetup, loadMoreSharedList);
 
-   		    		  sharedListCurrentPage++;
+   		    		  
     		    	  
    		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
