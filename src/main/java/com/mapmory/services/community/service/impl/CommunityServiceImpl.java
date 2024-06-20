@@ -184,7 +184,7 @@ public class CommunityServiceImpl implements CommunityService {
 		search.setOffset((search.getCurrentPage()-1) * search.getPageSize());
 		search.setPageSize(search.getPageSize());
 		
-		List<Object> list = communityDao.getUSerReportList(search, userId);
+		List<Object> list = communityDao.getUserReportList(search, userId);
 		int totalCount = communityDao.getUserReportTotalCount(search, userId);
 				
 		Map<String, Object> map = new HashMap<>();

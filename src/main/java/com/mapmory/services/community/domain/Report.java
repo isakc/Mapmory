@@ -29,6 +29,7 @@ public class Report {
 	private String reportDate;
 	private int reportStatus;
 	private int reportResult;
+	private String nickname;
 	
 	//Constructor
 	
