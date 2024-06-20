@@ -417,6 +417,7 @@
 	$(document).ready(function() {
 		$(document).on("click", '.replyDislike', function() {
 			var userId = userId;
+			var button = $(this);
 			var row = $(this).closest('div');
 			var recordNo = row.find('.recordNo').text();
 			var replyNo = row.find('.replyNo').text();
@@ -437,12 +438,12 @@
 					console.log('24. 싫어요 성공');
 					updateDislikes(row, recordNo, replyNo, logsType);
 
-				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down');
-				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    if (button.hasClass('bi-hand-thumbs-down')) {
+				    	button.removeClass('bi-hand-thumbs-down');
+				    	button.addClass('bi-hand-thumbs-down-fill');
 				    } else {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
-				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    	button.removeClass('bi-hand-thumbs-down-fill');
+				    	button.addClass('bi-hand-thumbs-down');
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -624,9 +625,17 @@
 							<span class="replyText" th:text="${reply.replyText}" ></span>
 							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
 							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
-							<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>
+				            <span>
+	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 10px;"></i>
+	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>  
+	  						</span>		
+<!-- 							<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i> -->
 							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
-							<i class="bi bi-hand-thumbs-up replyLike"  style="float: right;"></i>
+				            <span>
+					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike" style="float: right; margin-left: 10px;"></i>
+					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike" style="float: right; margin-left: 10px;"></i>
+				            </span>								
+<!-- 							<i class="bi bi-hand-thumbs-up replyLike"  style="float: right;"></i> -->
 							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
 							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
 							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
