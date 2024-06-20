@@ -4,7 +4,7 @@
 
 const drawRoute = (type) => {
 	const urlParameter = type == 1 ? "getPedestrianRoute" : "getCarRoute";
-	deleteHTML();
+	hideDescription();
 	hideMarkers();
 	clearPolylines();
 
@@ -72,7 +72,7 @@ const drawRoute = (type) => {
 const drawTransitRoute = () => {
 
 	paths = [];
-	deleteHTML();
+	hideDescription();
 	clearPolylines();
 
 	getCurrentLocation().done(function(location) {

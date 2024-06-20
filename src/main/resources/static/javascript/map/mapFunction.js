@@ -1,6 +1,23 @@
 /**
  * 
  */
+
+const markerImages =
+[
+	API_KEYS.cdnUrl + API_KEYS.privateMarker,
+	API_KEYS.cdnUrl + API_KEYS.pulicMarker,
+	API_KEYS.cdnUrl + API_KEYS.followMarker,
+	API_KEYS.cdnUrl + API_KEYS.recommendMarker,
+	API_KEYS.cdnUrl + API_KEYS.currentMarker,
+	API_KEYS.cdnUrl + API_KEYS.startMarker,
+	API_KEYS.cdnUrl + API_KEYS.endMarker,
+	API_KEYS.cdnUrl + API_KEYS.selectMarker
+];
+
+let clickedMarkerImage = new kakao.maps.MarkerImage(markerImages[7], new kakao.maps.Size(40, 45) );
+let clickedMarker = null; // 클릭된 마커를 추적할 변수
+let beforeMarkerType = null;
+		
 function drawLine(arrPoint, mode) {
 	let polyline = new kakao.maps.Polyline({
 		path: arrPoint, // 선을 구성하는 좌표배열
@@ -14,95 +31,94 @@ function drawLine(arrPoint, mode) {
 	polylines.push(polyline); // 배열에 폴리라인 객체를 추가
 } // drawLine: 라인을 그리는 함수
 
-function setMarkers(coordinates) {
-	const markerImages = [API_KEYS.cdnUrl + API_KEYS.privateMarker,
-						  API_KEYS.cdnUrl + API_KEYS.pulicMarker,
-						 API_KEYS.cdnUrl + API_KEYS.followMarker,
-						  API_KEYS.cdnUrl + API_KEYS.recommendMarker,
-						 API_KEYS.cdnUrl + API_KEYS.currentMarker,
-						 API_KEYS.cdnUrl + API_KEYS.startMarker,
-						 API_KEYS.cdnUrl + API_KEYS.endMarker
-	];
+function clickMarkerFromCard(index, contentList) {
+    // 마커 배열에서 해당 record을 가진 마커 찾기
+    const marker = markers.find(m => 
+        m.locationData.latitude === contentList[index].latitude &&
+        m.locationData.longitude === contentList[index].longitude &&
+        m.locationData.markerType === 3 ? 'm.locationData.addressName === contentList[index].addressName' : m.locationData.recordNo === contentList[index].recordNo
+    );
+    
+    console.log(marker);
+    
+    if (marker) {
+        clickContentMarker(marker, index, contentList);
+    }
+}
 
-	coordinates.forEach(location => {
-		let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
-		let markerOptions = {
-			position: markerPosition,
-			clickable: true
-		};
+function setMarkers(contentList) {
+    contentList.forEach( (content, index) => {
+        let marker = createMarkerImage(content);
+        
+        marker.setMap(map);
+        marker.originalImage = markerImages[content.markerType]; // 마커에 원래 이미지를 저장
+        marker.clickedImage = markerImages[7];
+        content.markerType != 4 ? markers.push(marker) : '';
 
-		if (location.markerType) {
-			let icon = new kakao.maps.MarkerImage( markerImages[location.markerType], new kakao.maps.Size(31, 35), {
-				offset: new kakao.maps.Point(16, 34)
-			});
-			markerOptions.image = icon;
-			markerOptions.zIndex = 4;
+        // 마커 객체에 location 정보 저장
+        marker.locationData = content;
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
+            	clickContentMarker(marker, index, contentList);
+			}
+        });// 마커에 클릭이벤트를 등록
+    });
+
+    kakao.maps.event.addListener(map, 'click', function() {
+        hideResult();
+        deleteDescription();
+        
+        if (clickedMarker) {
+			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
 		}
+    });
+}
+	
+function createMarkerImage(location) {
+	let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
+	let markerOptions = {
+		position: markerPosition,
+		clickable: true
+	};
 
-		let marker = new kakao.maps.Marker(markerOptions);
-
-		marker.setMap(map);
-		markers.push(marker);
-		
-		kakao.maps.event.addListener(marker, 'mouseout', function() {
-			
-			map.setCursor(null);
+	if (location.markerType) {
+		let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39), {
+			offset: new kakao.maps.Point(16, 34)
 		});
+		markerOptions.image = icon;
+		 markerOptions.zIndex = location.markerType === 4 ? 5 : 4
+	}
 
-		kakao.maps.event.addListener(marker, 'mouseover', function() {
-			
-			map.setCursor('pointer');
-		});
+	let marker = new kakao.maps.Marker(markerOptions);
 
-		kakao.maps.event.addListener(marker, 'click', function() {
-			selectLatitude = location.latitude;
-			selectLongitude = location.longitude;
-			
-			$.ajax({
-				url: "/map/rest/getDetailRecord", // 요청을 보낼 URL을 입력
-				contentType: 'application/json', // Content-Type을 JSON으로 설정
-				method: 'POST',
-				data: JSON.stringify({ recordNo: location.recordNo }),
-				success: function(response) {
-					console.log(response);
+	return marker;
+}
 
-					if (response.length != 0) {
-						deleteHTML();
+function clickContentMarker(marker, index, contentList) {
+    selectLatitude = contentList[index].latitude;
+    selectLongitude = contentList[index].longitude;
+    map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
 
-						let html = `
-	    		                <h2>Record Information</h2>
-	    		                <p><strong>Record Title:</strong> ${response.recordTitle}</p>
-	    		                <p><strong>Checkpoint Address:</strong> ${response.checkpointAddress}</p>
-	    		                <p><strong>Media Name:</strong> ${response.mediaName}</p>
-	    		                <h3>Image Tags</h3>
-	    		                <ul>
-	    		                	${response.imageName.map(tag => `<li><img src="https://kr.object.ncloudstorage.com/mapmory-object/productImage/test.png" alt="${tag.imageTagText}" /></li>`).join('')}
-	    		            	</ul>
-	    		                <h3>Hashtags</h3>
-	    		                <ul>
-	    		                    ${response.hashtag.map(tag => `<li>${tag.imageTagText}</li>`).join('')}
-	    		                </ul>
-	    		                <p><strong>Category Name:</strong> ${response.categoryName}</p>
-	    		                <p><strong>Category Imoji:</strong> <img src="@{/category/image/${response.categoryImoji} }" alt="Category Imoji" /></p>
-	    		                <p><strong>Record Text:</strong> ${response.recordText}</p>
-	    		                <p><strong>Record Add Date:</strong> ${response.recordAddDate}</p>
-	    		            `;
+    if (clickedMarker) {
+        clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+    }
 
-						const resultDiv = document.getElementById('result');
-						resultDiv.innerHTML = html;
-					} else {
-						alert("해당하는 기록이 없습니다!!");
-					}//if~else
+    beforeMarkerType = contentList[index].markerType;
 
-				}, // success
-				error: function(error) {
-					console.log('ajax 에러 발생:', error);
-				} // error
-			}); //기록 검색 ajax
-		}); // 마커에 클릭이벤트를 등록
+    marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
+    clickedMarker = marker; // 현재 클릭된 마커를 업데이트
 
-	});
-} // setMarkers
+    hideResult();
+	deleteDescription();
+
+	if(contentList[0].markerType === 3){
+		$("#description").append(detailPlaceElement(index) );
+	}else{
+		$("#description").append(simpleRecordElement(index) );
+	}
+    
+} // 마커나 리스트에서 클릭했을 경우
 
 function clearPolylines() {
 	for (let i = 0; i < polylines.length; i++) {
@@ -146,14 +162,41 @@ function showMarkers() {
 
 	map.setBounds(bounds);
 	clearPolylines();
-	deleteHTML();
+	deleteResult();
 }
 
-function deleteHTML() {
+function deleteResult() {
 
-	const pathListDiv = document.getElementById('result');
-	pathListDiv.innerHTML = '';
+	const resultDiv = document.getElementById('result');
+	resultDiv.innerHTML = '';
 
+	const descriptionDiv = document.getElementById('description');
+	descriptionDiv.innerHTML = '';
+}
+
+function deleteDescription() {
+	const descriptionDiv = document.getElementById('description');
+	descriptionDiv.innerHTML = '';
+}
+
+function hideDescription(){
+	
+}
+
+function hideResult() {
+
+	const resultDiv = document.getElementById('result');
+	resultDiv.style.display = 'none';
+}
+
+function showResult() {
+	if (clickedMarker) {
+		clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+	}
+	
 	const pathDetailsDiv = document.getElementById('description');
 	pathDetailsDiv.innerHTML = '';
+	
+	const resultDiv = document.getElementById('result');
+	resultDiv.style.display = 'block';
 }
