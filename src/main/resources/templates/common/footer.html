@@ -153,9 +153,10 @@ $(function() {
 				y : latitude
 			},
 			success : function(response,status){
-				console.log(response.documents[0].address.address_name);
+				//console.log(response.documents[0].road_address);
+				//console.log(response.documents[0].address.address_name);
 		    	$('input[name="checkpointAddressOfFooter"]')
-		    	.val(response.documents[0].address.address_name)
+		    	.val(response.documents[0].road_address!==null ? response.documents[0].road_address.address_name:response.documents[0].address.address_name)
 		    	.trigger('change');
 			},
             error: function(xhr, status, error) {
