@@ -55,7 +55,7 @@ public class PurchaseController {
 	@Qualifier("productServiceImpl")
 	private ProductService productService;
 	
-	@Value("${purchase.folder.name}")
+	@Value("${object.purchase.folder.name}")
 	private String folderName;
 
     @Value("${page.Size}")

@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
-<title>맵</title>
+	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+	<title>Mapmory - map</title>
 	
+	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
 	<link rel="stylesheet" href="/css/map/map.css"/>
-    <script src="/javascript/map/drawRoute.js"></script>
+	<link rel="stylesheet" href="/css/common/footer.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- font-awesome -->
+	
+	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
     <script src="/javascript/config/key.js"></script>
     <script src="/javascript/map/mapFunction.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
-	
+    <script src="/javascript/map/element.js"></script>
+    <script src="/javascript/map/drawRoute.js"></script>
+    
 	<script th:inline="javascript">
-	let map;
-	let markers = [];
-	let tempMarkers = [];
+	let map; // 지도
+	let markers = []; //기록 마커 모음
+	let tempMarkers = []; 
 	let polylines = [];
 	let bounds;
 	let selectLatitude;
 	let selectLongitude;
 	let paths = [];
 	let userId = /*[[${userId}]]*/ 'user1';
+	let recordList=[];
+	let placeList=[];
 	
 	$(document).ready(function() {
 		let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
@@ -31,86 +40,99 @@
 
 		map = new kakao.maps.Map(mapContainer, mapOption); // 지도 생성
 		
-		$('#searchForm').on('submit', function(event) {
+		$('form').on('submit', function(event) {
 			event.preventDefault();
 			searchRecord();
 		});
+		
+		$('form').trigger('submit'); // 들어오면 실행
 		
 		$('#private, #public, #follow, input[name="radius"]').on('change', function(event) {
 			event.preventDefault();
 			searchRecord();
-		});
+		});// private, public, follow, 반경 변경 시 다시 검색
 		
-		$('#searchForm').trigger('submit');
+		$(document).on("click", ".simpleRecord", function(){
+			const index = $(this).data('index');
+			
+		    deleteDescription();
+		    $('#description').append(detailRecordElement(index) );
+		}); // 간단 보기 눌렀을 때 상세 보기로
 		
-		$('#searchKeyword').on('focus', function(){
-            getSuggestions();
-        });
+		$(document).on("click", ".detailRecord", function(){
+			const index = $(this).data('index');
+			
+		    deleteDescription();
+		    $('#description').append(simpleRecordElement(index) );
+		}); // 상세 보기 눌렀을 때 간단 보기로
 		
-		 // 입력 필드 밖을 클릭하면 추천 검색어 숨기기
-        $(document).on('click', function(event) {
-            if (!$(event.target).closest('#searchKeyword').length) {
-                $('#suggestions').hide();
-            }
-        });
+		$('input[name="searchKeyword"]').on('focus', function(){
+	        getSuggestions();
+	    }); // 검색창에 누르면 추천 검색어 나오게 설정
+		
+	    $(document).on('click', function(event) {
+	        if (!$(event.target).closest('#searchKeyword').length) {
+	            $('#suggestions').hide();
+	        }
+	    }); // 입력 필드 밖을 클릭하면 추천 검색어 숨기기
 		 
-        $('#suggestions').on('click', 'div', function(){
-            $('#searchKeyword').val($(this).text());
-            $('#suggestions').hide();
-            searchRecord();
-        });
-		
-        function getSuggestions() {
-            $.ajax({
-                url: '/recommend/rest/getSearchRecommend', // 추천 검색어를 제공하는 API 엔드포인트
-                method: 'GET',
-                success: function(data) {
-                    displaySuggestions(data);
-                },// success
-                error: function() {
-                    $('#suggestions').hide();
-                }// error
-            });// ajax
-        }// getSuggestions: 추천 검색어를 가져오는 함수
+	    $('#suggestions').on('click', 'div', function(){
+	    	$('input[name="searchKeyword"]').val($(this).text());
+	        $('#suggestions').hide();
+	        searchRecord();
+	    }); //추천 검색어 클릭하면 검색
+	    
+	    function getSuggestions() {
+	        $.ajax({
+	            url: '/recommend/rest/getSearchRecommend', // 추천 검색어를 제공하는 API 엔드포인트
+	            method: 'GET',
+	            success: function(data) {
+	                displaySuggestions(data);
+	            },// success
+	            error: function() {
+	                $('#suggestions').hide();
+	            }// error
+	        });// ajax
+	    }// getSuggestions: 추천 검색어를 가져오는 함수
 
-        // 추천 검색어를 화면에 표시하는 함수
-        function displaySuggestions(suggestions) {
-            let suggestionsBox = $('#suggestions');
-            suggestionsBox.empty();
-            suggestions.forEach(function(suggestion) {
-                suggestionsBox.append('<div>' + suggestion + '</div>');
-            });
-            suggestionsBox.show();
-        }
-		//getRecommendPlace();
+	    function displaySuggestions(suggestions) {
+	        let suggestionsBox = $('#suggestions');
+	        suggestionsBox.empty();
+	        suggestions.forEach(function(suggestion) {
+	            suggestionsBox.append('<div>' + suggestion + '</div>');
+	        });
+	        suggestionsBox.show();
+	    } //displaySuggestions(): 추천 검색어를 화면에 표시하는 함수
 		
-        const toggleButton = document.getElementById('toggleButton');
-        const status = document.getElementById('status');
-        const toggleCircle = toggleButton.querySelector('.toggle-circle');
-        const checkboxGroup = document.getElementById('checkboxGroup');
-        const searchBoxGroup = document.getElementById('searchBoxGroup');
-
-        toggleButton.addEventListener('click', function () {
-            toggleButton.classList.toggle('active');
-            if (toggleButton.classList.contains('active')) {
-                toggleCircle.textContent = '추천';
-                checkboxGroup.style.display = 'none';
-                searchBoxGroup.style.display = 'none';
-                getRecommendPlace();
-            } else {
-                toggleCircle.textContent = '기록';
-                searchRecord();
-                checkboxGroup.style.display = 'block';
-                searchBoxGroup.style.display = 'block';
-            }
-        });
-           
+	    const checkboxGroup = document.getElementById('checkboxGroup');
+	    const searchBoxGroup = document.getElementById('searchBoxGroup');
+	    const refrestButtn = $(".fa-sync").parent();
+	    	
+	    $('#toggle-switch').click(function() {
+	        $(this).toggleClass('active');
+	        if ($(this).hasClass('active')) {
+	          $(this).attr('title', '추천');
+	          checkboxGroup.style.visibility = 'hidden';
+	          searchBoxGroup.style.visibility = 'hidden';
+	          refrestButtn.attr('onClick', 'getRecommendPlace()');
+	          getRecommendPlace();
+	        } else {
+	          $(this).attr('title', '기록');
+	          checkboxGroup.style.visibility = 'visible';
+	          searchBoxGroup.style.visibility = 'visible';
+	          refrestButtn.attr('onClick', 'searchRecord()');
+	          searchRecord();
+	        }
+	    });// 토글 스위치
+	    
 	});// 페이지 로드 시 폼 자동 제출
-	
+    
 	const searchRecord = () => {
 		clearMarkers();
 		clearPolylines();
-		deleteHTML();
+		deleteResult();
+		showResult();
+		recordList= [];
 		
 		getCurrentLocation().done(function(location) {
 
@@ -120,12 +142,12 @@
 						  longitude: location.coords.longitude, 
 						  radius: $('input[name="radius"]:checked').val(), 
 						  sharedType:  $('#public').is(':checked') ? 1 : 0, 
-						  followType: $('#follow').is(':checked') ? 1 : 0, 
+						  followType: $('#follow').is(':checked') ? 1 : 0,
 						  privateType: $('#private').is(':checked') ? 1 : 0, 
-						  categoryNo: 0,
+						  categoryNo: $('input[name="categoryNo"]').val(), 
 						  userId: userId,
 						  searchKeyword: $('input[name="searchKeyword"]').val().replace("#", '') };
-
+			
 			$.ajax({
 				url: "/map/rest/getMapRecordList", // 요청을 보낼 URL을 입력
 				contentType: 'application/json', // Content-Type을 JSON으로 설정
@@ -137,22 +159,19 @@
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
 					if(response.length != 0){
-						const coordinates = response.map(record => {
+						const coordinates = response.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng);
 							
-							$('#result').append(recordElement(record));
-						        
-							return {
-								latitude: record.latitude,
-								longitude: record.longitude,
-								recordNo: record.recordNo,
-								markerType: record.recordType
-							};
+							recordList.push(record);
+							
+							$('#result').append(recordElement(index));
+
+							return record;
 						});
 						
 						map.setBounds(bounds);
-						setMarkers(coordinates);
+						setMarkers(recordList);
 					}else{
 						alert("해당하는 기록이 없습니다!!");
 					}//if~else
@@ -166,12 +185,14 @@
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
 		});// 위치정보 불러오기 실패
-	};
+	};// 기록 불러오기
 	
 	const getRecommendPlace = () => {
-		deleteHTML();
-		clearPolylines();
 		clearMarkers();
+		clearPolylines();
+		deleteResult();
+		showResult();
+		placeList= [];
 		
 		getCurrentLocation().done(function(location) {
 
@@ -195,22 +216,19 @@
 					console.log(response);
 
 					if(response.length != 0){
-						const coordinates = response.map(place => {
+						const coordinates = response.map( (place, index) => {
 							const latLng = new kakao.maps.LatLng(place.latitude, place.longitude);
 							bounds.extend(latLng);
 							
-                        	$('#result').append(recommendElement(place));
+							placeList.push(place);
 							
-							return {
-								latitude: place.latitude,
-								longitude: place.longitude,
-								recordNo: place.recordNo,
-								markerType: 3
-							};
+                        	$('#result').append(recommendElement(index));
+                        	
+							return place;
 						});
 						
 						map.setBounds(bounds);
-						setMarkers(coordinates);
+						setMarkers(placeList);
 					}else{
 						alert("해당하는 기록이 없습니다!!");
 					}//if~else
@@ -224,7 +242,7 @@
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
 		});// 위치정보 불러오기 실패
-	};
+	}; // 추천장소 불러오기
 	
 	function getCurrentLocation() {
 	    let deferred = $.Deferred();
@@ -247,106 +265,79 @@
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
 	function hasTagClick(tagText){
-		$("#searchKeyword").val(tagText);
+		$('input[name="searchKeyword"]').val(tagText);
         searchRecord();
-	}// hasTagClick
+	}// hasTagClick: 해시태그 검색
 	
-	const recommendElement = (place) => {
-		return `<div class="place">
-    				<h2>  ${place.placeName} </h2>
-    				<p>Category: ${place.categoryName} </p>
-    				<p>Address: ${place.addressName} </p>
-    				<p>Phone: ${place.phone} </p> 
-    				<p><a href=${place.placeUrl}>More Info</a></p>
-    			</div>
-    			`;
-	}// recordElement
-	
-	const recordElement = (record) => {
-		return `
-			<div class="record-info">
-            <h2>Record Information</h2>
-            <p><strong>Nick Name:</strong> ${record.nickName ? record.nickName : '익명'}</p>
-            <p><strong>Profile Image Name:</strong> ${record.profileImageName ? record.profileImageName : '익명사진.jpg'}</p>
-            <p><strong>Record Title:</strong> ${record.recordTitle}</p>
-            <p><strong>Checkpoint Address:</strong> ${record.checkpointAddress}</p>
-            <h3>Image Tags</h3>
-            <ul>
-            	${record.imageName && record.imageName.length > 0 ? `<li>${record.imageName[0].imageTagText}</li>` : '<li>기본 이미지.jpg</li>'}
-            </ul>
-            <h3>Hashtags</h3>
-            <ul>
-            ${record.hashtag && record.hashtag.length > 0 
-                ? record.hashtag.slice(0, 3).map(tag => `<li onclick="hasTagClick('${tag.imageTagText}')"><a href='#'>${tag.imageTagText}</a></li>`).join('') 
-                : '<li>해시태그가 없음</li>'}
-            </ul>
-            <p><strong>Category Name:</strong> ${record.categoryName ? record.categoryName : '카테고리 없음'}</p>
-            <p><strong>Category Imoji:</strong> ${record.categoryImoji ? `<img src="${record.categoryImoji}" alt="Category Imoji" />` : 'N/A'}</p>
-            <p><strong>Record Text:</strong> ${record.recordText}</p>
-            <p><strong>Record Add Date:</strong> ${record.recordAddDate}</p>
-            <p><strong>Distance:</strong> ${record.stringDistance} </p>
-        </div>
-			<hr/>
-	        `;
-	}// recommendElement
+	function categoryClick(categoryNo){
+		$('input[name="categoryNo"]').val(categoryNo);
+        searchRecord();
+	}
 </script>
 	
 </head>
 <body>
-	<div id="mapWrap" style="width: 100%; height: 100%;">
+	
+	<div id=content-for-footer>
 		<div id="map">
-			<div id="result"></div>
-		</div>
-    	<form id="searchForm">
-		<div class="overlay overlayRight">
-			<div class="toggle-button" id="toggleButton">
-        		<div class="toggle-circle">기록</div>
-    		</div>
-    		
-    		<div id="checkboxGroup">
-				<div>
-            		<input type="checkbox" id="private" name="private" checked>
-            		<label for="private">Private</label>
-        		</div>
-        	
-        		<div>
-            		<input type="checkbox" id="public" name="public" checked>
-            		<label for="public">Public</label>
-        		</div>
-        	
-        		<div>
-            		<input type="checkbox" id="follow" name="follow" checked>
-            		<label for="follow">Follow</label>
-        		</div>
-        	</div>
-    	</div>
-    	
-    	<div class="overlay overlayCenter" id="searchBoxGroup">
-    		<input type="text" id="searchKeyword" name="searchKeyword" placeholder="검색어를 입력하세요" th:value="${searchKeyword}" />
-				<div id="suggestions"></div>
-        	
-       			<label>
-            		<input type="radio" name="radius" value="1" checked> 1km
-        		</label>
-        	
-        		<label>
-            		<input type="radio" name="radius" value="3"> 3km
-        		</label>
-        	
-        		<label>
-            		<input type="radio" name="radius" value="5"> 5km
-        		</label>
-    	</div>
-    	</form>
-    	
-		<button onclick="getRecommendPlace()">추천요청</button>	
-		<button onclick="searchRecord()">다시요청</button>
-		<button onclick="drawRoute('1')">도보 경로 요청하기</button>
-		<button onclick="drawRoute('2')">자동차 경로 요청하기</button>
-		<button onclick="drawTransitRoute()">대중교통 경로 요청하기</button>
-		<button onclick="showMarkers()">경로 찾기 이전버튼</button>
+			<div id="bottomBox">
+        		<button class="btn btn-primary" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
+				<div id="result"></div><!-- 결과창 -->
+				<div id="description"></div><!-- 경로 안내 창 -->
+			</div>
+		</div><!-- map -->
 		
-		<div id="description"></div>
+		<div id="searchFormDiv">
+    		<form>
+    		<input type="hidden" name="categoryNo" value="0"/>
+    		<div id="searchBoxGroup">
+    		
+    			<div class="radius-links">
+  					<input type="radio" id="radius1" name="radius" value=1 checked>
+  					<label for="radius1">1km</label>
+  
+  					<input type="radio" id="radius3" name="radius" value=3>
+  					<label for="radius3">3km</label>
+  
+  					<input type="radio" id="radius5" name="radius" value=5>
+  					<label for="radius5">5km</label>
+				</div><!-- 반경 박스 -->
+        		
+        		<div class="searchKeywordBox">
+    				<input type="text" name="searchKeyword" placeholder="search" th:value="${searchKeyword}" />
+    			</div><!-- 검색어 박스 -->
+    			
+				<div id="suggestions"></div><!-- 추천 검색어 -->
+    		</div><!-- searchBoxGroup: 위의 검색 조건 박스 -->
+    		
+    		<div class="mt-5" id="toggleBox">
+				<div class="toggle-container justify-content-end d-flex">
+					<div class="btn btn-light" onclick="searchRecord()"><i class="fas fa-sync"></i></div>
+  					<div class="toggle-switch" id="toggle-switch"></div>
+				</div><!-- 토글버튼 -->
+				
+				<div class="justify-content-end d-flex" id="checkboxGroup">
+					<div class="checkbox-container">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="private" checked>
+						</div>
+						
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="public" checked>
+						</div>
+						
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="follow" checked>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			
+    		</form><!-- form -->
+    	</div><!-- searchFormDiv -->
 	</div>
+	
+	<div th:replace="common/footer::defaultFooter"></div>
 </body>
 </html>
