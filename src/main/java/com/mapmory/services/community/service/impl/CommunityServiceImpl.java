@@ -261,6 +261,16 @@ public class CommunityServiceImpl implements CommunityService {
 		return map;
 	}
 
+	@Override
+	public Map<String, Object> getReactionStatusList(CommunityLogs communityLogs) throws Exception {
+
+		List<CommunityLogs> reaactionList = communityDao.getReactionStatusList(communityLogs);		
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", reaactionList);
+		return map;		
+	}
+
 //	@Override
 //	public void deleteReplyByRecord(int recordNo) throws Exception {
 //		communityDao.deleteReplyByRecord(recordNo);

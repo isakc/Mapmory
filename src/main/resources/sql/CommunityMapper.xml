@@ -172,6 +172,26 @@
       	)	
 	</select>
 	
+	<!-- 커뮤니티 좋아요 싫어요 상태 반환 -->
+	<select id="checkReaction" resultType ="boolean">
+    SELECT COUNT(*) > 0
+    FROM community_logs 
+    WHERE user_id = #{userId}
+		AND record_no = #{recordNo}
+      	AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+      	AND (
+        	(logs_type = 2 AND #{logsType} = 3) OR
+        	(logs_type = 3 AND #{logsType} = 2)
+      	)	
+	</select>	
+	
+	<!-- 감정표현 리스트 -->
+	<select id="getReactionStatusList" resultMap ="communityLogsSelectMap">
+		SELECT * 
+		FROM community_logs
+		WHERE user_id = #{userId}
+	</select>
+	
 	<!-- 기록 조회수 Count -->
 	<select id="getSharedRecordViewCount" parameterType="search" resultType="int">
 		SELECT COUNT(*)

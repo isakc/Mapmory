@@ -59,6 +59,12 @@ public interface CommunityDao {
 	//기록 삭제 시 커뮤니티 활동 삭제
 	public void deleteCommunityLogsByRecord(int recordNo) throws Exception;	
 	
+	//감정표현 상태 확인
+	public boolean checkReaction(CommunityLogs communityLogs) throws Exception;
+	
+	//감정표현 상태 확인 리스트
+	public List<CommunityLogs> getReactionStatusList(CommunityLogs communityLogs) throws Exception;
+	
 	//커뮤니티 로그 목록 조회
 	public List<Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;		
 	
