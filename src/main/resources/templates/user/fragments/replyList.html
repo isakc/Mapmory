@@ -4,7 +4,7 @@
 	let replyListSetup = true;
 	let replyListCurrentPage = 1;
 	let replyListEndOfData = false;
-	let replyIsLoading = false;
+	// let isLoading = false;
 	
 	$(function() {
 		
@@ -21,19 +21,19 @@
 			let documentHeight = $(document).height();
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
-			console.log("is End? : " + !(!replyListEndOfData && !replyIsLoading && (pageType.text() == "replyList")));
-            if (!replyListEndOfData && !replyIsLoading && (pageType.text() == "replyList")) {
+			console.log("is End? : " + !(!replyListEndOfData && !isLoading && (pageType.text() == "replyList")));
+            if (!replyListEndOfData && !isLoading && (pageType.text() == "replyList")) {
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
 
                 	loadMoreReplyList().then((value) => {
   
                 		console.log(value);
-                		replyIsLoading = false; // 로딩 완료 후 플래그 재설정
+                		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
                 		
                 		console.log("load error");
-                		replyIsLoading = false; // 에러 발생 시 플래그 재설정
+                		isLoading = false; // 에러 발생 시 플래그 재설정
                     });
                 }
             }
@@ -64,15 +64,15 @@
         	// setupType = false;
         	// loadType = false; // 로딩 완료 후 플래그 재설정
         	replyListSetup = false;
-        	replyIsLoading = false;
+        	isLoading = false;
         }
     }
 
 	function loadMoreReplyList() {
 		
     	
-		replyIsLoading = true; // 로딩 시작
-		console.log("reply loading start : "+ replyIsLoading);
+		isLoading = true; // 로딩 시작
+		console.log("reply loading start : "+ isLoading);
     	
     	if(replyListEndOfData == true) {
 
@@ -125,7 +125,7 @@
 			    		 if(replyListSetup)
 		   		    		  	checkIfNeedToLoadMoreReply();
 			    		 
-			    		 console.log("reply loading end : "+ replyIsLoading);
+			    		 console.log("reply loading end : "+ isLoading);
 			    		 resolve("reply contents loaded");
 			    	 });
 			    	  
