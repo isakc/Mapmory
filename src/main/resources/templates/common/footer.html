@@ -32,7 +32,7 @@
 		</tbody>
 	</table>
  -->
-	<nav class="mobile-bottom-nav">
+	<!-- <nav class="mobile-bottom-nav">
 		<div class="mobile-bottom-nav__item mobile-bottom-nav__item--active">
 			<div class="mobile-bottom-nav__item-content" name="프로필">
 				<i class="material-icons">account_box</i>
@@ -40,14 +40,14 @@
 			</div>		
 		</div>
 		<div class="mobile-bottom-nav__item">		
-			<div class="mobile-bottom-nav__item-content" name="타임라인">
+			<div class="mobile-bottom-nav__item-content" th:name="타임라인">
 				<i class="Medium material-icons">library_books</i>
 				TimeLine
 			</div>
 		</div>
 		<div class="mobile-bottom-nav__item">
-			<div class="mobile-bottom-nav__item-content" name="체크포인트">
-				<i class="large material-icons">album</i>
+			<div class="mobile-bottom-nav__item-content" th:name="체크포인트">
+				<i id=checkPoint class="large material-icons"  style="color:#ff3838;">album</i>
 				Record
 			</div>		
 		</div>
@@ -64,7 +64,41 @@
 				Menu
 			</div>		
 		</div>
-	</nav> 
+	</nav>  -->
+	
+	<nav class="mobile-bottom-nav">
+		<div class="mobile-bottom-nav__item mobile-bottom-nav__item--active">
+			<div class="mobile-bottom-nav__item-content" name="프로필">
+				<i class="material-icons">account_box</i>
+				Profile
+			</div>		
+		</div>
+		<div class="mobile-bottom-nav__item">		
+			<div class="mobile-bottom-nav__item-content" th:name="타임라인">
+				<i class="Medium material-icons">library_books</i>
+				TimeLine
+			</div>
+		</div>
+		<div class="mobile-bottom-nav__item">
+			<div class="mobile-bottom-nav__item-content" th:name="체크포인트">
+				<i id=checkPoint class="large material-icons" style="color:#ff3838;">radio_button_checked</i>
+				CheckPoint
+			</div>		
+		</div>
+		
+		<div class="mobile-bottom-nav__item">
+			<div class="mobile-bottom-nav__item-content" name="커뮤니티">
+				<i class="material-icons">insert_comment</i>
+				Community
+			</div>		
+		</div>
+		<div class="mobile-bottom-nav__item">
+			<div class="mobile-bottom-nav__item-content" name="메뉴">
+				<i class="material-icons">list</i>
+				Menu
+			</div>		
+		</div>
+	</nav>
 
 
 <!-- <a href="#" th:text="체크포인트"></a> -->
@@ -78,7 +112,6 @@
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
 <script type="text/javascript" th:src="@{//dapi.kakao.com/v2/maps/sdk.js(appkey=${apiKey})}"></script>
 <script type="text/javascript">
-
 $(function() {
 	$("div[name='타임라인']").on("click", function() {
 		self.location = "/timeline/getTimelineList?userId=user1";

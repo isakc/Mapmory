@@ -197,22 +197,24 @@
 		
 		<!-- CLOVA Speech -->
 		<dependency>
-    		<groupId>com.squareup.okhttp3</groupId>
-		    <artifactId>okhttp</artifactId>
-    	<version>4.9.3</version>
-	</dependency>
-	<dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-        
-        <!-- 웹소캣 -->
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.9.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.5.13</version>
+		</dependency>
+
+
+
+		<!-- 웹소캣 -->
 
     <dependency>
         <groupId>org.springframework.boot</groupId>

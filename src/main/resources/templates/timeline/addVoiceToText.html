@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>녹음 파일 업로드</title>
@@ -12,7 +12,6 @@
     <script>
         let mediaRecorder;
         let recordedChunks = [];
-        let audioBlob;
         
         const startRecording = () => {
             navigator.mediaDevices.getUserMedia({ audio: true })
@@ -33,10 +32,10 @@
             mediaRecorder.stop();
         
             mediaRecorder.addEventListener("stop", () => {
-                audioBlob = new Blob(recordedChunks, { type: 'audio/mp3' });
+                const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
                 
                 const formData = new FormData();
-                formData.append('audioFile', audioBlob, 'recording.mp3');
+                formData.append('audioFile', audioBlob, 'recording.webm');
         
                 fetch('/timeline/rest/upload', {
                     method: 'POST',

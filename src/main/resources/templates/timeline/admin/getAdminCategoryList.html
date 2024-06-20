@@ -3,19 +3,112 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
+<link rel="stylesheet" href="/css/common/footer.css">
+<style type="text/css">
+body {
+	margin-left: 20px;
+	margin-top: 20px;
+	}
+#addCategory{
+	margin-bottom: 10px;
+}
+#categoryDiv{
+	margin-left: 20px;
+	margin-top: 10px;
+}
+#categorySpan {
+	margin-bottom: 10px; /* 요소들 사이에 아래쪽 간격을 10px 적용 */
+	background-color: #00C6E1;
+	border : 0.7px solid #2780E3;
+	color: white;
+}
+#categoryDiv span button {
+    background-color: #00C6E1;
+    margin-right: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+</style>
 </head>
 <body>
-    <a th:href="@{/timeline/addCategory}" th:text="${'생성하기'}"></a><br/>
-<table border='1'>
-		<thead>
-		</thead>
-		<tbody>
-			<tr>
-				<td th:each="category : ${categoryList}">
-					<span th:text="${category.categoryImoji}+'&nbsp'+${category.categoryName}"></span>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+<div id=content-for-footer>
+	<button id="addCategory" type="button" class="btn btn-primary btn-lg" th:name="addCategory" th:text="'생성하기'"></button>
+	<div id="categoryDiv">
+		<span th:each="category : ${categoryList}">
+			<span th:name="${category.categoryNo}">
+				<span th:id="categorySpan" th:name="categorySpan" th:data-categoryno="${category.categoryNo}" class="btn">
+					<img th:src="${category.categoryImoji}" style="height:24px;"/>
+					<span th:text="${category.categoryName}"></span>
+				</span>
+	    		<button class="btn btn-primary btn-sm" type="button" th:name="categoryX" 
+	    		th:data-categoryno="${category.categoryNo}" th:data-categoryname="${category.categoryName}" th:text="X"></button>
+    		</span>
+		</span>
+	</div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script type="text/javascript">
+function newWindow(url,width,height){
+	// 새 창의 너비와 높이 설정
+    var newWindowWidth = width;
+    var newWindowHeight = height;
+
+    // 현재 브라우저 창의 위치와 크기 가져오기
+    var browserLeft = window.screenX || window.screenLeft;
+    var browserTop = window.screenY || window.screenTop;
+    var browserWidth = window.innerWidth;
+    var browserHeight = window.innerHeight;
+
+    // 새 창의 위치 계산
+    var leftPosition = browserLeft + (browserWidth / 2) - (newWindowWidth / 2);
+    var topPosition = browserTop + (browserHeight / 2) - (newWindowHeight / 2);
+
+    // 새 창 열기
+    window.open(url, '_blank',
+        'width=' + newWindowWidth + ',height=' + newWindowHeight + 
+        ',left=' + leftPosition + ',top=' + topPosition + 
+        ',scrollbars=no,location=no,toolbar=no,menubar=no,resizable=no');
+}
+$(function() {
+	$("button[name='addCategory']").click(function() {
+		let url="/timeline/addCategory";
+		newWindow(url,400,350);
+	})
+	$('span[name="categorySpan"]').click(function() {
+		let categoryNo=$(this).data('categoryno');
+		let uri="?categoryNo="+categoryNo;
+		let url="/timeline/updateCategory"+uri;
+		newWindow(url,400,500);
+	})
+	
+	
+	$("button[name='categoryX']").click(function() {
+		let categoryNo=$(this).data('categoryno');
+		let categoryName=$(this).data('categoryname');
+		//console.log(imageNo);
+		$.ajax("/timeline/rest/deleteCategory",{
+			method : "GET",
+			dataType : "json",
+			data : {
+				categoryNo : categoryNo
+			},
+			success : function(response,status){
+				if(response.success){
+					$('span[name="'+categoryNo+'"]').remove();
+				}
+			},
+            error: function(xhr, status, error) {
+                alert('Error: ' + error);
+            }
+			
+		})
+	})
+})
+</script>
 </body>	
 </html>
