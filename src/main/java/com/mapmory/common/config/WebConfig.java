@@ -31,8 +31,7 @@ public class WebConfig implements WebMvcConfigurer{
                 .allowCredentials(true) // 인증 정보 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE"); // 허용할 HTTP 메서드 지정
     }
-<<<<<<< HEAD
-    
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
@@ -51,23 +50,4 @@ public class WebConfig implements WebMvcConfigurer{
 						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest",
 						"/user/getSecondaryAuthView", "/user/rest/generateKey", "/user/rest/checkSecondaryKey");
 	}
-=======
-    //주석시 링크로 이동가능
-//	@Override
-//	public void addInterceptors(InterceptorRegistry registry) {
-//		// TODO Auto-generated method stub
-//		
-//		registry.addInterceptor(loginInterceptor())
-//				.order(1)
-//				.addPathPatterns("/**")
-//				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**")
-//				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", 
-//						"/user/google/auth/callback", "/user/getNaverLoginView", "/user/getGoogleLoginView",
-//						"/user/kakaoCallback", "/user/getKakaoLoginView", "/user/naver/auth/callback",
-//						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",
-//						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest", 
-//						"/user/getSecondaryAuthView", "/user/rest/checkSecondaryKey", "/user/rest/generateKey");
-//	}
->>>>>>> refs/remotes/origin/master
-
 }
