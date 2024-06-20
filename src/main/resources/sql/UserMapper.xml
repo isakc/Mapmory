@@ -144,7 +144,7 @@
 			(SELECT @rownum :=0) AS r
 			ORDER BY n DESC
 		) temp
-		<!-- WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}  -->
+	<!-- WHERE temp.n BETWEEN #{startRowNum} AND #{endRowNum}  -->
 	</select>
 	
 	<select id="selectSocialIdList" parameterType="string" resultMap="socialLoginInfoSelectMap">
