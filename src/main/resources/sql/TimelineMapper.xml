@@ -447,6 +447,21 @@ FROM
     record r
 <trim prefix="where" prefixOverrides="AND||OR">
     shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
+<if test="!(searchKeyword==null or searchKeyword=='')">
+<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
+</if>
+<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
+	AND (a1.record_text LIKE #{searchKeyword} 
+	OR a1.record_title LIKE #{searchKeyword} 
+	OR a1.record_no IN (
+	SELECT record_no 
+	FROM image_tag 
+	WHERE IMAGE_TAG_TYPE = 0 
+	AND image_tag_text LIKE #{searchKeyword}))
+</if>
+<if test="!(categoryNo==null or categoryNo==0)">
+	AND a1.category_no=#{categoryNo}
+</if>
 </trim>
 ORDER BY
 	shared_date DESC,

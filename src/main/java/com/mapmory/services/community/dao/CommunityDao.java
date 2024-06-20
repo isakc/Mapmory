@@ -69,7 +69,7 @@ public interface CommunityDao {
 	public void doReport(Report report) throws Exception;
 	
 	//신고 목록 조회 
-	public List<Object> getUSerReportList(Search search, String userId) throws Exception;
+	public List<Object> getUserReportList(Search search, String userId) throws Exception;
 	
 	//전체 신고 목록 조회(관리자)
 	public List<Object> getAdminReportList(Search search) throws Exception;
