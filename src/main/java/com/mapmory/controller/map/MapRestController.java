@@ -88,7 +88,7 @@ public class MapRestController {
 	@PostMapping(value="rest/getMapRecordList")
 	public List<MapRecord> getMapRecordList(@RequestBody Search search) throws Exception {
 		
-		search.setLimit(10);
+		search.setLimit(30);
 		search.setCurrentPage(1);
 		
 		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);

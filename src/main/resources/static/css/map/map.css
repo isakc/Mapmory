@@ -6,8 +6,8 @@
 }
 
 .rounded-image {
-    	width: 50px; /* 원하는 너비 */
-    	height: 50px; /* 원하는 높이 */
+    	width: 30px; /* 원하는 너비 */
+    	height: 30px; /* 원하는 높이 */
     	border-radius: 50%; /* 원형으로 만들기 */
     	object-fit: cover; /* 이미지의 비율을 유지하면서 잘라내기 */
 	}
@@ -178,4 +178,49 @@
 
 .detailRecord{
 	height: 500px;
+}
+
+.recordEmoji{
+	width: 20px;
+	height: 20px;
+} 
+
+.ellipsis {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;         /* 표시할 줄 수 */
+	overflow: hidden;
+}
+
+.recordImageContainer{
+	display: flex; /* Flexbox 레이아웃 사용 */
+	justify-content: center; /* 가로 중앙 정렬 */
+	align-items: center; /* 세로 중앙 정렬 */
+	overflow: hidden; /* 넘치는 부분 숨김 */
+	max-height: 200px;
+}
+
+.recordImageContainer > img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /* 이미지가 div에 맞게 조절됨 */
+}
+
+.profileImageContainer {
+	display: flex; /* Flexbox 레이아웃 사용 */
+	align-items: center; /* 세로 중앙 정렬 */
+	height: 50px;
+}
+
+.routeButtonGroup {
+     display: flex;
+     align-items: center;
+}
+
+.routeAdditionalButtons {
+     display: none;
+}
+
+.routeAdditionalButtons button {
+     margin-left: 10px;
 }

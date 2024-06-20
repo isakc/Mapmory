@@ -2,18 +2,6 @@
  * 
  */
 
-const markerImages =
-[
-	API_KEYS.cdnUrl + API_KEYS.privateMarker,
-	API_KEYS.cdnUrl + API_KEYS.pulicMarker,
-	API_KEYS.cdnUrl + API_KEYS.followMarker,
-	API_KEYS.cdnUrl + API_KEYS.recommendMarker,
-	API_KEYS.cdnUrl + API_KEYS.currentMarker,
-	API_KEYS.cdnUrl + API_KEYS.startMarker,
-	API_KEYS.cdnUrl + API_KEYS.endMarker,
-	API_KEYS.cdnUrl + API_KEYS.selectMarker
-];
-
 let clickedMarkerImage = new kakao.maps.MarkerImage(markerImages[7], new kakao.maps.Size(40, 45) );
 let clickedMarker = null; // 클릭된 마커를 추적할 변수
 let beforeMarkerType = null;
@@ -33,13 +21,17 @@ function drawLine(arrPoint, mode) {
 
 function clickMarkerFromCard(index, contentList) {
     // 마커 배열에서 해당 record을 가진 마커 찾기
-    const marker = markers.find(m => 
-        m.locationData.latitude === contentList[index].latitude &&
-        m.locationData.longitude === contentList[index].longitude &&
-        m.locationData.markerType === 3 ? 'm.locationData.addressName === contentList[index].addressName' : m.locationData.recordNo === contentList[index].recordNo
-    );
-    
-    console.log(marker);
+    const marker = markers.find(m => {
+    	if (m.locationData.markerType === 3) {
+        	return m.locationData.latitude === contentList[index].latitude &&
+               	m.locationData.longitude === contentList[index].longitude &&
+               	m.locationData.addressName === contentList[index].addressName;
+   		}else {
+        	return m.locationData.latitude === contentList[index].latitude && 
+        	       m.locationData.longitude === contentList[index].longitude &&
+                   m.locationData.recordNo === contentList[index].recordNo;
+    	}
+	});
     
     if (marker) {
         clickContentMarker(marker, index, contentList);
@@ -52,11 +44,8 @@ function setMarkers(contentList) {
         
         marker.setMap(map);
         marker.originalImage = markerImages[content.markerType]; // 마커에 원래 이미지를 저장
-        marker.clickedImage = markerImages[7];
-        content.markerType != 4 ? markers.push(marker) : '';
-
-        // 마커 객체에 location 정보 저장
-        marker.locationData = content;
+        markers.push(marker);
+        marker.locationData = content;// 마커 객체에 location 정보 저장
 
         kakao.maps.event.addListener(marker, 'click', function() {
 			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
@@ -72,34 +61,30 @@ function setMarkers(contentList) {
         if (clickedMarker) {
 			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
 		}
-    });
+    });// 맵을 클릭한 경우 해제 시키기
 }
 	
 function createMarkerImage(location) {
 	let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
+	let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39) );//마커 이미지
+	
 	let markerOptions = {
 		position: markerPosition,
-		clickable: true
+		clickable: true,
+		image: icon,
+		zIndex: location.markerType === 4 ? 5 : 4
 	};
-
-	if (location.markerType) {
-		let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39), {
-			offset: new kakao.maps.Point(16, 34)
-		});
-		markerOptions.image = icon;
-		 markerOptions.zIndex = location.markerType === 4 ? 5 : 4
-	}
 
 	let marker = new kakao.maps.Marker(markerOptions);
 
 	return marker;
-}
+}// 이미지 있는 마커 생성
 
 function clickContentMarker(marker, index, contentList) {
     selectLatitude = contentList[index].latitude;
     selectLongitude = contentList[index].longitude;
     map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
-
+    
     if (clickedMarker) {
         clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
     }
