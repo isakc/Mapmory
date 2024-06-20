@@ -42,15 +42,15 @@ public interface TimelineDao {
 	public int updateMedia(int recordNo) throws Exception;
 	
 	//Category CRUD
-	public void insertCategory(Category category) throws Exception;
+	public int insertCategory(Category category) throws Exception;
 	
 	public Category selectCategory(int categoryNo) throws Exception;
 	
 	public List<Category> selectCategoryList() throws Exception;
 	
-	public void updateCategory(Category category) throws Exception;
+	public int updateCategory(Category category) throws Exception;
 	
-	public void deleteCategory(int categoryNo) throws Exception;
+	public int deleteCategory(int categoryNo) throws Exception;
 	
 	public CountAddressDto selectCountAddress(Record record) throws Exception;
 	
