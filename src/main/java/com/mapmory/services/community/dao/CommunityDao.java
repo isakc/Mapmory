@@ -3,6 +3,8 @@ package com.mapmory.services.community.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.junit.runners.Parameterized.Parameters;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.mapmory.common.domain.Search;
@@ -49,6 +51,9 @@ public interface CommunityDao {
 	
 	//커뮤니티 활동 로그 선택
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
+	
+	//사용자 로그
+	public List<CommunityLogs> getUsersLogs(@Param("userId") String userId, @Param("recordNo") int recordNo) throws Exception; 
 	
 	//커뮤니티 활동 수정
 	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;

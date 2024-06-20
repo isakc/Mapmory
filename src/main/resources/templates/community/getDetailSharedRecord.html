@@ -259,7 +259,7 @@
 				}),
 				success : function(response) {
 					console.log('즐겨찾기 성공');
-					updateBookmark(recordNo, replyNo, logsType);
+					//updateBookmark(recordNo, replyNo, logsType);
 				    var bookmarkIcon = $('#recordBookmark');
 				    if (bookmarkIcon.hasClass('bi-heart')) {
 				    	bookmarkIcon.removeClass('bi-heart');
@@ -351,6 +351,37 @@
 			font-size : 30px;
 		}					
 					
+		#recordLike {
+			font-size : 30px;
+		}			
+		
+		#recordDislike {
+			font-size : 30px;
+		}
+		
+		.replyLike {
+			font-size : 25px;
+		}			
+		
+		.replyDislike {
+			font-size : 25px;
+		}				
+					
+		.bi-chat-square-text-fill {
+			font-size : 25px;
+		}					
+					
+		.bi-heart {
+			font-size : 25px;
+		}
+		
+		.bi-heart-fill {
+			font-size : 25px;
+		}		
+
+	    .icon-separator {
+	        margin: 10px;
+	    }					
 	</style>	
 	
 </head>
@@ -370,7 +401,9 @@
 						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
-						<span th:text="${record.subscriptionEndDate}"></span>
+						<span th:if="${record.subscriptionEndDate == 1}">
+							<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+						</span>
 						<i id="moreIcon" class="bi bi-three-dots" style="float: right;"></i>									
 					</h4> 
 				</div>
@@ -385,8 +418,6 @@
 					<span th:text="${record.categoryImoji}"></span>
 				</div>
 				<div class="card-body">
-					<span th:text="${record.latitude}"></span>
-					<span th:text="${record.longitude}"></span>
 					<div th:include="timeline/component/map::kakaoMap" ></div>
 					<p th:text="${record.checkpointAddress}"></p>
 				</div>
@@ -401,7 +432,15 @@
 					<span class="likeCount" th:text="${record.likeCount}"></span>
 					<i class="bi bi-hand-thumbs-down" id="recordDislike"></i>			
 					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>	
-				</div>			
+				</div>	
+				
+			    <div class="card-body">
+					<i class="bi bi-heart" id="recordBookmark"></i>
+					<span class="icon-separator"></span> 
+					<i class="bi bi-chat-square-text-fill"></i>					
+					<span th:text="${record.replyCount}" class="reply-count"></span>	
+			    </div>				
+						
 				<div class="separator"></div>
 			</div>
 		</div>	
@@ -410,30 +449,26 @@
 			<div class="col-sm-2">
 				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
 				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
-				<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
+				<span th:if="${reply.subscriptionEndDate == '1'}">
+					<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+				</span>
 			</div>
 			<div class="col-sm-4">
 			<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}"></p>
 			<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
 			<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
 			<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>
-			<i class="bi bi-hand-thumbs-down" style="float: right; margin-left: 10px;"></i>
+			<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>
 			<span th:if="${iterStat.index < 5}" th:text="${reply.likeCount}" style="float: right; margin-left: 10px;"></span>						
-			<i class="bi bi-hand-thumbs-up" style="float: right; margin-left: 10px;"></i>			
+			<i class="bi bi-hand-thumbs-up replyLike" style="float: right; margin-left: 10px;"></i>			
 			</div>
 			<div th:if="${iterStat.index < 5}" class="separator2"></div>
 		</div>		
+		<br/>
 		<div class="card-body">
 			<button type="button" id="moreReply" class="btn btn-primary">댓글 더보기</button>
+	    </div>
 
-	    </div>
-	    <br/>
-	    <div class="card-body">
-			<i class="bi bi-heart" id="recordBookmark"></i>
-			<i class="bi bi-chat-square-text-fill"></i>					
-			<span th:text="${record.replyCount}" class="reply-count"></span>	
-	    </div>
-	    
   		<!-- 더보기 모달창 -->
 		<div class="moreModal" id="moreModal">
 			<div class="modal-dialog" role="document">

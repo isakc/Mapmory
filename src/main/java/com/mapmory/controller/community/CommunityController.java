@@ -79,6 +79,8 @@ public class CommunityController {
 			
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
+		model.addAttribute("userLogs", communityService.getUsersLogs(userId, recordNo));
+		
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setLimit(pageSize);
@@ -88,6 +90,7 @@ public class CommunityController {
 
 	    
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
@@ -99,9 +102,10 @@ public class CommunityController {
 	    		.logsType(0)
 	    		.build();
 	    		
-	    communityService.addCommunityLogs(communityLogs);		
+	    communityService.addCommunityLogs(communityLogs);	
 	    
 	    System.out.println("model :"+model);
+	    
 		return "community/getDetailSharedRecord";
 	}
 
@@ -121,7 +125,6 @@ public class CommunityController {
 		System.out.println("페이지 값: " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
-	    Map<String, Object> reactionData = communityService.getReactionStatusList(communityLogs);
 	    
 	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));

@@ -29,7 +29,7 @@
 	<script th:inline="javascript">
 	
 		const profileUserId = [[${profile.user.userId}]];
-		const sessionId = `[[${sessionId}]]`;
+		const sessionId = /*[[${sessionId}]]*/
 		let isLoading = false;
 		let pageType = null;
 		
@@ -339,17 +339,19 @@
 			      contentType:"application/json",
 			      data: JSON.stringify({
 			    	  userId : sessionId,
-			          targetId: userId
+			          targetId: profileUserId
 			      }),
 			      success: function(response) {
 			        
-					if(response == true || response == "true") {
+			    	 console.log(response); 
+			    	  
+					if(response.userId === sessionId && response.targetId === profileUserId) {
 						
 						$('#deleteFollow').css('display', 'block');
 						$('#addFollow').css('display', 'none');
 						
+						alert('차단완료');
 						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
-						
 					} else {
 						
 						console.log('false');

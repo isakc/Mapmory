@@ -234,6 +234,13 @@
 		LIMIT #{search.pageSize} OFFSET #{search.offset}
 	</select>
 	
+	<!-- 사용자 커뮤니티 로그 -->
+	<select id="getUsersLogs" resultMap="communityLogsSelectMap">
+		SELECT *
+		FROM community_logs
+		WHERE user_id = #{userId} AND record_no = #{recordNo} AND logs_type != 0
+	</select> 
+	
 	<!-- 좋아요 Count -->			
 	<select id="getReactionLikeTotalCount" parameterType="map" resultType = "int">
 		SELECT COUNT(*)
