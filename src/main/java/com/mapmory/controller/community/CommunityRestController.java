@@ -296,9 +296,33 @@ public class CommunityRestController {
 		communityLogs.setUserId(userId);
 		
 		communityService.checkLog(communityLogs);
+		
 		return ResponseEntity.ok(communityLogs);
 	}
 	
+//	//좋아요 싫어요 상태 반환
+//	@PostMapping("/rest/getReactionStatus")
+//	public ResponseEntity<?> getReactionStatus(@RequestBody CommunityLogs communityLogs,  @RequestParam(value = "replyNo", required = false) Integer replyNo, 
+//							String userId, HttpServletRequest request) throws Exception {
+//		
+//		userId = redisUtil.getSession(request).getUserId();
+//		communityLogs.setUserId(userId);
+//		
+//		boolean alreadyReaction = communityService.getReactionStatusList(communityLogs);
+//	
+//		if(!alreadyReaction) {
+//			
+//			try {
+//				return ResponseEntity.ok().build();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+//			}	
+//			} else {
+//				return ResponseEntity.badRequest().body("이미 감정 표현했습니다");
+//			}
+//	}
+
 	
 //	//커뮤니티 로그 추가
 //	@PostMapping("/rest/addCommunityLogs")

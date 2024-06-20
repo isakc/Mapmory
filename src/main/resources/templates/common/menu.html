@@ -45,7 +45,9 @@
 			});
 			
 			$('#getUserReportList').on('click', function() {
-				window.location.href=`/community/getUserReportList/[[${userId}]]`;
+				var userId = [[${userId}]]
+				console.log(userId);
+				window.location.href='/community/getUserReportList/'+userId;
 				/* window.location.href=`/community/getUserReportList/[[${userId}]]`;  */
 			});
 			
