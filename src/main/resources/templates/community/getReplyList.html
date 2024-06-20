@@ -98,7 +98,7 @@
 				'<div class="card-body">' +
 		        '<h6>' +
 		        '<img alt="" class="profileImage" src="/user/rest/image/' + profileImageName + '">' +
-		        '<a href="/user/getProfile/' + userId + '">' + nickname + '</a>' +
+		        '<span class="replyNickname" data-reply-userid="' + userId + '">' + nickname + '</span>' + 
 		        '<span>' + subscriptionEndDate + '</span>' +
 		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
 		        '</h6>' +
@@ -106,10 +106,10 @@
 		        '<span class="replyText">' + replyText + '</span>' +
 		        '<img alt="" class="replyImageName" src="'+replyImageURL+'">'+
 		        '<span style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-down" id="replyDislike" style="float: right; margin-left: 10px;"></i>' +
+		        '<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>' +
 		        '<span style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-up" id="replyLike" style="float: right;"></i>' +
-		        '<span class="recordNo" style="display:none;" data-replyno="' + recordNo + '">' + recordNo + '</span>' +
+		        '<i class="bi bi-hand-thumbs-up replyLike" style="float: right;"></i>' +
+		        '<span class="recordNo" style="display:none;" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
 		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
 		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
 		        '</h4>' +
@@ -123,10 +123,6 @@
             	                        
 				// 새로운 행을 댓글 목록에 추가
 				$('#container').append(newRow);
-				
-// 			    if ($('.card.mb-3').length > 1) {
-// 			        $('.card.mb-3').eq(-2).after('<div class="separator"></div>');
-// 			    }
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
@@ -364,6 +360,8 @@
 	            replyNo : replyNo,
 	            logsType : logsType
 	        };
+	        
+	        console.log(data);
 
 	        $.ajax({
 	            type : 'POST',

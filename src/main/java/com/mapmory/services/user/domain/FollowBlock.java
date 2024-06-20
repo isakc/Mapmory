@@ -18,4 +18,6 @@ public class FollowBlock {
 	private String userId;
 	private String targetId;  // follow 할 때 사용
 	private int fb_type; // (0 : follow, 1 : block)
+	private String nickname;
+	private String profileImageName;
 }
