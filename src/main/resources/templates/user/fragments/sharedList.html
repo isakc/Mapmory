@@ -43,6 +43,13 @@
         isLoading = true; // 로딩 시작
   	  
     	console.log("currentPage = " +sharedListCurrentPage);
+        // console.log('is sharedList ended? ' +sharedListEndOfData);
+    	if(sharedListEndOfData == true) {
+
+  		  console.log('all finished');
+  		  return;
+  		  
+  	  	} 
     	
     	return new Promise((resolve, reject) => {
     		
@@ -53,19 +60,18 @@
     		      // contentType:"application/json",
     		      // dataType: "application/json",
     		      success: function(response) {
-   
-    		    	  console.log("contents get : " + JSON.stringify(response));
-                  	  sharedListCurrentPage++;
-    		    	  
-    		    	  if(response == true) {
-    		    		  console.log("I think it's end");
-    		    		  sharedListEndOfData = true;
-    		    	  }
-    		    		  
-    			    	  
+
+    		    	  if(response.timelineList.length == 0) {
+    		      		  
+    		      		  sharedListEndOfData = true;
+    		      		  resolve("I think it's end");
+    		      		  return;
+    		      		  
+    		      	  } 
+
+ 
     		    	  response.timelineList.forEach((timeline) => {
-    		    		  
-    		    		  // console.log(timeline);
+
     		    		  let thumbnailName = null;
     		    		  if(timeline.imageTagList.length > 0)
     		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
@@ -94,6 +100,8 @@
     		    	  if(sharedListSetup)
    		    		  	checkIfNeedToLoadMore(sharedListSetup, loadMoreSharedList);
 
+   		    		  sharedListCurrentPage++;
+    		    	  
    		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
     		      error: function(xhr, status, error) {
