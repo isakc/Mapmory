@@ -41,11 +41,14 @@ public class WebConfig implements WebMvcConfigurer{
 				.addPathPatterns("/**")
 				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**")
 				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", 
+						"/user/rest/checkAuthNum", "/user/rest/sendEmailAuthNum", "/user/rest/sendPhoneNumberAuthNum",
+						"/user/rest/verify", "/user/rest/image", "/user/rest/nkey", "/user/rest/checkDuplication",
+						"/user/rest/checkBadWord", "/user/rest/getId", "/user/getUpdatePasswordView",
 						"/user/google/auth/callback", "/user/getNaverLoginView", "/user/getGoogleLoginView",
 						"/user/kakaoCallback", "/user/getKakaoLoginView", "/user/naver/auth/callback",
 						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",
-						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest", 
-						"/user/getSecondaryAuthView", "/user/rest/checkSecondaryKey", "/user/rest/generateKey");
+						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest",
+						"/user/getSecondaryAuthView", "/user/rest/generateKey", "/user/rest/checkSecondaryKey");
 	}
 
 }
