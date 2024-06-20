@@ -112,7 +112,9 @@ public class ChatbotRestController {
 		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to perform chatbot request");
 		        }
 
-		        return ResponseEntity.ok(chatbotMessage.toString());
+		        return ResponseEntity.ok()
+		                .contentType(MediaType.APPLICATION_JSON)
+		                .body(chatbotMessage.toString());
 		    }
 
 		    public static String makeSignature(String message, String secretKey) {
