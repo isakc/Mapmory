@@ -67,14 +67,14 @@ function setMarkers(contentList) {
 function createMarkerImage(location) {
 	let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
 	let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39) );//마커 이미지
-	
+
 	let markerOptions = {
 		position: markerPosition,
 		clickable: true,
 		image: icon,
-		zIndex: location.markerType === 4 ? 5 : 4
+		zIndex: 4
 	};
-
+	
 	let marker = new kakao.maps.Marker(markerOptions);
 
 	return marker;
@@ -88,9 +88,10 @@ function clickContentMarker(marker, index, contentList) {
     if (clickedMarker) {
         clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
     }
-
+    
     beforeMarkerType = contentList[index].markerType;
-
+    
+    marker.setZIndex(5);
     marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
     clickedMarker = marker; // 현재 클릭된 마커를 업데이트
 
