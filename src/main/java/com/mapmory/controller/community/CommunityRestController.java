@@ -421,4 +421,33 @@ public class CommunityRestController {
 		return ResponseEntity.ok(model);
 	}
 	
+	//차단 해제
+	@DeleteMapping("/rest/deleteBlock/{userId}/{targetId}")
+	public String deleteReply(@PathVariable String userId, @PathVariable String targetId, HttpServletRequest request) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+		communityService.deleteBlockedUser(userId, targetId);
+
+		return "redirect: community/getBlockList";
+	}	
+
+	//차단 목록 REST
+    @GetMapping("/rest/getBlockList/{userId}")
+    public ResponseEntity<Model> getBlockList(Search search, @PathVariable String userId, HttpServletRequest request, Model model) throws Exception {
+		
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
+		System.out.println("테스트 : "+userId);
+		model.addAttribute("blockList", blockList.get("list"));
+		model.addAttribute("totalCount", blockList.get("totalCount"));		
+    	return ResponseEntity.ok(model);
+ 
+    }			
 }

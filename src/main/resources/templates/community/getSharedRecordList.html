@@ -17,10 +17,26 @@
 	<script th:inline="javascript">
 		$(document).ready(function() {
 			$('#searchForm').submit(function(event) {
-				event.preventDefault();
-				
+				event.preventDefault();	
 			})
 		});
+	</script>
+
+	<script>
+    $(document).ready(function() {
+        $('.dropdown-menu a.dropdown-item').click(function() {
+            var selectedCondition = $(this).data('condition');
+            var selectedText = $(this).text();
+
+            $(this).closest('.btn-group').find('.dropdown-toggle').html(selectedText);
+
+            $('#searchCondition').val(selectedCondition);
+
+            $(this).closest('.dropdown-menu').dropdown('toggle');
+
+            return false;
+        });
+    })
 	</script>
 
 
@@ -125,7 +141,9 @@
 			            recordHtml += '<h4>';
 			            recordHtml += '<img alt="" class="profileImage" src="/user/rest/image/' + sharedRecord.profileImageName + '">';
 			            recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
-			            recordHtml += '<span>' + sharedRecord.subscriptionEndDate + '</span>';
+			            recordHtml += '<span th:if="${sharedRecord.subscriptionEndDate == 1}">'
+			                			+ '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
+			                			+ '</span>';
 			            recordHtml += '</h4>';
 			            recordHtml += '</div>';
 			            if (sharedRecord.imageTagType != null && sharedRecord.imageTagText != null) {
@@ -137,10 +155,6 @@
 			                recordHtml += '</div>';
 			            }
 			            recordHtml += '<div class="card-body">';
-			            recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
-			            recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
-			            recordHtml += '</div>';
-			            recordHtml += '<div class="card-body">';
 			            recordHtml += '<h3 class="card-title">';
 			            recordHtml += '<span class="title" data-recordno="' + sharedRecord.recordNo + '">' + sharedRecord.recordTitle + '</span>';
 			            recordHtml += '<span>' + sharedRecord.categoryName + '</span>';
@@ -148,6 +162,10 @@
 			            recordHtml += '<span>' + sharedRecord.categoryImoji + '</span>';
 			            recordHtml += '</h3>';
 			            recordHtml += '</div>';
+			            recordHtml += '<div class="card-body">';
+			            recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
+			            recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
+			            recordHtml += '</div>';     
 			            recordHtml += '<div class="card-footer text-muted">';
 			            recordHtml += '<span class="list-footer">' + formattedDate + '</span>';
 			            recordHtml += '<span class="list-footer">조회수: ' + sharedRecord.logsCount + '</span>';
@@ -214,7 +232,7 @@
 		<div class="container">
 			<div class="card sm-4">
             	<div class="search">
-                <form th:action="@{/comminity/getSharedRecordList}" method="get" class="input-group" id="searachForm">
+                <form th:action="@{/community/getSharedRecordList}" method="get" class="input-group" id="searachForm">
                     <div class="form-group">
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -251,7 +269,9 @@
 						<h4>
 							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${sharedRecord.profileImageName})}">
 							<span class="profile" th:text="${sharedRecord.nickname}" th:data-record-userid="${sharedRecord.recordUserId}"></span>
-							<span th:text="${sharedRecord.subscriptionEndDate}">구독유무</span>
+							<span th:if="${sharedRecord.subscriptionEndDate == 1}">
+								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+							</span>
 						</h4> 
 					</div>
 					<div th:if="${sharedRecord.imageTagType != null and sharedRecord.imageTagText !=null}">
@@ -259,20 +279,18 @@
 							<rect width="100%" height="100%" fill="#868e96"></rect>
 							<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
 						</svg>					
-					</div>
-					<div class="card-body">
-						<i class="bi bi-chat-square-text-fill"></i>				
-						<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
-					</div>
-					
+					</div>					
 					<div class="card-body">
 						<h3 class="card-title">
 							<span th:text="${sharedRecord.recordTitle}" class="title" th:data-recordno="${sharedRecord.recordNo}"></span>
 							<span th:text="${sharedRecord.categoryName}"></span>
 							<span th:text="${sharedRecord.categoryImoji}"></span>
 						</h3>
-
 					</div>
+					<div class="card-body">
+						<i class="bi bi-chat-square-text-fill"></i>				
+						<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
+					</div>					
 					<div class="card-footer text-muted">
 						<span class="list-footer" th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span> 
 						<span class="list-footer" th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span> 

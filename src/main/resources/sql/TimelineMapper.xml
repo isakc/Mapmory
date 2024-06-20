@@ -451,16 +451,16 @@ FROM
 <bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
 </if>
 <if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-	AND (a1.record_text LIKE #{searchKeyword} 
-	OR a1.record_title LIKE #{searchKeyword} 
-	OR a1.record_no IN (
+	AND (r.record_text LIKE #{searchKeyword} 
+	OR r.record_title LIKE #{searchKeyword} 
+	OR r.record_no IN (
 	SELECT record_no 
 	FROM image_tag 
 	WHERE IMAGE_TAG_TYPE = 0 
 	AND image_tag_text LIKE #{searchKeyword}))
 </if>
 <if test="!(categoryNo==null or categoryNo==0)">
-	AND a1.category_no=#{categoryNo}
+	AND r.category_no=#{categoryNo}
 </if>
 </trim>
 ORDER BY
