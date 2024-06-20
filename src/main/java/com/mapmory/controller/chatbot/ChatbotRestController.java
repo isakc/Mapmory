@@ -26,7 +26,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/bot/*")
 public class ChatbotRestController {
-	
+		//ㅎㅎ
 		@Value("${chatbot.api.url}")
 		private String apiUrl;
 		@Value("${chatbot.api.secret.key}")
