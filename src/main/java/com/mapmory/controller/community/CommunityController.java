@@ -107,7 +107,7 @@ public class CommunityController {
 
 	//댓글 목록 조회
 	@GetMapping("/getReplyList/{recordNo}")
-	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request) throws Exception {
+	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request, CommunityLogs communityLogs) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
 
@@ -121,6 +121,8 @@ public class CommunityController {
 		System.out.println("페이지 값: " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    Map<String, Object> reactionData = communityService.getReactionStatusList(communityLogs);
+	    
 	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
