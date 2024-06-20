@@ -13,6 +13,30 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 기록 작성 유저 프로필로 이동 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", "#nickname", function() {
+			var userId = $(this).data('record-userid');
+			console.log(userId);
+			window.location.href = '/user/getProfile?userId='+userId;
+		});
+	});
+	</script>
+
+	<!-- 댓글 작성 유저 프로필로 이동 -->
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", '.replyNickname', function() {
+			var $row = $(this).closest('span.replyNickname');
+			console.log($row);
+			var userId = $row.data('replyuser-id');
+			console.log("댓글 유저:"+userId);
+			window.location.href='/user/getProfile?userId='+userId;
+		});
+	}); 
+	</script>
+
 	<!-- 신고 모달 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -341,10 +365,10 @@
 				    	</a>
 					</li>
 				</ul>
-				<div>
+				<div class="profile">
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
-						<a class="nickname" th:href="@{/user/getProfile(userId=${record.recordUserId})}" th:text="${record.nickname}"></a>
+						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:text="${record.subscriptionEndDate}"></span>
 						<i id="moreIcon" class="bi bi-three-dots" style="float: right;"></i>									
@@ -385,7 +409,7 @@
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
 			<div class="col-sm-2">
 				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-				<a th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
+				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 				<span th:if="${iterStat.index < 5}"  th:text="${reply.subscriptionEndDate}"></span>
 			</div>
 			<div class="col-sm-4">
