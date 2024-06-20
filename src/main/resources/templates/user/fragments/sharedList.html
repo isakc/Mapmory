@@ -3,7 +3,6 @@
 	let sharedListSetup = true;
 	let sharedListCurrentPage = 1;
 	let sharedListEndOfData = false;// 데이터를 모두 로드했는지 확인하는 변수
-	// let isLoading = false;
 
 	$(function() {
 		
@@ -36,28 +35,7 @@
 
 	});
 	
-	function checkIfNeedToLoadMore() {
-		
-        let scrollTop = $(window).scrollTop();
-        let windowHeight = $(window).height();
-        let documentHeight = $(document).height();
-
-        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
-        if (documentHeight <= windowHeight) {
-        	
-        	// console.log('setup start');
-        	loadMoreSharedList().then((value)=> {
-        		
-        		console.log(value);
-        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
-        	});
-        } else {
-        	
-        	console.log('setup finished');
-        	sharedListSetup = false;
-        	isLoading = false; // 로딩 완료 후 플래그 재설정    	
-        }
-    }
+	
 	
 	function loadMoreSharedList() {
 		
@@ -114,7 +92,7 @@
     		    	  });		
     		    	      		    	
     		    	  if(sharedListSetup)
-   		    		  	checkIfNeedToLoadMore();
+   		    		  	checkIfNeedToLoadMore(sharedListSetup, loadMoreSharedList);
 
    		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
