@@ -1,1 +1,34 @@
-@charset "UTF-8";
+/* 기본 color는 btn-primary 사용할 것 */
+
+.btn-secondary-custom {
+	
+	background : #00A7F5
+}
+
+.btn-success-custom {
+	
+	background : #8EF087
+}
+
+.btn-light-custom {
+	
+	background : #00C6E1
+}
+
+
+.btn-info-custom {
+	
+	background : #F9F871
+}
+
+/*
+.btn-warning-custom {
+	
+	background : #
+}
+*/
+
+.btn-danger-custom {
+	
+	background : #FF3838
+}
