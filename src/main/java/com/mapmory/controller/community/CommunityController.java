@@ -79,6 +79,8 @@ public class CommunityController {
 			
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
+		model.addAttribute("userLogs", communityService.getUsersLogs(userId, recordNo));
+		
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setLimit(pageSize);
@@ -88,6 +90,7 @@ public class CommunityController {
 
 	    
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    
 	    model.addAttribute("userId", userId);
 	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
@@ -99,15 +102,16 @@ public class CommunityController {
 	    		.logsType(0)
 	    		.build();
 	    		
-	    communityService.addCommunityLogs(communityLogs);		
+	    communityService.addCommunityLogs(communityLogs);	
 	    
 	    System.out.println("model :"+model);
+	    
 		return "community/getDetailSharedRecord";
 	}
 
 	//댓글 목록 조회
 	@GetMapping("/getReplyList/{recordNo}")
-	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request) throws Exception {
+	public String getReplyList(Search search, String userId, @PathVariable int recordNo, Model model, HttpServletRequest request, CommunityLogs communityLogs) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
 
@@ -121,6 +125,7 @@ public class CommunityController {
 		System.out.println("페이지 값: " +search);
 		
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
+	    
 	    model.addAttribute("search", search);
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
@@ -197,6 +202,24 @@ public class CommunityController {
 		return "community/admin/getAdminConfirmReport";
 	}	
 	
+	//차단 목록 조회
+	@GetMapping("/getBlockList/{userId}")
+	public String getBlockList(Search search, @PathVariable String userId, Model model, HttpServletRequest request) throws Exception {
+
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
+		System.out.println("테스트 : "+userId);
+		model.addAttribute("blockList", blockList.get("list"));
+		model.addAttribute("totalCount", blockList.get("totalCount"));		
+		return "community/getBlockList";
+	}
 	
 	
 	

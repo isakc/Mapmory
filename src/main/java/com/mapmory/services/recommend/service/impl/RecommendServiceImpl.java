@@ -655,6 +655,7 @@ public class RecommendServiceImpl implements RecommendService {
 							.phone(item.path("phone").asText())
 							.latitude(item.path("y").asDouble())
 							.longitude(item.path("x").asDouble())
+							.markerType(3)
 							.build();
 
 					recommendPlaceList.add(recommendPlaceDTO);

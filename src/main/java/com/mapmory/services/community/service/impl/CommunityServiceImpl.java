@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
@@ -260,6 +261,14 @@ public class CommunityServiceImpl implements CommunityService {
 		map.put("list", list);
 		return map;
 	}
+
+	@Override
+	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception {
+		return communityDao.getUsersLogs(userId, recordNo);
+	}
+
+
+
 
 //	@Override
 //	public void deleteReplyByRecord(int recordNo) throws Exception {

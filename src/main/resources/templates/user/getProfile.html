@@ -17,11 +17,29 @@
 			text-decoration: none;
 		}
 		
-		.category {
+		.emoji {
+		
 			display: flex;
     		align-items: center;
+    		width: 20px;
+    		height: 20px; 
 		}
 		
+			/*
+		.category-custom {
+			display: flex;
+    		align-items: center;
+    		width: 20px;
+    		height: 20px; 
+		}
+		
+	
+		.category-box-custom {
+		    width: 50px;
+		    height: 50px;
+		    object-fit: cover;
+		}
+		*/
 	</style>
 	
 	
@@ -29,7 +47,7 @@
 	<script th:inline="javascript">
 	
 		const profileUserId = [[${profile.user.userId}]];
-		const sessionId = `[[${sessionId}]]`;
+		const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
 		let isLoading = false;
 		let pageType = null;
 		
@@ -367,6 +385,29 @@
 			
 		});
 
+		function checkIfNeedToLoadMore(setupType, setupFunction) {
+			
+	        let scrollTop = $(window).scrollTop();
+	        let windowHeight = $(window).height();
+	        let documentHeight = $(document).height();
+
+	        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
+	        if (documentHeight <= windowHeight) {
+	        	
+	        	// console.log('setup start');
+	        	setupFunction().then((value)=> {
+	        		
+	        		console.log(value);
+	        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
+	        	});
+	        } else {
+	        	
+	        	console.log('setup finished');
+	        	setupType = false;
+	        	isLoading = false; // 로딩 완료 후 플래그 재설정    	
+	        }
+	    }
+		
 		</script>
 	
 </head>

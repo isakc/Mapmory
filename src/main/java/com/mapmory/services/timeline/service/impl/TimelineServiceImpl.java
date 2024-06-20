@@ -100,8 +100,8 @@ public class TimelineServiceImpl implements TimelineService {
 
 	//Category CRUD
 	@Override
-	public void addCategory(Category category) throws Exception {
-		timelineDao.insertCategory(category);
+	public int addCategory(Category category) throws Exception {
+		return timelineDao.insertCategory(category);
 	}
 
 	@Override
@@ -115,13 +115,13 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 
 	@Override
-	public void updateCategory(Category category) throws Exception {
-		timelineDao.updateCategory(category);
+	public int updateCategory(Category category) throws Exception {
+		return timelineDao.updateCategory(category);
 	}
 
 	@Override
-	public void deleteCategory(int categoryNo) throws Exception {
-		timelineDao.deleteCategory(categoryNo);
+	public int deleteCategory(int categoryNo) throws Exception {
+		return timelineDao.deleteCategory(categoryNo);
 	}
 	
 	@Override
