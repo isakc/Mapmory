@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -372,6 +373,28 @@ public class CommunityRestController {
 		} 
 		communityService.addBlockUser(followBlock);
 		return ResponseEntity.ok(followBlock);
+	}
+
+	//사용자 신고 목록 Rest
+	@GetMapping("/rest/getUserReportList/{userId}")
+	public ResponseEntity<Model> getUserReportList(@PathVariable String userId, Search search, HttpServletRequest request, Model model) throws Exception {
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		if(search.getCurrentPage() == 0) {
+			search.setCurrentPage(1);
+		}
+	
+		search.setPageSize(pageSize);
+		
+		userId = redisUtil.getSession(request).getUserId();
+		
+		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
+		System.out.println("테스트 : "+userId);
+		model.addAttribute("reportList",  reportList.get("list"));
+		model.addAttribute("totalCount", reportList.get("totalCount"));		
+		
+		return ResponseEntity.ok(model);
 	}
 	
 }
