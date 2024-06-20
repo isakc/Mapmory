@@ -20,6 +20,7 @@
             	console.log("is sharedlist scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
+                	isLoading = true; // 로딩 시작
                 	loadMoreSharedList().then((value) => {
                 		
                 		console.log(value);

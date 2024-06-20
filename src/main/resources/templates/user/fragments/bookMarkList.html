@@ -27,6 +27,7 @@
             	console.log("is bookmark scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
         
+                	isLoading = true; // 로딩 시작
                 	loadMoreBookMarkList().then((value) => {
                 		
                 		console.log(value);

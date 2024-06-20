@@ -27,8 +27,9 @@
             	console.log("is reply list scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
 
+                	isLoading = true; // 로딩 시작
                 	loadMoreReplyList().then((value) => {
-  
+
                 		console.log(value);
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
