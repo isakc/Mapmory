@@ -161,9 +161,7 @@
 	}
 	
 	function closeModal() {
-		console.log("닫힘1");
 		document.getElementById("moreModal").style.display = "none";
-		console.log("닫힘2");
 	}
 	
 	function openUpdateModal() {
@@ -177,7 +175,6 @@
 	function closeUpdateModal() {
 		document.getElementById("updateModal").style.display ="none";
 	}	
-	
 	
 	$(function() {
 		$('#container').on("click", ".bi-three-dots", function() {
@@ -260,9 +257,10 @@
 		$('#moreModal').on("click", "#delete", function() {
 			
 			if(currentRow) {
-				var userId = userId;
+				var userId = /*[[${search.userId}]]*/ 
+					console.log("111 :"+userId);
 				var replyNo = currentRow.find('.replyNo').text();
-
+			
 				console.log("17.댓글번호 :"+replyNo);
 				
 				$.ajax({
@@ -271,7 +269,10 @@
 					success : function(data) {
 						console.log('18.댓글 삭제 완료 :', data);
 						closeModal();
-						var separator = currentRow.parent().find('.separator');
+						
+						console.log('currentRow:', currentRow);
+						var separator = currentRow.next('.separator');
+						console.log('separator:', separator);
 	                    separator.remove();
 						currentRow.remove();
 					},
@@ -291,11 +292,14 @@
 				var targetUserId = currentRow.find('.userId').text();
 				var replyNo = currentRow.find('.replyNo').text();
 				var replyText = currentRow.find('.replyText').text();
+				var nickname = currentRow.find('.nickname').text();
+				console.log("11:"+nickname);
 				var reportData = {
 					userId : reporterUserId,	
 					targetUserId : targetUserId,
 					replyNo : replyNo,
-					replyText : replyText
+					replyText : replyText,
+					nickname : nickname
 				}; 
 				console.log("19.신고 확인 : "+reportData);
 				
@@ -577,6 +581,13 @@
 	<div id=content-for-footer>
 		<div id="container">
 			<div class="card mb-3">
+				<ul class="nav nav-pills flex-column">
+					<li class="nav-item">
+						<a class="nav-link active" href="#">
+							<i class="bi bi-journal-richtext">댓글</i>
+				    	</a>
+					</li>
+				</ul>				
 				<h4>
 					<span th:text="'댓글 ' + ${totalCount}"></span>
 				</h4>
@@ -585,7 +596,7 @@
 						<div class="row">
 						<h6>
 							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
-							<a th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
+							<a class="nickname" th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
 							<span th:text="${reply.subscriptionEndDate}"></span>
 							<i class="bi bi-three-dots" style="float: right;"></i>
 						</h6>
