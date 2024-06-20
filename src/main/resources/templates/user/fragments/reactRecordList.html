@@ -1,11 +1,20 @@
 <script>
 	
+	let reactRecordListSetup = true;
 	let reactRecordListCurrentPage = 1; 
-	let reactBookMarkListEndOfData = false;
+	let reactRecordListEndOfData = false;
 	
 	$(function() {
 		
-		loadMoreReactRecordList();
+		$('#reactListBtn').on('click', function() {
+			
+			if(reactRecordListSetup) {
+				
+				console.log('init');
+				loadMoreReactRecordList();	
+			}
+		});
+		
 		
 		$(window).scroll(function() {
 			
@@ -16,13 +25,16 @@
 			// console.log("I'm in reply list", pageType.text());
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
-            if (!replyListEndOfData && !isLoading && (pageType.text() == "bookMarkList")) {
+			// console.log("is react recordlist scroll ended? " + !(!reactRecordListEndOfData && !isLoading && (pageType.text() == "reactRecordList")));
+            if (!reactRecordListEndOfData && !isLoading && (pageType.text() == "reactRecordList")) {
+            	console.log("is react record scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
                 	isLoading = true; // 로딩 시작
-                	reactBookMarkListCurrentPage++;
-                	loadMoreBookMarkList().then(() => {
+                	reactRecordListCurrentPage++;
+                	loadMoreReactRecordList().then((value) => {
                 		
+                		console.log(value);
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
@@ -34,8 +46,46 @@
 		
 	});
 	
+	function checkIfNeedToLoadMoreReactRecord() {
+		
+        let scrollTop = $(window).scrollTop();
+        let windowHeight = $(window).height();
+        let documentHeight = $(document).height();
+
+        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
+        console.log("documentHeight : "+documentHeight);
+        console.log("windowHeight : "+windowHeight);
+        console.log("is setup? " + !(documentHeight <= windowHeight));
+        if (documentHeight <= windowHeight) {
+        	
+        	// console.log('setup start');
+        	loadMoreReactRecordList().then((value)=> {
+        		
+        		console.log(value);
+        		isLoading = false; // 로딩 완료 후 플래그 재설정    	
+        	});
+        } else {
+
+        	console.log("setup finished.");
+        	// setupType = false;
+        	// loadType = false; // 로딩 완료 후 플래그 재설정
+        	reactRecordListSetup = false;
+        	isLoading = false;
+        }
+    }
 	
 	function loadMoreReactRecordList() {
+		
+		isLoading = true; // 로딩 시작
+		console.log("loading...");
+		console.log('current page : ' + reactRecordListCurrentPage);
+		
+		if(reactRecordListEndOfData == true) {
+
+  		  console.log('no more');
+  		  return;
+  		  
+  	  	} 
 		
 		return new Promise((resolve, reject) => {
 			
@@ -47,8 +97,17 @@
 			      // dataType: "application/json",
 			      success: function(response) {
 			    	  
-			    	  if(response == true)
-			    		  reactBookMarkListEndOfData = true;
+			    	  console.log("is empty? : " +(response.timelineList.length == 0));
+			    	  
+			    	  if(response.timelineList.length == 0) {
+				    		 
+			    		  reactRecordListEndOfData = true;
+				    		 resolve("I think it's end");
+	   		      		  	 // return;
+				    		 // resolve("contents ended");
+				    	 }
+			    	  
+			    	  reactRecordListCurrentPage++;
 				    	  
 			    	  response.timelineList.forEach((timeline) => {
 			    		  
@@ -62,14 +121,6 @@
 			    		  const regDate = timeline.recordAddDate;
 			    		  const recordNo = timeline.recordNo;
 			    		  
-			    		  /*
-			    		  console.log(thumbnailName);
-			    		  console.log(title);
-			    		  console.log(categoryName);
-			    		  console.log(categoryEmoji);
-			    		  console.log(regDate);
-			    		  console.log(recordNo);
-			    		  */
 			    		  
 			    		  let temp = '';
 			    		  temp += '<div id="'+recordNo+'" class="record">';
@@ -85,7 +136,11 @@
 			    		  temp += '<hr/>';
 			    		  $('#reactRecordList').append(temp);
 			    		  
-			    		  resolve();
+			    		  if(reactRecordListSetup)
+			    			  checkIfNeedToLoadMoreReactRecord();
+			    		  
+			    		  
+			    		  resolve("content loaded");
 			    	  });
 			    	  
 			      },

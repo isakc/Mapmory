@@ -15,7 +15,9 @@
 			let documentHeight = $(document).height();
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
+			// console.log("is sharedlist scroll ended? " + !(!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
             if (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")) {
+            	console.log("is sharedlist scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
                 	loadMoreSharedList().then((value) => {
@@ -92,7 +94,7 @@
     		      		  
     		      		  sharedListEndOfData = true;
     		      		  resolve("I think it's end");
-    		      		  return;
+    		      		  // return;
     		      		  
     		      	  } 
 

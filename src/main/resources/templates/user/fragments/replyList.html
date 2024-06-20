@@ -11,7 +11,8 @@
 		// hidden된 것에 대해서는 따로 적용해야 함.
 		$('#replyListBtn').on('click', function() {
 			
-			loadMoreReplyList();	
+			if(replyListSetup)
+				loadMoreReplyList();	
 		});
 	
 		$(window).scroll(function() {
@@ -21,8 +22,9 @@
 			let documentHeight = $(document).height();
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
-			console.log("is End? : " + !(!replyListEndOfData && !isLoading && (pageType.text() == "replyList")));
+			// console.log("is replylist scroll ended? : " + !(!replyListEndOfData && !isLoading && (pageType.text() == "replyList")));
             if (!replyListEndOfData && !isLoading && (pageType.text() == "replyList")) {
+            	console.log("is reply list scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
 
                 	loadMoreReplyList().then((value) => {
@@ -56,7 +58,7 @@
         	loadMoreReplyList().then((value)=> {
         		
         		console.log(value);
-        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
+        		isLoading = false; // 로딩 완료 후 플래그 재설정    	
         	});
         } else {
 
@@ -76,7 +78,7 @@
     	
     	if(replyListEndOfData == true) {
 
-    		  console.log('all finished');
+    		  console.log('no more');
     		  return;
     		  
     	  	} 
@@ -97,7 +99,8 @@
 			    		 
 			    		 replyListEndOfData = true;
 			    		 resolve("I think it's end");
-   		      		  	 return;
+   		      		  	 // return;
+			    		 // resolve("contents ended");
 			    	 }
 			    		
 			    	  
