@@ -16,7 +16,7 @@
 <div id=content-for-footer>
 	<div th:name="getKakaoMap" th:data-recordno="${record.recordNo}" th:include="timeline/component/map::kakaoMap"></div>
 	
-	<div class="card border-primary mb-3" th:name="getDetailTimecapsule"> <!-- style="max-width: 20rem;" -->
+	<div class="card border-primary mb-3" th:name="getDetailTimecapsule">
  		<!-- <div class="card-header"></div> -->
   		<div class="card-body">
     		<h4 class="card-title">
@@ -25,7 +25,6 @@
  					<img th:src="${record.categoryImoji}" style="height:18px;"/>
  					<span th:text="${record.categoryName}"></span>
  				</span>
- 				<span class="badge bg-primary" th:text="${updateCountText}"></span>
  			</h4>
     		<div class="card-text">
     			<span class="badge bg-primary" th:text="'D-Day 날짜'"></span>
@@ -63,15 +62,15 @@
 <script type="text/javascript">
 $(function() {
 	
-	let recordNo=$('input[name="recordNo"]').val();
-	let recordUserId=$('input[name="recordUserId"]').val();
-	
 	$("div[name='getKakaoMap']").click(function() {
+		let recordNo=$('input[name="recordNo"]').val();
 		uri="?recordNo="+recordNo;
 		self.location.replace("/timeline/getSimpleTimeline"+uri);
 	})
 	
 	$("button[name='deleteTimecapsule']").click(function() {
+		let recordNo=$('input[name="recordNo"]').val();
+		let recordUserId=$('input[name="recordUserId"]').val();
 		uri="?recordNo="+recordNo+"&userId="+recordUserId;
 		self.location="/timeline/deleteTimecapsule"+uri;
 	})

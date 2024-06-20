@@ -185,6 +185,15 @@
                 }
             });
         }
+		
+		$(document).ready(function() {
+            $('.dropdown-item').click(function(e) {
+                e.preventDefault();
+                var condition = $(this).data('condition');
+                $('#searchCondition').val(condition);
+                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+            });
+        });
 	</script>
 	
 	<style>

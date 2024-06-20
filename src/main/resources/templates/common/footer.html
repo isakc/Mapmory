@@ -35,15 +35,15 @@
 
 	<nav class="mobile-bottom-nav">
 		<!-- <div class="mobile-bottom-nav__item mobile-bottom-nav__item--active"> -->
-		<div class="mobile-bottom-nav__item " th:classappend="${#request.requestURI.contains('/user/') ? 'mobile-bottom-nav__item--active' : ''}">
-		    <div class="mobile-bottom-nav__item-content" name="프로필">
+		<div class="mobile-bottom-nav__item" >
+		    <div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/user/') ? 'mobile-bottom-nav__item--active' : ''}" name="프로필">
 		        <i class="material-icons">account_box</i>
 		        Profile
 		    </div>        
 		</div>
 
-		<div class="mobile-bottom-nav__item " th:classappend="${#request.requestURI.contains('/timeline/') ? 'mobile-bottom-nav__item--active' : ''}">
-			<div class="mobile-bottom-nav__item-content" name="타임라인">
+		<div class="mobile-bottom-nav__item " >
+			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/timeline/') ? 'mobile-bottom-nav__item--active' : ''}" name="타임라인">
 				<i class="Medium material-icons">library_books</i>
 				TimeLine
 			</div>
@@ -67,14 +67,14 @@
 		</th:block>
 		
 		
-		<div class="mobile-bottom-nav__item " th:classappend="${#request.requestURI.contains('/community/') ? 'mobile-bottom-nav__item--active' : ''}">
-			<div class="mobile-bottom-nav__item-content" name="커뮤니티">
+		<div class="mobile-bottom-nav__item " >
+			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/community/') ? 'mobile-bottom-nav__item--active' : ''}" name="커뮤니티">
 				<i class="material-icons">insert_comment</i>
 				Community
 			</div>		
 		</div>
-		<div class="mobile-bottom-nav__item " th:classappend="${#request.requestURI.contains('/common/menu') ? 'mobile-bottom-nav__item--active' : ''}">
-			<div class="mobile-bottom-nav__item-content" name="메뉴">
+		<div class="mobile-bottom-nav__item " >
+			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/common/menu') ? 'mobile-bottom-nav__item--active' : ''}" name="메뉴">
 				<i class="material-icons">list</i>
 				Menu
 			</div>		
@@ -139,9 +139,10 @@ $(function() {
 				y : latitude
 			},
 			success : function(response,status){
-				console.log(response.documents[0].address.address_name);
+				//console.log(response.documents[0].road_address);
+				//console.log(response.documents[0].address.address_name);
 		    	$('input[name="checkpointAddressOfFooter"]')
-		    	.val(response.documents[0].address.address_name)
+		    	.val(response.documents[0].road_address!==null ? response.documents[0].road_address.address_name:response.documents[0].address.address_name)
 		    	.trigger('change');
 			},
             error: function(xhr, status, error) {

@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/css/common/toolBar.css">
     <title>공지사항</title>
     <style>
         body {
             background-color: #f8f9fa;
         }
 
-        .notice-header {
+        .user-header {
             background-color: #007bff;
             color: #fff;
             padding: 20px;
@@ -22,7 +23,7 @@
             border-radius: 5px;
         }
 
-        .notice-header h2 {
+        .user-header h2 {
             margin: 0;
             font-size: 28px;
             font-weight: bold;
@@ -46,44 +47,44 @@
             border-color: #0062cc;
         }
 
-        .notice-table {
+        .user-table {
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .notice-table th {
+        .user-table th {
             background-color: #f8f9fa;
             font-weight: bold;
             text-align: center;
         }
 
-        .notice-table td {
+        .user-table td {
             vertical-align: middle;
         }
 
-        .notice-table .notice-title {
+        .user-table .user-title {
             font-size: 18px;
             font-weight: bold;
             color: #007bff;
         }
 
-        .notice-table .notice-reg-date {
+        .user-table .user-reg-date {
             font-size: 14px;
             color: #6c757d;
         }
 
-        .add-notice {
+        .add-user {
             margin-top: 20px;
             text-align: right;
         }
 
-        .add-notice .btn-primary {
+        .add-user .btn-primary {
             background-color: #28a745;
             border-color: #28a745;
         }
 
-        .add-notice .btn-primary:hover {
+        .add-user .btn-primary:hover {
             background-color: #218838;
             border-color: #1e7e34;
         }
@@ -97,8 +98,9 @@
 </head>
 
 <body>
+<div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
-        <div class="notice-header">
+        <div class="user-header">
             <h2><i class="bi bi-megaphone"></i> 유저 리스트 </h2>
         </div><!-- 검색창 -->
         <div class="container">
@@ -110,8 +112,8 @@
                                 <span th:text="${search.searchCondition == 0 ? '아이디' : (search.searchCondition == 1 ? '닉네임' : '검색 조건')}"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" data-condition="0">아이디</a></li>
-                                <li><a class="dropdown-item" href="#" data-condition="1">닉네임</a></li>
+                                <li><a class="dropdown-item userDropDown" href="#" data-condition="0">아이디</a></li>
+                                <li><a class="dropdown-item userDropDown" href="#" data-condition="1">닉네임</a></li>
                             </ul>
                             <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
                         </div>
@@ -123,11 +125,11 @@
                 </form>
             </div>
 
-            <form id="noticeForm" th:action="@{/user/admin/getAdminUserList}" method="get">
+            <form id="userForm" th:action="@{/user/admin/getAdminUserList}" method="get">
                 <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
             </form>
 
-            <table class="table table-hover notice-table">
+            <table class="table table-hover user-table">
                 <thead>
                     <tr>
                         <th style="width: 14%;">사용자ID</th>
@@ -142,7 +144,7 @@
                 <tbody>
                     <tr th:each="user, status : ${userList}" scope="row">
                         <td>
-                            <a class="notice-title" th:href="@{/user/admin/getAdminDetailUser(userId=${user.userId})}" th:text="${user.userId}"></a>
+                            <a class="user-title" th:href="@{/user/admin/getAdminDetailUser(userId=${user.userId})}" th:text="${user.userId}"></a>
                         </td>
                         <td th:text="${user.userName}" class="text-center"></td>
                         <td th:text="${user.nickname}" class="text-center"></td>

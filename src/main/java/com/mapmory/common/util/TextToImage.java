@@ -36,7 +36,7 @@ public class TextToImage {
                     // 바이트 배열을 Base64 인코딩하여 데이터 URI 형식으로 변환
                     String imageDataUri = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
                     // HTML 이미지 태그로 변환하여 추가
-                    sb.append("<img src='").append(imageDataUri).append("'/>");
+                    sb.append("<img src='").append(imageDataUri).append("' style='height:28px'/>");
                 } else {
                     // 이미지 태그가 아닌 경우에는 그대로 추가
                     sb.append(matcher.group());
