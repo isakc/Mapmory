@@ -25,7 +25,7 @@
 		<div id="map">
 			<div id="bottomBox">
         		<button class="btn btn-primary" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
-				<div id="result"></div><!-- 결과창 -->
+				<div id="result" style="display:none"></div><!-- 결과창 -->
 				<div id="description"></div><!-- 경로 안내 창 -->
 			</div>
 		</div><!-- map -->
@@ -84,7 +84,10 @@
 	<div th:replace="common/footer::defaultFooter"></div>
 	
 	<script th:inline="javascript">
-	let userId = /*[[${userId}]]*/ 'user1';
+	
+	let userId = /*[[${userId}]]*/ '[[${userId}]]';
+	sessionStorage.setItem("userId", userId);
+	
 	let map; // 지도
 	let bounds;
 	let selectLatitude; // 선택한 마커의 위도
@@ -241,15 +244,16 @@
 	    return deferred.promise();
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
-	function hasTagClick(tagText){
+	function hashTagClick(tagText){
 		$('input[name="searchKeyword"]').val(tagText);
         searchRecord();
-	}// hasTagClick: 해시태그 검색
+	}// hashTagClick: 해시태그 검색
 	
-	function categoryClick(categoryNo){
-		$('input[name="categoryNo"]').val(categoryNo);
+	$(document).on("click", ".recordEmoji", function(event){
+		event.preventDefault();
+		$('input[name="categoryNo"]').val($(this).data('categoryno'));
         searchRecord();
-	}
+	});
 	
 	$('form').on('submit', function(event) {
 		event.preventDefault();
@@ -339,7 +343,6 @@
           searchRecord();
         }
     });// 토글 스위치
-    
 	</script>
 </body>
 </html>
