@@ -50,10 +50,10 @@
     <div class="row">
 		<label for="categoryNo" class="form-label mt-4" th:text="'카테고리'"></label>
     	<select class="form-select" th:field="*{categoryNo}">
-			<option th:value="0" th:text="'전체'"/>
+			<option th:value="0" th:text="'없음'"/>
 			<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
 		</select>
-		<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'전체\' 로 분류됩니다.'"></small>
+		<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'없음\' 로 분류됩니다.'"></small>
     </div>
     
     <div class="row">

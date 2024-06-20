@@ -456,7 +456,8 @@ function getCookie(codeKeyName) {
   return null;
 }
 
+/*
 const userId = getCookie('userId');
 console.log(userId); // 예: "kim1234"
-
+*/
 

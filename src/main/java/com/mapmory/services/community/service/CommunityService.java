@@ -1,6 +1,7 @@
 package com.mapmory.services.community.service;
 
 
+import java.util.List;
 import java.util.Map;
 
 import com.mapmory.common.domain.Search;
@@ -41,11 +42,11 @@ public interface CommunityService {
 	//커뮤니티 활동 삭제
 	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception;
 	
-	//감정표현 상태 확인
-	public Map<String, Object> getReactionStatusList(CommunityLogs communityLogs) throws Exception;
-	
 	//커뮤니티 로그 목록 조회
 	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;	
+	
+	//사용자 로그 기록
+	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception;
 	
 	//커뮤니티 로그 중복 체크
 	public void checkLog(CommunityLogs communityLogs) throws Exception;

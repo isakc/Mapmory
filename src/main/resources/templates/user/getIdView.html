@@ -2,11 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  -->
+    <th:block th:replace="~{/common/dependencies}"></th:block>
 	<script src="/javascript/user/userValidation.js"></script>
+	<link rel="stylesheet" href="/css/common/mapmory-color.css">
 	
 	<title>아이디 찾기</title>
+	
+	<style>
+
+		
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	</style>
 	
 	<script>
 	
@@ -53,11 +63,11 @@
 						contentType : "application/json",
 						success : function(response){
 							
-							$('form').html('<p>당신의 id는 ' + response + '입니다.</p>');
-		
+							$('form').html('<p >당신의 id는 <u>' + response + '</u>입니다.</p>');
+	
 						},
 						error: function(xhr, status, error){
-							alert(error);
+							alert("존재하지 않는 이름 또는 이메일입니다...");
 						}
 				    });
 
@@ -68,29 +78,37 @@
 	
 	</script>
 </head>
-<body>
+<body class="container mt-3">
 
-	<h1>아이디 찾기</h1>
 	
-	<form>
+	<div class="d-flex">
+		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+		<div class="col-6"></div>
+		<p class="h2 mt-3">아이디 찾기</p>
+	</div>
+	
+	<form >
 	
 		<div>
-            <label for="userName">이름</label>
-            <input type="text" id="userName" name="userName"  placeholder="이름" required/>
+            <label class="form-label" for="userName">이름</label>
+            <input class="form-control mb-3" type="text" id="userName" name="userName"  placeholder="이름" required/>
             <p id="userNameMsg" style="display: none;"/>
             <p id="userNameChecked" style="display: none;">false</p>
         </div>
         
         <div id="emailDiv">
-            <label for="email">이메일</label>
-            <input type="email" id="email" name="email"  placeholder="이메일 (예: test@test.com)" required/>
-            <button type="button" id="sendAuthEmail">인증번호 발송</button>
-            <input type="hidden" class="form-control" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
+            <label class="form-label" for="email">이메일</label>
+            <input class="form-control mb-3" type="email" id="email" name="email"  placeholder="이메일 (예: test@test.com)" required/>
+            <button type="button" class="btn btn-secondary-custom" id="sendAuthEmail">인증번호 발송</button>
+            <input type="hidden" class="form-control mt-3" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
             <p id="emailMsg" style="display: none;"/>
             <p id="emailChecked" style="display: none;">false</p>		
         </div>
 		
-		<button type="button" id="submitForm">ID 조회</button>
+		<div class="d-grid gap-2 fixed-bottom mb-3 col-11 mx-auto">
+		  <button type="button" id="submitForm" class="btn btn-primary">ID 조회</button>
+		</div>
+		
 	</form>
 
 </body>	

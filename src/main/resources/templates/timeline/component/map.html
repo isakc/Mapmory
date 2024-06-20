@@ -47,5 +47,211 @@ marker.setMap(map);
 // marker.setMap(null);    
 </script>
 </div>
+
+<div th:fragment="kakaoMap2">
+	<div class='kakaoMap'>
+		<div id="map" style="width:100%;height:350px;"></div>
+		<div class="hAddr" style="position:absolute;left:10px;top:10px;border-radius: 2px;background:#fff;background:rgba(255,255,255,0.8);z-index:1;padding:5px;">
+	        <span class="title">지도중심기준 주소정보</span><br/>
+	        <span id="centerAddr"></span>
+	    </div>
+	</div>
+<input type="hidden" th:name="latitudeOfMap2" th:value="${record.latitude}"/>
+<input type="hidden" th:name="longitudeOfMap2" th:value="${record.longitude}"/>
+<input type="hidden" th:name="checkpointAddressOfMap" th:value="${record.checkpointAddress}"/>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script type="text/javascript" th:src="@{//dapi.kakao.com/v2/maps/sdk.js(appkey=${apiKey},libraries=services)}"></script>
+<script type="text/javascript">
+let latitudeOfMap2=$('input[name="latitudeOfMap2"]').val();
+let longitudeOfMap2=$('input[name="longitudeOfMap2"]').val();
+console.log(latitudeOfMap2);
+console.log(longitudeOfMap2);
+//지도에 표시된 마커 객체를 가지고 있을 배열입니다
+let marker;
+let infowindow;
+
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+    mapOption = { 
+        center: new kakao.maps.LatLng(latitudeOfMap2, longitudeOfMap2), // 지도의 중심좌표
+        level: 8, // 지도의 확대 레벨
+    	draggable: true
+    };
+
+var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+//HTML5의 geolocation으로 사용할 수 있는지 확인합니다 
+if (navigator.geolocation) {
+ 
+ // GeoLocation을 이용해서 접속 위치를 얻어옵니다
+ navigator.geolocation.getCurrentPosition(function(position) {
+     
+     var lat = position.coords.latitude, // 위도
+         lon = position.coords.longitude; // 경도
+     
+     var locPosition = new kakao.maps.LatLng(lat, lon), // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
+         message = '<div style="padding:5px;">현재 위치</div>'; // 인포윈도우에 표시될 내용입니다
+
+         $('#latitude').val(lat);
+         $('#longitude').val(lon);
+     
+     // 마커와 인포윈도우를 표시합니다
+     displayMarker(locPosition, message);
+         
+   });
+ 
+} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
+ 
+ var locPosition = new kakao.maps.LatLng(33.450701, 126.570667),    
+     message = 'geolocation을 사용할수 없어요..'
+     
+ displayMarker(locPosition, message);
+}
+
+//지도에 마커와 인포윈도우를 표시하는 함수입니다
+function displayMarker(locPosition, message) {
+
+ // 마커를 생성합니다
+ marker = new kakao.maps.Marker({  
+     map: map, 
+     position: locPosition
+ }); 
+ 
+ var iwContent = message, // 인포윈도우에 표시할 내용
+     iwRemoveable = true;
+
+ // 인포윈도우를 생성합니다
+ 	infowindow = new kakao.maps.InfoWindow({
+     content : iwContent,
+     removable : iwRemoveable
+ });
+ 
+ // 인포윈도우를 마커위에 표시합니다 
+ infowindow.open(map, marker);
+ 
+ // 지도 중심좌표를 접속위치로 변경합니다
+ map.setCenter(locPosition);
+}
+
+//주소-좌표 변환 객체를 생성합니다
+var geocoder = new kakao.maps.services.Geocoder();
+
+marker = new kakao.maps.Marker(), // 클릭한 위치를 표시할 마커입니다
+    infowindow = new kakao.maps.InfoWindow({zindex:1}); // 클릭한 위치에 대한 주소를 표시할 인포윈도우입니다
+
+// 현재 지도 중심좌표로 주소를 검색해서 지도 좌측 상단에 표시합니다
+searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+
+// 지도를 클릭했을 때 클릭 위치 좌표에 대한 주소정보를 표시하도록 이벤트를 등록합니다
+kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+        	let roadAddress="";
+        	let localAddress="";
+        	
+        	if (result[0].road_address && result[0].road_address.address_name) {
+        		roadAddress=result[0].road_address.address_name;
+        	}
+        	if (result[0].address && result[0].address.address_name) {
+        		localAddress=result[0].address.address_name;
+        	}
+        	
+            var detailAddr = !!result[0].road_address ? '<div>도로명주소 : ' + roadAddress + '</div>' : '';
+            detailAddr += '<div>지번 주소 : ' + localAddress + '</div>';
+            
+            var content = '<div class="bAddr" style="padding:5px;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;">' 
+            + detailAddr + '</div>';
+            
+            //기존 마커 제거
+            marker.setMap(null);
+            
+            //주소창에 입력
+            //console.log(result[0]);
+            $('#checkpointAddress').val(roadAddress!="" ? roadAddress:localAddress );
+            
+            //위도 경도 입력
+            //console.log(mouseEvent.latLng.Ma+"/"+mouseEvent.latLng.La);
+            $('#latitude').val(mouseEvent.latLng.Ma);
+            $('#longitude').val(mouseEvent.latLng.La);
+            
+            
+            // 마커를 클릭한 위치에 표시합니다 
+            marker.setPosition(mouseEvent.latLng);
+            marker.setMap(map);
+
+            // 인포윈도우에 클릭한 위치에 대한 법정동 상세 주소정보를 표시합니다
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+        }   
+    });
+});
+
+// 중심 좌표나 확대 수준이 변경됐을 때 지도 중심 좌표에 대한 주소 정보를 표시하도록 이벤트를 등록합니다
+kakao.maps.event.addListener(map, 'idle', function() {
+    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+});
+
+function searchAddrFromCoords(coords, callback) {
+    // 좌표로 행정동 주소 정보를 요청합니다
+    geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);         
+}
+
+function searchDetailAddrFromCoords(coords, callback) {
+    // 좌표로 법정동 상세 주소 정보를 요청합니다
+    geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
+}
+
+// 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
+function displayCenterInfo(result, status) {
+    if (status === kakao.maps.services.Status.OK) {
+        var infoDiv = document.getElementById('centerAddr');
+
+        for(var i = 0; i < result.length; i++) {
+            // 행정동의 region_type 값은 'H' 이므로
+            if (result[i].region_type === 'H') {
+                infoDiv.innerHTML = result[i].address_name;
+                break;
+            }
+        }
+    }    
+}
+
+function sample5_execDaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            var addr = data.address; // 최종 주소 변수
+            // 주소 정보를 해당 필드에 넣는다.
+            document.getElementById("checkpointAddress").value = addr;
+            // 주소로 상세 정보를 검색
+            geocoder.addressSearch(data.address, function(results, status) {
+                // 정상적으로 검색이 완료됐으면
+                if (status === daum.maps.services.Status.OK) {
+					
+                	//infowindow 삭제
+                    infowindow.open(map, null);
+
+                    var result = results[0]; //첫번째 결과의 값을 활용
+
+                    // 해당 주소에 대한 좌표를 받아서
+                    var coords = new daum.maps.LatLng(result.y, result.x);
+                    
+                    //위도 경도 입력
+                    $('#latitude').val(result.y);
+                    $('#longitude').val(result.x);
+                    
+                    // 지도를 보여준다.
+                    mapContainer.style.display = "block";
+                    map.relayout();
+                    // 지도 중심을 변경한다.
+                    map.setCenter(coords);
+                    // 마커를 결과값으로 받은 위치로 옮긴다.
+                    marker.setPosition(coords)
+                }
+            });
+        }
+    }).open();
+}
+</script>
+</div>
 </body>	
 </html>

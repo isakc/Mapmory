@@ -1,37 +1,55 @@
 @charset "UTF-8";
-
-html, body {
-	margin: 0;
-	padding: 0;
-	height: 100%;
-	width: 100%;
-}
-
 #map {
 	width: 100%;
-	height: 90%;
+	height: 800px;
 	position: relative;
 }
 
-.overlay {
+.rounded-image {
+    	width: 30px; /* 원하는 너비 */
+    	height: 30px; /* 원하는 높이 */
+    	border-radius: 50%; /* 원형으로 만들기 */
+    	object-fit: cover; /* 이미지의 비율을 유지하면서 잘라내기 */
+	}
+
+#searchFormDiv{
+	width: 100%;
 	position: absolute;
-	top: 10px; /* 맵 상단으로부터의 거리 */
-	background-color: rgba(255, 255, 255, 0.8);
-	padding: 10px;
-	border-radius: 5px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	top: 0px; /* 맵 상단으로부터의 거리 */
 	z-index: 1;
 }
 
-.overlayRight {
-	top: 10%; /* 맵 상단으로부터의 거리 */
-	right: 5%; /* 맵 좌측으로부터의 거리 */
+/* 반경 부분 start*/
+.radius-links{
+	width: 100%;
+	height: 35px;
+	background-color: #00A7F5;
 }
 
-.overlayCenter {
-	left: 35%;
+.radius-links input[type="radio"] {
+   display: none;
 }
 
+.radius-links label {
+   cursor: pointer;
+   color: white;
+   text-decoration: none;
+   font-size: 18px; /* 글자 크기 조절 */
+   width: 32%;
+   text-align: center;
+}  
+
+.radius-links input[type="radio"]:checked + label {
+	color: blue;
+} /* 선택한 글자 파란색으로 변경 */
+
+/*반경 부분 end */
+
+/* 검색어 부분 start */
+#searchKeywordBox, input[name="searchKeyword"]{
+	width: 100%;
+}
+        
 #suggestions {
 	border: 1px solid #ccc;
 	display: none;
@@ -58,64 +76,151 @@ html, body {
 	border-right: none; /* 마지막 항목은 구분선 제거 */
 }
 
-.toggle-button {
-	display: inline-block;
-	width: 100px;
-	height: 50px;
-	background-color: #f1c40f; /* 기본 색상 */
-	border-radius: 25px;
-	position: relative;
-	cursor: pointer;
-	text-align: center;
-	line-height: 50px;
-	font-size: 18px;
-	color: #fff;
-}
-
-.toggle-button .toggle-circle {
-	width: 50px;
-	height: 50px;
+/*검색어 부분 end*/
+.checkbox-container {
 	background-color: white;
-	border-radius: 50%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	transition: left 0.3s, background-color 0.3s;
+	border-radius: 8px;
+	padding: 10px;
+	display: inline-block;
+}
+
+
+.form-check {
 	display: flex;
+	justify-content: space-between;
 	align-items: center;
-	justify-content: center;
-	color: #333;
 }
 
-.toggle-button.active {
-	background-color: #2980b9; /* 활성화 색상 */
+.form-check-input#private:checked {
+	background-color: #28A745;
+	border-color: #28A745;
 }
 
-.toggle-button.active .toggle-circle {
-	left: 50px;
-	background-color: #ecf0f1; /* 활성화된 상태의 원 색상 */
+.form-check-input#public:checked {
+	background-color: #007BFF;
+	border-color: #007BFF;
 }
 
-.checkbox-group {
-	margin-top: 10px;
-	display: none; /* 기본적으로 숨김 */
+.form-check-input#follow:checked {
+	background-color: #6F42C1;
+	border-color: #6F42C1;
 }
 
-.checkbox-group label {
-	display: block;
-	margin-bottom: 5px;
+.form-check-input:checked {
+	background-color: initial;
+	border-color: initial;
+	background-image: none;
+	display: inline-block;
+	position: relative;
+}
+
+/*토글 버튼 start*/
+.toggle-switch {
+    width: 60px;
+    height: 30px;
+    background-color: #ff6347; /* Default color for "기록" */
+    border-radius: 25px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-switch:before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.toggle-switch.active {
+    background-color: #007bff; /* Color for "추천" */
+}
+
+.toggle-switch.active:before {
+    transform: translateX(30px);
+}
+/*토글 버튼 end*/
+
+#bottomBox {
+    position: absolute;
+    bottom: 0; /* 컨테이너를 화면 하단에 고정 */
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 중앙 정렬  */
+    z-index: 2;
 }
 
 #result {
-      position: absolute;
-      bottom: 0px; /* 원하는 위치로 조정 */
-      left: 0px; /* 원하는 위치로 조정 */
-      background-color: rgba(255, 255, 255, 0.8); /* 흰색 바탕화면 */
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      width: 100%;
-      max-height: 200px; /* 최대 높이 설정 */
-      overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
-      scrollbar-width: none;
-      z-index: 2;
-    }
+    background-color: rgba(255, 255, 255); /* 흰색 배경, 약간 투명하게 조정 가능 */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    max-height: 300px; /* 최대 높이 설정 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+    scrollbar-width: none; /* 스크롤바 숨기기 */
+}
+
+#description {
+	background-color: rgba(255, 255, 255); /* 흰색 바탕화면 */
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	width: 100%;
+	overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+	scrollbar-width: none;
+}
+
+.detailRecord{
+	height: 500px;
+}
+
+.recordEmoji{
+	width: 20px;
+	height: 20px;
+} 
+
+.ellipsis {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;         /* 표시할 줄 수 */
+	overflow: hidden;
+}
+
+.recordImageContainer{
+	display: flex; /* Flexbox 레이아웃 사용 */
+	justify-content: center; /* 가로 중앙 정렬 */
+	align-items: center; /* 세로 중앙 정렬 */
+	overflow: hidden; /* 넘치는 부분 숨김 */
+	max-height: 200px;
+}
+
+.recordImageContainer > img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /* 이미지가 div에 맞게 조절됨 */
+}
+
+.profileImageContainer {
+	display: flex; /* Flexbox 레이아웃 사용 */
+	align-items: center; /* 세로 중앙 정렬 */
+	height: 50px;
+}
+
+.routeButtonGroup {
+     display: flex;
+     align-items: center;
+}
+
+.routeAdditionalButtons {
+     display: none;
+}
+
+.routeAdditionalButtons button {
+     margin-left: 10px;
+}

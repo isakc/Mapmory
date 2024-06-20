@@ -40,7 +40,7 @@
 				<!-- <span th:text="${record.mediaName}"></span><br/> -->
 				</div>
 				<div th:each="image : ${record.imageName}">
-					<img th:src="${image.imageTagText}" /><br/>
+					<img th:src="${image.imageTagText}" style="height:100px;"/><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->
  				</div>
     			<span class="badge bg-primary" th:text="'해시태그'"></span>

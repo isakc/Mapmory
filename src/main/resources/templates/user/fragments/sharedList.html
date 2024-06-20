@@ -1,5 +1,6 @@
 <script>
 
+	let sharedListSetup = true;
 	let sharedListCurrentPage = 1;
 	let sharedListEndOfData = false;// 데이터를 모두 로드했는지 확인하는 변수
 
@@ -12,32 +13,20 @@
 			let scrollTop = $(window).scrollTop();
 			let windowHeight =  $(window).height();
 			let documentHeight = $(document).height();
-			
-			// console.log("I'm in shared list", pageType.text());
-			
-			/*
-			console.log("scrollTop = "+ scrollTop);
-			console.log("windowHeight = "+ windowHeight);
-			console.log("documentHeight = "+documentHeight);
-			*/
-			
-			// console.log("is end? : "+  (scrollTop + windowHeight >= documentHeight - 100) );
-			
-			// console.log( "isValid? " + (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
-			
-			
+
 			// 끝이 나지 않았을 경우에만 다음 page 호출
             if (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")) {
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
-                	isLoading = true; // 로딩 시작
-                	sharedListCurrentPage++;
-                	loadMoreSharedList().then(() => {
+                	loadMoreSharedList().then((value) => {
                 		
-                		// console.log("shared list completely load");
-                		isLoading = false; // 로딩 완료 후 플래그 재설정
+                		console.log(value);
+                		// console.log("load finish");
+                		isLoading = false; // 로딩 완료 후 플래그 재설정    		    			
                 		
                 	}).catch(() => {
+                		
+                		console.log("load error");
                         isLoading = false; // 에러 발생 시 플래그 재설정
                     });
                 }
@@ -46,8 +35,13 @@
 
 	});
 	
+	
+	
 	function loadMoreSharedList() {
 		
+   	  
+        isLoading = true; // 로딩 시작
+  	  
     	console.log("currentPage = " +sharedListCurrentPage);
     	
     	return new Promise((resolve, reject) => {
@@ -59,9 +53,15 @@
     		      // contentType:"application/json",
     		      // dataType: "application/json",
     		      success: function(response) {
+   
+    		    	  console.log("contents get : " + JSON.stringify(response));
+                  	  sharedListCurrentPage++;
     		    	  
-    		    	  if(response == true)
+    		    	  if(response == true) {
+    		    		  console.log("I think it's end");
     		    		  sharedListEndOfData = true;
+    		    	  }
+    		    		  
     			    	  
     		    	  response.timelineList.forEach((timeline) => {
     		    		  
@@ -80,7 +80,7 @@
     			    		  if(thumbnailName != null)
     			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
     			    		  temp += '<p class="fw-bold">'+title+'</p>';
-    			    		  temp += '<div class="category">'
+    			    		  temp += '<div class="category d-flex">'
     				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
     				    		  temp += '<p>'+categoryName+'</p>';
     			    		  temp += '</div>'
@@ -88,9 +88,13 @@
     			    		  temp += '</div>';
     		    		  temp += '<hr/>';
     		    		  $('#sharedRecordList').append(temp);
-    		    		  
-    		              resolve(); // 성공적으로 처리되었음을 알림
-    		    	  })		    	  
+
+    		    	  });		
+    		    	      		    	
+    		    	  if(sharedListSetup)
+   		    		  	checkIfNeedToLoadMore(sharedListSetup, loadMoreSharedList);
+
+   		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
     		      error: function(xhr, status, error) {
     		        console.error("네트워크 오류:", error);
@@ -102,38 +106,6 @@
     		
     	});
     	
-		
-		
-		/*
-        $.ajax({
-            url: '/rest/notice/getNoticeList',
-            method: 'GET',
-            data: {
-                currentPage: currentPage
-            },
-            success: function(response) {
-                let html = '';
-                response.noticeList.forEach(function(notice) {
-                    html += '<tr>';
-                    html += '<td><a href="/notice/getDetailNotice/' + notice.noticeNo + '">' + notice.noticeTitle + '</a>';
-                    html += '<div class="notice-reg-date">' + formatDate(notice.noticeRegDate) + '</div></td>';
-                    html += '<td class="text-center">';
-                    html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>'; // id를 고유하게 변경
-                    html += '<input type="hidden" value="' + notice.noticeNo + '">';
-                    html += '</td>';
-                    html += '</tr>';
-                });
-                $('.notice-list').append(html);
-                loading = false;
-                checkIfMoreContentNeeded(response.noticeList.length);
-                bindToggleEvent(); // 추가된 목록에 이벤트 바인딩
-            },
-            error: function() {
-                console.log('Error occurred while loading more notices.');
-                loading = false;
-            }
-        });
-		*/
     }
 	
 </script>
