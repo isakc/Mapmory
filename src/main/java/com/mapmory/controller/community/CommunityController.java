@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ObjectStorageUtil;
@@ -244,19 +245,25 @@ public class CommunityController {
 			return "index";
 		}
 		
-    	if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-		
-		search.setPageSize(adminPageSize);
-		
-		Map<String, Object> allReportList = communityService.getAdminReportList(search);
+        if (search.getCurrentPage() == 0) {
+            search.setCurrentPage(1);
+        }
+        search.setPageSize(adminPageSize);
+       		
 
+		Map<String, Object> allReportList = communityService.getAdminReportList(search);
+		
+        Page resultPage = new Page(search.getCurrentPage(), ((Integer)allReportList.get("totalCount")).intValue(), adminPageUnit, adminPageSize);
+
+        System.out.println("123" +resultPage);
+        
+        model.addAttribute("search", search);
+        model.addAttribute("resultPage", resultPage);
 		model.addAttribute("allReportList", allReportList.get("list"));
 		model.addAttribute("totalCount", allReportList.get("totalCount"));
 		model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
-			
-			return "community/admin/getAdminReportList";
+
+		return "community/admin/getAdminReportList";
 	}
 	
 	//관리자 신고 처리
