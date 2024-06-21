@@ -252,7 +252,13 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo() { 
+	public void getUserInfo(HttpServletRequest request) { 
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		User user = userService.getDetailUser(userId);
+		
+		
 		
 	}
 	
