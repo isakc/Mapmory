@@ -14,6 +14,75 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
 
+	<!-- 무한스크롤 -->
+	<script th:inline="javascript">
+		var currentPage = 2;
+		var loading = false;
+		var endOfData = false;
+		var userId = /*[[${userId}]]*/
+		console.log("12 :"+userId);
+		$(document).ready(function () {
+			loadBlockList();
+		});
+		
+		$(window).scroll(function() {
+			console.log("스크롤 시작");
+	    	if (!loading && !endOfData) {
+	    		if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+	                loading = true;
+	                currentPage++;
+	                loadBlockList();
+	    		}
+	    	}
+	    });
+		
+		function loadBlockList() {
+			console.log("호출 시작, 현재 페이지 :"+currentPage);			
+				
+			$.ajax({
+				url : '/community/rest/getBlockList/'+userId,
+				type : 'GET',
+				data : {
+					currentPage : currentPage
+				},
+				success : function(response) {
+					console.log("ajax 요청 완료");
+					
+					var blockList = response.blockList.list
+					
+					console.log("요청한 데이터 :"+blockList);
+					
+					if (blockList.length === 0) {
+						endOfData = true;
+						console.log("데이터 끝에 도달");
+						loading = false;
+						return;
+					} else {
+						console.log(blockList);
+						blockList.forEach(function(block) {						
+	                   		var blockRow ='<tr class="table-info" data-target-id="' + block.targetId + '">' +
+	                        '<td>' +
+	                      	'<img alt="" class="profileImage" src="/user/rest/profile/' + block.profileImageName + '">' +
+	                        '<span>' + block.nickname + '</span>' +
+		                    '</td>' +
+		                    '<td><span class="targetId" style="display:none;" data-targetId="' + block.targetId + '">' + block.targetId + '</span></td>' +
+		                    '<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>' +
+		                    '</tr>';
+	                    	
+	              	      $('#blockList').append(blockRow);
+						});
+					}
+					loading = false;
+				},
+				error : function() {
+					console.log("데이터 로드 실패");
+					loading : false;
+				}
+			});
+		}	
+	</script>
+
+	<!--  차단해제 -->
 	<script th:inline="javascript">
 	$(function() {
 		$('.bi-three-dots').on("click", function() {
@@ -62,37 +131,6 @@
 	function closeModal() {
 		document.getElementById("moreModal").style.display = "none";
 	}	
-	
-// 	function updateBlockList() {
-// 		var userId = /*[[${userId}]]*/ '';
-// 			$.ajax({
-// 				type: 'GET',
-// 				url: '/community/rest/getBlockList/' + userId,
-// 				success: function(data) {
-// 					console.log('7새로운 차단 목록: ', data);
-// 					var $blockList = $('#blockList');
-// 					$blockList.empty(); // 기존 목록 비우기
-
-// 					data.blockList.forEach(function(block) {
-// 						var row = '<tr class="table-info" data-target-id="' + block.targetId + '">' +
-// 							'<td>' + block.nickname + '</td>' +
-// 							'<td><span class="targetId" style="display:none;" data-targetId="' + block.targetId + '">' + block.targetId + '</span></td>' +
-// 							'<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>' +
-// 							'</tr>';
-// 						$blockList.append(row);
-// 					});
-// 					// 새로 추가된 아이콘에 이벤트 다시 바인딩
-// 					$('.bi-three-dots').on("click", function() {
-// 						var $row = $(this).closest('tr');
-// 						var targetId = $row.data('target-id');
-// 						openModal($row);	
-// 					});
-// 				},
-// 				error: function(xhr, status, error) {
-// 					console.error('차단 목록 갱신 실패: ', error);
-// 				}
-// 			});
-// 		}
 	</script>
 
 	<style>
@@ -133,7 +171,15 @@
 		  color: black;
 		  text-decoration: none;
 		  cursor: pointer;
+		}
+		
+		.profileImage {
+			width : 30%;
+			height : 30%;
+            margin-right: 10px; 
+            vertical-align: middle; 			
 		}		
+				
 	</style>
 
 </head>
@@ -162,7 +208,10 @@
 				  </thead>
 				  <tbody id="blockList">
 				  	<tr class="table-info" th:each="block, rowStat : ${blockList}" th:data-target-id="${block.targetId}">
-						<td th:text="${block.nickname}"></td>
+						<td> 
+							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${block.profileImageName})}">
+							<span th:text="${block.nickname}"></span>
+						</td>
 						<td><span class="targetId" style="display:none;" th:text="${block.targetId}" data-targetId = "${block.targetId}"></span></td>
 						<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>
 					</tr>	

@@ -281,7 +281,8 @@
 		(SELECT nickname FROM users u WHERE u.USER_ID = r.target_user_ID) AS nickname
 		FROM report r
 		WHERE user_id = #{userId}
-		LIMIT #{search.pageSize} OFFSET #{search.offset}
+		ORDER BY report_date DESC
+		LIMIT #{search.limit} OFFSET #{search.offset}
 	</select>
 
 	<!--  전체 신고 리스트 조회 -->
@@ -289,7 +290,7 @@
 		SELECT *
 		FROM report
 		ORDER BY report_date DESC
-		LIMIT #{pageSize} OFFSET #{offset}
+ 		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
 	<!-- 사용자의 신고 Count -->
@@ -348,6 +349,7 @@
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = f.TARGET_ID) AS profileImageName
 		FROM follow_block f
 		WHERE user_id = #{userId} AND fb_type = 1
+		LIMIT #{search.limit} OFFSET #{search.offset}		
 	</select>
 
 	<!-- 사용자의 차단 Count -->
