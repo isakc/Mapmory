@@ -192,8 +192,8 @@ public class CommunityRestController {
 			search = Search.builder()
 					.userId(userId)
 					.currentPage(currentPage)
-					// .limit(pageUnit)
-					.pageSize(pageSize)
+					.limit(pageSize)
+					// .pageSize(pageSize)
 					.build();
 
 		
@@ -217,8 +217,8 @@ public class CommunityRestController {
 			search = Search.builder()
 					.userId(userId)
 					.currentPage(currentPage)
-					// .limit(pageUnit)
-					.pageSize(pageSize)
+					.limit(pageSize)
+					// .pageSize(pageSize)
 					.build();
 	
 		Map<String,Object> replyLikeList = communityService.getReplyLikeList(search, userId);

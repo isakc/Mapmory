@@ -31,30 +31,30 @@
 
 <body>
     <nav th:fragment="pageNavigator(resultPage, baseUrl)">
-        <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center">
+        <!-- 좌측 네비게이션 -->
+        <li th:class="${resultPage.currentPage <= 1} ? 'page-item disabled' : 'page-item'">
+            <a th:href="${resultPage.currentPage <= 1} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage - 1})}" aria-label="Previous" class="page-link">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
 
-            <!-- 좌측 네비게이션 -->
-            <li th:classappend="${resultPage.currentPage <= 1} ? 'page-item disabled' : 'page-item'">
-                <a th:href="${resultPage.currentPage <= 1} ? '#' : @{/notice/getAdminFaqList(currentPage=${resultPage.currentPage - 1})}" aria-label="Previous" class="page-link">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
+        <!-- 중앙 페이지 -->
+        <th:block th:each="i : ${#numbers.sequence(1, resultPage.maxPage)}">
+            <li th:class="${resultPage.currentPage == i} ? 'page-item active' : 'page-item'">
+                <a th:href="@{${baseUrl}(currentPage=${i})}" class="page-link" th:text="${i}"></a>
             </li>
+        </th:block>
 
-            <!-- 중앙 페이지 -->
-            <th:block th:each="i : ${#numbers.sequence(1, resultPage.maxPage)}">
-                <li th:classappend="${resultPage.currentPage == i} ? 'page-item active' : 'page-item'">
-                    <a th:href="@{${baseUrl}(currentPage=${i})}" class="page-link" th:text="${i}"></a>
-                </li>
-            </th:block>
+        <!-- 우측 네비게이션 -->
+        <li th:class="${resultPage.currentPage >= resultPage.maxPage} ? 'page-item disabled' : 'page-item'">
+            <a th:href="${resultPage.currentPage >= resultPage.maxPage} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage + 1})}" aria-label="Next" class="page-link">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
 
-            <!-- 우측 네비게이션 -->
-            <li th:classappend="${resultPage.currentPage >= resultPage.maxPage} ? 'page-item disabled' : 'page-item'">
-                <a th:href="${resultPage.currentPage >= resultPage.maxPage} ? '#' : @{/notice/getAdminFaqList(currentPage=${resultPage.currentPage + 1})}" aria-label="Next" class="page-link">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
 </body>
 
 </html>

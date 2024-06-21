@@ -78,7 +78,7 @@ public class NoticeRestController {
             search.setCurrentPage(1);
         }
 
-        search.setPageSize(pageSize);
+        search.setLimit(pageSize);
 
         Map<String, Object> map = noticeService.getFaqList(search);
         List<Notice> noticeList = (List<Notice>) map.get("noticeList");
