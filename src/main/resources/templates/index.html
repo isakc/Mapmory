@@ -154,18 +154,23 @@
 				window.location.href="/user/getPasswordView";
 			});
 			
+			/*
 			$('#keepLoginDiv').on('click', function() {
 				
-				
+				console.log("flag");
 				var checkBox = $(this).find('input[name="keepLogin"]');
-				/*
-			    if (checkBox.prop('checked')) {
-			      checkBox.prop('checked', false);
-			    } else {
-			      checkBox.prop('checked', true);
-			    }
-				*/
+
 				checkBox.prop('checked', !checkBox.prop('checked'));
+			});
+			*/
+			
+			$('label[for="keepLogin"]').on('click', function() {
+
+				var checkBox = $(this).parent().find('input[name="keepLogin"]');
+				
+				// console.log("before statement : " + checkBox.prop('checked'));
+				checkBox.prop('checked', !checkBox.prop('checked'));
+				// console.log("I changed : " + checkBox.prop('checked'));
 			});
  		});
  		
