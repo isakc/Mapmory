@@ -69,6 +69,7 @@
 					updateReplyList(data);
 				},
 				error : function(xhr, status, error) {
+					alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.')
 					console.error('4.댓글 작성 실패 : ', error);
 				}
 			});
@@ -253,7 +254,7 @@
 						},
 						error : function(xhr, status, error) {
 							console.error('16.댓글 수정 오류', error);
-							console.error(xhr.responseText);
+							alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.');
 						}
 					});
 				}
@@ -301,7 +302,7 @@
 				var targetUserId = currentRow.find('.userId').text();
 				var replyNo = currentRow.find('.replyNo').text();
 				var replyText = currentRow.find('.replyText').text();
-				var nickname = currentRow.find('.nickname').text();
+				var nickname = currentRow.find('.replyNickname').text();
 				console.log("11:"+nickname);
 				var reportData = {
 					userId : reporterUserId,	

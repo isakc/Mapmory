@@ -357,23 +357,11 @@
 			      contentType:"application/json",
 			      data: JSON.stringify({
 			    	  userId : sessionId,
-			          targetId: userId
+			          targetId: profileUserId
 			      }),
 			      success: function(response) {
-			        
-					if(response == true || response == "true") {
-						
-						$('#deleteFollow').css('display', 'block');
-						$('#addFollow').css('display', 'none');
-						
-						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
-						
-					} else {
-						
-						console.log('false');
-						alert('변경 실패...');
-						
-					}
+						alert("차단 완료");						
+				
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);
