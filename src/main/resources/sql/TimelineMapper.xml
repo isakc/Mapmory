@@ -93,8 +93,8 @@
     <collection property="hashtag" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectHashtag"/>
 </resultMap>
 
-<resultMap id="recordResultMap2" type="com.mapmory.services.timeline.domain.Record2">
-    <id property="recordNo" column="record_no" jdbcType="NUMERIC"/>
+<resultMap id="recordResultMap2" type="java.util.HashMap">
+    <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
     <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
@@ -103,6 +103,8 @@
     <result property="checkpointDate" column="checkpoint_date" jdbcType="TIMESTAMP"/>
     <result property="mediaName" column="media_name" jdbcType="VARCHAR"/>
     <result property="categoryNo" column="category_no" jdbcType="NUMERIC"/>
+    <result property="categoryName" column="category_name" jdbcType="VARCHAR"/>
+    <result property="categoryImoji" column="category_imoji" jdbcType="VARCHAR"/>
     <result property="recordText" column="record_text" jdbcType="VARCHAR"/>
     <result property="tempType" column="temp_type" jdbcType="TINYINT"/>
     <result property="recordAddDate" column="record_add_date" jdbcType="TIMESTAMP"/>
@@ -110,11 +112,7 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-    <collection property="imageTagList" ofType="HashMap" javaType="java.util.ArrayList">
-    	<result property="imageTagOrder" column="image_tag_order" />
-    	<result property="imageTagType" column="image_tag_type" />
-    	<result property="imageTagText" column="image_tag_text" />
-    </collection>
+    <collection property="imageName" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectImage2"/>
 </resultMap>
 
 <select id='selectDetailTimeline2' resultMap='recordResultMap2' parameterType='Integer'>
@@ -631,21 +629,15 @@ ORDER BY
     image_tag_order ASC;
 </select>
 
-<select id='selectProfileTimelineList' resultMap='recordResultMap' parameterType='search'>
+<select id='selectProfileTimelineList' resultMap='recordResultMap2' parameterType='search'>
      SELECT
        a1.record_no AS record_no, 
        a1.record_title AS record_title,
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
        <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date,
-       <!-- imageTagList -->
-       a2.image_tag_order AS image_tag_order,
-       a2.image_tag_type AS image_tag_type,
-       a2.image_tag_text AS image_tag_text
-   	FROM
-   		record a1
-   	LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no AND a2.image_tag_type=1
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date
+   	FROM record a1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
    	<!-- LEFT JOIN community_logs a4 ON a1.record_no = a4.record_no -->
 	<trim prefix="where" prefixOverrides="AND||OR">
@@ -688,6 +680,24 @@ ORDER BY
     a1.record_add_date IS NULL DESC, 
     a1.record_add_date DESC
 	LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<select id="selectImage2" resultType="imageTag" parameterType="integer">
+SELECT
+  	image_tag_order,
+  	record_no,
+  	image_tag_type,
+	image_tag_text
+FROM
+	image_tag
+WHERE
+	record_no=#{value} 
+AND
+	image_tag_type=1
+ORDER BY 
+    image_tag_order IS NULL ASC, 
+    image_tag_order ASC
+LIMIT 1;
 </select>
 
 <!-- 미사용 -->
