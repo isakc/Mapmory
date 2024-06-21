@@ -81,6 +81,9 @@ public class CommunityRestController {
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
+	@Value("${object.timeline.image}")
+	private String recordImage;
+	
 	//공유 기록 목록 무한스크롤 리스트 호출
     @GetMapping("/rest/getSharedRecordList")
     public ResponseEntity<?> getSharedRecordList(Search search, @RequestParam(required = true) int currentPage,  
