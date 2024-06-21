@@ -65,6 +65,21 @@
 		});
 	});
 	</script>
+
+	<!-- 프로필 클릭 프로필 이동 -->
+	<script th:inline="javascript">
+	$(function () {
+		$('#shared-record-list').on("click", ".profileImage", function() {
+			var $row = $(this).closest('img.profileImage');
+			console.log($row);
+			var userId = $row.data('record-userid');
+			console.log("유저 ID : "+userId);
+			window.location.href = '/user/getProfile?userId='+userId;
+		});
+	});
+	</script>	
+	
+	
 	
 	<!-- 기록 제목 클릭 기록 상세보기 이동 -->
 	<script th:inline="javascript">
@@ -283,7 +298,7 @@
 				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="col-sm-4" id="list" th:data-record-no="${sharedRecord.recordNo}">
 					<div class="card-body">
 						<h4>
-							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${sharedRecord.profileImageName})}">
+							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${sharedRecord.profileImageName})}" th:data-record-userid="${sharedRecord.recordUserId}">
 							<span class="profile" th:text="${sharedRecord.nickname}" th:data-record-userid="${sharedRecord.recordUserId}"></span>
 							<span th:if="${sharedRecord.subscriptionEndDate == 1}">
 								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
