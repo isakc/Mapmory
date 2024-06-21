@@ -138,6 +138,7 @@
 </head>
 
 <body>
+<div id=content-for-footer>
     <div id=content-for-left>
         <div class="container">
             <div class="notice-header-left">
@@ -200,7 +201,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
     <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     <script th:inline="javascript">
