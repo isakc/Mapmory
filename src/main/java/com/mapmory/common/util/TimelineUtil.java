@@ -1,5 +1,6 @@
 package com.mapmory.common.util;
 
+import java.io.FileNotFoundException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,6 +292,27 @@ public class TimelineUtil {
 			if(updateCount>0) text+=updateCount+"번째 수정됨";
 	    	return text;
 	    }
+	    
+	    //rest로 파일을 부르면 오류남
+	    public byte[] getFile(String type,String name) throws Exception {
+	    	byte[] bytes;
+			switch (type) {
+
+			case "imoji":
+				bytes = objectStorageUtil.getImageBytes(name, imojiFileFolder);
+				break;
+			case "image":
+				bytes = objectStorageUtil.getImageBytes(name, imageFileFolder);
+				break;
+			case "media":
+				bytes = objectStorageUtil.getImageBytes(name, mediaFileFolder);
+				break;
+			default:
+				bytes = null;
+			}
+
+			return bytes;
+	    }
 		
 		public Record imageNameToUrl(Record record) {
 			if (!(record.getImageName() == null)) {
@@ -313,6 +336,51 @@ public class TimelineUtil {
 		public Record mediaNameToUrl(Record record) {
 			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
 				record.setMediaName(objectStorageUtil.getImageUrl(record.getMediaName(), mediaFileFolder));
+			}
+			return record;
+		}
+		
+		public Record imageNameToByte(Record record) throws Exception {
+			if (!(record.getImageName() == null)) {
+				List<ImageTag> imageName = new ArrayList<ImageTag>();
+				for (ImageTag image : record.getImageName()) {
+					try {
+					image.setImageTagByte(Base64.getEncoder().encodeToString(
+									objectStorageUtil.getImageBytes(image.getImageTagText(), imageFileFolder)));
+					}catch(FileNotFoundException e){
+						image.setImageTagByte(null);
+						System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+					}
+					imageName.add(image);
+				}
+				record.setImageName(imageName);
+			}
+			return record;
+		}
+
+		public Record imojiNameToByte(Record record) throws Exception {
+			if (!(record.getCategoryImoji() == null || record.getCategoryImoji().equals(""))) {
+				try {
+				record.setCategoryImojiByte(Base64.getEncoder().encodeToString(
+								objectStorageUtil.getImageBytes(
+										record.getCategoryImoji(), imojiFileFolder)));
+				}catch(FileNotFoundException e){
+					record.setCategoryImojiByte(null);
+					System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+				}
+			}
+			return record;
+		}
+
+		public Record mediaNameToByte(Record record) throws Exception {
+			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
+				try {
+				record.setMediaByte(Base64.getEncoder().encodeToString(
+						objectStorageUtil.getImageBytes(record.getMediaName(), mediaFileFolder)));
+				}catch(FileNotFoundException e){
+					record.setMediaByte(null);
+					System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+				}
 			}
 			return record;
 		}
@@ -421,13 +489,13 @@ public class TimelineUtil {
 		}
 		
 		public void deleteImageFile(String imageName) throws Exception {
-			imageName = imageUrlToName(imageName);
+//			imageName = imageUrlToName(imageName);
 			objectStorageUtil.deleteFile(imageName, imageFileFolder);
 			System.out.println("deleteImageFile : "+ imageName);
 		}
 		
 		public void deleteMediaFile(String mediaName) throws Exception {
-			mediaName = mediaUrlToName(mediaName);
+//			mediaName = mediaUrlToName(mediaName);
 			objectStorageUtil.deleteFile(mediaName, mediaFileFolder);
 			System.out.println("deleteImageFile : "+ mediaName);
 		}
