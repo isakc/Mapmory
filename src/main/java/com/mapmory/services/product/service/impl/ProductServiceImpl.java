@@ -83,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
         
         int offset = (search.getCurrentPage() - 1) * search.getPageSize();
         search.setOffset(offset);
+        search.setLimit(search.getPageSize());
         
         List<Product> productList = productDao.getProductList(search);
         int totalCount = productDao.getProductTotalCount(search);

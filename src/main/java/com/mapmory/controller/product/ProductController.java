@@ -89,8 +89,9 @@ public class ProductController {
     	if(search.getCurrentPage() == 0) {
 			search.setCurrentPage(1);
 		}
-		
-		search.setPageSize(pageSize);
+    	int offset = (search.getCurrentPage() - 1) * pageSize;
+        search.setOffset(offset);
+		search.setLimit(pageSize);
 		
         Map<String, Object> map = productService.getProductList(search);
         List<Product> productList = (List<Product>) map.get("productList");
