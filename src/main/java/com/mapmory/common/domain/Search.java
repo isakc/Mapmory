@@ -43,6 +43,7 @@ public class Search {
 	//회원
 	private Integer logsType;
 
+	/*
 	public void setPageSize(int paseSize) {
 		this.pageSize = paseSize;
 	}
@@ -50,13 +51,20 @@ public class Search {
 	public void setCurrentPage(int currentPage) {
 		this.currentPage = currentPage;
 	}
+	*/
 	
 	public int getOffset() {
 		return (getCurrentPage() - 1) * getPageSize();
 	}
+	
+	public int getLimit() {
+		return getPageSize();
+	}
+	/*
 	public void setOffset(int offset) {
         this.offset = offset;
     }
+    */
 	public int getEndRowNum() {
 		return getCurrentPage() * getPageSize();
 	}

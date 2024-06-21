@@ -1,13 +1,18 @@
-<!-- 
+
 <script>
 
-	let reactBookMarkListCurrentPage = 1; 
-	let reactBookMarkListEndOfData = false;
+	let bookmarkListSetup = true;
+	let bookMarkListCurrentPage = 1; 
+	let bookMarkListEndOfData = false;
 
 	$(function() {
 		
-		loadMoreBookMarkList();
-
+		$('#bookMarkListBtn').on('click', function() {
+			
+			if(bookmarkListSetup)
+				loadMoreBookMarkList();
+		});
+		
 		$(window).scroll(function() {
 			
 			let scrollTop = $(window).scrollTop();
@@ -17,13 +22,15 @@
 			// console.log("I'm in reply list", pageType.text());
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
-            if (!replyListEndOfData && !isLoading && (pageType.text() == "bookMarkList")) {
+			// console.log('is bookmark list scroll ended? ' + !(!bookMarkListEndOfData && !isLoading && (pageType.text() == "bookMarkList")));
+            if (!bookMarkListEndOfData && !isLoading && (pageType.text() == "bookMarkList")) {
+            	console.log("is bookmark scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
-                	
+        
                 	isLoading = true; // 로딩 시작
-                	reactBookMarkListCurrentPage++;
-                	loadMoreBookMarkList().then(() => {
+                	loadMoreBookMarkList().then((value) => {
                 		
+                		console.log(value);
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
@@ -34,19 +41,65 @@
         });
 	});
 	
+
+	function checkIfNeedToLoadMoreBookmark() {
+		
+        let scrollTop = $(window).scrollTop();
+        let windowHeight = $(window).height();
+        let documentHeight = $(document).height();
+
+        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
+        console.log("documentHeight : "+documentHeight);
+        console.log("windowHeight : "+windowHeight);
+        console.log("is setup? " + !(documentHeight <= windowHeight));
+        if (documentHeight <= windowHeight) {
+        	
+        	// console.log('setup start');
+        	loadMoreBookMarkList().then((value)=> {
+        		
+        		console.log(value);
+        		isLoading = false; // 로딩 완료 후 플래그 재설정    	
+        	});
+        } else {
+
+        	console.log("setup finished.");
+        	// setupType = false;
+        	// loadType = false; // 로딩 완료 후 플래그 재설정
+        	bookmarkListSetup = false;
+        	isLoading = false;
+        }
+    }
 	
 	function loadMoreBookMarkList() {
 		
+		console.log("currentPage = " + bookMarkListCurrentPage);
+    	
+    	isLoading = true; // 로딩 시작
+		
+    	if(bookMarkListEndOfData == true) {
+
+  		  console.log('no more');
+  		  return;
+  		  
+  	  	} 
+    	
 		return new Promise((resolve, reject) => {
 			
 			$.ajax({
 
-				url: `/timeline/rest/getProfileTimelineList?userId=${profileUserId}&currentPage=${reactBookMarkListCurrentPage}&logsType=1`,
+				url: `/timeline/rest/getProfileTimelineList?userId=${profileUserId}&currentPage=${bookMarkListCurrentPage}&logsType=1`,
 			      method: "GET",
 			      success: function(response) {
 				    	  
-			    	  if(response == true)
-			    		  reactBookMarkListEndOfData = true;
+			    	  if(response.timelineList.length == 0) {
+			    		  
+			    		  bookMarkListEndOfData = true;
+			    		  resolve("I think it's end");
+			    		  // return;
+			    		  // resolve("contents ended");
+			    	  }
+			    		
+			      	  bookMarkListCurrentPage++;
 			    	  
 			    	  response.timelineList.forEach((timeline) => {
 
@@ -74,6 +127,9 @@
 			    		  temp += '<hr/>';
 			    		  $('#bookMarkList').append(temp);
 			    		  
+			    		  if(bookmarkListSetup)
+		   		    		  	checkIfNeedToLoadMoreBookmark();
+			    		  
 			    		  resolve();
 			    	  });
 			    	  
@@ -89,8 +145,5 @@
 			
 			})
 		};
-		
-		
 
 </script>
- -->

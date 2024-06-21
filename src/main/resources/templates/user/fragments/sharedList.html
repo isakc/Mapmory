@@ -1,8 +1,8 @@
 <script>
-
 	let sharedListSetup = true;
 	let sharedListCurrentPage = 1;
 	let sharedListEndOfData = false;// 데이터를 모두 로드했는지 확인하는 변수
+	// let isLoading = false;
 
 	$(function() {
 		
@@ -15,9 +15,12 @@
 			let documentHeight = $(document).height();
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
+			// console.log("is sharedlist scroll ended? " + !(!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
             if (!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")) {
+            	console.log("is sharedlist scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
                 	
+                	isLoading = true; // 로딩 시작
                 	loadMoreSharedList().then((value) => {
                 		
                 		console.log(value);
@@ -35,14 +38,46 @@
 
 	});
 	
-	
+	function checkIfNeedToLoadMoreShared(setupType, setupFunction, loadType) {
+		
+        let scrollTop = $(window).scrollTop();
+        let windowHeight = $(window).height();
+        let documentHeight = $(document).height();
+
+        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
+        if (documentHeight <= windowHeight) {
+        	
+        	// console.log('setup start');
+        	loadMoreSharedList().then((value)=> {
+        		
+        		console.log(value);
+        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
+        	});
+        } else {
+
+        	console.log("setup finished.");
+        	// setupType = false;
+        	// loadType = false; // 로딩 완료 후 플래그 재설정
+        	sharedListSetup = false;
+        	isLoading = false;
+        	
+        }
+    }
 	
 	function loadMoreSharedList() {
 		
    	  
         isLoading = true; // 로딩 시작
-  	  
+        console.log("shared loading end : "+ isLoading);
+        
     	console.log("currentPage = " +sharedListCurrentPage);
+        // console.log('is sharedList ended? ' +sharedListEndOfData);
+    	if(sharedListEndOfData == true) {
+
+  		  console.log('all finished');
+  		  return;
+  		  
+  	  	} 
     	
     	return new Promise((resolve, reject) => {
     		
@@ -53,19 +88,21 @@
     		      // contentType:"application/json",
     		      // dataType: "application/json",
     		      success: function(response) {
-   
-    		    	  console.log("contents get : " + JSON.stringify(response));
-                  	  sharedListCurrentPage++;
+
     		    	  
-    		    	  if(response == true) {
-    		    		  console.log("I think it's end");
-    		    		  sharedListEndOfData = true;
-    		    	  }
-    		    		  
-    			    	  
+    		    	  console.log(response.timelineList);
+    		    	  if(response.timelineList.length == 0) {
+    		      		  
+    		      		  sharedListEndOfData = true;
+    		      		  resolve("I think it's end");
+    		      		  // return;
+    		      		  
+    		      	  } 
+
+    		    	  sharedListCurrentPage++;
+    		    	  
     		    	  response.timelineList.forEach((timeline) => {
-    		    		  
-    		    		  // console.log(timeline);
+
     		    		  let thumbnailName = null;
     		    		  if(timeline.imageTagList.length > 0)
     		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
@@ -92,8 +129,11 @@
     		    	  });		
     		    	      		    	
     		    	  if(sharedListSetup)
-   		    		  	checkIfNeedToLoadMore(sharedListSetup, loadMoreSharedList);
+   		    		  	// checkIfNeedToLoadMoreShared(sharedListSetup, loadMoreSharedList, isLoading);
+    		    		  checkIfNeedToLoadMoreShared();
 
+    		    	  console.log("shared loading end : "+ isLoading);
+    		    	  
    		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
     		      error: function(xhr, status, error) {
@@ -107,5 +147,4 @@
     	});
     	
     }
-	
 </script>

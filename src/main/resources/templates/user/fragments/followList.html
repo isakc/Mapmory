@@ -14,16 +14,15 @@
 		$(document).on('click', '.follow', function() {
 			
 			const btn = $(this);
-			console.log(btn.html());
-			console.log(btn.parent().html());
-			console.log(btn.parent().find("button").html());
+			const targetId = btn.parent().parent().attr('id');
+
 			
 			$.ajax({
 		      url: "/user/rest/addFollow",
 		      method: "POST",
 		      contentType:"application/json",
 		      data: JSON.stringify({
-		        targetId: $(this).parent().find('div').attr('id')
+		        targetId: targetId
 		      }),
 		      success: function(response) {
 		        
@@ -32,8 +31,10 @@
 				if(response == true || response == "true") {
 					
 					
-					btn.parent().find("button").text("언팔로우");
-					btn.parent().find("button").attr('class', 'unfollow');
+					// btn.parent().find("button").text("언팔로우");
+					// btn.parent().find("button").attr('class', 'unfollow');
+					btn.text('언팔로우');
+					btn.removeClass('follow').addClass('unfollow');
 					
 				} else {
 					
@@ -51,17 +52,16 @@
 		
 		$(document).on('click', '.unfollow', function() {
 			
+
 			const btn = $(this);
-			console.log(btn.html());
-			console.log(btn.parent().html());
-			console.log(btn.parent().find("button").html());
+			const targetId = btn.parent().parent().attr('id');
 
 			$.ajax({
 		      url: "/user/rest/deleteFollow",
 		      method: "POST",
 		      contentType:"application/json",
 		      data: JSON.stringify({
-		        targetId: $(this).parent().find('div').attr('id')
+		        targetId: targetId
 		      }),
 		      success: function(response) {
 		        
@@ -69,8 +69,10 @@
 		    	  
 				if(response == true || response == "true") {
 
-					btn.parent().find("button").text("팔로우");
-					btn.parent().find("button").attr('class', 'follow');
+					//btn.parent().find("button").text("팔로우");
+					//btn.parent().find("button").attr('class', 'follow');
+					btn.text('팔로우');
+					btn.removeClass('unfollow').addClass('follow');
 					
 				} else {
 					
@@ -84,12 +86,15 @@
 		        alert("네트워크 오류");
 		      }
 		    });
-
+			
 		});
 		
 		$(document).on('click', '.userDiv', function() {
 			
-			window.location.href="/user/getProfile?userId="+$(this).attr('id');
+			// alert($(this).attr('id'));
+			// alert();
+			const userId = $(this).closest('.userBlock').attr('id')
+			window.location.href="/user/getProfile?userId="+userId;
 		});
 	});
 </script>
@@ -101,16 +106,16 @@
 </form>
  -->
 
+<!-- 무한 스크롤 구현 필요 -->
 <div th:each="user : ${list}">
-	<div th:id="${user.userId}" class="userDiv d-flex">
-			<div class="profile-box-custom mx-2">
+	<div th:id="${user.userId}" class="d-flex userBlock">
+			<div class="profile-box-custom mx-2 userDiv">
 				<img class="profile-custom" th:src="@{/user/rest/profile/{uuid}(uuid=${user.profileImageName})}">
 			</div>
-			<div>
-				<div class="d-flex mt-2">
+			<div >
+				<div class="d-flex mt-2 userDiv">
 					<p th:text="${user.nickname}" class="me-2"></p>
 					<p th:text="${user.isSubscribed == 1} ? '☑️'"></p> 
-					<!-- <img th:if="${user.isSubscribed == 1}" src="/user/rest/profile/sub.png">  -->
 				</div>
 				
 				<button th:if="${sessionId != user.userId}" type="button" th:text="${user.isFollow == 1} ? '언팔로우' : '팔로우'" th:classappend="${user.isFollow == 1} ? 'unfollow' : 'follow'" class="btn btn-primary"></button>
@@ -119,3 +124,4 @@
 	</div>
 	<hr/>
 </div>
+
