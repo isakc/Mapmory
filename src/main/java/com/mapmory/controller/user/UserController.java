@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -554,10 +555,17 @@ public class UserController {
 		
 		String isSuspended = suspendMap.get("isSuspended");
 		
-		if(isSuspended.equals("true"))
-			user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		if(isSuspended.equals("true")) {
+			
+			String endSuspensionDate = suspendMap.get("endSuspensionDate");
+			 user.setEndSuspensionDate(LocalDateTime.parse(endSuspensionDate).toLocalDate());
+			 System.out.println(user.getEndSuspensionDate());
+		}
+			
+			// user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
 		
-		System.out.println(suspendMap.get("endSuspensionDate"));
+		//  System.out.println("dddddddddddd ::::::: " + java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		// System.out.println(suspendMap.get("endSuspensionDate"));
 		
 		model.addAttribute("user", user);
 		model.addAttribute("suspendMap", suspendMap);
