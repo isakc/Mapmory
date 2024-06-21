@@ -50,6 +50,7 @@ public class MapServiceImpl implements MapService {
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 	    JsonNode rootNode = objectMapper.readTree(resultJson);
+	    System.out.println(resultJson);
 	    JsonNode resultData = rootNode.path("features");
 	    
 	    List<Double> latituedeList = new ArrayList<Double>();
