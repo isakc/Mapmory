@@ -68,7 +68,7 @@
 		
    	  
         isLoading = true; // 로딩 시작
-        console.log("shared loading end : "+ isLoading);
+        // console.log("shared loading end : "+ isLoading);
         
     	console.log("currentPage = " +sharedListCurrentPage);
         // console.log('is sharedList ended? ' +sharedListEndOfData);
@@ -90,7 +90,10 @@
     		      success: function(response) {
 
     		    	  
-    		    	  console.log(response);
+    		    	  // console.log(response);
+    		    	  console.log(response.timelineList);
+    		    	  // console.log("length ? "+ response.timelineList.length);
+    		    	  
     		    	  if(response.timelineList.length == 0) {
     		      		  
     		      		  sharedListEndOfData = true;
@@ -104,8 +107,30 @@
     		    	  response.timelineList.forEach((timeline) => {
 
     		    		  let thumbnailName = null;
+    		    		  /*
     		    		  if(timeline.imageTagList.length > 0)
     		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
+    		    		  */
+    		    		  
+    		    		 // console.log("timeline.imageName = " + timeline.imageName);
+    		    		  console.log("timeline.imageName.length = " + timeline.imageName.length);
+    		    		  // console.log("is image exist? " + (timeline.imageName == true));
+    		    		  /*
+    		    		  if(timeline.imageName == true) {
+    		    			  
+    		    			  thumbnailName = timeline.imageName.imageTagText;
+    		    			  // console.log("썸네일 이름 : " + JSON.stringify(thumbnailName) );
+    		    			  console.log("imageName = " + timeline.imageName.imageTagText)
+    		    		  }
+    		    		  */
+    		    		  
+						  if(timeline.imageName.length > 0) {
+    		    			  
+    		    			  thumbnailName = timeline.imageName[0].imageTagText;
+    		    			  // console.log("썸네일 이름 : " + JSON.stringify(thumbnailName) );
+    		    			  console.log("imageName = " + timeline.imageName[0].imageTagText)
+    		    		  }
+    		    		  
     		    		  const title = timeline.recordTitle;
     		    		  const categoryName = timeline.categoryName;
     		    		  const categoryEmoji = timeline.categoryImoji;
@@ -132,7 +157,7 @@
    		    		  	// checkIfNeedToLoadMoreShared(sharedListSetup, loadMoreSharedList, isLoading);
     		    		  checkIfNeedToLoadMoreShared();
 
-    		    	  console.log("shared loading end : "+ isLoading);
+    		    	  // console.log("shared loading end : "+ isLoading);
     		    	  
    		              resolve("content loaded"); // 성공적으로 처리되었음을 알림
     		      },
