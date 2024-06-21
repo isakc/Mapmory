@@ -181,6 +181,11 @@
 				window.location.href="/map";
 			});
 			
+			$('#adminMain').on('click', function() {
+				
+				window.location.href="/user/admin/getAdminMain";
+			});
+			
 			$('#footerView').on('click', function() {
 				
 				window.location.href="/timeline/getAdminCategoryList";
@@ -261,7 +266,7 @@
 	
 		        
 		        <div class="userDiv" style="display:none;">
-			        <button type="button" id="getProfile">내 프로필로 이동</button>
+			        <!-- <button type="button" id="getProfile">내 프로필로 이동</button>  -->
 			        <button type="button" id="logout">로그아웃</button>
 		        </div>
 	       	   
@@ -288,6 +293,7 @@
 	        <br/>
 	        <br/>
 	        <button type="button" id="mapView">map으로 바로 이동</button>
+	        <button type="button" id="adminMain" class="btn btn-primary">관리자 메인 화면으로 이동</button>
 	        <button type="button" id="footerView">getAdminCategoryList</button>
 	    
 	    <div class="userDiv" style="display:none;">

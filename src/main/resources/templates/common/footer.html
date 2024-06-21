@@ -36,7 +36,7 @@
 	<nav class="mobile-bottom-nav">
 		<!-- <div class="mobile-bottom-nav__item mobile-bottom-nav__item--active"> -->
 		<div class="mobile-bottom-nav__item" >
-		    <div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/user/') ? 'mobile-bottom-nav__item--active' : ''}" name="프로필">
+		    <div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/user/') && !#request.requestURI.contains('/user/getPersonalSecurityMenu') ? 'mobile-bottom-nav__item--active' : ''}" name="프로필">
 		        <i class="material-icons">account_box</i>
 		        Profile
 		    </div>        
@@ -74,7 +74,7 @@
 			</div>		
 		</div>
 		<div class="mobile-bottom-nav__item " >
-			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/common/menu') ? 'mobile-bottom-nav__item--active' : ''}" name="메뉴">
+			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/common/menu') || #request.requestURI.contains('/user/getPersonalSecurityMenu') ? 'mobile-bottom-nav__item--active' : ''}" name="메뉴">
 				<i class="material-icons">list</i>
 				Menu
 			</div>		
