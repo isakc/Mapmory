@@ -113,8 +113,14 @@
 			    		  
 			    		  // console.log(timeline);
 			    		  let thumbnailName = null;
+			    		  /*
 			    		  if(timeline.imageTagList.length > 0)
 			    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
+			    		  */
+						if(timeline.imageName.length > 0) {
+    		    			  
+    		    			  thumbnailName = timeline.imageName[0].imageTagText;
+    		    		  }
 			    		  const title = timeline.recordTitle;
 			    		  const categoryName = timeline.categoryName;
 			    		  const categoryEmoji = timeline.categoryImoji;

@@ -1,6 +1,6 @@
 <script>
 	
-	let reactReplyListListSetup = true;
+	let reactReplyListSetup = true;
 	let reactReplyListCurrentPage = 1; 
 	let reactReplyListEndOfData = false;
 	
@@ -8,7 +8,7 @@
 		
 		$('#reactReplyListBtn').on('click', function() {
 			
-			if(reactRecordListSetup) {
+			if(reactReplyListSetup) {
 				
 				console.log('init');
 				loadMoreReactReplyList();	
