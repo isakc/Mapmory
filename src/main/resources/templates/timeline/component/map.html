@@ -226,9 +226,6 @@ function sample5_execDaumPostcode() {
             geocoder.addressSearch(data.address, function(results, status) {
                 // 정상적으로 검색이 완료됐으면
                 if (status === daum.maps.services.Status.OK) {
-					
-                	//infowindow 삭제
-                    infowindow.open(map, null);
 
                     var result = results[0]; //첫번째 결과의 값을 활용
 
@@ -246,6 +243,10 @@ function sample5_execDaumPostcode() {
                     map.setCenter(coords);
                     // 마커를 결과값으로 받은 위치로 옮긴다.
                     marker.setPosition(coords)
+                    
+                	//infowindow 이동
+           			infowindow.setContent(result.road_address!=null ? result.road_address.address_name:result.address.address_name );
+                    infowindow.open(map,marker);
                 }
             });
         }

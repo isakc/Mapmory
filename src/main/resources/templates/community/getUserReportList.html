@@ -17,8 +17,8 @@
 		var currentPage = 2;
 		var loading = false;
 		var endOfData = false;
-		var userId = [[${userId}]]	
-			console.log("12 :"+userId);
+		var userId = /*[[${userId}]]*/
+		console.log("12 :"+userId);
 		$(document).ready(function () {
 			loadReportList();
 		});
@@ -36,7 +36,7 @@
 		
 		function loadReportList() {
 			console.log("호출 시작, 현재 페이지 :"+currentPage);			
-		
+				
 			$.ajax({
 				url : '/community/rest/getUserReportList/'+userId,
 				type : 'GET',
@@ -46,7 +46,9 @@
 				success : function(response) {
 					console.log("ajax 요청 완료");
 					
-					var reportList = response[0]
+					var reportList = response.reportList.list
+					
+					console.log("요청한 데이터 :"+reportList);
 					
 					if (reportList.length === 0) {
 						endOfData = true;
@@ -54,9 +56,9 @@
 						loading = false;
 						return;
 					} else {
-					console.log(reportList);
+						console.log(reportList);
                         reportList.forEach(function(report) {						
-                       		var reportRow = '<tr>' +
+                       		var reportRow = '<tr class="table-info">' +
 		                        '<td>' + report.reportTitle + '</td>' +
 		                        '<td>' + report.reportText + '</td>' +
 		                        '<td>' + report.nickname + '</td>' +
@@ -67,10 +69,13 @@
 		                        '</td>' +
 		                        '<td>' + report.reportDate + '</td>' +
 		                        '</tr>';
-                        	reportList.append(reportRow);
+                        	
+                  	      $('#reportList').append(reportRow);
 						});
-						loading = false;
+                        currentPage++;
+	
 					}
+					loading = false;
 				},
 				error : function() {
 					console.log("데이터 로드 실패");

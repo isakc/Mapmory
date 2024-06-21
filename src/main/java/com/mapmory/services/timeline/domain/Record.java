@@ -45,6 +45,8 @@ public class Record {
 	private int timecapsuleType;
 	
 	private Double distance;
+	private String mediaByte;
+	private String categoryImojiByte;
 	
 //	public void setImageTagList(List<Map<String, Object>> imageTagList) {
 //	    // 이미지 태그 리스트 초기화

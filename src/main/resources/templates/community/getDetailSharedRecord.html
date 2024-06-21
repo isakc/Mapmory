@@ -502,20 +502,38 @@
 		}				
 					
 		.bi-chat-square-text-fill {
-			font-size : 25px;
+			font-size : 55px;
+			float: right;
 		}					
 					
 		.bi-heart {
-			font-size : 25px;
+			font-size : 50px;
+			float: right;
+			margin-right : 20px;
 		}
 		
 		.bi-heart-fill {
 			font-size : 25px;
+			float: right;
+			margin-right : 20px;			
 		}		
 
 	    .icon-separator {
 	        margin: 10px;
-	    }					
+	    }				
+	    
+	 	.category {
+	 		width : 30px;
+	 		height : 30px;
+ 		    float: right;
+	 	}
+	 	
+	 	.reply-count {
+	 		float : right;
+	 		font-size : 45px;
+	 		margin-left : 10px;
+	 	}
+	    	
 	</style>	
 	
 </head>
@@ -532,7 +550,7 @@
 				</ul>
 				<div class="profile">
 					<h4>
-						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
+						<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:if="${record.subscriptionEndDate == 1}">
@@ -548,15 +566,15 @@
 					<span th:text="${record.updateCount}+'회 수정됨'"></span>
 				</div>
 				<div class="card-body">
-					<span th:text="${record.categoryName}"></span>
-					<span th:text="${record.categoryImoji}"></span>
+					<span th:text="${record.categoryName}" style="float: right"></span>
+					<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${record.categoryImoji})}">
 				</div>
 				<div class="card-body">
 					<div th:include="timeline/component/map::kakaoMap" ></div>
 					<p th:text="${record.checkpointAddress}"></p>
 				</div>
 				<div class="card-body">
-					<p th:text="${record.mediaName}"></p>
+					<img alt="" class="media" th:src="@{/timeline/rest/media/{uuid}(uuid=${record.mediaName})}">
 					<p th:text="${record.imageName}"></p>
 					<p th:text="${record.hashtag}"></p>
 					<p th:text="${record.recordText}"></p>			
@@ -571,12 +589,12 @@
 				</div>	
 				
 			    <div class="card-body">
-					<div>
+					<div> 
+						<span th:text="${record.replyCount}" class="reply-count"></span>
+						<i class="bi bi-chat-square-text-fill"></i>					
+							<span class="icon-separator"></span>
 					    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
 					    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>
-						<span class="icon-separator"></span> 
-						<i class="bi bi-chat-square-text-fill"></i>					
-						<span th:text="${record.replyCount}" class="reply-count"></span>
 					</div>	
 			    </div>				
 						
@@ -586,7 +604,7 @@
 	
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
 			<div class="col-sm-2">
-				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 				<span th:if="${reply.subscriptionEndDate == '1'}">
 					<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">

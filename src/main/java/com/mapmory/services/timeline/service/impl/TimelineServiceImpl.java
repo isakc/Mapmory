@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
+import com.mapmory.controller.timeline.TimelineRestController;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -106,12 +107,16 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public Category getCategory(int categoryNo) throws Exception {
-		return timelineDao.selectCategory(categoryNo);
+		return TimelineUtil.mapToCategory(timelineDao.selectCategory(categoryNo));
 	}
 
 	@Override
 	public List<Category> getCategoryList() throws Exception {
-		return timelineDao.selectCategoryList();
+		List<Category> categoryList=new ArrayList<Category>();
+		for(Map<String, Object> map:timelineDao.selectCategoryList()) {
+			categoryList.add(TimelineUtil.mapToCategory(map));
+		}
+		return categoryList;
 	}
 
 	@Override

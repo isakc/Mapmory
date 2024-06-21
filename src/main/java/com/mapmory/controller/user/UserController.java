@@ -253,13 +253,13 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo(HttpServletRequest request) { 
+	public void getUserInfo(HttpServletRequest request, Model model) { 
 		
 		String userId = redisUtil.getSession(request).getUserId();
 		
 		User user = userService.getDetailUser(userId);
 		
-		
+		model.addAttribute("user", user);
 		
 	}
 	
@@ -339,7 +339,13 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUpdateUserInfoView")
-	public void getUpdateUserInfoView() {
+	public void getUpdateUserInfoView(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		User user = userService.getDetailUser(userId);
+		
+		model.addAttribute("user", user);
 		
 	}
 

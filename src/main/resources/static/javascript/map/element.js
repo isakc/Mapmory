@@ -20,7 +20,7 @@ const recordListElement = (index) => {
 	          <p class="card-text">
 	          	${recordList[index].hashtag && recordList[index].hashtag.length > 0 ?
 				recordList[index].hashtag.slice(0, 3).map(tag => 
-				`<a href="#"><small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('')
+				`<a href="#"><small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('')
 				: ''}
 	          </p>
 
@@ -62,7 +62,7 @@ const simpleRecordElement = (index) => {
 	                        <p class="card-text">${recordList[index].checkpointAddress}</p>
 	                        <p class="card-text">
 	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-	                             <a href="#"> <small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
+	                             <a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
 	                        </p>
 	                        
 	                    </div>
@@ -114,7 +114,15 @@ const detailRecordElement = (index) => {
 	                        </div>
 	                        <p class="card-text">${recordList[index].recordAddDate}</p>
 	                        <p class="card-text">${recordList[index].checkpointAddress}</p>
-	                        <p class="card-text">${recordList[index].mediaName}</p>
+	                        <div class="container mt-5">
+    							<div class="media">
+    								<video width="320" height="240" controls class="mr-3">
+        								<source src="${recordList[index].mediaName}" type="video/mp4">
+      								</video>
+      								
+    							</div>
+  							</div>
+  							
 	                        <p class="recordImageContainer">
 	                        <div>
 	                        	${recordList[index].imageName.map(image => `<img src="/user/rest/thumbnail/${image.imageTagText}"/>`).join('')}
@@ -122,7 +130,7 @@ const detailRecordElement = (index) => {
 	                        </p>
 	                        <p class="card-text">
 	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-	                             <a href="#"> <small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
+	                             <a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
 	                        </p>
 	                        <p class="card-text">${recordList[index].recordText}</p>
 
@@ -183,4 +191,49 @@ const detailPlaceElement = (index) => {
 	        <button class="btn btn-primary" onclick="drawRoute('2')"><i class="fas fa-car"></i></button>
 	        <button class="btn btn-primary" onclick="drawTransitRoute()"><i class="fas fa-bus"></i></button>
 	    `;
+}
+	
+const routeListElement = (response) => {
+	return `
+		<span class="badge bg-primary">총 거리: ${(response.totalDistance / 1000 ).toFixed(1)} km</span>
+		<span class="badge bg-primary">총 시간: ${(response.totalTime / 60 ).toFixed(0)} 분</span>
+		<div class="">
+			${response.description.map((item, index) =>
+  			`<div id="route-guide" class="list-group">${index+1}. ${index == 0 ? '출발지에서 ' : ''} ${item} </div>`
+			).join('')}
+		</div>
+`;
+}
+
+const transitRouteListElement = (paths) => {
+	return `
+		${paths.map( (path, index)  => 
+		`<div>
+			<ul class="list-group">
+  				<li class="transitRoute list-group-item justify-content-between align-items-center" data-index =${index}>
+  					<h1>${(path.totalTime / 60).toFixed(0) }분</h1>
+    				<span>도보 ${(path.totalWalkTime/60).toFixed(0) }분</span>
+    				<span>환승 ${path.transferCount}회</span>
+    				<span>요금 ${path.totalFare}원</span>
+    				<span>거리 ${(path.totalDistance / 1000 ).toFixed(1)}km</span>
+  				</li>
+			</ul>
+		
+		</div>`
+		).join('')}
+`;
+}
+
+const transitRouteDescriptionElement = (path) => {
+	return `
+		${path.routes.map(route => `
+			<div class="transitRoutePath">
+				<p>출발지</p>
+				<p>Mode: ${route.mode}</p>
+				<p>Route: ${route.routeName}</p>
+				<p>Start: ${route.startName}</p>
+				<p>End: ${route.endName}</p>
+			 </div>
+		`).join('')}
+		`;
 }

@@ -198,8 +198,9 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public Map<String, Object> getAdminReportList(Search search) throws Exception {
 		
-    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
-        search.setPageSize(search.getPageSize());		
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+	    search.setOffset(offset);
+	    search.setLimit(search.getPageSize());	
 		
 		List<Object> list = communityDao.getAdminReportList(search);
 		int totalCount = communityDao.getAdminReportTotalCount(search);
