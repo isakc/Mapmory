@@ -91,7 +91,10 @@
 		
 		$(document).on('click', '.userDiv', function() {
 			
-			window.location.href="/user/getProfile?userId="+$(this).attr('id');
+			// alert($(this).attr('id'));
+			// alert();
+			const userId = $(this).closest('.userBlock').attr('id')
+			window.location.href="/user/getProfile?userId="+userId;
 		});
 	});
 </script>
@@ -105,7 +108,7 @@
 
 <!-- 무한 스크롤 구현 필요 -->
 <div th:each="user : ${list}">
-	<div th:id="${user.userId}" class="d-flex">
+	<div th:id="${user.userId}" class="d-flex userBlock">
 			<div class="profile-box-custom mx-2 userDiv">
 				<img class="profile-custom" th:src="@{/user/rest/profile/{uuid}(uuid=${user.profileImageName})}">
 			</div>
