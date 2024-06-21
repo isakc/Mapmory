@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer{
                 .allowCredentials(true) // 인증 정보 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE"); // 허용할 HTTP 메서드 지정
     }
-
+    
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub

@@ -350,6 +350,7 @@ $(function() {
 					alert(response.text);
 					console.log(JSON.stringify(response));
 					$('div[name="mediaName"]').remove();
+					$('input[name="mediaName"]').val(null);
 					
 					let text=
 						'<div class="row">'
