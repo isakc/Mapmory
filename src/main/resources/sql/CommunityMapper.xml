@@ -335,9 +335,9 @@
 	</insert>	
 
 	<!-- 차단 업데이트 -->
-	<update id="updateFollowBlock" parameterType="followBlock">
+	<update id="updateBlockUser" parameterType="followBlock">
 		UPDATE follow_block
-		SET fb_type = 0
+		SET fb_type = 1
 		WHERE
 		user_id = #{userId} AND target_id = #{targetId}
 	</update>

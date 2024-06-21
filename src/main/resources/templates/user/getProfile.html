@@ -46,7 +46,7 @@
 	
 	<script th:inline="javascript">
 	
-		const profileUserId = [[${profile.user.userId}]];
+		const profileUserId = /*[[${profile.user.userId}]]*/ '';
 		const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
 		let isLoading = false;
 		let pageType = null;

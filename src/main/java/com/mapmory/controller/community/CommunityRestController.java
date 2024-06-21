@@ -408,6 +408,8 @@ public class CommunityRestController {
 		if (userService.checkFollow(followBlock.getUserId(), followBlock.getTargetId()) == true) {
 			communityService.updateBlockUser(followBlock);
 		} 
+		
+		//System.out.println("check:" +userService.checkFollow(followBlock.getUserId(), followBlock.getTargetId()));
 		communityService.addBlockUser(followBlock);
 		return ResponseEntity.ok(followBlock);
 	}
