@@ -290,7 +290,7 @@
 		SELECT *
 		FROM report
 		ORDER BY report_date DESC
-		LIMIT #{pageSize} OFFSET #{offset}
+ 		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
 	<!-- 사용자의 신고 Count -->

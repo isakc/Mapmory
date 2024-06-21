@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
@@ -236,26 +237,22 @@ public class CommunityController {
 	}	
 	
 	//관리자 신고 조회
-	@GetMapping("/admin/getAdminReportList")
+	@GetMapping("/getAdminReportList")
 	public String getAdminReportList(Search search, Integer role, Model model) throws Exception {
 		
-		role = 0;
-			
-		if(role == null | role !=0) {
-			return "index";
-		}
 		
         if (search.getCurrentPage() == 0) {
             search.setCurrentPage(1);
         }
-        search.setPageSize(adminPageSize);
-       		
+        search.setPageSize(pageSize);
 
+        
 		Map<String, Object> allReportList = communityService.getAdminReportList(search);
 		
-        Page resultPage = new Page(search.getCurrentPage(), ((Integer)allReportList.get("totalCount")).intValue(), adminPageUnit, adminPageSize);
+        Page resultPage = new Page(search.getCurrentPage(), ((Integer)allReportList.get("totalCount")).intValue(), pageUnit, pageSize);
 
-        System.out.println("123" +resultPage);
+        System.out.println("122 "+search);
+        System.out.println("123 " +resultPage);
         
         model.addAttribute("search", search);
         model.addAttribute("resultPage", resultPage);

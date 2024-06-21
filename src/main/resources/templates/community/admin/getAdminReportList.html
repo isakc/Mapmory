@@ -59,7 +59,7 @@
 		</ul>		
 		</div>
 
-        <form id="reportForm" th:action="@{/community/getAdminFaqList}" method="post">
+        <form id="reportForm" th:action="@{/community/admin/getAdminReportList}" method="post">
             <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
         </form>		
 		
@@ -77,13 +77,13 @@
 					<td class="reportTitle" th:text="${report.reportTitle}"></td>
 					<td>
 						<span th:switch="${report.reportStatus}">
-							<span th:case="'1'">신고완료</span>
+							<span th:case="'1'">신고접수됨</span>
 							<span th:case="'2'">처리완료</span>	
 						</span>
 					</td>
 					<td>
 						<span th:switch="${report.reportResult}">
-							<span th:case="'0'">미처리</span>
+							<span th:case="'0'">신고 처리 필요</span>
 							<span th:case="'1'">승인</span>
 							<span th:case="'2'">반려</span>
 						</span>
