@@ -51,28 +51,28 @@
     </select>
 
     <select id="getFaqList" parameterType="search" resultMap="noticeSelectMap">
-        SELECT
-        n.notice_title,
-        n.notice_text,
-        n.notice_no,
-        n.notice_reg_date,
-        n.user_id,
-        n.notice_type
-        FROM notice n
-        WHERE notice_type = 1
-        <if test="searchCondition != null and searchKeyword != null">
-            <choose>
-                <when test="searchCondition == 0">
-                    AND n.notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
-                </when>
-                <when test="searchCondition == 1">
-                    AND n.notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
-                </when>
-            </choose>
-        </if>
-        ORDER BY n.notice_NO DESC
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
+    SELECT
+    n.notice_title,
+    n.notice_text,
+    n.notice_no,
+    n.notice_reg_date,
+    n.user_id,
+    n.notice_type
+    FROM notice n
+    WHERE notice_type = 1
+    <if test="searchCondition != null and searchKeyword != null">
+        <choose>
+            <when test="searchCondition == 0">
+                AND n.notice_title LIKE CONCAT('%', #{searchKeyword}, '%')
+            </when>
+            <when test="searchCondition == 1">
+                AND n.notice_text LIKE CONCAT('%', #{searchKeyword}, '%')
+            </when>
+        </choose>
+    </if>
+    ORDER BY n.notice_NO DESC
+    LIMIT #{pageSize} OFFSET #{offset}
+</select>
 
     <update id="updateNoticeAndFaq" parameterType="notice">
         UPDATE notice
