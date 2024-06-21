@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -358,6 +359,23 @@ public class UserRestController {
 		String userId = userService.getId(userName, email);
 		
 		return ResponseEntity.ok(userId);
+	}
+	
+	@PostMapping("/updateUserInfo")
+	public ResponseEntity<Boolean> updateUserInfo(HttpServletRequest request, @RequestBody User user) throws Exception {
+		
+		System.out.println("income data : "+ user);
+		String userId = redisUtil.getSession(request).getUserId();
+		String userName = user.getUserName();
+		String nickname = user.getNickname();
+		LocalDate birthday = user.getBirthday();
+		int sex = user.getSex();
+		String email = user.getEmail();
+		String phoneNumber = user.getPhoneNumber();
+		
+		boolean result = userService.updateUserInfo(userId, userName, nickname, birthday, sex, email, phoneNumber);
+		
+		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping("/updateFollowState")

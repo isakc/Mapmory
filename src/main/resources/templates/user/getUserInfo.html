@@ -14,17 +14,70 @@
 		}
 	</style>
 	
+	<script>
+	
+		$(function() {
+			
+			$('button').on('click', function() {
+				
+				window.location.href="/user/getUpdateUserInfoView";
+				
+			});
+		});
+	</script>
 </head>
 <body class="container mt-3">
 	
 	<div class="d-flex">
 		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
 		<div class="col-6"></div>
-		<p class="h2 mt-3">내 정보 조회</p>
+		<p class="h2 mt-3 mb-4">내 정보 조회</p>
 	</div>
 	
-	
-	<p></p>
+	<div class="mb-5">
+		<div>
+			<p>아이디</p>
+			<p th:text="${user.userId}"></p>
+		</div>
+		<hr/>
+		<div>
+			<p>이름</p>
+			<p th:text="${user.userName}"></p>
+		</div>
+		<hr/>
+		<div>
+			<p>닉네임</p>
+			<p th:text="${user.nickname}"></p>
+		</div>
+		<hr/>
+		<div>
+			<p>생년월일</p>
+			<p th:text="${user.birthday}"></p>
+		</div>
+		<hr/>
+		<div>
+			<p>성별</p>
+			<th:block th:switch="${user.sex}">
+				<p th:case="0">비공개</p>
+				<p th:case="1">남성</p>
+				<p th:case="2">여성</p>
+			</th:block>
+		</div>
+		<hr/>
+		<div>
+			<p>이메일</p>
+			<p th:text="${user.email}"></p>
+		</div>
+		<hr/>
+		<div>
+			<p>휴대전화번호</p>
+			<p th:text="${user.phoneNumber}"></p>
+		</div>
+		<div class="mb-3">
+			<p>&nbsp;</p>
+		</div>	
+	</div>
+
 	
 	<div class="d-grid gap-2 col-11 mx-auto fixed-bottom mb-3">
 	  <button class="btn btn-primary" type="button">내 정보 수정</button>

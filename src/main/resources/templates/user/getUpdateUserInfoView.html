@@ -1,10 +1,187 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
-</head>
-<body>
+    <title>내 정보 수정</title>
+    <th:block th:replace="~{/common/dependencies}"></th:block>
+	<script src="/javascript/user/userValidation.js"></script>
+	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
+	
+	<style>
+	
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	</style>
+	
+	<script>
+		$(function() {
+			
+			const today = new Date().toISOString().split('T')[0];
+			$('#birthday').attr('max', today);
+			
+			/*
+			$('#back').on('click', function() {
+				
+				const result = confirm('뒤로가기를 누르시면 약관 동의를 다시 진행하셔야 합니다. 계속 하시겠습니까?');
+				
+				if(result)
+					window.location.href = "/user/getAgreeTermsAndConditionsList";
+				
+			});
+			*/
+			
+			$('#submitForm').on('click', function() {
+				
+				if ($('#userNameChecked').text() === 'false') {
+		            $('#userNameMsg').text('이름을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#userNameMsg').css('display', 'none');
+			    	
+			    }
+				
+				if ($('#nicknameChecked').text() === 'false') {
+		            $('#nicknameMsg').text('닉네임을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#nicknameMsg').css('display', 'none');
+			    	
+			    }
+				
+				const birthday = document.getElementById('birthday').value;
+			    if (!birthday) {
+			        
+			    	$('#birthdayMsg').text('생년월일을 선택해주세요.').css('color', 'red').show();
+			        event.preventDefault();
+			        return;
+			    } else {
+			    	
+			    	$('#birthdayMsg').css('display', 'none');
+			    	
+			    }
+			    
+			    if ($('#emailChecked').text() === 'false') {
+		            $('#emailMsg').text('이메일을 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#emailMsg').css('display', 'none');
+			    	
+			    }
+			    
+			    if ($('#phoneNumberChecked').text() === 'false') {
+		            $('#phoneNumberMsg').text('휴대전화번호를 다시 확인해주세요.').css('color', 'red').show();
+		            event.preventDefault();
+		            return;
+		        } else {
+			    	
+			    	$('#phoneNumberMsg').css('display', 'none');
+			    	
+			    }
+			    
+			   // 	$('form#signupForm').submit();
+			   
+			   console.log('ok');
+			   // $('form').submit();
+			    
+			   const form = new FormData($('form').get(0));
+			   const formJson = {};
+			   
+			   form.forEach((value, key) => {
+				   
+				   formJson[key] = value;
+			   })
+			   console.log(formJson);
+			   
+			    $.ajax({
+			    	type : 'post',
+					url : '/user/rest/updateUserInfo',
+					data : JSON.stringify(formJson),
+					contentType : "application/json",
+					success : function(response){
+						
+						if(response == true || response == 'true') {
+							
+							window.location.href="/user/getUserInfo";
+							return;
+						} else {
+							
+							alert('회원 정보 수정 실패');
+						}
+					},
+					error: function(xhr, status, error){
+						alert('회원 정보 수정 실패');
+						console.log(error);
+					}
+			    });
 
-</body>	
+			});
+		});
+	</script>
+</head>
+<body class="container mt-3">
+
+	<div class="d-flex">
+		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+		<div class="col-6"></div>
+		<p class="h2 mt-3 mb-4">내 정보 수정</p>
+	</div>
+
+  <form th:object="${user}" method="post">
+    <div class="mb-3">
+      <label for="userName" class="form-label">이름</label>
+      <input type="text" id="userName" th:field="*{userName}" class="form-control" placeholder="이름" required/>
+      <p id="userNameMsg" style="display: none;"></p>
+      <p id="userNameChecked" style="display: none;">true</p>
+    </div>
+
+    <div class="mb-3">
+      <label for="nickname" class="form-label">닉네임</label>
+      <input type="text" id="nickname" th:field="*{nickname}" class="form-control" placeholder="닉네임" required/>
+      <p id="nicknameMsg" style="display: none;"></p>
+      <p id="nicknameChecked" style="display: none;">true</p>
+    </div>
+
+    <div class="mb-3">
+      <label for="birthday" class="form-label">생년월일</label>
+      <input type="date" id="birthday" th:field="*{birthday}" class="form-control" placeholder="생년월일 (YYYY-MM-DD)" required/>
+      <p id="birthdayMsg" style="display: none;"></p>
+    </div>
+
+    <div class="mb-3">
+      <label for="sex" class="form-label">성별</label>
+      <select id="sex" th:field="*{sex}" class="form-select" required>
+        <option value="0">비공개</option>
+        <option value="1">남성</option>
+        <option value="2">여성</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">이메일</label>
+      <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="이메일 (예: test@test.com)" required/>
+      <button type="button" id="sendAuthEmail" class="btn btn-secondary mt-2">인증번호 발송</button>
+      <input type="hidden" class="form-control mt-2" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
+      <p id="emailMsg" style="display: none;"></p>
+      <p id="emailChecked" style="display: none;">true</p>   
+    </div>
+
+    <div class="mb-3">
+      <label for="phoneNumber" class="form-label">휴대전화번호</label>
+      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
+      <button type="button" id="sendAuthPhoneNum" class="btn btn-secondary mt-2">인증번호 발송</button>
+      <input type="hidden" class="form-control mt-2" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
+      <p id="phoneNumberMsg" style="display: none;"></p>
+      <p id="phoneNumberChecked" style="display: none;">true</p>
+    </div>
+
+    <button type="button" id="submitForm" class="btn btn-primary w-100 mb-3">수정</button>
+  </form>
+</body>
 </html>
