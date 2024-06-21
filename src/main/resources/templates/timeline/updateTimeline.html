@@ -83,7 +83,7 @@
     
 	<div th:each="image : *{imageName}">
 	<div th:name="${image.imageTagOrder}">
-		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" />
+		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
 		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
 		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
 		th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>

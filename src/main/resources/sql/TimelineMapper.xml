@@ -335,12 +335,20 @@ LIMIT #{limit} OFFSET #{offset}
     </insert>
 
     <!-- Read -->
-    <select id="selectCategory" resultType="category" parameterType="Integer">
-        SELECT * FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
+    <select id="selectCategory" resultType="Map" parameterType="Integer">
+        SELECT 
+        	category_no AS categoryNo,
+        	category_name AS categoryName,
+        	category_imoji AS categoryImoji
+        FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
     </select>
 
-    <select id="selectCategoryList" resultType="category">
-        SELECT * FROM category
+    <select id="selectCategoryList" resultType="Map">
+        SELECT 
+        	category_no AS categoryNo,
+        	category_name AS categoryName,
+        	category_imoji AS categoryImoji
+        FROM category
     </select>
 
     <!-- Update -->

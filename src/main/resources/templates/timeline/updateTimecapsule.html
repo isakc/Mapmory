@@ -79,7 +79,7 @@ fieldset {
     
 	<div th:each="image : *{imageName}">
 	<div th:name="${image.imageTagOrder}">
-		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" />
+		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
 		<!-- <span th:text="${image.imageTagText}"></span> -->
 		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
 		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
