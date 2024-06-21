@@ -269,12 +269,31 @@ public class UserController {
 		System.out.println("encodedKey : " + encodedKey);
 		
 		returnKey.setEncodedKey(encodedKey);
-		returnKey.setUserName(userId);
-		returnKey.setHostName(hostName);
+		//returnKey.setUserName(userId);
+		//returnKey.setHostName(hostName);
+		// 2단계 encodedkey는 RDBMS에 저장하는 것이 좋겠다.
 		redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
+		// boolean result = userService.updateSecondaryAuth(userId);
+		boolean result = userService.updateSecondaryAuth(userId, 1);
+		System.out.println("is set secondary auth changed? " + result);
 		
-		model.addAttribute(returnKey);
+		String keyQR = "https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+userId+"@"+hostName+"?secret="+encodedKey+"&chld=H|0";
 		
+		model.addAttribute("authKey", returnKey);
+		model.addAttribute("keyQR", keyQR);
+
+		/*
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		
+		String encodedKey = userService.generateSecondAuthKey();
+		String userName = userService.getDetailUser(userId).getUserName();
+		
+		model.addAttribute("encodedKey", encodedKey);
+		model.addAttribute("userName", userName);
+		model.addAttribute("hostName", hostName);
+		*/
+
 	}
 	
 	@GetMapping("/getUserInfo")
@@ -399,7 +418,7 @@ public class UserController {
 		
 		
 	}
-
+	
 	
 	@GetMapping("/getSocialLoginLinkedView")
 	public void getSocialLoginLinkedView() {

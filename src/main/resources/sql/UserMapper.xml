@@ -354,9 +354,17 @@
 		WHERE user_id = #{userId}
 	</update>
 	
+	<!-- 
 	<update id="updateSecondaryAuth" parameterType="string">
 		UPDATE users
 		SET set_secondary_auth = set_secondary_auth ^ 1
+		WHERE user_id = #{userId}
+	</update>
+	 -->
+	 
+	 <update id="updateSecondaryAuth">
+		UPDATE users
+		SET set_secondary_auth = ${type}
 		WHERE user_id = #{userId}
 	</update>
 	

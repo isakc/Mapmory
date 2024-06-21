@@ -1,6 +1,9 @@
 package com.mapmory.controller.main;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +47,7 @@ public class MainController {
 	
 	
 	@GetMapping("/")
-	public String index(HttpServletRequest request, Model model) {
+	public String index(HttpServletRequest request, Model model, HttpServletResponse response) throws IOException {
 		
 		// String requestURI = request.getRequestURI();
 		
@@ -52,8 +55,19 @@ public class MainController {
 	
 		if(cookie != null) {
 			
-			System.out.println("login 상태... main으로 이동합니다.");
 			SessionData sessionData = redisUtil.getSession(request);
+			
+			if(sessionData == null) {
+				
+				System.out.println("현재 redis 로그인 버그로 인해 세션이 만료됨. 쿠키를 강제 제거합니다...");
+				cookie.setMaxAge(0);
+				cookie.setPath("/");
+				response.addCookie(cookie);
+				// response.sendRedirect("/");
+				return "redirect:/";
+			}
+			
+			System.out.println("login 상태... main으로 이동합니다.");
 			if(sessionData.getRole() == 1)
 				// response.sendRedirect("/map");
 				return "redirect:/map";

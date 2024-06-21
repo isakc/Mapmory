@@ -757,7 +757,8 @@ public class UserServiceImpl implements UserService {
 		return intToBool(result);
 	}
 	
-
+	
+	/*
 	@Override
 	public boolean updateSecondaryAuth(String userId) {
 		// TODO Auto-generated method stub
@@ -765,6 +766,16 @@ public class UserServiceImpl implements UserService {
 		int result = userDao.updateSecondaryAuth(userId);
 		return intToBool(result);
 	}	
+	*/
+	
+	@Override
+	public boolean updateSecondaryAuth(String userId, int type) {
+		// TODO Auto-generated method stub
+		
+		int result = userDao.updateSecondaryAuth(userId, type);
+		return intToBool(result);
+	}	
+	
 
 	@Override
 	public boolean updateFollowToBlock(String myUserId, String targetId) {

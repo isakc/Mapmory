@@ -173,7 +173,8 @@ public interface UserService {
 	
 	public boolean updatePassword(String userId, String userPassword);
 	
-	public boolean updateSecondaryAuth(String userId);
+	// public boolean updateSecondaryAuth(String userId);
+	public boolean updateSecondaryAuth(String userId, int type);
 	
 	/**
 	 * 1: column 변경 성공, 0: column 변경 실패, 2: 정책 상 변경 불가.
