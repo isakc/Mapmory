@@ -168,28 +168,11 @@ public class TimelineRestController {
 		return ResponseEntity.ok(map);
 	}
 	
-	//////////이미지 가져오기 용
-//	@GetMapping("/{type}/{uuid}")
-//	public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
-//
-//		byte[] bytes;
-//		switch (type) {
-//
-//		case "profile":
-//			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
-//			break;
-//		case "thumbnail":
-//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
-//			break;
-//		case "emoji":
-//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
-//			break;
-//		default:
-//			bytes = null;
-//		}
-//
-//		return bytes;
-//	}
+	//이미지 가져오기 용/서버로드보다 응답이 빠르면 파일이 깨진다. 지원용
+	@GetMapping("/{type}/{name}")
+	public byte[] getImage(@PathVariable String type, @PathVariable String name) throws Exception {
+		return timelineUtil.getFile(type, name);
+	}
 	
 	@GetMapping("checkBadWord")
 	public ResponseEntity<Map<String, Object>> checkBadWord(

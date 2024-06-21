@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,9 +70,6 @@ public class TimelineController {
 	
 	@Value("${object.timeline.media}")
 	private String mediaFileFolder;
-    
-    @Value("${cdn.url}")
-    private String cdnUrl;
     
     @Value("${timeline.kakaomap.restKey}")
     private String restKey;
@@ -191,7 +186,8 @@ public class TimelineController {
 			@RequestParam(value="recordNo", required = true) int recordNo,
 			HttpServletRequest request) throws Exception,IOException {
 		Record record=timelineService.getDetailTimeline(recordNo);
-		record=timelineUtil.imojiNameToUrl(record);
+//		record=timelineUtil.imojiNameToUrl(record);
+		record=timelineUtil.imojiNameToByte(record);
 		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
@@ -206,9 +202,13 @@ public class TimelineController {
 			@RequestParam(value="recordNo", required = true) int recordNo,
 			HttpServletRequest request
 			) throws Exception,IOException {
-		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
-		record=timelineUtil.imojiNameToUrl(record);
-		record=timelineUtil.mediaNameToUrl(record);
+		Record record=timelineService.getDetailTimeline(recordNo);
+//		record=timelineUtil.imageNameToUrl(record);
+//		record=timelineUtil.imojiNameToUrl(record);
+//		record=timelineUtil.mediaNameToUrl(record);
+		record=timelineUtil.imageNameToByte(record);
+		record=timelineUtil.imojiNameToByte(record);
+		record=timelineUtil.mediaNameToByte(record);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
@@ -222,8 +222,11 @@ public class TimelineController {
 	@GetMapping("updateTimeline")
 	public String updateTimelineView(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
-		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
-		record=timelineUtil.mediaNameToUrl(record);
+		Record record=timelineService.getDetailTimeline(recordNo);
+//		record=timelineUtil.imageNameToUrl(record);
+//		record=timelineUtil.mediaNameToUrl(record);
+		record=timelineUtil.imageNameToByte(record);
+		record=timelineUtil.mediaNameToByte(record);
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
 		model.addAttribute("apiKey", kakaoMapApiKey);
@@ -242,7 +245,7 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		
-		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
+//		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
 		record = timelineUtil.uploadImageFile(record, imageFile);
 		record = timelineUtil.uploadMediaFile(record, mediaFile);
 		
@@ -332,9 +335,13 @@ public class TimelineController {
 			@RequestParam(value="recordNo", required = true) int recordNo,
 			HttpServletRequest request
 			) throws Exception,IOException {
-		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
-		record=timelineUtil.imojiNameToUrl(record);
-		record=timelineUtil.mediaNameToUrl(record);
+		Record record=timelineService.getDetailTimeline(recordNo);
+//		record=timelineUtil.imageNameToUrl(record);
+//		record=timelineUtil.imojiNameToUrl(record);
+//		record=timelineUtil.mediaNameToUrl(record);
+		record=timelineUtil.imageNameToByte(record);
+		record=timelineUtil.imojiNameToByte(record);
+		record=timelineUtil.mediaNameToByte(record);
 		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
@@ -364,8 +371,9 @@ public class TimelineController {
 	@GetMapping("updateTimecapsule")
 	public String updateTimecapsuleView(Model model,
 			@RequestParam(value="recordNo", required = false) Integer recordNo) throws Exception,IOException {
-		Record record=timelineUtil.imageNameToUrl(timelineService.getDetailTimeline(recordNo));
-		record=timelineUtil.mediaNameToUrl(record);
+		Record record = timelineService.getDetailTimeline(recordNo);
+		record=timelineUtil.imageNameToByte(record);
+		record=timelineUtil.mediaNameToByte(record);
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
 		model.addAttribute("apiKey", kakaoMapApiKey);
@@ -381,7 +389,7 @@ public class TimelineController {
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
 			HttpServletRequest request
 			) throws Exception,IOException {
-		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
+//		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
 		record = timelineUtil.uploadImageFile(record, imageFile);
 		record = timelineUtil.uploadMediaFile(record, mediaFile);
 		
