@@ -203,7 +203,7 @@ public class ProductController {
     @GetMapping("/deleteProduct/{productNo}") //상품 삭제
     public String deleteProduct(@PathVariable int productNo) throws Exception {
         productService.deleteProduct(productNo,folderName);
-        return "redirect:/product/getProductList";
+        return "redirect:/product/getAdminProductList";
     }
     
     @PostMapping("/deleteImage/{uuid}")  //이미지 삭제
