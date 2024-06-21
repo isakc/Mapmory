@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -167,6 +168,29 @@ public class TimelineRestController {
 		return ResponseEntity.ok(map);
 	}
 	
+	//////////이미지 가져오기 용
+//	@GetMapping("/{type}/{uuid}")
+//	public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
+//
+//		byte[] bytes;
+//		switch (type) {
+//
+//		case "profile":
+//			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
+//			break;
+//		case "thumbnail":
+//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
+//			break;
+//		case "emoji":
+//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
+//			break;
+//		default:
+//			bytes = null;
+//		}
+//
+//		return bytes;
+//	}
+	
 	@GetMapping("checkBadWord")
 	public ResponseEntity<Map<String, Object>> checkBadWord(
 			@RequestParam(name = "text", required = true) String text,
@@ -241,8 +265,11 @@ public class TimelineRestController {
 		
 		System.out.println("currentPage = " + currentPage);
 		
-		Search search = Search.builder().userId(userId).pageSize(pageSize).limit(pageUnit).currentPage(currentPage).logsType(logsType).build();
+		Search search = Search.builder().userId(userId).limit(pageSize).currentPage(currentPage).logsType(logsType).build();
 		map.put("timelineList", timelineService.getProfileTimelineList(search));
+		
+		// System.out.println(map);
+		
 		return ResponseEntity.ok(map);
 	}
 

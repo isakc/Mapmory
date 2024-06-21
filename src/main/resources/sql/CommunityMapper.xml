@@ -79,6 +79,7 @@
 		FROM reply r2
 		WHERE r2.user_id = #{userId}
 		ORDER BY reply_date
+		LIMIT #{search.limit} OFFSET #{search.offset}
 	</select>
 
 	<!-- 댓글 작성 -->
@@ -379,6 +380,7 @@
 			WHERE l.reply_no = r.reply_no
 			AND logs_type = 2
 			AND l.user_id = #{userId} )
+		LIMIT #{search.limit} OFFSET #{search.offset}
 	</select>
 
 	

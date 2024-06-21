@@ -9,6 +9,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * page navigation
+ * LIMIT ${limit} OFFSET ${offset}  << currentPage, pageSize(limit)
+ * BETWEEN startRowNum $(startRowNum)AND endRowNum ${endRowNum}  << currentpage, pageSize 
+ * 
+ * @author rlaeo
+ *
+ */
 @SuperBuilder
 @Setter
 @Getter
@@ -43,6 +51,7 @@ public class Search {
 	//회원
 	private Integer logsType;
 
+	/*
 	public void setPageSize(int paseSize) {
 		this.pageSize = paseSize;
 	}
@@ -50,13 +59,17 @@ public class Search {
 	public void setCurrentPage(int currentPage) {
 		this.currentPage = currentPage;
 	}
+	*/
 	
 	public int getOffset() {
-		return (getCurrentPage() - 1) * getPageSize();
+		return (getCurrentPage() - 1) * getLimit();
 	}
+	
+	/*
 	public void setOffset(int offset) {
         this.offset = offset;
     }
+    */
 	public int getEndRowNum() {
 		return getCurrentPage() * getPageSize();
 	}

@@ -33,7 +33,7 @@
  <ul>
     <li th:each="item : ${list7}" th:text="${' 기록된 타임캡슐 기록 : '+item.recordUserId}+',  '+${item.recordTitle}+',  '+${item.sharedDate}+',  '+${item.tempType}+',  '+${item.timecapsuleType}+',  '+${item.d_DayDate}"></li>
 </ul>-->
-<ul>
+<!-- <ul>
     <li th:each="item : ${list8}" th:text="${' 대민 recordList: '+item.recordNo}+',  '+${item.recordTitle}+',  '+${item.categoryName}+',  '+${item.categoryImoji}+',  '+${item.recordAddDate}"></li>
 </ul>
 <ul>
@@ -41,6 +41,15 @@
 </ul>
 <ul>
     <li th:each="item : ${list8_2}" th:text="${' 대민 recordList: '+item.recordNo}+',  '+${item.recordTitle}+',  '+${item.categoryName}+',  '+${item.categoryImoji}+',  '+${item.recordAddDate}"></li>
+</ul> -->
+<ul>
+    <li th:each="item : ${list8}" th:text="${' 대민 recordList: '+item}"></li>
+</ul>
+<ul>
+    <li th:each="item : ${list8_1}" th:text="${' 대민 recordList: '+item}"></li>
+    </ul>
+<ul>
+    <li th:each="item : ${list8_2}" th:text="${' 대민 recordList: '+item}"></li>
 </ul>
 <!--<ul>
     <li th:each="item : ${list9}" th:text="${' 재용 sharedRecord : '+item}"></li>
