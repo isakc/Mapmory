@@ -243,6 +243,9 @@ public class TimelineRestController {
 		
 		Search search = Search.builder().userId(userId).pageSize(pageSize).currentPage(currentPage).logsType(logsType).build();
 		map.put("timelineList", timelineService.getProfileTimelineList(search));
+		
+		// System.out.println(map);
+		
 		return ResponseEntity.ok(map);
 	}
 

@@ -184,9 +184,12 @@
 	               url: "https://mapmory.co.kr/chatting/findOneChatRoom",
 	               method: "POST",
 	               contentType:"application/json",
+	               // dataType:"text/plain",
 	               data: JSON.stringify({
 	                userId: sessionId,
-	                 opponent: profileUserId
+	                 opponent: profileUserId,
+	                 nickname: /*[[${profile.user.nickname}]]*/ '[[${profile.user.nickname}]]',
+	                 profileImageName: /*[[${profile.user.profileImageName}]]*/ '[[${profile.user.profileImageName}]]'
 	               }),
 	               success: function(response) {
 	                 
