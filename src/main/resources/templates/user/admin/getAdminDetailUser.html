@@ -142,9 +142,6 @@
         </div>
     </div>
 	
-	<button type="button" id="suspendUser">사용자 정지</button>
-	<button type="button" id="cancelSuspendUser" >정지 해제</button>
-	
 	<script th:inline="javascript">
 	
 		$(function(){
@@ -187,7 +184,7 @@
                     		alert("정지에 성공했습니다!");
                     		$('#suspendUser').css('display', 'none');
             				$('#cancelSuspendUser').css('display', 'block');
-                    		
+            				window.location.reload();
                     	}
                     },
                     error: function(jqXHR) {
@@ -218,6 +215,7 @@
                     		alert("정지를 취소했습니다.");
                     		$('#suspendUser').css('display', 'block');
             				$('#cancelSuspendUser').css('display', 'none');
+            				window.location.reload();
                     		
                     	}
                     },
