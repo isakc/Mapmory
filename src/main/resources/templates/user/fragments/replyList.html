@@ -1,14 +1,20 @@
+
 <script>
-		
-	let sharedListSetup = true;
+
+	let replyListSetup = true;
 	let replyListCurrentPage = 1;
 	let replyListEndOfData = false;
-	
+	// let isLoading = false;
 	
 	$(function() {
 		
-		loadMoreReplyList();
-
+		// hidden된 것에 대해서는 따로 적용해야 함.
+		$('#replyListBtn').on('click', function() {
+			
+			if(replyListSetup)
+				loadMoreReplyList();	
+		});
+	
 		$(window).scroll(function() {
 			
 			let scrollTop = $(window).scrollTop();
@@ -16,27 +22,70 @@
 			let documentHeight = $(document).height();
 
 			// 끝이 나지 않았을 경우에만 다음 page 호출
+			// console.log("is replylist scroll ended? : " + !(!replyListEndOfData && !isLoading && (pageType.text() == "replyList")));
             if (!replyListEndOfData && !isLoading && (pageType.text() == "replyList")) {
+            	console.log("is reply list scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
                 if ( scrollTop + windowHeight >= documentHeight - 100) {
-                	
+
                 	isLoading = true; // 로딩 시작
-                	replyListCurrentPage++;
-                	loadMoreReplyList().then(() => {
-  
+                	loadMoreReplyList().then((value) => {
+
+                		console.log(value);
                 		isLoading = false; // 로딩 완료 후 플래그 재설정
                 		
                 	}).catch(() => {
                 		
                 		console.log("load error");
-                        isLoading = false; // 에러 발생 시 플래그 재설정
+                		isLoading = false; // 에러 발생 시 플래그 재설정
                     });
                 }
             }
         });
 	});
+	
+	function checkIfNeedToLoadMoreReply() {
+		
+        let scrollTop = $(window).scrollTop();
+        let windowHeight = $(window).height();
+        let documentHeight = $(document).height();
+
+        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
+        console.log("documentHeight : "+documentHeight);
+        console.log("windowHeight : "+windowHeight);
+        console.log("is setup? " + !(documentHeight <= windowHeight));
+        if (documentHeight <= windowHeight) {
+        	
+        	// console.log('setup start');
+        	loadMoreReplyList().then((value)=> {
+        		
+        		console.log(value);
+        		isLoading = false; // 로딩 완료 후 플래그 재설정    	
+        	});
+        } else {
+
+        	console.log("setup finished.");
+        	// setupType = false;
+        	// loadType = false; // 로딩 완료 후 플래그 재설정
+        	replyListSetup = false;
+        	isLoading = false;
+        }
+    }
 
 	function loadMoreReplyList() {
 		
+    	
+		isLoading = true; // 로딩 시작
+		console.log("reply loading start : "+ isLoading);
+    	
+    	if(replyListEndOfData == true) {
+
+    		  console.log('no more');
+    		  return;
+    		  
+    	  	} 
+		
+    	console.log("currentPage ? " + replyListCurrentPage);
+    	
 		return new Promise((resolve, reject) => {
 			$.ajax({
 	
@@ -45,11 +94,22 @@
 			      contentType:"application/json",
 			      success: function(response) {
 	
-			    	 if(response == true)
-	   		    	   sharedListEndOfData = true;
+			    	  console.log(response.list);
 			    	  
-			    	 response.list.forEach((reply) => {
+			    	 if(response.list.length == 0) {
+			    		 
+			    		 replyListEndOfData = true;
+			    		 resolve("I think it's end");
+   		      		  	 // return;
+			    		 // resolve("contents ended");
+			    	 }
 			    		
+			    	  
+			    	 replyListCurrentPage++;
+			    	 console.log("this is increased current page : "+ replyListCurrentPage);
+			    	 
+			    	 response.list.forEach((reply) => {
+			    			
 			    		 const title = reply.recordTitle;
 			    		 const replyText = reply.replyText;
 			    		 const regDate = reply.replyDate;
@@ -64,7 +124,13 @@
 			    		 temp += '<hr/>';
 			    		 $('#replyList').append(temp);
 			    		 
-			    		 resolve();
+			    		 
+			    		 
+			    		 if(replyListSetup)
+		   		    		  	checkIfNeedToLoadMoreReply();
+			    		 
+			    		 console.log("reply loading end : "+ isLoading);
+			    		 resolve("reply contents loaded");
 			    	 });
 			    	  
 			      },
@@ -77,5 +143,7 @@
 			});
 		})
 	}
+
 </script>
 
+ 

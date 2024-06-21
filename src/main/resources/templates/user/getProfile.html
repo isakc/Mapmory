@@ -228,7 +228,7 @@
 				$('#bookMarkListBtn').removeClass('btn-secondary-custom');
 				$('#reactListBtn').removeClass('btn-secondary-custom');
 				
-				pageType.text('sharedRecord');
+				pageType.text('sharedList');
 				// console.log(pageType.text());
 				
 			});
@@ -360,8 +360,23 @@
 			          targetId: profileUserId
 			      }),
 			      success: function(response) {
-						alert("차단 완료");						
-				
+			        
+			    	  alert("차단 완료");
+			    	  /*
+					if(response == true || response == "true") {
+						
+						$('#deleteFollow').css('display', 'block');
+						$('#addFollow').css('display', 'none');
+						
+						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
+						
+					} else {
+						
+						console.log('false');
+						alert('변경 실패...');
+						
+					}
+			    	  */
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);
@@ -373,7 +388,8 @@
 			
 		});
 
-		function checkIfNeedToLoadMore(setupType, setupFunction) {
+		/*
+		function checkIfNeedToLoadMore(setupType, setupFunction, loadType) {
 			
 	        let scrollTop = $(window).scrollTop();
 	        let windowHeight = $(window).height();
@@ -389,12 +405,13 @@
 	        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
 	        	});
 	        } else {
-	        	
-	        	console.log('setup finished');
+
+	        	console.log("setup finished.");
 	        	setupType = false;
-	        	isLoading = false; // 로딩 완료 후 플래그 재설정    	
+	        	loadType = false; // 로딩 완료 후 플래그 재설정    	
 	        }
 	    }
+		*/
 		
 		</script>
 	
