@@ -146,20 +146,16 @@
 			                			+ '</span>';
 			            recordHtml += '</h4>';
 			            recordHtml += '</div>';
-			            if (sharedRecord.imageTagType != null && sharedRecord.imageTagText != null) {
+			            if (sharedRecord.imageTagType === 1 && sharedRecord.imageTagText != null) {
 			                recordHtml += '<div>';
-			                recordHtml += '<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">';
-			                recordHtml += '<rect width="100%" height="100%" fill="#868e96"></rect>';
-			                recordHtml += '<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>';
-			                recordHtml += '</svg>';
+			                recordHtml += '<img alt="" class="recordImage" src="/timeline/rest/image/'+sharedRecord.imageTagText+'">';
 			                recordHtml += '</div>';
 			            }
 			            recordHtml += '<div class="card-body">';
 			            recordHtml += '<h3 class="card-title">';
 			            recordHtml += '<span class="title" data-recordno="' + sharedRecord.recordNo + '">' + sharedRecord.recordTitle + '</span>';
+			            recordHtml += '<img alt="" class="category" src="/timeline/rest/imoji/'+sharedRecord.categoryImoji+'">';
 			            recordHtml += '<span>' + sharedRecord.categoryName + '</span>';
-			            recordHtml += '<span>' + sharedRecord.categoryName + '</span>';
-			            recordHtml += '<span>' + sharedRecord.categoryImoji + '</span>';
 			            recordHtml += '</h3>';
 			            recordHtml += '</div>';
 			            recordHtml += '<div class="card-body">';
@@ -238,6 +234,11 @@
         .card-footer .list-footer:last-child {
             margin-right: 0; /* 마지막 요소의 오른쪽 마진을 제거 */
         }		
+	
+		.recordImage {
+			width : 50%;
+			height : 50%;
+		}	
 		
 	</style>
 		
@@ -289,13 +290,12 @@
 							</span>
 						</h4> 
 					</div>
-					<div th:if="${sharedRecord.imageTagType != null and sharedRecord.imageTagText !=null}">
-						<img alt="" class="recordImage" th:src="@{/timeline/rest/image/{uuid}(uuid=${sharedRecord.imageTagText})}">
-						<svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
-							<rect width="100%" height="100%" fill="#868e96"></rect>
-							<text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
-						</svg>					
-					</div>					
+					<div th:if="${sharedRecord.imageTagType == 1 and sharedRecord.imageTagText !=null}">
+						<img alt="" class="recordImage" th:src="@{/timeline/rest/image/{uuid}(uuid=${sharedRecord.imageTagText})}">				
+					</div>
+<!-- 					<div th:if="${sharedRecord.imageTagType == 0 and sharedRecord.imageTagText != null}"> -->
+<!-- 						<span class="hashtag" th:text="${sharedRecord.imageTagText}"></span> -->
+<!-- 					</div>					 -->
 					<div class="card-body">
 						<h3 class="card-title">
 							<span th:text="${sharedRecord.recordTitle}" class="title" th:data-recordno="${sharedRecord.recordNo}"></span>
