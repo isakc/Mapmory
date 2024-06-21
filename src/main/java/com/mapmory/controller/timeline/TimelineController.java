@@ -400,8 +400,7 @@ public class TimelineController {
 		
 		timelineService.updateTimeline(record);
 		if(record.getTempType()==1) {
-			model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
-			return "timeline/getDetailTimecapsule";
+			return getDetailTimecapsule(model,record.getRecordNo(),request);
 		}else {
 			return getTempTimecapsuleList(model, record.getRecordUserId(),request);
 		}
