@@ -62,12 +62,9 @@ public class Search {
 	*/
 	
 	public int getOffset() {
-		return (getCurrentPage() - 1) * getPageSize();
+		return (getCurrentPage() - 1) * getLimit();
 	}
 	
-	public int getLimit() {
-		return getPageSize();
-	}
 	/*
 	public void setOffset(int offset) {
         this.offset = offset;
