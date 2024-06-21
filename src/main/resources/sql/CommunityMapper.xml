@@ -349,6 +349,7 @@
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = f.TARGET_ID) AS profileImageName
 		FROM follow_block f
 		WHERE user_id = #{userId} AND fb_type = 1
+		LIMIT #{search.limit} OFFSET #{search.offset}		
 	</select>
 
 	<!-- 사용자의 차단 Count -->

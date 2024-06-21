@@ -50,6 +50,12 @@ public class CommunityController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	@Value("${admin.page.Size}")
+	private int adminPageSize;
+	
+	@Value("${admin.page.Unit}")
+	private int adminPageUnit;	
+	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
@@ -213,10 +219,11 @@ public class CommunityController {
     
 		userId = redisUtil.getSession(request).getUserId();
 
-	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int currentPage = 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
-	    search.setOffset((currentPage - 1) * pageSize);		
+	    search.setOffset((currentPage - 1) * pageSize);	
 		
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
 		System.out.println("테스트 : "+userId);
@@ -241,7 +248,7 @@ public class CommunityController {
 			search.setCurrentPage(1);
 		}
 		
-		search.setPageSize(pageSize);
+		search.setPageSize(adminPageSize);
 		
 		Map<String, Object> allReportList = communityService.getAdminReportList(search);
 
@@ -264,14 +271,16 @@ public class CommunityController {
 	@GetMapping("/getBlockList/{userId}")
 	public String getBlockList(Search search, @PathVariable String userId, Model model, HttpServletRequest request) throws Exception {
 
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
-		
 		userId = redisUtil.getSession(request).getUserId();
 		
+	    int currentPage = 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);	
+	    
+	    System.out.println("12 "+search);
+				
 		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
 		System.out.println("테스트 : "+userId);
 		model.addAttribute("blockList", blockList.get("list"));

@@ -139,7 +139,7 @@
 			            recordHtml += '<div class="col-sm-4" id="list" data-record-no="' + sharedRecord.recordNo + '">';
 			            recordHtml += '<div class="card-body">';
 			            recordHtml += '<h4>';
-			            recordHtml += '<img alt="" class="profileImage" src="/user/rest/image/' + sharedRecord.profileImageName + '">';
+			            recordHtml += '<img alt="" class="profileImage" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
 			            recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
 			            recordHtml += '<span th:if="${sharedRecord.subscriptionEndDate == 1}">'
 			                			+ '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
@@ -276,7 +276,7 @@
 				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="col-sm-4" id="list" th:data-record-no="${sharedRecord.recordNo}">
 					<div class="card-body">
 						<h4>
-							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${sharedRecord.profileImageName})}">
+							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${sharedRecord.profileImageName})}">
 							<span class="profile" th:text="${sharedRecord.nickname}" th:data-record-userid="${sharedRecord.recordUserId}"></span>
 							<span th:if="${sharedRecord.subscriptionEndDate == 1}">
 								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">

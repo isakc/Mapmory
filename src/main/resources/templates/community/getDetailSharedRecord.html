@@ -532,7 +532,7 @@
 				</ul>
 				<div class="profile">
 					<h4>
-						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
+						<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:if="${record.subscriptionEndDate == 1}">
@@ -586,7 +586,7 @@
 	
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
 			<div class="col-sm-2">
-				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 				<span th:if="${reply.subscriptionEndDate == '1'}">
 					<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
