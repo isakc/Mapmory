@@ -22,7 +22,7 @@
     		<h4 class="card-title">
  				<span th:text="${record.recordTitle}"></span>
  				<span th:if="${!(record.categoryName==null)}" id="categorySpan" class="badge">
- 					<img th:src="${record.categoryImoji}" style="height:18px;"/>
+ 					<img th:src="'data:image/png;base64,' + ${record.categoryImojiByte}" style="height:18px;"/>
  					<span th:text="${record.categoryName}"></span>
  				</span>
  				<span class="badge bg-primary" th:text="${updateCountText}"></span>
@@ -35,12 +35,12 @@
  				<span th:text="${record.checkpointAddress}"></span><br/><br/>
  				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
  				<video width="320" height="240" controls>
-        			<source th:src="${record.mediaName}" type="video/mp4">
+        			<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
     			</video><br/>
 				<!-- <span th:text="${record.mediaName}"></span><br/> -->
 				</div>
 				<div th:each="image : ${record.imageName}">
-					<img th:src="${image.imageTagText}" style="height:100px;"/><br/>
+					<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/><br/>
  					<!-- <span th:text="${image.imageTagText}"></span> -->
  				</div>
     			<span class="badge bg-primary" th:text="'해시태그'"></span>
