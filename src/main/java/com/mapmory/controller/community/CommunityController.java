@@ -64,8 +64,9 @@ public class CommunityController {
 		
 		userId = redisUtil.getSession(request).getUserId();
 		
-	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int currentPage = 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
 	    search.setOffset((currentPage - 1) * pageSize);
 	  
@@ -208,18 +209,18 @@ public class CommunityController {
 	
 	//사용자 신고 목록 조회	
 	@GetMapping("/getUserReportList/{userId}")
-	public String getUserReportListt(@Param("search")Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
+	public String getUserReportListt(Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
     
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
-		
 		userId = redisUtil.getSession(request).getUserId();
+
+	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);		
 		
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
 		System.out.println("테스트 : "+userId);
+		
 		model.addAttribute("reportList",  reportList.get("list"));
 		model.addAttribute("totalCount", reportList.get("totalCount"));
 		
