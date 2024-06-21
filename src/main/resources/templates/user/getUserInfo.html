@@ -2,9 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link rel="stylesheet" href="/css/common/mapmory-color.css"  >
+	<title>내 정보 조회</title>
+	
+	<style>
+	
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	</style>
+	
 </head>
-<body>
-
+<body class="container mt-3">
+	
+	<div class="d-flex">
+		<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
+		<div class="col-6"></div>
+		<p class="h2 mt-3">내 정보 조회</p>
+	</div>
+	
+	
+	<p></p>
+	
+	<div class="d-grid gap-2 col-11 mx-auto fixed-bottom mb-3">
+	  <button class="btn btn-primary" type="button">내 정보 수정</button>
+	</div>
 </body>	
 </html>
