@@ -9,6 +9,14 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * page navigation
+ * LIMIT ${limit} OFFSET ${offset}  << currentPage, pageSize(limit)
+ * BETWEEN startRowNum $(startRowNum)AND endRowNum ${endRowNum}  << currentpage, pageSize 
+ * 
+ * @author rlaeo
+ *
+ */
 @SuperBuilder
 @Setter
 @Getter
