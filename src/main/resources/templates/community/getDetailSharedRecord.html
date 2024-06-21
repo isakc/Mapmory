@@ -65,7 +65,7 @@
 			console.log(recordUserId);
 			var recordTitle = $('.recordTitle').text();
 			var recordNo = $('.recordNo').text();
-			var nickname = $('.nickname').text();
+			var nickname = $('#nickname').text();
 			var reportData = {
 				userId: reporterUserId,
 				targetUserId: recordUserId,
@@ -74,7 +74,7 @@
 				nickname : nickname
 			};
 			console.log("1. 신고 데이터 :" + reportData);
-	
+			console.log(nickname);
 			sessionStorage.setItem('reportData', JSON.stringify(reportData));
 	
 			window.location.href = '/community/addReport';

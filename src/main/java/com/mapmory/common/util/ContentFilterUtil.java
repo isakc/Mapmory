@@ -27,9 +27,10 @@ public class ContentFilterUtil {
 	
 	//기록 내용, 댓글, 닉네임 등 텍스트에 대한 비속어 필터링 메서드
 	public static boolean checkBadWord(String text) {
-		BadWordFiltering badWordFiltering = new BadWordFiltering();	
+		BadWordFiltering badWordFiltering = new BadWordFiltering();
+		
 		String replaceText = badWordFiltering.change(text.replaceAll(" |\\* ", ""), 
-					new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-"});
+					new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-", "0", "1", "2", "3", "4" ,"5", "6", "7", "8", "9"});
 		
 		if(replaceText.contains("*") == true) {
 			System.out.println("비속어 등록 불가");
