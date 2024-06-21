@@ -36,39 +36,35 @@ public class NoticeServiceImpl implements NoticeService {
 	
 	@Override
     public Map<String,Object> getNoticeList(Search search) throws Exception {
-		
-    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
-        search.setPageSize(search.getPageSize());
-        
-        List<Notice> noticeList = noticeDao.getNoticeList(search);
-    	int totalCount = noticeDao.getNoticeTotalCount(search);
-    	
-    	System.out.println("공지사항 리스트입니다. " + noticeList);
-    	
-    	Map<String,Object> map = new HashMap<String, Object>();
-    	map.put("noticeList",noticeList);
-    	map.put("noticeTotalCount", new Integer(totalCount));
-        
-        return map;
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+	    search.setOffset(offset);
+	    search.setLimit(search.getPageSize());
+
+	    List<Notice> noticeList = noticeDao.getNoticeList(search);
+	    int totalCount = noticeDao.getNoticeTotalCount(search);
+
+	    Map<String,Object> map = new HashMap<String, Object>();
+	    map.put("noticeList", noticeList);
+	    map.put("noticeTotalCount", new Integer(totalCount));
+
+	    return map;
     }
 	
 	@Override
-    public Map<String,Object> getFaqList(Search search) throws Exception {
-		
-    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
-        search.setPageSize(search.getPageSize());
-        
-        List<Notice> noticeList = noticeDao.getFaqList(search);
-    	int totalCount = noticeDao.getFaQTotalCount(search);
-    	
-    	System.out.println("공지사항 리스트입니다.. " + noticeList);
-    	
-    	Map<String,Object> map = new HashMap<String, Object>();
-    	map.put("noticeList",noticeList);
-    	map.put("noticeTotalCount", new Integer(totalCount));
-        
-        return map;
-    }
+	public Map<String,Object> getFaqList(Search search) throws Exception {
+	    int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+	    search.setOffset(offset);
+	    search.setPageSize(search.getPageSize());
+
+	    List<Notice> noticeList = noticeDao.getFaqList(search);
+	    int totalCount = noticeDao.getFaQTotalCount(search);
+
+	    Map<String,Object> map = new HashMap<String, Object>();
+	    map.put("noticeList", noticeList);
+	    map.put("noticeTotalCount", new Integer(totalCount));
+
+	    return map;
+	}
 	
 	public Notice getDetailNotice(int noticeNo) throws Exception {
 		return noticeDao.getDetailNotice(noticeNo);

@@ -154,18 +154,23 @@
 				window.location.href="/user/getPasswordView";
 			});
 			
+			/*
 			$('#keepLoginDiv').on('click', function() {
 				
-				
+				console.log("flag");
 				var checkBox = $(this).find('input[name="keepLogin"]');
-				/*
-			    if (checkBox.prop('checked')) {
-			      checkBox.prop('checked', false);
-			    } else {
-			      checkBox.prop('checked', true);
-			    }
-				*/
+
 				checkBox.prop('checked', !checkBox.prop('checked'));
+			});
+			*/
+			
+			$('label[for="keepLogin"]').on('click', function() {
+
+				var checkBox = $(this).parent().find('input[name="keepLogin"]');
+				
+				// console.log("before statement : " + checkBox.prop('checked'));
+				checkBox.prop('checked', !checkBox.prop('checked'));
+				// console.log("I changed : " + checkBox.prop('checked'));
 			});
  		});
  		
@@ -174,6 +179,11 @@
 			$('#mapView').on('click', function() {
 				
 				window.location.href="/map";
+			});
+			
+			$('#adminMain').on('click', function() {
+				
+				window.location.href="/user/admin/getAdminMain";
 			});
 			
 			$('#footerView').on('click', function() {
@@ -256,7 +266,7 @@
 	
 		        
 		        <div class="userDiv" style="display:none;">
-			        <button type="button" id="getProfile">내 프로필로 이동</button>
+			        <!-- <button type="button" id="getProfile">내 프로필로 이동</button>  -->
 			        <button type="button" id="logout">로그아웃</button>
 		        </div>
 	       	   
@@ -283,6 +293,7 @@
 	        <br/>
 	        <br/>
 	        <button type="button" id="mapView">map으로 바로 이동</button>
+	        <button type="button" id="adminMain" class="btn btn-primary">관리자 메인 화면으로 이동</button>
 	        <button type="button" id="footerView">getAdminCategoryList</button>
 	    
 	    <div class="userDiv" style="display:none;">
