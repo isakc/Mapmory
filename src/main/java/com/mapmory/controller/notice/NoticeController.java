@@ -220,9 +220,9 @@ public class NoticeController {
         System.out.println("삭제전 문제 테스트 ::::: " + notice);
         
         if (notice.getNoticeType() == 0) {
-            return "redirect:/notice/getNoticeList";
+            return "redirect:/notice/getAdminNoticeList";
         } else {
-            return "redirect:/notice/getFaqList";
+            return "redirect:/notice/getAdminFaqList";
         }
     }
     
