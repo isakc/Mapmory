@@ -202,7 +202,7 @@
                         html += '<p class="price">' + product.price + '원</p>';
                         html += '</div>';
                         html += '<div class="product-actions">';
-                        html += '<a href="http://192.168.0.228:8000/purchase/addPurchaseView">구매</a>';
+                        html += '<a href="/purchase/addPurchaseView/'+product.productNo+'">구매</a>';
                         html += '<p>' + formatDate(product.productRegDate) + '</p>';
                         html += '</div>';
                         html += '</div>';

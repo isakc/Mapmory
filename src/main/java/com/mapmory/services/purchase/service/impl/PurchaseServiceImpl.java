@@ -121,8 +121,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 	@Override
 	public PurchaseDTO getSubscriptionPurchase(Purchase purchase) throws Exception {
 		PurchaseDTO subscriptionPurchase = purchaseDao.getSubscriptionPurchase(purchase);
-
-		subscriptionPurchase.setPaymentMethodString(PurchaseUtil.paymentChange(subscriptionPurchase.getPaymentMethod()));
+		
+		if(subscriptionPurchase != null) {
+			subscriptionPurchase.setPaymentMethodString(PurchaseUtil.paymentChange(subscriptionPurchase.getPaymentMethod()));
+		}
 		
 		return subscriptionPurchase;
 	}

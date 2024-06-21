@@ -6,11 +6,12 @@
     <title>상품 상세</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/common/toolBar.css">
     <!-- Custom CSS -->
     <style>
         body {
             background-color: #f8f9fa;
-            padding: 40px;
+            padding: 0px;
         }
 
         .container {
@@ -97,6 +98,7 @@
 </head>
 
 <body>
+<div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <h1>상품 상세</h1>
         <div class="product-detail">
