@@ -6,10 +6,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link rel="stylesheet" href="/css/common/toolBar.css">
    <style>
         body {
             background-color: #f8f9fa;
-            padding: 40px;
+            padding: 0px;
         }
 
         .container {
@@ -25,7 +26,7 @@
             font-size: 36px;
         }
 
-        .product-detail {
+        .user-detail {
             background-color: #fff;
             border-radius: 10px;
             padding: 40px;
@@ -33,14 +34,14 @@
             margin-bottom: 40px;
         }
 
-        .product-detail h2, .product-detail p {
+        .user-detail h2, .user-detail p {
             color: #007bff;
             margin-bottom: 20px;
             font-size: 20px;
             font-weight: bold;
         }
 
-        .product-detail p {
+        .user-detail p {
             color: #6c757d;
             font-size: 18px;
             line-height: 1.6;
@@ -97,9 +98,10 @@
     <title>사용자 상세 조회</title>    
 </head>
 <body>
+<div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <h1>사용자 상세 조회</h1>
-        <div class="product-detail">
+        <div class="user-detail">
             <h2>사용자 정보</h2>
             <p><strong>사용자 ID:</strong> <span th:text="${user.userId}">사용자아이디</span></p>
             

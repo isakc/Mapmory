@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>공지사항 상세</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/common/toolBar.css">
     <!-- Custom CSS -->
     <style>
         body {
@@ -26,7 +26,7 @@
             font-size: 36px;
         }
 
-        .product-detail {
+        .notice-detail {
             background-color: #fff;
             border-radius: 10px;
             padding: 40px;
@@ -34,14 +34,14 @@
             margin-bottom: 40px;
         }
 
-        .product-detail h2 {
+        .notice-detail h2 {
             color: #007bff;
             margin-bottom: 20px;
             font-size: 28px;
             font-weight: bold;
         }
 
-        .product-detail p {
+        .notice-detail p {
             color: #6c757d;
             font-size: 18px;
             line-height: 1.6;
@@ -97,9 +97,10 @@
 </head>
 
 <body>
+<div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <h1>공지사항 상세</h1>
-        <div class="product-detail">
+        <div class="notice-detail">
             <h2 th:text="${notice.noticeTitle}">공지사항 제목</h2>
             <p th:text="${notice.noticeText}">공지사항 내용</p>
             <div class="action-links">

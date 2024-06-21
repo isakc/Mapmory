@@ -11,7 +11,8 @@ const recordListElement = (index) => {
 
 	            <div class="row">
 	                <h5 class="card-title col-9 fw-bold ellipsis fs-6">${recordList[index].recordTitle}</h5>
-	                <span class="col-3"> <img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji" class="recordEmoji"/> </span>
+	                <span class="col-3"> <img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	                class="recordEmoji" data-categoryNo ="${recordList[index].categoryNo}"/> </span>
 	                
 	            </div>
 
@@ -19,7 +20,7 @@ const recordListElement = (index) => {
 	          <p class="card-text">
 	          	${recordList[index].hashtag && recordList[index].hashtag.length > 0 ?
 				recordList[index].hashtag.slice(0, 3).map(tag => 
-				`<a href="#"><small class="text-primary" onclick="hasTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('')
+				`<a href="#"><small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('')
 				: ''}
 	          </p>
 
@@ -28,7 +29,7 @@ const recordListElement = (index) => {
 
 	      <div class="col-3">
 	      	<div>
-	      		<span class="">${recordList[index].stringDistance}</span>
+	      		<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	      	</div>
 	      	
 	      	<div class="recordImageContainer">
@@ -37,10 +38,6 @@ const recordListElement = (index) => {
 	      		`<img src="/user/rest/thumbnail/${image.imageTagText}" class="img-fluid rounded-start" alt="기록 사진"/>`) : 
 	      		`<img src="/user/rest/thumbnail/default.jpg" class="img-fluid rounded-start" alt="기본 사진"/>`}
 	      	</div>
-	      	
-	      	
-	      	
-	      	
 	      </div><!-- 이미지 부분-->
 	      
 	    </div>
@@ -57,22 +54,23 @@ const simpleRecordElement = (index) => {
 	                        <div class="row">
 	                            <h5 class="card-title col-9 fw-bold ellipsis fs-6">${recordList[index].recordTitle}</h5>
 	                            <span class="col-3">
-	                            	<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji" onclick= categoryClick(${recordList[index].categoryNo})  class="recordEmoji"/>
+	                            	<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji" 
+	                            	onclick = "categoryClick(${recordList[index].categoryNo})" class="recordEmoji"/>
 	                            </span>
 	                        </div>
 	                        <p class="card-text">${recordList[index].recordAddDate}</p>
 	                        <p class="card-text">${recordList[index].checkpointAddress}</p>
 	                        <p class="card-text">
 	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-	                             <a href="#"> <small class="text-primary" onclick="hasTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
+	                             <a href="#"> <small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
 	                        </p>
 	                        
 	                    </div>
 	                </div>
 	                <div class="col-3">
 	                	<div>
-	                		<span class="btn-success-custom">${recordList[index].markerTypeString}</span>
-	                		<span class="">${recordList[index].stringDistance}</span>
+	                		<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	                		<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	                	</div>
 	                	
 	                	<div class="recordImageContainer">
@@ -85,7 +83,7 @@ const simpleRecordElement = (index) => {
 	                    <div class="profileImageContainer">
 	                    	<img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
 	                    	<span class="">${recordList[index].nickName}</span>
-	                        <span class="">${recordList[index].isSubscribed ? 'V' : 'X'}</span>
+	                        ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}</span>
 	                    </div>
 	                </div>
 	            </div>
@@ -110,18 +108,21 @@ const detailRecordElement = (index) => {
 	                        <div class="row">
 	                            <h5 class="card-title col-9 fw-bold fs-6">${recordList[index].recordTitle}</h5>
 	                            <span class="col-3">
-	                            	<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji" onclick= categoryClick(${recordList[index].categoryNo})  class="recordEmoji"/>
+	                            	<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	                            	onclick = "categoryClick(${recordList[index].categoryNo})" class="recordEmoji"/>
 	                            </span>
 	                        </div>
 	                        <p class="card-text">${recordList[index].recordAddDate}</p>
 	                        <p class="card-text">${recordList[index].checkpointAddress}</p>
 	                        <p class="card-text">${recordList[index].mediaName}</p>
 	                        <p class="recordImageContainer">
+	                        <div>
 	                        	${recordList[index].imageName.map(image => `<img src="/user/rest/thumbnail/${image.imageTagText}"/>`).join('')}
+	                        </div>
 	                        </p>
 	                        <p class="card-text">
 	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-	                             <a href="#"> <small class="text-primary" onclick="hasTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
+	                             <a href="#"> <small class="text-primary" onclick="hashTagClick('${tag.imageTagText}')">${tag.imageTagText}</small></a>`).join('') : ''}
 	                        </p>
 	                        <p class="card-text">${recordList[index].recordText}</p>
 
@@ -129,15 +130,15 @@ const detailRecordElement = (index) => {
 	                </div>
 	                <div class="col-3">
 	                	<div>
-	                		<span class="btn-success-custom">${recordList[index].markerTypeString}</span>
-	                		<span class="">${recordList[index].stringDistance}</span>
+	                		<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	                		<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	                	</div>
                         
-                        <div class="recordImageContainer">
-                            <img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
-                            <span class="">${recordList[index].nickName}</span>
-                            <span class="">${recordList[index].isSubscribed ? 'V' : 'X'}</span>
-                        </div>
+                        <div class="profileImageContainer">
+	                    	<img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
+	                    	<span class="">${recordList[index].nickName}</span>
+	                        ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}</span>
+	                    </div>
 	                </div>
 	            </div>
 	            
