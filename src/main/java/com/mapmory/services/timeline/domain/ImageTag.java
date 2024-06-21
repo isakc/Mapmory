@@ -11,4 +11,6 @@ public class ImageTag {
 	private int recordNo;
 	private int imageTagType;
 	private String imageTagText;
+	
+	private String imageTagByte;
 }
