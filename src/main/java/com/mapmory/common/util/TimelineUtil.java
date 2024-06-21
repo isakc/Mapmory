@@ -163,6 +163,16 @@ public class TimelineUtil {
 			return mapRecord;
 		}
 		
+		public static Category mapToCategory(Map<String, Object> map) {
+			
+			Category category=Category.builder()
+					.categoryNo((int)map.get("categoryNo"))
+					.categoryName((String)map.get("categoryName"))
+					.categoryImoji((String)map.get("categoryImoji"))
+					.build();
+			return category;
+		}
+		
 		public static List<ImageTag> listToImage (List<Map<String, Object>> imageTagList) {
 			List<ImageTag> imageName = new ArrayList<ImageTag>();
 			for (Map<String, Object> map : imageTagList) {
@@ -340,6 +350,24 @@ public class TimelineUtil {
 			return record;
 		}
 		
+		public List<Category> categoryImojiListToUrl(List<Category> categoryList) {
+				List<Category> tempList = new ArrayList<Category>();
+				for (Category category : categoryList) {
+					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
+						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+					}
+					tempList.add(category);
+				}
+			return tempList;
+		}
+		
+		public Category categoryImojiNameToUrl(Category category) {
+					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
+						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+					}
+			return category;
+		}
+		
 		public Record imageNameToByte(Record record) throws Exception {
 			if (!(record.getImageName() == null)) {
 				List<ImageTag> imageName = new ArrayList<ImageTag>();
@@ -385,20 +413,22 @@ public class TimelineUtil {
 			return record;
 		}
 		
-		public List<Category> categoryImojiListToUrl(List<Category> categoryList) {
+		public List<Category> categoryImojiListToByte(List<Category> categoryList) throws Exception {
 				List<Category> tempList = new ArrayList<Category>();
 				for (Category category : categoryList) {
 					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
-						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+						category.setCategoryImojiByte(Base64.getEncoder().encodeToString(
+								objectStorageUtil.getImageBytes(category.getCategoryImoji(), imojiFileFolder)));
 					}
 					tempList.add(category);
 				}
 			return tempList;
 		}
 		
-		public Category categoryImojiNameToUrl(Category category) {
+		public Category categoryImojiNameToByte(Category category) throws Exception {
 					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
-						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+						category.setCategoryImojiByte(Base64.getEncoder().encodeToString(
+								objectStorageUtil.getImageBytes(category.getCategoryImoji(), imojiFileFolder)));
 					}
 			return category;
 		}

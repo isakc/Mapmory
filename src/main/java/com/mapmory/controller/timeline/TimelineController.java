@@ -431,11 +431,8 @@ public class TimelineController {
 	
 	@GetMapping("getUserCategoryList")
 	public String getUserCategoryList(Model model) throws Exception,IOException{
-		model.addAttribute("categoryList", 
-				timelineUtil.categoryImojiListToUrl(
-						timelineService.getCategoryList()
-						)
-				);
+		model.addAttribute("categoryList",timelineUtil.categoryImojiListToByte(
+						timelineService.getCategoryList()));
 		return "timeline/getUserCategoryList";
 	}
 	
