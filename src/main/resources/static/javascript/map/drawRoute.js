@@ -4,13 +4,8 @@
 
 const drawRoute = (type) => {
 	const urlParameter = type == 1 ? "getPedestrianRoute" : "getCarRoute";
-	hideDescription();
-	hideMarkers();
-	clearPolylines();
 
 	getCurrentLocation().done(function(location) {
-
-		let tDescription; // 설명
 		let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 
 		const requestData = {
@@ -32,52 +27,42 @@ const drawRoute = (type) => {
 
 			success: function(response) {
 				console.log(response);
-
-				setMarkers([{ latitude: requestData.startY, longitude: requestData.startX, markerType:5 }]);
-				setMarkers([{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }]);
-
-				const tDistance = "<span>총 거리 : " + ((response.totalDistance) / 1000).toFixed(1) + "km,</span>";
-				const tTime = "<span>총 시간 : " + ((response.totalTime) / 60).toFixed(0) + "분</span>";
-
-				$("#result").html(tDistance + tTime);
+				
+				hideMarkers();
+				
+				setMarkers([{ latitude: requestData.startY, longitude: requestData.startX, markerType:5 },
+							{ latitude: requestData.endY,   longitude: requestData.endX,   markerType:6 } ]);
 
 				bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
-
+				
 				for (let i = 0; i < response.lat.length; i++) {
 					const latlng = new kakao.maps.LatLng(response.lat[i], response.lon[i]);
 					bounds.extend(latlng);
 					drawInfoArr.push(latlng);
 				}
-
-				let description = $('#description');
-				description.empty();
-				response.description.forEach(function(desc) {
-					let p = $('<p></p>').text(desc);
-					description.append(p);
-				});
-
+				
+				routeDescriptionList.append(routeListElement(response));
+				
+				description.css('display', 'none');
 				drawLine(drawInfoArr, 1);
 				map.setBounds(bounds);
 			}, // success
-
-			error: function(request, status, error) {
+			error: function() {
+				alert("길찾기 실패!!")
 				console.error("에러!!");
 			} // error
 		}); // ajax
 	}).fail(function(error) {
+		alert("길찾기 실패!!")
 		console.log('Error getting location:', error);
 	});
 }; // 보행자, 자동차
 
 const drawTransitRoute = () => {
-
 	paths = [];
-	hideDescription();
-	clearPolylines();
 
 	getCurrentLocation().done(function(location) {
 
-		let tDescription; // 설명
 		let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 		bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 
@@ -100,9 +85,16 @@ const drawTransitRoute = () => {
 
 			success: function(response) {
 				console.log(response);
+				
+				description.css('display', 'none');
+				hideMarkers();
+				
+				setMarkers([
+					{ latitude: requestData.startY, longitude: requestData.startX,  markerType:5 },
+					{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }
+				]);
 
 				if (response.length != 0) {
-					hideMarkers();
 
 					response.forEach((path, index) => {
 						const routeList = path.routeList;
@@ -131,81 +123,69 @@ const drawTransitRoute = () => {
 						});//path.push
 					});//foreach
 
-					const pathListDiv = document.getElementById('result');
-
-					paths.forEach((path, index) => {
-						const pathDiv = document.createElement('div');
-						pathDiv.textContent = `Path ${index + 1}: Total Fare: ${path.totalFare}, Total Time: ${path.totalTime}`;
-						pathDiv.style.cursor = 'pointer';
-						pathDiv.addEventListener('click', () => showPathDetails(index));
-						pathListDiv.appendChild(pathDiv);
-					});
-
-					function showPathDetails(index) {
-						clearPolylines();
-						clearMarkers();
-
-						for (let i = 0; i < paths[index].routes.length; i++) {
-							drawInfoArr = [];
-
-							for (let j = 0; j < paths[index].routes[i].lineStringLat.length; j++) {
-								const lat = paths[index].routes[i].lineStringLat[j];
-								const lon = paths[index].routes[i].lineStringLon[j];
-								const latlng = new kakao.maps.LatLng(lat, lon);
-								bounds.extend(latlng);
-								drawInfoArr.push(latlng);
-							} // 이게 안에 있는 세부정보들
-
-							setMarkers([{ latitude: paths[index].routes[i].startLat, longitude: paths[index].routes[i].startLon }]);
-
-							if (paths[index].routes[i].mode == 'WALK') {
-								drawLine(drawInfoArr, 0);
-							} else {
-								drawLine(drawInfoArr, 1);
-							}
-
-							map.setBounds(bounds);
-						} // 이게 라우트 1,2,3,4,5
-
-						const path = paths[index];
-						const pathDetailsDiv = document.getElementById('description');
-						pathDetailsDiv.innerHTML = `
-	                        <h2>Path ${path.index}</h2>
-	                        <p>Total Fare: ${path.totalFare}</p>
-	                        <p>Total Time: ${path.totalTime}</p>
-	                        <p>Total Distance: ${path.totalDistance}</p>
-	                        <p>Total Walk Time: ${path.totalWalkTime}</p>
-	                        <p>Transfer Count: ${path.transferCount}</p>
-	                        <p>Path Type: ${path.pathType}</p>
-	                        <h3>Routes:</h3>
-	                        ${path.routes.map(route => `
-	                            <div>
-	                                <p>Mode: ${route.mode}</p>
-	                                <p>Route: ${route.routeName}</p>
-	                                <p>Start: ${route.startName}</p>
-	                                <p>End: ${route.endName}</p>
-	                            </div>
-	                        `).join('')}
-	                    `;
-					} // showPathDetails
-
+					routeDescriptionList.append(transitRouteListElement(paths) );
 					showPathDetails(0); // 0번째 경로로 그리기
-
-					setMarkers([
-						{ latitude: requestData.startY, longitude: requestData.startX,  markerType:5 },
-						{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }
-					]);
-
 				}//if
 				else {
 					alert("해당 경로찾기가 없습니다!!");
-				}
-
-
-
+				}//else
 			} // success
 		}); // ajax 대중교통
 	}).fail(function(error) {
-		console.log('위치를 불러오는데 실패', error);
+		alert("경로찾기를 찾아오는데 실패했습니다!!");
+		console.log('경로 찾기 실패', error);
 	});
 }; // 대중교통 경로찾기
+
+function showPathDetails(index) {
+	clearPolylines();
+	clearStartEndMarkers();
+	
+	for (let i = 0; i < paths[index].routes.length; i++) {
+		drawInfoArr = [];
+
+		for (let j = 0; j < paths[index].routes[i].lineStringLat.length; j++) {
+			const lat = paths[index].routes[i].lineStringLat[j];
+			const lon = paths[index].routes[i].lineStringLon[j];
+			const latlng = new kakao.maps.LatLng(lat, lon);
+			bounds.extend(latlng);
+			drawInfoArr.push(latlng);
+		} // 이게 안에 있는 세부정보들
+
+		const list2= [{ latitude: paths[index].routes[i].startLat, longitude: paths[index].routes[i].startLon }];
+		
+		if(paths[index].routes[i].mode  === 'WALK'){
+			list2[0].markerType = 8;
+		}else if(paths[index].routes[i].mode  === 'SUBWAY'){
+			list2[0].markerType = 9;
+		}else if(paths[index].routes[i].mode  === 'BUS'){
+			list2[0].markerType = 10;
+		}
+		
+		setMarkers(list2);
+
+		if (paths[index].routes[i].mode == 'WALK') {
+			drawLine(drawInfoArr, 0);
+		} else {
+			drawLine(drawInfoArr, 1);
+		}
+
+		map.setBounds(bounds);
+		
+	} // 이게 라우트 1,2,3,4,5
+	
+	return transitRouteDescriptionElement(paths[index]);
+} // showPathDetails
+
+function drawLine(arrPoint, mode) {
+	let polyline = new kakao.maps.Polyline({
+		path: arrPoint, // 선을 구성하는 좌표배열
+		strokeWeight: 7, // 선의 두께
+		strokeColor: mode === 0 ? 'black' : 'blue', // 0 = 걸을 때, 1 = 그 외 선 색깔
+		strokeOpacity: 1, // 선의 불투명도, 1에서 0 사이의 값이며 0에 가까울수록 투명
+		strokeStyle: mode === 0 ? 'dash' : 'solid' // 0 = 걸을 때 점선, 1 = solide 선의 스타일
+	});
+
+	polyline.setMap(map);
+	polylines.push(polyline); // 배열에 폴리라인 객체를 추가
+} // drawLine: 라인을 그리는 함수
