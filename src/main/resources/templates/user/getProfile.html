@@ -56,8 +56,8 @@
 	
 		$(function(){
 	
-			const myProfile = [[${myProfile}]];
-			const isFollow = [[${isFollow}]];
+			const myProfile = /*[[${myProfile}]]*/ '';
+			const isFollow = /*[[${isFollow}]]*/ '';
 			pageType = $('#pageType');
 			pageType.text('sharedList');
 			console.log(pageType.html());
@@ -404,7 +404,7 @@
 			
 			$('#reportUser').on('click', function(){
 				
-				const profileUserNickname = [[${profile.user.nickname}]];
+				const profileUserNickname = /*[[${profile.user.nickname}]]*/ '';
 				
 				const reportData = {
 						userId : sessionId ,

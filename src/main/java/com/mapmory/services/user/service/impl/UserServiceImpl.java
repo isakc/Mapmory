@@ -734,7 +734,15 @@ public class UserServiceImpl implements UserService {
 					.userId(userId)
 					.build();
 		
-		LocalDate leaveAccountDate = userDao.selectUser(user).getLeaveAccountDate().toLocalDate();
+		// LocalDate leaveAccountDate = userDao.selectUser(user).getLeaveAccountDate().toLocalDate();
+		LocalDateTime value = userDao.selectUser(user).getLeaveAccountDate();
+		if(value == null) {
+			
+			System.out.println("탈퇴 상태가 아님");
+			return 3;
+		} 
+		
+		LocalDate leaveAccountDate = value.toLocalDate();
 		
 		// 변경 일자가 오늘로부터 1개월이 지난 경우면 진행 불가능.
 		if( leaveAccountDate.isBefore( LocalDate.now().minusMonths(1) ) ) {

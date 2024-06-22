@@ -482,7 +482,16 @@ public class UserRestController {
 	}
 	
 	@PostMapping("/recoverAccount/{userId}")
-	public ResponseEntity<String> recoverAccount(@PathVariable String userId) {
+	public ResponseEntity<String> recoverAccount(@PathVariable String userId, @RequestParam String email) {
+		
+		User user = userService.getDetailUser(userId);
+		
+		if( !user.getEmail().equals(email)) {
+			
+			System.out.println("일치하지 않는 이메일");
+			return ResponseEntity.ok("mismatch");
+		}
+			
 		
 		int result = userService.updateRecoverAccount(userId);
 		
@@ -494,9 +503,28 @@ public class UserRestController {
 				return ResponseEntity.ok("true");
 			case 2:
 				return ResponseEntity.ok("violate-policy");
+			case 3:
+				return ResponseEntity.ok("not-leaving");
 		}
 		
 		return null;
+	}
+	
+	// id email match 유효성 검사
+	@PostMapping("/checkIsMatched/{userId}")
+	public ResponseEntity<Boolean> checkIsMatched(@PathVariable String userId, @RequestParam String email) {
+		
+		User user = userService.getDetailUser(userId);
+		
+		boolean result = (user.getEmail().equals(email));
+		
+		if(!result) {
+			
+			System.out.println("일치하지 않는 이메일");
+			return ResponseEntity.ok(false);
+		} else {
+			return ResponseEntity.ok(true);
+		}
 	}
 	
 	@PostMapping("/sendAuthNum")
