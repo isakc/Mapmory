@@ -126,8 +126,12 @@
                     		
                     	}
                     },
-                    error: function(jqXHR) {
-                        alert("오류 발생: " + jqXHR.responseText);
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    	
+                    	if(jqXHR.status === 0 && jqXHR.statusText === 'error')
+                    		alert('현재 서버가 작동하지 않고 있습니다...');
+                    	else
+                        	alert("오류 발생: " + jqXHR.responseText);
                     }
                 });
         	});
