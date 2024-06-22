@@ -41,7 +41,7 @@
               merchant_uid: "purchase_"+userId+"_"+currentDate,   // 주문번호
               name: $("#productTitle").val(),
               amount: price,              // 숫자 타입
-              m_redirect_url: "index"
+              m_redirect_url: "/purchase/getPurchaseList"
           },
           function (rsp) { // callback
             console.log(rsp);
@@ -72,7 +72,7 @@
               customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
               name: "정기 구독 결제",
               amount: 0, // 0으로 설정하여 할 시 빌링키만 발급
-              m_redirect_url: "index"
+              m_redirect_url: "/purchase/getPurchaseList"
             },//빌링키 요청
 
             function (rsp) {

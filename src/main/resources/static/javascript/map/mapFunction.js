@@ -33,7 +33,8 @@ function setMarkers(contentList) {
         marker.originalImage = markerImages[content.markerType]; // 마커에 원래 이미지를 저장
         marker.locationData = content;// 마커 객체에 location 정보 저장
         
-        if(content.markerType === 5 || content.markerType === 6 || content.markerType === 8 || content.markerType === 9 || content.markerType === 10){
+        if(content.markerType === 5 || content.markerType === 6 || content.markerType === 8 || 
+        content.markerType === 9 ||content.markerType === 10 || content.markerType === 11 || content.markerType === 12){
 			startEndMarkers.push(marker);
 		}else{
 			markers.push(marker);
@@ -47,12 +48,10 @@ function setMarkers(contentList) {
     });
 
     kakao.maps.event.addListener(map, 'click', function() {
-        hideResult();
-        deleteDescription();
+        hideResultDivs();
         
-        if (clickedMarker) {
-			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
-		}
+		$(".mapButton").removeClass('on');
+		resultDivsBtn.addClass('on');
     });// 맵을 클릭한 경우 해제 시키기
 }
 	
@@ -76,7 +75,6 @@ function clickContentMarker(marker, index, contentList) {
     selectLatitude = contentList[index].latitude;
     selectLongitude = contentList[index].longitude;
     map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
-	description.css('display', 'block');
     
     if (clickedMarker) {
         clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
@@ -88,13 +86,18 @@ function clickContentMarker(marker, index, contentList) {
     marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
     clickedMarker = marker; // 현재 클릭된 마커를 업데이트
 
-    hideResult();
+    $(".infoItem").removeClass("on");
+	description.addClass("on");
 	deleteDescription();
 	
+	if( !(resultDivsBtn.hasClass('on')) ){
+		listBtn.addClass('on');
+	}
+	
 	if(contentList[0].markerType === 3){
-		$("#description").append(detailPlaceElement(index) );
+		description.append(detailPlaceElement(index) );
 	}else{
-		$("#description").append(simpleRecordElement(index) );
+		description.append(simpleRecordElement(index) );
 	}
     
 } // 마커나 리스트에서 클릭했을 경우
@@ -151,19 +154,38 @@ function deleteRouteDescriptionList() {
 } // deleteDescription
 
 function hideResult() {
-	result.css('display', 'none');
+	resultDivs.removeClass('on');
 } // hideResult
 
 function showResult() {
-	if (clickedMarker) {
-		clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
-	}
-	
-	clearStartEndMarkers();
-	clearPolylines();
-	showMarkers();
-	deleteDescription();
-	
-	result.css('display', 'block');
-	deleteRouteDescriptionList();
+	$(".infoItem").removeClass('on');
+	result.addClass('on');
+	$(".mapButton").removeClass('on');
 }// showResult
+
+function hideResultDivs(){
+	resultDivs.css('display', 'none');
+}
+
+function showResultDivs(){
+	$(".mapButton").removeClass('on');
+	resultDivs.css('display', 'block');
+	
+	if( description.hasClass('on') ){
+		listBtn.addClass('on');
+	}else if( routeDescriptionList.hasClass('on') ){
+		descriptionBtn.addClass('on')
+	}
+}
+
+function showDescription(){
+	clearPolylines();
+	clearStartEndMarkers();
+	$(".infoItem").removeClass('on');
+	description.addClass('on');
+	
+	$(".mapButton").removeClass('on');
+	listBtn.addClass('on');
+	
+	showMarkers();
+}
