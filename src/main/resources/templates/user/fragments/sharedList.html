@@ -45,7 +45,7 @@
         let documentHeight = $(document).height();
 
         // console.log("is setup finished? :"+(documentHeight <= windowHeight));
-        if (documentHeight <= windowHeight) {
+        if (documentHeight <= windowHeight + 200) {
         	
         	// console.log('setup start');
         	loadMoreSharedList().then((value)=> {
