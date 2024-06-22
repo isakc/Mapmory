@@ -155,7 +155,7 @@
 	</select>
 	
 	<select id="selectFollowList" parameterType="com.mapmory.services.user.domain.FollowSearch" resultMap="selectFollowMap">
-	SELECT
+		SELECT
 		<if test="selectFollow == 0">
 		  fb.target_id AS user_id,
 	    </if>
@@ -167,10 +167,7 @@
 		  u.profile_image_name,
 		  u.hide_profile,
 		  IF(NOW() BETWEEN s.subscription_start_date AND s.subscription_end_date, 1, 0) AS is_subscribed,
-		  CASE
-		    WHEN fb2.user_id IS NULL THEN 0
-		    ELSE 1
-		  END AS is_follow
+		  CASE WHEN fb2.user_id IS NULL THEN 0 ELSE 1 END AS is_follow
 		FROM follow_block fb
 		<if test="selectFollow == 0">
 		LEFT JOIN users u ON fb.target_id = u.user_id
@@ -214,7 +211,7 @@
 	                    user_id
 	            ) s2 ON s1.user_id = s2.user_id AND s1.subscription_end_date = s2.max_end_date
 	    	) s ON fb.user_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.user_id = fb.user_id AND fb2.target_id = #{myUserId}
+		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.user_id AND fb2.user_id = #{myUserId}
 		</if>
 		AND fb2.fb_type=0
 		WHERE
