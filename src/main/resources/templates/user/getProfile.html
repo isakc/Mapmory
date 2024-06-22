@@ -46,8 +46,9 @@
 	
 	<script th:inline="javascript">
 	
-		const profileUserId = /*[[${profile.user.userId}]]*/ '';
-		const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
+		const sessionId = sessionStorage.getItem('userId');
+		const profileUserId = /*[[${profile.user.userId}]]*/ sessionId;
+		//const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
 		let isLoading = false;
 		let pageType = null;
 		

@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
+	<link rel="stylesheet" href="/css/common/chatBot.css">
 
 	<!-- 기록 작성 유저 프로필로 이동 -->
 	<script th:inline="javascript">
@@ -110,6 +111,11 @@
 					logsType : logsType
 			};
 			
+			var dislikeIcon = $('#recordDislike');
+			if(dislikeIcon.hasClass('bi-hand-thumbs-down-fill')) {
+				return;
+			}
+			
 			$.ajax({
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
@@ -124,12 +130,15 @@
 					updateLikes(recordNo, replyNo, logsType);
 					
 				    var likeIcon = $('#recordLike');
+				    
 				    if (likeIcon.hasClass('bi-hand-thumbs-up')) {
 				        likeIcon.removeClass('bi-hand-thumbs-up');
 				        likeIcon.addClass('bi-hand-thumbs-up-fill');
+				        dislikeIcon.prop('disabled', true);
 				    } else {
 				        likeIcon.removeClass('bi-hand-thumbs-up-fill');
 				        likeIcon.addClass('bi-hand-thumbs-up');
+				        dislikeIcon.prop('disabled', false);
 				    }
 				},
 				error : function(xhr, status, error) {
@@ -178,6 +187,11 @@
 					logsType : logsType
 			};
 			
+			var likeIcon = $('#recordLike');
+			if(likeIcon.hasClass('bi-hand-thumbs-up-fill')) {
+				return;
+			}			
+			
 			$.ajax({
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
@@ -191,12 +205,15 @@
 					console.log('싫어요 추가 혹은 취소 성공');
 					updateDislikes(recordNo, replyNo, logsType);
 				    var dislikeIcon = $('#recordDislike');
+				    
 				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
 				        dislikeIcon.removeClass('bi-hand-thumbs-down');
 				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				        likeIcon.prop('disabled', true);
 				    } else {
 				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
 				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				        likeIcon.prop('disabled', false);
 				    }
 				},
 				error : function(xhr, status, error) {
@@ -297,7 +314,10 @@
 	            logsType : logsType
 	        };
 	        
-	        console.log(data);
+	        var replyDislikeBtn = row.find('.replyDislike');
+	        if (replyDislikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+	        	return ;
+	        }
 
 	        $.ajax({
 	            type : 'POST',
@@ -308,12 +328,15 @@
 	                console.log('좋아요 성공');
 	                updateReplyLikes(row, recordNo, replyNo, logsType);
 
+	                
 				    if (button.hasClass('bi-hand-thumbs-up')) {
 				        button.removeClass('bi-hand-thumbs-up');
 				        button.addClass('bi-hand-thumbs-up-fill');
+				        replyDislikeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-up-fill');
 				    	button.addClass('bi-hand-thumbs-up');
+				    	replyDislikeBtn.prop('disabled', false);				    	
 				    }
 	            },
 	            error : function(xhr, status, error) {
@@ -362,6 +385,11 @@
 					replyNo : replyNo,
 					logsType : logsType
 			};
+
+			var replylikeBtn = row.find('.replyLike');
+			if (replylikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+				return ;
+			}
 			
 			$.ajax({
 				type : 'POST',
@@ -372,12 +400,14 @@
 					console.log('24. 싫어요 성공');
 					updateReplyDislikes(row, recordNo, replyNo, logsType);
 
-				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down');
-				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    if (button.hasClass('bi-hand-thumbs-down')) {
+				    	button.removeClass('bi-hand-thumbs-down');
+				    	button.addClass('bi-hand-thumbs-down-fill');
+				    	replylikeBtn.prop('disabled', true);
 				    } else {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
-				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    	button.removeClass('bi-hand-thumbs-down-fill');
+				    	button.addClass('bi-hand-thumbs-down');
+				    	replylikeBtn.prop('disabled', false);
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -407,10 +437,7 @@
 			}
 		});			
 	}	
-	
 	</script>
-	
-	
 	
 	<!-- 댓글 목록으로 아동 -->
 	<script th:inline="javascript">
@@ -486,11 +513,11 @@
 		}					
 					
 		#recordLike {
-			font-size : 30px;
+			font-size : 50px;
 		}			
 		
 		#recordDislike {
-			font-size : 30px;
+			font-size : 50px;
 		}
 		
 		.replyLike {
@@ -507,21 +534,17 @@
 		}					
 					
 		.bi-heart {
-			font-size : 50px;
+			font-size : 45px;
 			float: right;
 			margin-right : 20px;
 		}
 		
 		.bi-heart-fill {
-			font-size : 25px;
+			font-size : 45px;
 			float: right;
 			margin-right : 20px;			
 		}		
 
-	    .icon-separator {
-	        margin: 10px;
-	    }				
-	    
 	 	.category {
 	 		width : 30px;
 	 		height : 30px;
@@ -533,6 +556,14 @@
 	 		font-size : 45px;
 	 		margin-left : 10px;
 	 	}
+	 	
+	 	.likeCount {
+	 		font-size : 35px;
+	 	}
+	    
+	 	.dislikeCount {
+	 		font-size : 35px;
+	 	}	    
 	    	
 	</style>	
 	
@@ -566,8 +597,9 @@
 					<span th:text="${record.updateCount}+'회 수정됨'"></span>
 				</div>
 				<div class="card-body">
-					<span th:text="${record.categoryName}" style="float: right"></span>
-					<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${record.categoryImoji})}">
+					<div th:if="${record.categoryImoji != null}">
+						<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${record.categoryImoji})}">
+					</div>
 				</div>
 				<div class="card-body">
 					<div th:include="timeline/component/map::kakaoMap" ></div>
@@ -585,19 +617,12 @@
 					<span class="likeCount" th:text="${record.likeCount}"></span>				    
 				    <i th:if="${isDisliked}" class="bi bi-hand-thumbs-down-fill" id="recordDislike"></i>
 				    <i th:unless="${isDisliked}" class="bi bi-hand-thumbs-down" id="recordDislike"></i>
-					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>					
-				</div>	
-				
-			    <div class="card-body">
-					<div> 
-						<span th:text="${record.replyCount}" class="reply-count"></span>
-						<i class="bi bi-chat-square-text-fill"></i>					
-							<span class="icon-separator"></span>
-					    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
-					    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>
-					</div>	
-			    </div>				
-						
+					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>		
+					<span th:text="${record.replyCount}" class="reply-count"></span>
+					<i class="bi bi-chat-square-text-fill"></i>					
+				    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
+				    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>					
+				</div>					
 				<div class="separator"></div>
 			</div>
 		</div>	
@@ -649,6 +674,7 @@
 			</div>
 		</div>  
 	</div>
+	<div th:include="~{ 'common/chatbotModal.html' }"></div>
 	<div th:replace="common/footer::defaultFooter"></div>	 
 </body>	
 </html>
