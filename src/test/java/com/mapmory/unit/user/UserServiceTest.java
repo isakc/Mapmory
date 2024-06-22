@@ -426,14 +426,14 @@ public class UserServiceTest {
 	}
 	
 	// @Test
-	public void testUpdateSecondaryAuth() {
-		
-		String userId = "user1";
-		
-		boolean result = userService.updateSecondaryAuth(userId);
-		
-		Assertions.assertThat(result).isTrue();
-	}
+//	public void testUpdateSecondaryAuth() {
+//		
+//		String userId = "user1";
+//		
+//		boolean result = userService.updateSecondaryAuth(userId);
+//		
+//		Assertions.assertThat(result).isTrue();
+//	}
 	
 	/*
 	// @Test

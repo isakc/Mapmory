@@ -56,24 +56,17 @@ marker.setMap(map);
 	        <span id="centerAddr"></span>
 	    </div>
 	</div>
-<input type="hidden" th:name="latitudeOfMap2" th:value="${record.latitude}"/>
-<input type="hidden" th:name="longitudeOfMap2" th:value="${record.longitude}"/>
-<input type="hidden" th:name="checkpointAddressOfMap" th:value="${record.checkpointAddress}"/>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script type="text/javascript" th:src="@{//dapi.kakao.com/v2/maps/sdk.js(appkey=${apiKey},libraries=services)}"></script>
 <script type="text/javascript">
-let latitudeOfMap2=$('input[name="latitudeOfMap2"]').val();
-let longitudeOfMap2=$('input[name="longitudeOfMap2"]').val();
-console.log(latitudeOfMap2);
-console.log(longitudeOfMap2);
 //지도에 표시된 마커 객체를 가지고 있을 배열입니다
 let marker;
 let infowindow;
 
 var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
     mapOption = { 
-        center: new kakao.maps.LatLng(latitudeOfMap2, longitudeOfMap2), // 지도의 중심좌표
+        center: new kakao.maps.LatLng(37.4923615, 127.0292881), // 지도의 중심좌표
         level: 8, // 지도의 확대 레벨
     	draggable: true
     };
