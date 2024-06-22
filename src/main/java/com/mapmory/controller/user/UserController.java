@@ -557,7 +557,15 @@ public class UserController {
 		
 	}
 	
-	@GetMapping("/admin/getDetailTermsAndConditions")
+	@GetMapping("/admin/getAdminTermsAndConditionsList")
+	public void getAdminTermsAndConditionsList(Model model) throws Exception {
+		
+		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
+		
+		model.addAttribute("tacList", tacList);
+	}
+	
+	@GetMapping("/admin/getAdminDetailTermsAndConditions")
 	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
 		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));

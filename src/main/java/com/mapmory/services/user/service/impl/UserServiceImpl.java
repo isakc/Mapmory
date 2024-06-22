@@ -535,14 +535,14 @@ public class UserServiceImpl implements UserService {
 		List<TermsAndConditions> result = new ArrayList<>();
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(tacDirectoryPath))){
-			
+
 			List<Path> files = paths.filter(Files::isRegularFile).collect(Collectors.toList());
 			
 			for (Path filePath : files) {
 				
-				// System.out.println("filePath : " + filePath);
+				System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
-				// System.out.println("tac : " + temp);
+				System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
