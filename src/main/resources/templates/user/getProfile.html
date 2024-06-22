@@ -46,7 +46,7 @@
 	
 	<script th:inline="javascript">
 	
-		const profileUserId = [[${profile.user.userId}]];
+		const profileUserId = /*[[${profile.user.userId}]]*/ '';
 		// const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
 		const sessionId = sessionStorage.getItem('userId');
 		let isLoading = false;
@@ -99,17 +99,18 @@
 			$('#follow-list').on('click', function() {
 				
 				console.log("flag");
-				window.location.href="/user/getFollowList?userId="+profileUserId;
+				// window.location.href="/user/getFollowList?userId="+profileUserId;
+				window.location.href=`/user/getFollowList?profileUserId=${profileUserId}`;
 			});
 			
 			$('#follower-list').on('click', function() {
 				
-				window.location.href="/user/getFollowerList?userId="+profileUserId;
+				window.location.href=`/user/getFollowerList?profileUserId=${profileUserId}`;
 			});
 			
 			$('#updateProfile').on('click', function() {
 				
-				window.location.href="/user/getUpdateProfileView?userId="+profileUserId;
+				window.location.href=`/user/getUpdateProfileView`;
 			});
 					
 			$('#deleteFollow').on('click', function() {

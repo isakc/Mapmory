@@ -13,6 +13,6 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class FollowSearch extends Search {
 
-	private String myUserId;
+	private String myUserId;  // sessionId
 	private int selectFollow;  // 0 :: follow 검색, 1 :: follower 검색
 }

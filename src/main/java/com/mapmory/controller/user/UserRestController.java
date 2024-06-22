@@ -304,8 +304,9 @@ public class UserRestController {
 	}
 
 	
-	@PostMapping("/getFollowList")
-	public List<FollowMap> getFollowList(@ModelAttribute Search search, HttpServletRequest request) {
+	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
+	// @GetMapping("/getFollowList/{profileUserId}")  
+	public List<FollowMap> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
 		
 		/*
 		if(currentPage == null)
@@ -313,18 +314,20 @@ public class UserRestController {
 		*/
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
-		String userId = search.getUserId();
-		String keyword = search.getSearchKeyword();
-		int currentPage = search.getCurrentPage();
+		// String userId = search.getUserId();
+		// String keyword = search.getSearchKeyword();
+		// int currentPage = search.getCurrentPage();
 		int selectFollow = 0;
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		// List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		return followList;
 	}
 	
-	@PostMapping("/getFollowerList")
-	public List<FollowMap> getFollowerList(@ModelAttribute Search search, HttpServletRequest request) {
+	@PostMapping("/getFollowerList/{profileUserId}")
+	// @GetMapping("/getFollowerList/{profileUserId}")
+	public List<FollowMap> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
 
 		/*
 		if(currentPage == null)
@@ -332,12 +335,12 @@ public class UserRestController {
 		*/
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
-		String userId = search.getUserId();
-		String keyword = search.getSearchKeyword();
-		int currentPage = search.getCurrentPage();
+		// String userId = search.getUserId();
+		// String keyword = search.getSearchKeyword();
+		// int currentPage = search.getCurrentPage();
 		int selectFollow = 1;
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		return followerList;
 	}
@@ -436,6 +439,15 @@ public class UserRestController {
 			return ResponseEntity.internalServerError().body("설정 변경에 실패...");
 	}
 	
+	@PostMapping("/updateHideProfile/{userId}")
+	public ResponseEntity<Boolean> updateHideProfile(@PathVariable String userId) {
+		
+		boolean result = userService.updateHideProfile(userId);
+		
+		return ResponseEntity.ok(result);
+		
+	}
+	
 	@PostMapping("/deleteFollow")
 	public ResponseEntity<Boolean> deleteFollow(HttpServletRequest request, @RequestBody Map<String, String> value) {
 		
@@ -482,6 +494,19 @@ public class UserRestController {
 		String userId = value.get("userId");
 		
 		boolean result = userService.checkSetSecondaryAuth(userId);
+		
+		return ResponseEntity.ok(result);
+	}
+	
+	/**
+	 * true : 프로필 조회 거부, false : 통과
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/checkHideProfile/{userId}")
+	public ResponseEntity<Boolean> checkHideProfile(@PathVariable String userId) {
+		
+		boolean result = userService.checkHideProfile(userId);
 		
 		return ResponseEntity.ok(result);
 	}

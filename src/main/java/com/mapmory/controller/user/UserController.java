@@ -343,32 +343,34 @@ public class UserController {
 	}
 	
 	@GetMapping("/getFollowList")
-	public void getFollowList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowList(@RequestParam String profileUserId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 0);
+		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, 1, pageSize, 0);
 		
 		System.out.println(followList);
 		
 		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
-		model.addAttribute("sessionId", myUserId);
+		// model.addAttribute("sessionId", myUserId);
+		model.addAttribute("profileUserId", profileUserId);
 		// model.addAttribute("sessionId", myUserId);
 		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public void getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowerList(@RequestParam String profileUserId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 1);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, 1, pageSize, 1);
 		
 		
 		// model.addAttribute("type", 1);
 		model.addAttribute("list", followerList);
-		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		// model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		model.addAttribute("profileUserId", profileUserId);
 	}
 	
 	
