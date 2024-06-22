@@ -5,11 +5,10 @@
 	<title>Insert title here</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
-<link rel="stylesheet" href="/css/common/footer.css">
+<link rel="stylesheet" href="/css/common/toolBar.css">
 <style type="text/css">
-body {
-	margin-left: 20px;
-	margin-top: 20px;
+#bodyDiv {
+	margin: 10px;
 	}
 #addCategory{
 	margin-bottom: 10px;
@@ -34,7 +33,8 @@ body {
 </style>
 </head>
 <body>
-<div id=content-for-footer>
+<div th:replace="common/toolBar::defaultToolBar"></div>
+<div id=bodyDiv>
 	<button id="addCategory" type="button" class="btn btn-primary btn-lg" th:name="addCategory" th:text="'생성하기'"></button>
 	<div id="categoryDiv">
 		<span th:each="category : ${categoryList}">

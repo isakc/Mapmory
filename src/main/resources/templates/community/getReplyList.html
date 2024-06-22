@@ -362,8 +362,11 @@
 	            logsType : logsType
 	        };
 	        
-	        console.log(data);
-
+			var likeBtn = row.find('.replyDislike');
+			if (likeBtn.hasClass('bi-hand-thumbs-down-fill')) {
+				return;
+			}
+	        
 	        $.ajax({
 	            type : 'POST',
 	            url  : '/community/rest/checkLogs',
@@ -376,9 +379,11 @@
 				    if (button.hasClass('bi-hand-thumbs-up')) {
 				        button.removeClass('bi-hand-thumbs-up');
 				        button.addClass('bi-hand-thumbs-up-fill');
+				        dislikeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-up-fill');
 				    	button.addClass('bi-hand-thumbs-up');
+				    	dislikeBtn.prop('disabled', false);
 				    }
 	            },
 	            error : function(xhr, status, error) {
@@ -409,7 +414,6 @@
 	        }
 	    });
 	}
-
 	</script>
 	<!-- 댓글 좋아요 -->
 	
@@ -430,6 +434,11 @@
 					logsType : logsType
 			};
 			
+			var likeBtn = row.find('.replyLike');
+			if (likeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+				return;
+			}
+			
 			$.ajax({
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
@@ -439,12 +448,15 @@
 					console.log('24. 싫어요 성공');
 					updateDislikes(row, recordNo, replyNo, logsType);
 
+					
 				    if (button.hasClass('bi-hand-thumbs-down')) {
 				    	button.removeClass('bi-hand-thumbs-down');
 				    	button.addClass('bi-hand-thumbs-down-fill');
+				    	likeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-down-fill');
 				    	button.addClass('bi-hand-thumbs-down');
+				    	likeBtn.prop('disabled', false);
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -475,7 +487,14 @@
 		});			
 	}
 	</script>
-	<!-- 댓글 싫어요 -->	
+	<!-- 댓글 싫어요 종료-->	
+	
+	<!-- 좋아요 싫어요 아이콘 처리  -->>
+	<script>
+	
+	
+	</script>
+	
 	
 	<script>
 	function autoResize() {

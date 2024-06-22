@@ -380,10 +380,11 @@ public class CommunityRestController {
 		return ResponseEntity.ok(bookmark);
 	}
 	
-	//신고하기 제출
+	//신고하기
 	@PostMapping("/rest/doReport")
 	public ResponseEntity<Report> doReport(@RequestBody Report report) throws Exception {
 		communityService.doReport(report);
+		
 		return ResponseEntity.ok(report);
 	}
 	
@@ -398,6 +399,18 @@ public class CommunityRestController {
 	@PostMapping("/rest/confirmReport/{reportNo}")
 	public ResponseEntity<Report> confirmReport(Search search, @RequestBody Report report, @PathVariable int reportNo) throws Exception {
 		communityService.confirmReport(report);
+				
+		Map<String, String> suspendData = userService.checkSuspended(communityService.getReport(reportNo).getTargetUserId());
+		
+		String count = suspendData.get("suspentionCount");
+		
+		int count1 = Integer.parseInt(count);
+			
+		if(count1 < 4) {
+			userService.addSuspendUser(communityService.getReport(reportNo).getTargetUserId(), communityService.getReport(reportNo).getReportText());
+		} else {
+			throw new Exception("정지 횟수 초과") ;
+		}	
 		return ResponseEntity.ok(report);
 	}
 	

@@ -274,7 +274,7 @@ public class UserServiceImpl implements UserService {
 				startSuspensionDate = startSuspensionDate.plusDays(14);
 				break;
 			case 3:
-				startSuspensionDate = startSuspensionDate.plusYears(9999L);
+				startSuspensionDate = LocalDateTime.of(9999, 12, 31, 0, 0);
 				break;
 			default :
 				throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
