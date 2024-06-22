@@ -185,6 +185,7 @@ public class UserRestController {
 				
 				if(setSecondAuth == 1) {
 					
+					
 					System.out.println("2단계 인증을 진행합니다..");
 					// 임시 인증 쿠키 생성
 					String uuid = UUID.randomUUID().toString();
@@ -198,6 +199,7 @@ public class UserRestController {
 					Cookie cookie = CookieUtil.createCookie("SECONDAUTH", uuid, 60*5, "/user");
 					response.addCookie(cookie);
 					System.out.println("임시 cookie를 생성했습니다.");
+					
 					return ResponseEntity.ok("secondAuth");  // REDIS에 값을 넣으니 자꾸 날라간다. RDBMS로 옮기고 다시 시도할 것.
 					
 				} else {
@@ -393,14 +395,14 @@ public class UserRestController {
 		System.out.println("userId : " + userId);
 		System.out.println("userPassword : " + password);
 		
-		userService.updatePassword(userId, password);
+		boolean result = userService.updatePassword(userId, password);
 		/*
 		if(true)
 			return ResponseEntity.ok(true);
 		else
 			return ResponseEntity.ok(false);
 			*/
-		return ResponseEntity.ok(false);
+		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/updateSecondaryAuth")
@@ -408,7 +410,8 @@ public class UserRestController {
 		
 		String userId = value.get("userId");
 		
-		boolean result = userService.updateSecondaryAuth(userId);
+		// boolean result = userService.updateSecondaryAuth(userId);
+		boolean result = userService.updateSecondaryAuth(userId, 0);
 		
 		if(result) {
 			
@@ -479,6 +482,7 @@ public class UserRestController {
 		return ResponseEntity.ok(!contentFilterUtil.checkBadWord(s));
 	}
 
+	/*
 	@PostMapping("/generateKey")
 	public ResponseEntity<GoogleAuthenticatorKey> generateKey(HttpServletRequest request, HttpServletResponse response) { 
 		
@@ -500,13 +504,7 @@ public class UserRestController {
 		String encodedKey = redisUtilString.select(secondAuthKeyName, String.class);
 		System.out.println("keyName : " + secondAuthKeyName);
 		System.out.println("encodedKey : " + encodedKey);
-		
-		/*
-		Cookie cookie1 = CookieUtil.createCookie("SECONDAUTHKEY", encodedKey, 60*5, "/user");
-		System.out.println("cookie1 : " + cookie1.toString());
-		response.addCookie(cookie);
-		*/
-		
+
 		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
 		
 		// 기존 키가 없으면 새로 발급
@@ -524,11 +522,7 @@ public class UserRestController {
 			
 			// 나중에 RDBMS에서 저장해두는 것이 좋을 것 같다는 생각.
 			redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
-			
-			/*
-			 * 발급된 encodedKey를 가지고 본인의 Google Authenticator app에 추가한다.
-			 * Google Authenticator app에서 QR을 통해서도 등록이 가능하다.
-			 */
+
 			return ResponseEntity.ok(returnKey);
 			
 			// return ResponseEntity.ok(encodedKey);
@@ -539,7 +533,8 @@ public class UserRestController {
 		}
 
 	}
-	
+*/	
+
 	//////////////////// 2단계 인증 key가 날라가는 문제를 확인. 왜 날라갔지? ////////////////////
 	@PostMapping("/checkSecondaryKey")
 	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {

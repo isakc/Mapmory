@@ -47,8 +47,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 		
 		String requestURI = request.getRequestURI();
 		System.out.println("requestURI = " + requestURI);
-		
-		/// whitelist
+			
+		//////////////////////////////////////////////////////////
+		///////////////////////// whitelist ///////////////////////
+		////////////////////////////////////////////////////////
 		if(requestURI.equals("/user/getSecondaryAuthView")) {
 			
 			return true;
@@ -95,9 +97,11 @@ public class LoginInterceptor implements HandlerInterceptor {
 		
 		else {
 			
+			System.out.println("현재 login 상태입니다.");
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
 			
+			// cookie를 삭제한다.
 			if(sessionData == null) {
 		
 				cookie.setMaxAge(0);
@@ -108,7 +112,22 @@ public class LoginInterceptor implements HandlerInterceptor {
 				
 			} else {
 			
-				return redisUtil.updateSession(request, response);
+				// 세션을 연장한다.
+				boolean result = redisUtil.updateSession(request, response);
+				System.out.println("is session update successfully? : " + result);
+				
+				/*
+				if(requestURI.equals("/")) {
+					
+					System.out.println("login 상태... main으로 이동합니다.");
+					if(sessionData.getRole() == 1)
+						response.sendRedirect("/map");
+					else
+						response.sendRedirect("/user/admin/getAdminMain");
+				}
+				*/
+				
+				return result;
 				
 			}
 				

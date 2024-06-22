@@ -5,72 +5,14 @@
 <title>2단계 인증</title>
 
 <th:block th:replace="~{/common/dependencies}"></th:block>
-<!-- 
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
- -->
 
 <script th:inline="javascript">
 
 	$( function() {
 		
-		const userId = [[${userId}]];
+		const userId = /*[[${userId}]]*/ '';
 		// const encodedKey;
-		
-		$.ajax({
-			
-			url : "/user/rest/generateKey",
-			method : "POST",
-			// dataType : "JSON",
-			
-			headers : {
-				"Accept" : "application/json"
-				// "Content-Type" : "application/json"
-			},
-			/*
-			data : JSON.stringify({ 
-				// userId : userId,
-				// userName : userId
-			}), */
-			success : function(responseBody, httpStatus){
-
-				console.log("_"+responseBody+"_");
-				// console.log("_"+JSON.parse(responseBody)+"_");
-				console.log("_"+responseBody.message+"_");
-				// console.log(responseBody == "")
-				
-				/*
-				if(responseBody.message == "no-cookie")
-					window.location.href = "/";
-				*/
-				
-				// $('.row:last').empty();
-				// $('form').empty();
-				let detail = "";
-				detail += "<p style='bold'>Google authenticator를 설치하고 2단계 인증을 수행하세요.</p>";
-				
-				if(responseBody != "") {
-					
-					// encodedKey = responseBody.encodedKey;
-					
-					detail += "<p>최초 2단계 인증 수행 시에만 키가 제공됩니다. 90일 뒤에 만료됩니다. 2단계 인증 재설정 시에 키를 다시 발급 받을 수 있습니다.</p>";
-					detail += "<p id='encodedKey'>" + responseBody.encodedKey +"</p>"; 			
-					detail += "<img src='https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+responseBody.userName+"@"+responseBody.hostName+"?secret="+responseBody.encodedKey+"&chld=H|0' alt=''>";
-					detail += "<hr/>";
-					
-				} 
-				
-				// $('.row:last').append(detail);
-				$('form').append(detail);
-			}, error: function(xhr, status, error) {
-  		        console.error("네트워크 오류:", error);
-  		        alert("네트워크 오류");
-  		        window.location.href="/";
-  		      }
-		});
-
+	
 		$(document).on('click', '#checkKey', function() {
 			
 			$.ajax({
@@ -96,18 +38,17 @@
 					const role = responseBody.role;
 					
 					if(isValid == true || isValid == 'true') {
-						
-						
+					
 						if(role == 0)
 							window.location.href="/user/admin/getAdminMain";
-						else if (role == 1)
-							window.location.href="/map";
 						else
-							alert('server error');
-						
+							window.location.href="/map";
 					}
-					
-				}
+				},
+				error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			      }
 			});
 		});
 		
@@ -132,23 +73,7 @@
 			<div class="d-grid gap-2">
 			  <button class="btn btn-primary mt-3" type="button" id="checkKey">인증하기</button>
 			</div>
-			<!-- 
-			<div class='row'>
-				<button type="button" class="btn btn-primary w-100 mb-3" id="checkKey">인증하기</button>
-			</div>
-			 -->
 		</form>
-		<!-- 
-		<form>
-			<div class="form-group">
-				<label for="userName">이름</label>
-				<input type="text" name="userName" class="form-control" placeholder="당신의 이름을 입력">
-			</div>
-			<div class="row">
-				<button type="button" class="btn btn-default">제출</button>
-			</div>
-		</form>
-		 -->
 	</div>
 </body>
 </html>

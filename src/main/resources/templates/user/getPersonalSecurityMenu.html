@@ -63,7 +63,7 @@
 									}),
 									success : function(response) {
 										
-										alert('변경에 성공했습니다!');
+										alert('2단계 인증을 해제하였습니다.');
 										
 									},
 									error : function(jqXHR, textStatus, errorThrown) {
@@ -77,7 +77,7 @@
 							
 							const result = confirm("현재 2단계 인증이 설정되어 있지 않습니다. 설정하시겠습니까?");
 							if(result == true) {
-								
+								/*
 								$.ajax({
 									
 									url: "/user/rest/updateSecondaryAuth",
@@ -95,7 +95,9 @@
 										alert('오류 발생 : ' + jqXHR.responseText)
 									}
 								});
+								*/
 								
+								window.location.href="/user/getAddSecondaryAuthView";
 							}
 							
 						}

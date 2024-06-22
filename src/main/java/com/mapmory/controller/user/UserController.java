@@ -45,6 +45,7 @@ import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.purchase.domain.Subscription;
@@ -55,6 +56,7 @@ import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
 import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
 import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
@@ -130,6 +132,9 @@ public class UserController {
 	
 	@Value("${naver.state}")
 	private String naverState;
+
+ @Value("${server.host.name}")
+	private String hostName;
 	
 	/*
 	@Value("${google.client.id}")
@@ -250,6 +255,45 @@ public class UserController {
 		// String userId = map.get("userId");
 		
 		// model.addAttribute("userId", userId);
+	}
+	
+	@GetMapping("/getAddSecondaryAuthView")
+	public void getAddSecondaryAuthView(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
+		String secondAuthKeyName = "SECONDAUTH-"+ userId;  // key name도 userId 기반 단방향 암호화 로직이 들어가야 한다.
+		String encodedKey = new String(userService.generateSecondAuthKey());
+		System.out.println("keyName : " + secondAuthKeyName);
+		System.out.println("encodedKey : " + encodedKey);
+		
+		returnKey.setEncodedKey(encodedKey);
+		//returnKey.setUserName(userId);
+		//returnKey.setHostName(hostName);
+		// 2단계 encodedkey는 RDBMS에 저장하는 것이 좋겠다.
+		redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
+		// boolean result = userService.updateSecondaryAuth(userId);
+		boolean result = userService.updateSecondaryAuth(userId, 1);
+		System.out.println("is set secondary auth changed? " + result);
+		
+		String keyQR = "https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+userId+"@"+hostName+"?secret="+encodedKey+"&chld=H|0";
+		
+		model.addAttribute("authKey", returnKey);
+		model.addAttribute("keyQR", keyQR);
+
+		/*
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		
+		String encodedKey = userService.generateSecondAuthKey();
+		String userName = userService.getDetailUser(userId).getUserName();
+		
+		model.addAttribute("encodedKey", encodedKey);
+		model.addAttribute("userName", userName);
+		model.addAttribute("hostName", hostName);
+		*/
+
 	}
 	
 	@GetMapping("/getUserInfo")
@@ -374,7 +418,7 @@ public class UserController {
 		
 		
 	}
-
+	
 	
 	@GetMapping("/getSocialLoginLinkedView")
 	public void getSocialLoginLinkedView() {

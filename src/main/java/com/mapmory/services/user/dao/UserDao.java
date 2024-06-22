@@ -1,8 +1,10 @@
 package com.mapmory.services.user.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -17,6 +19,7 @@ import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.User;
+
 
 @Mapper
 public interface UserDao {
@@ -91,7 +94,8 @@ public interface UserDao {
 	
 	public int updateHideProfile(String userId);
 	
-	public int updateSecondaryAuth(String userId);
+	// public int updateSecondaryAuth(String userId);
+	public int updateSecondaryAuth(@org.apache.ibatis.annotations.Param("userId") String userId, @Param("type") int type);
 	
 	public int updatePassword(Login login);
 	
