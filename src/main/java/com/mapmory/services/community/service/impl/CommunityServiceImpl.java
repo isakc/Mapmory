@@ -113,7 +113,7 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception {
 		
-		int count = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int count = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		if(count ==0) {
 			CommunityLogs newCommunityLogs = CommunityLogs.builder()
 					.userId(communityLogs.getUserId())
@@ -128,7 +128,7 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public void checkLog(CommunityLogs communityLogs) throws Exception {
 		
-		int logCount = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int logCount = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		
 		if(logCount >0) {
 			if(communityLogs.getLogsType() !=0) {
@@ -143,7 +143,7 @@ public class CommunityServiceImpl implements CommunityService {
 			}
 			communityDao.addCommunityLogs(communityLogs);
 		}
-	}	
+	}
 	
 	@Override
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception {
@@ -266,6 +266,11 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception {
 		return communityDao.getUsersLogs(userId, recordNo);
+	}
+
+	@Override
+	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception {
+		communityDao.deleteCommunityLogs(communityLogs);
 	}
 
 

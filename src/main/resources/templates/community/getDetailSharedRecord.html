@@ -93,8 +93,9 @@
 	</script>
 	<!-- 신고 모달 -->
 
-	<!-- 기록 좋아요 -->
+	<!-- 기록 좋아요 싫어요 시작-->
 	<script th:inline="javascript">
+	//기록 좋아요
 	$(document).ready(function() {
 		$(document).on("click", '#recordLike', function() {
 			event.preventDefault();
@@ -146,33 +147,8 @@
 				}
 			});
 		});
-	});
-	function updateLikes(recordNo, replyNo, logsType) {
-		var data = {
-			recordNo : recordNo,
-			replyNo : replyNo,
-			logsType : logsType
-		};
-		$.ajax({
-			type : 'POST',
-			url : '/community/rest/getReactionLikeTotalCount',
-			contentType: 'application/json',
-			data : JSON.stringify(data),
-			success : function(likeCount) {
-	            var likeCountElement = $('.likeCount'); 
-	            likeCountElement.text(likeCount); 
-			},
-			error : function(xhr, status, error) {
-				console.log("데이터 가져오기 실패");
-			}
-		});	
-	}
-	</script>
-	<!-- 기록 좋아요 -->
-	
-	<!-- 기록 싫어요 -->
-	<script th:inline="javascript">
-	$(document).ready(function() {
+		
+		//기록 싫어요
 		$(document).on("click", '#recordDislike', function() {
 			var userId = /*[[${userId}]]*/
 			console.log("1.사용자 ID : "+userId);
@@ -220,9 +196,32 @@
 					console.error('싫어요 실패');
 				}
 			});
-		});
+		});		
 	});
 	
+	//기록 좋아요 Count Update
+	function updateLikes(recordNo, replyNo, logsType) {
+		var data = {
+			recordNo : recordNo,
+			replyNo : replyNo,
+			logsType : logsType
+		};
+		$.ajax({
+			type : 'POST',
+			url : '/community/rest/getReactionLikeTotalCount',
+			contentType: 'application/json',
+			data : JSON.stringify(data),
+			success : function(likeCount) {
+	            var likeCountElement = $('.likeCount'); 
+	            likeCountElement.text(likeCount); 
+			},
+			error : function(xhr, status, error) {
+				console.log("데이터 가져오기 실패");
+			}
+		});	
+	}
+
+	//기록 싫어요 Update	
 	function updateDislikes(recordNo, replyNo, logsType) {
 		var data = {
 			recordNo : recordNo,
@@ -245,7 +244,7 @@
 		});			
 	}
 	</script>
-	<!-- 기록 싫어요 -->
+	<!-- 기록 좋아요 싫어요 종료 -->
 	
 	<!-- 기록 즐겨찾기 -->
 	<script th:inline="javascript">
@@ -492,13 +491,26 @@
 
 		.separator2 {
 			border-top : 2px solid;
-			margin-top : 20px;
-		}	
+			margin-top : 10px;
+			margin-bottom : 10px;
+		}
+	
+		.nav-pills {
+			margin-bottom: 20px;
+		}
+		
+		.recordBody {
+			margin-bottom : 20px;
+		}			
 		
 		.profileImage {
 			border-radius: 50%;
 			width : 50px;
 			height : 50px;
+		}
+		
+		.recordTitle {
+			font-size : 25px;
 		}
 		
 		.replyImageName {
@@ -514,19 +526,50 @@
 					
 		#recordLike {
 			font-size : 50px;
+			color : blue;
 		}			
 		
 		#recordDislike {
 			font-size : 50px;
+			transform : scaleX(-1);
+			display : inline-block;
 		}
+		
+		.bi-hand-thumbs-up-fill {
+			color : blue;
+		}			
 		
 		.replyLike {
 			font-size : 25px;
+			color : blue;
 		}			
 		
 		.replyDislike {
 			font-size : 25px;
+			color : red;
+			transform : scaleX(-1);
+			display : inline-block;			
 		}				
+				
+		.read {
+			float: right;
+			margin-right : 5px;
+		}				
+				
+		.updateCount {
+			float: right;
+			color : blue;
+		}		
+		
+		.adderess{
+			font-size : 20px;
+		}
+		
+		.map {
+			width : 100%;
+			height : 70%;
+		}
+		
 					
 		.bi-chat-square-text-fill {
 			font-size : 55px;
@@ -542,7 +585,8 @@
 		.bi-heart-fill {
 			font-size : 45px;
 			float: right;
-			margin-right : 20px;			
+			margin-right : 20px;
+			color : red;			
 		}		
 
 	 	.category {
@@ -571,7 +615,7 @@
 <body>
 	<div id=content-for-footer>	
 		<div class="container">
-			<div class="card mb-3">
+			<div class="card sm-4 recordBody">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active" href="#">
@@ -591,19 +635,20 @@
 					</h4> 
 				</div>
 				<div class="card=body">
-					<p class="recordTitle" th:text="${record.recordTitle}"></p>
-					<span th:text="${record.sharedDate}"></span>
-					<span th:text="'조회수 : ' + ${record.logsCount}"></span>
-					<span th:text="${record.updateCount}+'회 수정됨'"></span>
-				</div>
-				<div class="card-body">
-					<div th:if="${record.categoryImoji != null}">
+					<span class="recordTitle" th:text="${record.recordTitle}"></span>
+					<span th:if="${record.categoryImoji != null}">
 						<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${record.categoryImoji})}">
-					</div>
+					</span>
 				</div>
+				<div class="card-body">	
+					<p th:text="'작성일시: ' +${record.sharedDate}"></p>
+					<span class="updateCount" th:text="${record.updateCount}+'회 수정됨'"></span>					
+					<span class="read" th:text="'조회수 : ' + ${record.logsCount}+'회'"></span>
+				</div>
+
 				<div class="card-body">
-					<div th:include="timeline/component/map::kakaoMap" ></div>
-					<p th:text="${record.checkpointAddress}"></p>
+					<div class="map" th:include="timeline/component/map::kakaoMap" ></div>
+					<p class="address" th:text="${record.checkpointAddress}"></p>
 				</div>
 				<div class="card-body">
 					<img alt="" class="media" th:src="@{/timeline/rest/media/{uuid}(uuid=${record.mediaName})}">
@@ -628,7 +673,7 @@
 		</div>	
 	
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
-			<div class="col-sm-2">
+			<div class="col-sm-4">
 				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 				<span th:if="${reply.subscriptionEndDate == '1'}">

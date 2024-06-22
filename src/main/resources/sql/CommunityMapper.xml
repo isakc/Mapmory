@@ -154,7 +154,7 @@
 	</select>	
 	
 	<!-- 커뮤니티 로그 중복 체크 -->
-	<select id="checkDuplicatieLogs" resultType= "int" parameterType="map">
+	<select id="checkDuplicateLogs" resultType= "int" parameterType="map">
 		SELECT COUNT(*)
 		FROM community_logs
 		WHERE user_id = #{userId}
@@ -204,11 +204,16 @@
 	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
-		UPDATE community_logs
-		<set>
-			logs_type = #{logsType}
-		</set>
-		WHERE community_logs_no = #{communityLogsNo}
+        UPDATE community_logs
+        SET logs_type =
+            CASE 
+                WHEN logs_type = 2 THEN 3 
+                WHEN logs_type = 3 THEN 2 
+            END
+        WHERE user_id = #{userId}
+            AND record_no = #{recordNo}
+            AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+            AND logs_type IN (2, 3)
 	</update>
 
 	<!-- 커뮤니티 활동 삭제 -->

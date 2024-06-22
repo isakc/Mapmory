@@ -87,6 +87,9 @@ public interface CommunityService {
 	//좋아요한 댓글 목록
 	public Map<String, Object> getReplyLikeList(Search search, String userId) throws Exception;
 	
+	//커뮤니티 좋아요 싫어요 전환
+	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception;
+	
 //	//기록 삭제 시 댓글 삭제
 //	public void deleteReplyByRecord(int recordNo) throws Exception;
 //	
