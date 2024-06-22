@@ -353,19 +353,43 @@ public class TimelineController {
 	
 	@GetMapping("addTimecapsule")
 	public String addTimecapsuleView(Model model,
-			@RequestParam(value="userId", required = false) String userId) throws Exception,IOException {
+			HttpServletRequest request) throws Exception,IOException {
+		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
 		model.addAttribute("category", timelineService.getCategoryList());
-		model.addAttribute("userId",userId);
 		return "timeline/addTimecapsule";
 	}
 	
 	@PostMapping("addTimecapsule")
-	public String addTimecapsule(Model model,@ModelAttribute(value="record") Record record) throws Exception,IOException {
-		System.out.println("record.getImageName() : "+record.getImageName());
-		System.out.println("record.getHashtag() : "+record.getHashtag());
-		timelineService.updateTimeline(record);
-		model.addAttribute("record",timelineService.getDetailTimeline(record.getRecordNo()));
-		return "timeline/getDetailTimeline";
+	public String addTimecapsule(Model model,
+			@ModelAttribute(value="record") Record record,
+			@RequestParam(name="hashtagText",required = false) String hashtagText,
+			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
+			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
+			HttpServletRequest request
+			) throws Exception,IOException {
+		record.setUpdateCount(-1);
+		record = timelineUtil.uploadImageFile(record, imageFile);
+		record = timelineUtil.uploadMediaFile(record, mediaFile);
+		
+		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
+		
+		if(record.getTempType()==1 
+				|| record.getMediaName()!=null || !record.getMediaName().isEmpty() 
+				|| record.getImageName()!=null || !record.getImageName().isEmpty()
+				|| record.getRecordText()!=null || !record.getRecordText().trim().equals("") ) {
+			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
+				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+			}
+		}
+		
+		record=TimelineUtil.validateRecord(record);
+		
+		timelineService.addTimeline(record);
+		if(record.getTempType()==1) {
+			return getDetailTimecapsule(model,record.getRecordNo(),request);
+		}else {
+			return getTempTimecapsuleList(model, record.getRecordUserId(),request);
+		}
 	}
 	
 	@GetMapping("updateTimecapsule")

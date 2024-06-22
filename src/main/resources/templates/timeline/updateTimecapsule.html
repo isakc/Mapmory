@@ -116,17 +116,15 @@ fieldset {
     </div>
     
 	</fieldset>
+	
 	<button type="button" class="btn btn-primary" th:name="updateTimecapsule" th:text="'다시작성'"></button>
 	<button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button>
 	<button type="button" class="btn btn-primary" th:text="'임시저장'"></button>
 	<button type="button"  class="btn btn-primary" th:text="'작성완료'"></button>
 	
-	<!-- <ul>
-	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text="'다시작성'"></a></li>
-	<li><a th:href="@{/timeline/addVoiceToText}" th:text="'녹음하기'"></a></li>
-	<li><button type="submit" th:text="'작성완료'"></button></li>
-	</ul> -->
 	</form>
+	
+	<div th:include="timeline/component/modal::defaultModal"></div>
 		
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script>
@@ -138,7 +136,8 @@ document.getElementById('recordTitle').addEventListener('input', function () {
     let textInt=50;
     if (inputField.value.length > textInt) {
         inputField.value = inputField.value.substring(0, textInt);
-        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    	showModal('제목 오류', "기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+        //alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
     }
 });
 
@@ -147,7 +146,8 @@ document.getElementById('recordText').addEventListener('input', function () {
     let textInt=1000;
     if (inputField.value.length > textInt) {
         inputField.value = inputField.value.substring(0, textInt);
-        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    	showModal('내용 오류', "기록 내용은 "+textInt+"자를 넘길 수 없습니다.");
+        //alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
     }
 });
 
@@ -158,7 +158,9 @@ function processHashtags() {
 
     // 첫 번째 문자가 #이 아닌 경우 처리
     if (!hashtagText.startsWith('#')) {
-        alert("해시태그는 '#'로 시작해야 합니다.");
+    	showModal('해시태그 오류', "해시태그는 '#'로 시작해야 합니다.");
+        //alert("해시태그는 '#'로 시작해야 합니다.");
+        $('#hashtagText').val('#'+$('#hashtagText').val());
         return false;
     }
 
@@ -167,7 +169,8 @@ function processHashtags() {
 
     // 최대 입력 가능한 해시태그 개수는 20개입니다
     if (hashtags.length > 20) {
-        alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
+    	showModal('해시태그 오류', "최대 20개의 해시태그까지 입력할 수 있습니다.");
+        //alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
         return false;
     }
 
@@ -175,7 +178,8 @@ function processHashtags() {
     for (var i = 0; i < hashtags.length; i++) {
         var hashtag = hashtags[i];
         if (hashtag.length > 20) {
-            alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+        	showModal('해시태그 오류', "각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+            //alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
             return false;
         }
     }
@@ -200,13 +204,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 const fileExtension = fileName.split('.').pop().toLowerCase();
                 
                 if (!allowedExtensions.includes(fileExtension)) {
-                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                	showModal('영상 파일 오류', '허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                    //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
                     event.target.value = ''; // Clear the file input
                 }
             }
             
             if (file && file.size > maxSize) {
-                alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+            	showModal('영상 파일 오류','파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+                //alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
                 event.target.value = ''; // Clear the file input
             }
         }
@@ -226,7 +232,8 @@ function validateFileCount() {
 
     // 총 파일 갯수가 9개를 넘는지 확인합니다.
     if (totalFiles > 9) {
-        alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
+    	showModal('사진 파일 오류',"이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
+        //alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
         fileInput.value = '';
         return false;
     }
@@ -248,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
                 if (!allowedExtensions.includes(fileExtension)) {
-                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                	showModal('사진 파일 오류',"허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.");
+                    //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
                     event.target.value = ''; // Clear the file input
                     break;
                 }
@@ -349,9 +357,11 @@ $(function() {
 					mediaName : mediaName
 				},
 				success : function(response,status){
-					alert(response.text);
+	            	showModal('영상 업로드',response.text);
+					//alert(response.text);
 					console.log(JSON.stringify(response));
 					$('div[name="mediaName"]').remove();
+					$('input[name="mediaName"]').val(null);
 					
 					let text=
 						'<div class="row">'
@@ -381,7 +391,8 @@ $(function() {
 				imageName : imageName
 			},
 			success : function(response,status){
-				alert(response.text);
+            	showModal('사진 업로드',response.text);
+				//alert(response.text);
 				console.log(JSON.stringify(response));
 				$('div[name="'+imageNo+'"]').remove();
 			},

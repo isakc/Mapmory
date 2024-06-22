@@ -335,7 +335,7 @@ LIMIT #{limit} OFFSET #{offset}
     </insert>
 
     <!-- Read -->
-    <select id="selectCategory" resultType="Map" parameterType="Integer">
+    <select id="selectCategory" resultType="category" parameterType="Integer">
         SELECT 
         	category_no AS categoryNo,
         	category_name AS categoryName,
@@ -343,7 +343,7 @@ LIMIT #{limit} OFFSET #{offset}
         FROM category WHERE CATEGORY_NO = #{categoryNo:NUMERIC}
     </select>
 
-    <select id="selectCategoryList" resultType="Map">
+    <select id="selectCategoryList" resultType="category">
         SELECT 
         	category_no AS categoryNo,
         	category_name AS categoryName,
