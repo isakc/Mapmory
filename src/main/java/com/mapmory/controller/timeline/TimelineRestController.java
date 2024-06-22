@@ -84,6 +84,10 @@ public class TimelineRestController {
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
 		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now().toString().replace("T"," ").split("\\.")[0]);
+		record.setUpdateCount(-1);
+		record.setTempType(0);
+		record.setTimecapsuleType(0);
+		record.setCategoryNo(0);
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
 		if(recordNo!=0) {
