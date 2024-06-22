@@ -10,26 +10,32 @@
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="/css/common/chatBot.css">
-    
+
     <style>
         body {
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
             padding: 20px;
         }
 
-        .product-header {
+        .product-header-left {
             background-color: #00A7F5;
             color: #fff;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 20px;
-            border-radius: 10px;
+            margin-bottom: 30px;
+            border-radius: 5px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .product-header h1 {
+        .product-header-text {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-header-text h1 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
@@ -37,12 +43,17 @@
             align-items: center;
         }
 
-        .product-header .icon-wrapper {
+        .product-header-left .icon-wrapper {
             margin-right: 10px;
         }
 
-        .product-header .icon-wrapper i {
+        .product-header-left .icon-wrapper i {
             font-size: 24px;
+        }
+
+        .empty-div {
+            width: 24px;
+            /* 아이콘과 동일한 너비 */
         }
 
         .product-header a {
@@ -92,7 +103,7 @@
         }
 
         .product-info .price {
-            font-size: 12px;
+            font-size: 16px;
             color: #6c757d;
         }
 
@@ -113,54 +124,59 @@
 
         .product-actions p {
             color: #6c757d;
-            font-size: 12px;
+            font-size: 16px;
         }
     </style>
 </head>
 
 <body>
     <div id=content-for-footer>
-        <div class="container">
-            <div class="product-header">
-                <div class="icon-wrapper">
-                    <a th:href="@{/common/menu}">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </div>
-                <h1><i class="bi bi-bag"></i> 상품 목록</h1>
-                <div></div>
-            </div>
-            <table class="table table-hover product-table">
-                <tbody class="product-list">
-                    <!-- 상품 목록이 여기 추가됩니다 -->
-                </tbody>
-            </table>
-        </div><!-- Modal for Image Slideshow -->
-        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="imageModalLabel">상품 이미지</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div id=content-for-left>
+            <div class="container">
+                <div class="product-header-left">
+                    <div class="icon-wrapper">
+                        <a th:href="@{/common/menu}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
                     </div>
-                    <div class="modal-body">
-                        <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                <!-- 이미지 슬라이드가 여기 추가됩니다 -->
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
+                    <div class="product-header-text">
+                        <h1><i class="bi bi-bell"></i> 상품 목록</h1>
+                    </div>
+                    <div class="empty-div"></div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover product-table">
+            <tbody class="product-list">
+                <!-- 상품 목록이 여기 추가됩니다 -->
+            </tbody>
+        </table>
+    </div><!-- Modal for Image Slideshow -->
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">상품 이미지</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <!-- 이미지 슬라이드가 여기 추가됩니다 -->
                         </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
@@ -202,7 +218,7 @@
                         html += '<p class="price">' + product.price + '원</p>';
                         html += '</div>';
                         html += '<div class="product-actions">';
-                        html += '<a href="/purchase/addPurchaseView/'+product.productNo+'">구매</a>';
+                        html += '<a href="/purchase/addPurchaseView/' + product.productNo + '">구매</a>';
                         html += '<p>' + formatDate(product.productRegDate) + '</p>';
                         html += '</div>';
                         html += '</div>';
