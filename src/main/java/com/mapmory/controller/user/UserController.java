@@ -373,12 +373,6 @@ public class UserController {
 		model.addAttribute("profileUserId", profileUserId);
 	}
 	
-	
-	@GetMapping("/getLeaveAccountView")
-	public void getLeaveAccountView() {
-		
-	}
-	
 	@GetMapping("/getRecoverAccountView")
 	public void getRecoverAccountView() {
 		

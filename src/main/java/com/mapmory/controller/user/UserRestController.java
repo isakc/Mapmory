@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -183,6 +184,18 @@ public class UserRestController {
 				boolean keep = Boolean.valueOf(map.get("keepLogin"));
 				boolean needToChangePassword = userService.checkPasswordChangeDeadlineExceeded(userId);
 				
+				
+				// 계정 탈퇴
+				LocalDateTime leaveAccountDate = user.getLeaveAccountDate();
+				if(leaveAccountDate != null) {
+
+					System.out.println("서비스를 탈퇴한 사용자입니다...");
+					return ResponseEntity.ok("leaveUser");
+
+				}
+				
+				
+				// 2단계 인증
 				if(setSecondAuth == 1) {
 					
 					String key = redisUtilString.select("SECONDAUTH-"+userId, String.class);
@@ -303,6 +316,15 @@ public class UserRestController {
 		
 	}
 
+
+	@PostMapping("/addLeaveAccount/{userId}")
+	public ResponseEntity<Boolean> leaveAccount(@PathVariable String userId) {
+		
+		boolean result = userService.addLeaveAccount(userId);
+		
+		return ResponseEntity.ok(result);
+	}
+	
 	
 	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
 	// @GetMapping("/getFollowList/{profileUserId}")  
@@ -459,11 +481,22 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
-	
-	@PostMapping("/recoverAccount")
-	public ResponseEntity<Boolean> recoverAccount() {
+	@PostMapping("/recoverAccount/{userId}")
+	public ResponseEntity<String> recoverAccount(@PathVariable String userId) {
 		
-		return ResponseEntity.ok(true);
+		int result = userService.updateRecoverAccount(userId);
+		
+		switch(result) {
+		
+			case 0:
+				return ResponseEntity.ok("db-error");
+			case 1:
+				return ResponseEntity.ok("true");
+			case 2:
+				return ResponseEntity.ok("violate-policy");
+		}
+		
+		return null;
 	}
 	
 	@PostMapping("/sendAuthNum")

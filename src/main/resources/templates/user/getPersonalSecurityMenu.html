@@ -198,8 +198,33 @@
 			
 			$('#leaveAccount').on('click', function() {
 				
-				window.location.href="/user/getLeaveAccountView";
+				const result = confirm("정말로 계정을 탈퇴하시겠습니까? (탈퇴 이후로 1개월 내로 계정 복구가 가능합니다.)");
 				
+				if(result) {
+					
+					$.ajax({
+						
+						url: `/user/rest/addLeaveAccount/${userId}`,
+						type : "post",
+						success : function(response) {
+							
+							if(response == true || response == 'true') {
+								
+								alert('계정 탈퇴에 성공하셨습니다. 안녕히 가십시오.');
+								$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+								// window.location.href="/";
+								return;
+							} else {
+								
+								alert('서버 문제로 실패...');
+								return;
+							}
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('오류 발생 : ' + jqXHR.responseText)
+						}
+					});
+				}
 			});
 			
 		});
@@ -238,7 +263,7 @@
 		    </tbody>
 		</table>
 	</div>
-
+	<form></form>
 <div th:replace="common/footer::defaultFooter"></div>
 	<!-- 
 	<button type="button" id="getMyInfo">내 정보 조회</button>
