@@ -91,11 +91,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 			System.out.println("쿠키가 만료되었어요. 다시 로그인해주세요...");
 			response.sendRedirect("/");
 			return false;
-		}
-			
-			
-		
-		else {
+		} else {
 			
 			System.out.println("현재 login 상태입니다.");
 			String sessionKeyName = cookie.getValue(); 
@@ -112,6 +108,15 @@ public class LoginInterceptor implements HandlerInterceptor {
 				
 			} else {
 			
+				// 사용자가 관리자 페이지로 오면 거부
+				if(requestURI.contains("Admin") && (sessionData.getRole() == 1)) {
+					
+					System.out.println("당신은 관리자가 아닙니다...");
+					response.sendRedirect("/");
+					return false;
+				}
+				
+				
 				// 세션을 연장한다.
 				boolean result = redisUtil.updateSession(request, response);
 				System.out.println("is session update successfully? : " + result);
