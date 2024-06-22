@@ -185,6 +185,16 @@ public class UserRestController {
 				
 				if(setSecondAuth == 1) {
 					
+					String key = redisUtilString.select("SECONDAUTH-"+userId, String.class);
+					if(key == null) {
+						
+						// 사용자에게도 알릴 수 있도록 로직 개선 필요
+						System.out.println("인증키가 만료되었습니다... 2단계 인증을 해제합니다.");
+						boolean result = userService.updateSecondaryAuth(userId, 0);
+						
+						
+						return doLogin(userId, role, response, keep, needToChangePassword);
+					}
 					
 					System.out.println("2단계 인증을 진행합니다..");
 					// 임시 인증 쿠키 생성
@@ -204,7 +214,8 @@ public class UserRestController {
 					
 				} else {
 					
-					
+					return doLogin(userId, role, response, keep, needToChangePassword);
+					/*
 					acceptLogin(userId, role, response, keep);
 					
 					
@@ -222,6 +233,7 @@ public class UserRestController {
 							return ResponseEntity.ok("admin");
 						
 					}	
+					*/
 				}
 			}	
 		}
@@ -905,4 +917,24 @@ public class UserRestController {
 		return null;
 	}
     
+    private ResponseEntity<String> doLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean needToChangePassword) throws Exception {
+    	
+    	acceptLogin(userId, role, response, keep);
+		
+		
+		if(!needToChangePassword) {
+		
+			// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
+			return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+			
+		} else {
+
+			System.out.println("role : " + role);
+			if(role == 1)
+				return ResponseEntity.ok("user");
+			else
+				return ResponseEntity.ok("admin");
+			
+		}	
+    }
 }
