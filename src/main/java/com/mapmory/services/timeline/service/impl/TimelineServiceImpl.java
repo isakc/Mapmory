@@ -107,14 +107,14 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public Category getCategory(int categoryNo) throws Exception {
-		return TimelineUtil.mapToCategory(timelineDao.selectCategory(categoryNo));
+		return timelineDao.selectCategory(categoryNo);
 	}
 
 	@Override
 	public List<Category> getCategoryList() throws Exception {
 		List<Category> categoryList=new ArrayList<Category>();
-		for(Map<String, Object> map:timelineDao.selectCategoryList()) {
-			categoryList.add(TimelineUtil.mapToCategory(map));
+		for(Category category:timelineDao.selectCategoryList()) {
+			categoryList.add(category);
 		}
 		return categoryList;
 	}

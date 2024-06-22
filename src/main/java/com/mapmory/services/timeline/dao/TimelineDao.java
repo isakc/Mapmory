@@ -44,9 +44,9 @@ public interface TimelineDao {
 	//Category CRUD
 	public int insertCategory(Category category) throws Exception;
 	
-	public Map<String, Object> selectCategory(int categoryNo) throws Exception;
+	public Category selectCategory(int categoryNo) throws Exception;
 	
-	public List<Map<String, Object>> selectCategoryList() throws Exception;
+	public List<Category> selectCategoryList() throws Exception;
 	
 	public int updateCategory(Category category) throws Exception;
 	
