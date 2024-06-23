@@ -2,7 +2,8 @@ package com.mapmory.services.purchase.service.impl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -128,5 +129,41 @@ public class PurchaseServiceImpl implements PurchaseService {
 		}
 		
 		return subscriptionPurchase;
+	}
+
+	@Override
+	public PurchaseDTO addPurchaseByMobile(String impUid, String merchantUid) throws Exception {
+		IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(impUid);
+		int paymentMethod;
+		String pg = returnPayment.getResponse().getPgProvider();
+		
+		switch (pg) {
+		
+		case "kakaopay":
+			paymentMethod = 2;
+			break;
+			
+		case "payco":
+			paymentMethod = 3;
+			break;
+			
+		case "tosspay":
+			paymentMethod = 4;
+			break;
+		default:
+			paymentMethod = 1;
+			break;
+		}
+		
+		PurchaseDTO purchaseDTO = PurchaseDTO.builder()
+				.price(returnPayment.getResponse().getAmount().intValue())
+				.productTitle(returnPayment.getResponse().getName())
+				.paymentMethod(paymentMethod)
+				.cardType(returnPayment.getResponse().getCardName())
+				.lastFourDigits(returnPayment.getResponse().getCardNumber())
+				.purchaseDate(LocalDateTime.now())
+				.build();
+		
+		return purchaseDTO;
 	}
 }

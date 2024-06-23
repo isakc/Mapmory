@@ -47,6 +47,7 @@ public class PurchaseFacadeServiceImpl implements PurchaseFacadeService {
 				
 				subscription.setNextSubscriptionPaymentDate(currentSubscription.getNextSubscriptionPaymentDate());
 				subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
+				
 				return subscriptionService.schedulePay(subscription, product);
 			}else {
 				throw new SubscriptionException();
