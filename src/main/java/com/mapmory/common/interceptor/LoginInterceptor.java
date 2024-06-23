@@ -97,14 +97,21 @@ public class LoginInterceptor implements HandlerInterceptor {
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
 			
-			// cookie를 삭제한다.
+			// key가 만료된 경우
 			if(sessionData == null) {
-		
+
+				System.out.println("현재 redis 버그로 인해 key가 사라짐. 강제로 cookie를 제거합니다...");
 				cookie.setMaxAge(0);
 				cookie.setPath("/");
 				response.addCookie(cookie);
 				response.sendRedirect("/");
 				return false;
+				
+				/*
+				System.out.println("현재 redis 버그로 인해 key가 사라짐. 강제로 redis에 키를 재생성합니다...");
+				String key = cookie.getValue();
+				loginService.setSession();
+				*/
 				
 			} else {
 			
