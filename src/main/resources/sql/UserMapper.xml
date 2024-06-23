@@ -228,52 +228,7 @@
 		LIMIT #{limit} OFFSET #{offset}
 		</if>
 	</select>
-	
-	<!-- 
-	<select id="selectFollowList" parameterType="com.mapmory.services.user.domain.FollowSearch" resultMap="selectFollowMap">
-	SELECT
-		<if test="selectFollow == 0">
-		  fb.target_id AS user_id,
-	    </if>
-	    <if test="selectFollow == 1">
-		  fb.user_id,
-	    </if>
-		  u.user_name,
-		  u.nickname,
-		  u.profile_image_name,
-		  u.hide_profile,
-		  IF(NOW() BETWEEN s.subscription_start_date AND s.subscription_end_date, 1, 0) AS is_subscribed,
-		  CASE
-		    WHEN fb2.user_id IS NULL THEN 0
-		    ELSE 1
-		  END AS is_follow
-		FROM follow_block fb
-		<if test="selectFollow == 0">
-		LEFT JOIN users u ON fb.target_id = u.user_id
-		LEFT JOIN subscription s ON fb.target_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.target_id = fb.target_id AND fb2.user_id = #{myUserId}
-		</if>
-		<if test="selectFollow == 1">
-		LEFT JOIN users u ON fb.user_id = u.user_id
-		LEFT JOIN subscription s ON fb.user_id = s.user_id
-		LEFT JOIN follow_block fb2 ON fb2.user_id = fb.user_id AND fb2.target_id = #{myUserId}
-		</if>
-		AND fb2.fb_type=0
-		WHERE
-		  <if test="selectFollow == 0">
-		  fb.user_id = #{userId}
-		  </if>
-		  <if test="selectFollow == 1">
-		  fb.target_id = #{userId}
-		  </if>
-  		  AND fb.fb_type = 0
-		  <if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
-	    <if test="limit != 0 and currentPage != 0"> 
-		ORDER BY fb.FB_NO DESC
-		LIMIT #{limit} OFFSET #{offset}
-		</if>
-	</select>
-	 -->
+
 	<select id="getFollowListTotalCount" parameterType="com.mapmory.services.user.domain.FollowSearch" resultType="integer">
 		SELECT
 		COUNT(*) 
@@ -294,36 +249,6 @@
 		LIMIT #{limit} OFFSET #{offset}
 		</if>
 	</select>
-	
-	<!-- 
-	<select id="selectFollowerList" parameterType="search" resultMap="selectFollowMap">
-		SELECT
-		fb.target_id as user_id, u.user_name, u.nickname, u.profile_image_name, u.hide_profile 
-		FROM follow_block fb
-			JOIN users u ON fb.user_id = u.user_id
-		WHERE
-			fb.target_id = #{userId}
-			AND fb_type=0
-			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
-		ORDER BY fb.FB_NO DESC
-		LIMIT #{limit} OFFSET #{offset}
-	</select>
-	
-	<select id="getFollowerListTotalCount" parameterType="search" resultType="integer">
-		SELECT
-		COUNT(*) 
-		FROM follow_block fb
-			JOIN users u ON fb.user_id = u.user_id
-		WHERE
-			fb.target_id = #{userId}
-			AND fb_type=0
-			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword}, '%') )</if>
-		<if test="limit != 0 and currentPage != 0"> 
-		ORDER BY fb.FB_NO DESC 
-		LIMIT #{limit} OFFSET #{offset}
-		</if>
-	</select>
-	 -->
 	 
 	<select id="isFollow" parameterType="com.mapmory.services.user.domain.FollowBlock" resultType="integer">
 		SELECT
@@ -351,13 +276,50 @@
 	</select>
 	
 	<select id="selectUserLoginDailyList" parameterType="search" resultMap="selectLoginDailyMap">
+		WITH hours AS (
+		    SELECT 0 AS hour
+		    UNION ALL SELECT 1
+		    UNION ALL SELECT 2
+		    UNION ALL SELECT 3
+		    UNION ALL SELECT 4
+		    UNION ALL SELECT 5
+		    UNION ALL SELECT 6
+		    UNION ALL SELECT 7
+		    UNION ALL SELECT 8
+		    UNION ALL SELECT 9
+		    UNION ALL SELECT 10
+		    UNION ALL SELECT 11
+		    UNION ALL SELECT 12
+		    UNION ALL SELECT 13
+		    UNION ALL SELECT 14
+		    UNION ALL SELECT 15
+		    UNION ALL SELECT 16
+		    UNION ALL SELECT 17
+		    UNION ALL SELECT 18
+		    UNION ALL SELECT 19
+		    UNION ALL SELECT 20
+		    UNION ALL SELECT 21
+		    UNION ALL SELECT 22
+		    UNION ALL SELECT 23
+		)
 		SELECT
-		    SUBSTRING(login_date, 12, 2) AS hour,
-		    COUNT(*) AS count
-		FROM suspension_login_log
-		WHERE DATE(login_date) = #{selectLoginDate}
-		GROUP BY SUBSTRING(login_date, 12, 2)
-		ORDER BY hour
+		    h.hour,
+		    COALESCE(COUNT(sll.login_date), 0) AS count
+		FROM
+		    hours h
+		LEFT JOIN (
+		    SELECT
+		        SUBSTRING(login_date, 12, 2) AS hour,
+		        login_date
+		    FROM
+		        suspension_login_log
+		    WHERE
+		        DATE(login_date) = #{selectLoginDate}
+		) sll ON h.hour = sll.hour
+		GROUP BY
+		    h.hour
+		ORDER BY
+		    h.hour;
 	</select>
 	
 	<select id="selectUserLoginMonthlyList" parameterType="search" resultMap="selectLoginMonthlyMap">

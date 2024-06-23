@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
 							.searchCondition(-1)
 							.role(0)
 							.currentPage(1)
-							.pageSize(100)
+							// .pageSize(100)
 							.limit(100)
 							.build();
 		List<User> list = userDao.selectUserList(search);

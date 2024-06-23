@@ -577,6 +577,8 @@ public class UserController {
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
+		
+		
 	}
 	
 	@GetMapping("/admin/getAdminTermsAndConditionsList")

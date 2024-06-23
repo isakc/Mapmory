@@ -400,6 +400,41 @@ public class UserRestController {
 		return ResponseEntity.ok(userId);
 	}
 	
+	@PostMapping("/getDailyStatistics")
+	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
+		
+		LocalDate day = map.get("selectDate");
+		
+		System.out.println("which day ? " + day);
+		
+		LoginSearch search = LoginSearch.builder()
+				.selectLoginDate(day)
+				.build();
+		
+		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
+		
+		return ResponseEntity.ok(result);
+	}
+	
+
+	@PostMapping("/getMonthlyStatistics")
+	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, Integer> map) {
+		
+		int year = map.get("year");
+		int month = map.get("month");
+		
+		System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		
+		LoginSearch search = LoginSearch.builder()
+				.year(year)
+				.month(month)
+				.build();
+		
+		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
+		
+		return ResponseEntity.ok(result);
+	}
+	
 	@PostMapping("/updateUserInfo")
 	public ResponseEntity<Boolean> updateUserInfo(HttpServletRequest request, @RequestBody User user) throws Exception {
 		

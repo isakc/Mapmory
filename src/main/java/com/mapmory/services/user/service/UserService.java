@@ -127,9 +127,6 @@ public interface UserService {
 	
 	/**
 	 * 사용자 전체 로그인 통계를 조회한다. 
-	 * searchCondition(0: 일간, 1: 주간, 2: 월간)
-	 * selectDay1, selectDay2를 사용하여 주간 및 월간 통계를 지원한다.
-	 * 일간 통계는 selectDay1만 입력하면 된다.
 	 * @return
 	 */
 	public List<LoginDailyLog> getUserLoginDailyList(LoginSearch search);
