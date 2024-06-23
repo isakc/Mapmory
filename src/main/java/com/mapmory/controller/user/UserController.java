@@ -410,7 +410,7 @@ public class UserController {
 	}
 
 	@GetMapping("/getUpdatePasswordView")
-	public void postUpdatePasswordView(@RequestParam Map<String, String> map) {
+	public void postUpdatePasswordView() {
 		
 		
 	}
@@ -475,7 +475,9 @@ public class UserController {
 	}
 	
 	@RequestMapping("/naver/auth/callback")
-	public String naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+	public String naverLogin(HttpServletRequest request, @RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+		
+		System.out.println("Flag");
 		
 	    NaverAuthToken token = userService.getNaverToken(code, state);
 	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
@@ -483,25 +485,51 @@ public class UserController {
 	    String naverId = profileInfo.getId();
 	    String userId = userService.getUserIdBySocialId(naverId);
 	    
-	    // 회원가입 페이지로 이동
+	    System.out.println("naver 소셜 연동이 된 사용자? " + userId);
 	    if(userId == null) {
 
-	    	String uuid = UUID.randomUUID().toString();
-        	String keyName = "n-"+uuid;
-            redisUtilString.insert(keyName, naverId, 10L); 
-            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
-            response.addCookie(cookie);
-	    	
-	    	// model.addAttribute("naverId", naverId);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
+	    	// 회원 : 소셜 로그인을 동록해줌
+	    	SessionData sessionData = redisUtil.getSession(request);    	
+	    	if(sessionData != null) {
+	    		
+	    		boolean result = userService.addSocialLoginLink(sessionData.getUserId(), naverId);
+	    		
+	    		if(result) {
+	    			
+	    			// 이 로직은 REST로 개선해야 사용자에게 성공 여부를 알릴 수 있다...
+		    		System.out.println("네이버 소셜 로그인 등록 성공!");
+		    		loginService.logout(request, response);
+		    		return null;
+		    		// return "redirect:/";
+	    		} else {
+	    			
+	    			System.out.println("실패...");
+	    			return "redirect:/user/getSocialLoginLinkedView";
+	    		}
+	    	} else {
+	    		
+	    		// 신규 : 회원가입 페이지로 이동
+	    		System.out.println("신규 회원입니다. 회원가입 페이지로 이동합니다.");
+		    	String uuid = UUID.randomUUID().toString();
+	        	String keyName = "n-"+uuid;
+	            redisUtilString.insert(keyName, naverId, 10L); 
+	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
+	            response.addCookie(cookie);
+		    	
+		    	// model.addAttribute("naverId", naverId);
+		    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    		
+	    	}	    	
 	    } else {
 	    	
 	    	User user = userService.getDetailUser(userId);
         	byte role=user.getRole();
         	
 	    	acceptLogin(userId, role, response, false);
-	    	return "redirect:/map";
+	    	if(role == 1)
+	    		return "redirect:/map";
+	    	else
+	    		return "redirect:/user/admin/getAdminMain";
 	    	
 	    }
 	}
@@ -632,28 +660,56 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	
 	@GetMapping("/kakaoCallback")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) throws Exception {
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response, HttpServletRequest request) throws Exception {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
             String kakaoId = userService.getKakaoUserInfo(accessToken);
             
+            /*
             if (kakaoId == null) {
                 throw new Exception("소셜 연동 정보가 없습니다."); // 카카오 사용자 정보가 없으면 에러 처리
             }
-
+            */
+            
             String userId = userService.getUserIdBySocialId(kakaoId);
             // 소셜 로그인 연동 정보가 없는 경우
             if (userId == null) {
-
-            	String uuid = UUID.randomUUID().toString();
-            	String keyName = "k-"+uuid;
-                redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
-                Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
-                response.addCookie(cookie);
-                
-                // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
-                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트 
+            	
+            	// 회원 : 소셜 로그인을 동록해줌
+            	System.out.println("현재 로그인 상태인지 확인합니다...");
+    	    	SessionData sessionData = redisUtil.getSession(request);    
+    	    	System.out.println("is session null? " + sessionData);
+    	    	if(sessionData != null) {
+    	    		
+    	    		System.out.println("현재 회원을 대상으로 소셜 로그인 연동을 진행합니다...");
+    	    		boolean result = userService.addSocialLoginLink(sessionData.getUserId(), kakaoId);
+    	    		
+    	    		if(result) {
+    	    			
+    	    			// 이 로직은 REST로 개선해야 사용자에게 성공 여부를 알릴 수 있다...
+    		    		System.out.println("카카오 소셜 로그인 등록 성공!");
+    		    		loginService.logout(request, response);
+    		    		// return "redirect:/";
+    		    		return null;
+    	    		} else {
+    	    			
+    	    			System.out.println("실패...");
+    	    			return "redirect:/user/getSocialLoginLinkedView";
+    	    		}
+    	    	} else {
+    	    		
+    	    		System.out.println("신규 유저");
+    	    		// 신규 : 회원가입 페이지로 이동
+                	String uuid = UUID.randomUUID().toString();
+                	String keyName = "k-"+uuid;
+                    redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
+                    Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
+                    response.addCookie(cookie);
+                    
+                    // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
+                    return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
+    	    	}	
                 
             } else {
 
