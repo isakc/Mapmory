@@ -123,7 +123,7 @@
         
     	$(function() {
 			$('#shared-record-list').on("click", ".category", function() {
-				var selectedCategory = $(this).data('categoryno');
+				selectedCategory = $(this).data('categoryno');
 				console.log("카테고리 :"+selectedCategory);
 				currentPage = 1;
 				endOfData = false;
