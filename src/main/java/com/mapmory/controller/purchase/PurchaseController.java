@@ -142,7 +142,6 @@ public class PurchaseController {
 				Subscription addSubscription = subscriptionService.getDetailSubscription(userId);
 				
 				try {
-					addSubscription.setNextSubscriptionPaymentDate(addSubscription.getNextSubscriptionPaymentDate().plusMonths(1));
 					addSubscription.setMerchantUid("subscription_"+userId+LocalDateTime.now());
 					subscriptionService.schedulePay(addSubscription, product);
 				}
