@@ -155,7 +155,7 @@
 			            recordHtml += '<h4>';
 			            recordHtml += '<img alt="" class="profileImage" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
 			            recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
-			            recordHtml += '<span th:if="${sharedRecord.subscriptionEndDate == 1}">'
+			            recordHtml += '<span if="${sharedRecord.subscriptionEndDate == 1}">'
 			                			+ '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
 			                			+ '</span>';
 			            recordHtml += '</h4>';
@@ -168,7 +168,7 @@
 			            recordHtml += '<div class="card-body">';
 			            recordHtml += '<h3 class="card-title">';
 			            recordHtml += '<span class="title" data-recordno="${sharedRecord.recordNo}">'+sharedRecord.recordTitle+'</span>';
-			            recordHtml += '<div th:if="${sharedRecord.categoryImoji != null}">';
+			            recordHtml += '<div if="${sharedRecord.categoryImoji != null}">';
 			            recordHtml += '<img alt="" class="category" src="/timeline/rest/imoji/'+sharedRecord.categoryImoji+'">';
 			            recordHtml += '</div>';
 			            recordHtml += '</h3>';

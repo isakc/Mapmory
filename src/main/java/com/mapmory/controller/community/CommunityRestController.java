@@ -376,7 +376,7 @@ public class CommunityRestController {
 	@PostMapping("/rest/getBookmark")
 	public ResponseEntity<Integer> getBookmark(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
 	
-		int bookmark = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int bookmark = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		return ResponseEntity.ok(bookmark);
 	}
 	

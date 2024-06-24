@@ -44,7 +44,7 @@ public interface CommunityDao {
 	public List<CommunityLogs> getAllCommunityLogs() throws Exception;	
 
 	//커뮤니티 로그 중복체크
-	public int checkDuplicatieLogs(String userId, int recordNo, Integer replyNo, int logsType) throws Exception;
+	public int checkDuplicateLogs(String userId, int recordNo, Integer replyNo, int logsType) throws Exception;
 	
 	//커뮤니티 좋아요 싫어요 체크
 	public int checkConflictLogs(CommunityLogs communityLogs) throws Exception;
