@@ -24,4 +24,5 @@ public class Purchase {
 	private String lastFourDigits;
 	private LocalDateTime purchaseDate;
 	private int price;
+	private String impUid;
 }

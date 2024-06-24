@@ -1,28 +1,23 @@
 package com.mapmory.services.purchase.service.impl;
 
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.ZoneId;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.PurchaseUtil;
-import com.mapmory.exception.purchase.PaymentValidationException;
 import com.mapmory.services.purchase.dao.PurchaseDao;
 import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.dto.PurchaseDTO;
 import com.mapmory.services.purchase.service.PurchaseService;
 import com.siot.IamportRestClient.IamportClient;
-import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 
@@ -54,17 +49,17 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 	@Override
 	public boolean addPurchase(Purchase purchase) throws Exception{
-		if (purchase == null) {
-			throw new IllegalArgumentException();
-		}
-
-		if (purchase.getPrice() < 0) {
-			throw new DataIntegrityViolationException("가격이 음수입니다");
-		}
-
-		if (purchase.getPaymentMethod() != 1) {
-			purchase.setCardType(null);
-			purchase.setLastFourDigits(null);
+		IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(purchase.getImpUid());
+		
+		int paymentMethod = PurchaseUtil.paymentChangeToInt(returnPayment.getResponse().getPgProvider());
+		
+		purchase.setPrice(returnPayment.getResponse().getAmount().intValue());
+		purchase.setPaymentMethod(paymentMethod);
+		purchase.setPurchaseDate(LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.systemDefault()));
+		
+		if(paymentMethod == 1) {
+			purchase.setCardType(returnPayment.getResponse().getCardName());
+			purchase.setLastFourDigits(returnPayment.getResponse().getCardNumber().substring(0, 4));
 		}
 
 		return purchaseDao.addPurchase(purchase) == 1;
@@ -85,7 +80,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 		List<PurchaseDTO> purchaseList = purchaseDao.getPurchaseList(search);
 
 		for (PurchaseDTO purchase : purchaseList) {
-			purchase.setPaymentMethodString(PurchaseUtil.paymentChange(purchase.getPaymentMethod()));
+			purchase.setPaymentMethodString(PurchaseUtil.paymentChangeToString(purchase.getPaymentMethod()));
 			purchase.setPurchaseDateString(PurchaseUtil.purchaseDateChange(purchase.getPurchaseDate()));
 		}
 
@@ -98,21 +93,21 @@ public class PurchaseServiceImpl implements PurchaseService {
 		return purchaseDao.getPurchaseTotalCount(search);
 	}// getPurchaseTotalCount: 구매 총 개수
 
-	@Override
-	public boolean validatePurchase(String impUid, Purchase purchase) {
-		try {
-			IamportResponse<Payment> validation = iamportClient.paymentByImpUid(impUid);
-			
-			return validation.getResponse().getAmount().compareTo(new BigDecimal(purchase.getPrice())) == 0;
-			
-		} catch (IamportResponseException e) {
-			throw new PaymentValidationException("Iamport response error: " + e.getMessage(), e);
-		} catch (IOException e) {
-			throw new PaymentValidationException("IO error: " + e.getMessage(), e);
-		} catch (Exception e) {
-			throw new PaymentValidationException("Validation error: " + e.getMessage(), e);
-		}
-	}// validatePurchase: 구매 검증
+//	@Override
+//	public boolean validatePurchase(String impUid, Purchase purchase) {
+//		try {
+//			IamportResponse<Payment> validation = iamportClient.paymentByImpUid(impUid);
+//			
+//			return validation.getResponse().getAmount().compareTo(new BigDecimal(purchase.getPrice())) == 0;
+//			
+//		} catch (IamportResponseException e) {
+//			throw new PaymentValidationException("Iamport response error: " + e.getMessage(), e);
+//		} catch (IOException e) {
+//			throw new PaymentValidationException("IO error: " + e.getMessage(), e);
+//		} catch (Exception e) {
+//			throw new PaymentValidationException("Validation error: " + e.getMessage(), e);
+//		}
+//	}// validatePurchase: 구매 검증
 
 	@Override
 	public boolean deletePurchase(int purchaseNo) throws Exception{
@@ -125,45 +120,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 		PurchaseDTO subscriptionPurchase = purchaseDao.getSubscriptionPurchase(purchase);
 		
 		if(subscriptionPurchase != null) {
-			subscriptionPurchase.setPaymentMethodString(PurchaseUtil.paymentChange(subscriptionPurchase.getPaymentMethod()));
+			subscriptionPurchase.setPaymentMethodString(PurchaseUtil.paymentChangeToString(subscriptionPurchase.getPaymentMethod()));
 		}
 		
 		return subscriptionPurchase;
-	}
-
-	@Override
-	public PurchaseDTO addPurchaseByMobile(String impUid, String merchantUid) throws Exception {
-		IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(impUid);
-		int paymentMethod;
-		String pg = returnPayment.getResponse().getPgProvider();
-		
-		switch (pg) {
-		
-		case "kakaopay":
-			paymentMethod = 2;
-			break;
-			
-		case "payco":
-			paymentMethod = 3;
-			break;
-			
-		case "tosspay":
-			paymentMethod = 4;
-			break;
-		default:
-			paymentMethod = 1;
-			break;
-		}
-		
-		PurchaseDTO purchaseDTO = PurchaseDTO.builder()
-				.price(returnPayment.getResponse().getAmount().intValue())
-				.productTitle(returnPayment.getResponse().getName())
-				.paymentMethod(paymentMethod)
-				.cardType(returnPayment.getResponse().getCardName())
-				.lastFourDigits(returnPayment.getResponse().getCardNumber())
-				.purchaseDate(LocalDateTime.now())
-				.build();
-		
-		return purchaseDTO;
 	}
 }
