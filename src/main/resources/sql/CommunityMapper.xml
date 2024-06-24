@@ -61,7 +61,7 @@
 		DATE_FORMAT(reply_update_date, '%Y-%m-%d %H:%i') AS reply_update_date,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
 			(SELECT COUNT(*) FROM community_logs cl WHERE cl.record_no = r2.record_no AND cl.reply_no = r2.reply_no AND cl.logs_type = 2) AS like_count,
 			(SELECT COUNT(*) FROM community_logs cl WHERE cl.record_no = r2.record_no AND cl.reply_no = r2.reply_no AND cl.logs_type = 3) AS dislike_count			
 		FROM reply r2
@@ -154,7 +154,7 @@
 	</select>	
 	
 	<!-- 커뮤니티 로그 중복 체크 -->
-	<select id="checkDuplicatieLogs" resultType= "int" parameterType="map">
+	<select id="checkDuplicateLogs" resultType= "int" parameterType="map">
 		SELECT COUNT(*)
 		FROM community_logs
 		WHERE user_id = #{userId}
@@ -204,11 +204,16 @@
 	
 	<!--  커뮤니티 활동 수정 -->
 	<update id="updateCommunityLogs" parameterType="CommunityLogs">
-		UPDATE community_logs
-		<set>
-			logs_type = #{logsType}
-		</set>
-		WHERE community_logs_no = #{communityLogsNo}
+        UPDATE community_logs
+        SET logs_type =
+            CASE 
+                WHEN logs_type = 2 THEN 3 
+                WHEN logs_type = 3 THEN 2 
+            END
+        WHERE user_id = #{userId}
+            AND record_no = #{recordNo}
+            AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
+            AND logs_type IN (2, 3)
 	</update>
 
 	<!-- 커뮤니티 활동 삭제 -->
