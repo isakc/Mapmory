@@ -50,6 +50,6 @@ public class WebConfig implements WebMvcConfigurer{
 						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",
 						"/user/getSignUpView", "/user/rest/signUp", "/user/setupForTest",
 						"/user/getSecondaryAuthView", "/user/rest/generateKey", "/user/rest/checkSecondaryKey", "/user/rest/recoverAccount/*", 
-						"/chat/json/getMongo", "/chat/json/getOpponentProfile");
+						"/chat/json/getMongo", "/chat/json/getOpponentProfile","/user/setupForTest");
 	}
 }

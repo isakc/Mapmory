@@ -22,8 +22,5 @@ public interface PurchaseService {
 	//count
 	public int getPurchaseTotalCount(Search search) throws Exception;
 	
-	//Iamport api 결제 검증
-	public boolean validatePurchase(String impUid, Purchase purchase) throws Exception;
-	
 	public boolean deletePurchase(int purchaseNo) throws Exception;
 }

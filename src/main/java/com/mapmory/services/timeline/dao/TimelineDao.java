@@ -54,7 +54,11 @@ public interface TimelineDao {
 	
 	public CountAddressDto selectCountAddress(Record record) throws Exception;
 	
-	public SummaryRecordDto selectSummaryRecord(SearchDto searchDto) throws Exception;
+	public List<SummaryRecordDto> selectSummaryRecordImage(SearchDto searchDto) throws Exception;
+	
+	public List<SummaryRecordDto> selectSummaryRecordMedia(SearchDto searchDto) throws Exception;
+	
+	public String selectSummaryDate(SearchDto searchDto) throws Exception;
 	
 	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
 	
@@ -67,6 +71,8 @@ public interface TimelineDao {
 	public Record selectDetailTimeline2(int recordNo) throws Exception;
 	
 	public List<Map<String, Object>> selectProfileTimelineList(Search search) throws Exception;
+	
+	public int selectProfileTimelineCount(Search search) throws Exception;
 	
 	//아래 미사용
 //	//record insert시 Imagefile insert

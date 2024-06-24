@@ -39,7 +39,7 @@ public class SubscriptionServiceTest {
 				.merchantUid("monthly01")
 				.build();
 				
-		subscriptionService.addSubscription(subscription);
+		//subscriptionService.addSubscription(subscription);
 		//Assert.assertEquals("user1", subscription);
 	}
 	

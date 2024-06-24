@@ -112,7 +112,7 @@
     </div>
     
     <div class="mt-5 d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">
-        <a href="/purchase/updatePaymentMethod" class="btn btn-dark change-color">결제수단 변경</a>
+        <a href="/purchase/updatePaymentMethodView" class="btn btn-dark change-color">결제수단 변경</a>
     </div>
     
     <div class="d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">

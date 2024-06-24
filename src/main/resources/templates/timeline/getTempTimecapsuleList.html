@@ -51,17 +51,13 @@
 <script type="text/javascript">
 $(function() {
 	$('button[name="addTimecapsule"]').click(function() {
-		let userId=$('input[name="userId"]').val();
-		uri="?userId="+userId;
-		let url="/timeline/addTimecapsule"+uri;
+		let url="/timeline/addTimecapsule";
 		self.location = url;
 	})
 	$('input[name="getTimecapsuleListSwitch"]').on('change',function() {
-		let userId=$('input[name="userId"]').val();
 		let getTimecapsuleListSwitch=$('input[name="getTimecapsuleListSwitch"]').val();
 		if(getTimecapsuleListSwitch!==1){
-			uri="?userId="+userId;
-			let url="/timeline/getTimecapsuleList"+uri;
+			let url="/timeline/getTimecapsuleList";
 			self.location.replace(url);
 		}
 	})
