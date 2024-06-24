@@ -417,6 +417,7 @@ public class UserDaoTest {
 	
 	/*
 	// @Test
+
 	public void testUpdateSecondaryAuth() throws Exception {
 		
 		String userId = "user1";

@@ -100,9 +100,7 @@ $(function() {
 	let userId = sessionStorage.getItem("userId");
 
 	$("div[name='타임라인']").on("click", function() {
-		let userIdOfFooter=$('recordUserIdOfFooter').val();
-		let uri='?userId='+userIdOfFooter;
-		self.location = '/timeline/getTimelineList'+uri;
+		self.location = '/timeline/getTimelineList';
 	});
 	
 	$("div[name='체크포인트']").on("click", function() {

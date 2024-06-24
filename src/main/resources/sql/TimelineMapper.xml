@@ -93,7 +93,7 @@
     <collection property="hashtag" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectHashtag"/>
 </resultMap>
 
-<resultMap id="recordResultMap2" type="java.util.HashMap">
+<resultMap id="profileRecordResultMap" type="java.util.HashMap">
     <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
@@ -112,10 +112,10 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-    <collection property="imageName" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectImage2"/>
+    <collection property="imageName" ofType="imageTag" javaType="java.util.ArrayList" column="record_no" select="selectProfileImage"/>
 </resultMap>
 
-<select id='selectDetailTimeline2' resultMap='recordResultMap2' parameterType='Integer'>
+<!-- <select id='selectDetailTimeline2' resultMap='recordResultMap2' parameterType='Integer'>
     SELECT 
        a1.record_no AS record_no,
        a1.record_user_id AS record_user_id,
@@ -144,7 +144,7 @@
    LEFT JOIN category a3 ON a1.category_no = a3.category_no
    WHERE 
        a1.record_no = #{value}
-</select>
+</select> -->
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
 	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
@@ -267,7 +267,7 @@ LIMIT #{limit} OFFSET #{offset}
 </if>
 </select>
 
-<select id="selectSummaryRecord" parameterType="searchDto" resultType="summaryRecordDto">
+<select id="selectSummaryRecordImage" parameterType="searchDto" resultType="summaryRecordDto">
 	SELECT 
        a1.record_no AS record_no,
        a1.record_user_id AS record_user_id,
@@ -279,12 +279,70 @@ LIMIT #{limit} OFFSET #{offset}
    LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
 <trim prefix="where" prefixOverrides="AND||OR">
 	a1.record_user_id=#{userId}
-	AND <![CDATA[a1.checkpoint_date BETWEEN TIMESTAMP(#{selectDate}, #{checkpointTime}) AND TIMESTAMP(DATE_ADD(#{selectDate}, INTERVAL 1 DAY), #{checkpointTime}) ]]>
-	AND a1.temp_type=1 
+	AND <![CDATA[a1.checkpoint_date BETWEEN TIMESTAMP(#{selectDate}, #{checkpointTime}) 
+	AND TIMESTAMP(DATE_ADD(#{selectDate}, INTERVAL 1 DAY), #{checkpointTime}) ]]>
+	AND a2.IMAGE_TAG_TEXT IS NOT NULL 
+	AND a2.IMAGE_TAG_TYPE=1
 	AND a1.timecapsule_type=0
-	AND a2.image_tag_type=1
 </trim>
-	ORDER BY rand() limit 1
+	ORDER BY a1.checkpoint_date ASC,
+	a1.checkpoint_date IS NULL DESC
+</select>
+
+<select id="selectSummaryRecordMedia" parameterType="searchDto" resultType="summaryRecordDto">
+	SELECT 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
+       a1.checkpoint_address AS checkpoint_address,
+       a1.checkpoint_date AS checkpoint_date,
+       a1.media_name AS media_name
+   FROM 
+       record a1
+<trim prefix="where" prefixOverrides="AND||OR">
+	a1.record_user_id=#{userId}
+	AND <![CDATA[a1.checkpoint_date BETWEEN TIMESTAMP(#{selectDate}, #{checkpointTime}) 
+	AND TIMESTAMP(DATE_ADD(#{selectDate}, INTERVAL 1 DAY), #{checkpointTime}) ]]>
+	AND a1.MEDIA_NAME IS NOT NULL
+	AND a1.timecapsule_type=0
+</trim>
+	ORDER BY a1.checkpoint_date ASC,
+	a1.checkpoint_date IS NULL DESC
+</select>
+
+<select id="selectSummaryDate" parameterType="searchDto" resultType="String">
+	SELECT a1.checkpoint_date AS checkpointDate FROM mapmory_db.record a1
+	LEFT JOIN image_tag a2 ON a1.record_no=a2.record_no
+	<if test="searchCondition==0">
+		<trim prefix="where" prefixOverrides="AND||OR">
+			a1.record_user_id = #{userId} 
+			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
+			AND a1.checkpoint_date<![CDATA[<=]]>#{searchKeyword}
+			AND timecapsule_type=0
+		</trim>
+		ORDER BY a1.checkpoint_date DESC,
+		a1.checkpoint_date IS NULL DESC
+	</if>
+	<if test="searchCondition==1">
+		<trim prefix="where" prefixOverrides="AND||OR">
+			a1.record_user_id = #{userId} 
+			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
+			AND a1.checkpoint_date<![CDATA[<]]>(#{searchKeyword} - INTERVAL 1 DAY)
+			AND timecapsule_type=0
+		</trim>
+		ORDER BY a1.checkpoint_date DESC,
+		a1.checkpoint_date IS NULL DESC
+	</if>
+	<if test="searchCondition==2">
+		<trim prefix="where" prefixOverrides="AND||OR">
+			a1.record_user_id = #{userId} 
+			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
+			AND a1.checkpoint_date<![CDATA[>]]>(#{searchKeyword} + INTERVAL 1 DAY)
+			AND timecapsule_type=0
+		</trim>
+		ORDER BY a1.checkpoint_date ASC,
+		a1.checkpoint_date IS NULL DESC
+	</if>
+	Limit 1
 </select>
 
 <update id="updateTimeline" parameterType="record">
@@ -645,10 +703,10 @@ ORDER BY
     image_tag_order ASC;
 </select>
 
-<!-- 전체 개수 주세요 -->
-<select id='selectProfileTimelineList' resultMap='recordResultMap2' parameterType='search'>
+<sql id='selectProfileTimelineListUnit'>
      SELECT
-       a1.record_no AS record_no, 
+       a1.record_no AS record_no,
+       a1.record_user_id AS record_user_id,
        a1.record_title AS record_title,
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
@@ -696,10 +754,21 @@ ORDER BY
    	ORDER BY
     a1.record_add_date IS NULL DESC, 
     a1.record_add_date DESC
+</sql>
+
+<select id="selectProfileTimelineList" resultMap="profileRecordResultMap" parameterType="search">
+	SELECT *
+	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
 	LIMIT #{limit} OFFSET #{offset}
 </select>
 
-<select id="selectImage2" resultType="imageTag" parameterType="integer">
+<select id="selectProfileTimelineCount" resultType="Integer" parameterType="search">
+	SELECT COUNT(*) AS profileRecord_Count
+	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+	GROUP BY record_user_id=#{userId}
+</select>
+
+<select id="selectProfileImage" resultType="imageTag" parameterType="integer">
 SELECT
   	image_tag_order,
   	record_no,

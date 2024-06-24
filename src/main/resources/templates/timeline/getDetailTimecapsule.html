@@ -53,8 +53,6 @@
 	<div th:include="common/footer::defaultFooter"></div>
 	
 	<input type="hidden" th:name="recordNo" th:value="${record.recordNo}"/>
-	<input type="hidden" th:name="recordUserId" th:value="${record.recordUserId}"/>
-	<input type="hidden" th:name="userId" th:value="${userId}"/>
 	
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
@@ -64,15 +62,12 @@
 $(function() {
 	
 	$("div[name='getKakaoMap']").click(function() {
-		let recordNo=$('input[name="userId"]').val();
-		uri="?userId="+userId;
-		self.location.replace("/timeline/getTimecapsuleList"+uri);
+		self.location.replace("/timeline/getTimecapsuleList");
 	})
 	
 	$("button[name='deleteTimecapsule']").click(function() {
 		let recordNo=$('input[name="recordNo"]').val();
-		let userId=$('input[name="userId"]').val();
-		uri="?recordNo="+recordNo+"&userId="+userId;
+		uri="?recordNo="+recordNo;
 		self.location="/timeline/deleteTimecapsule"+uri;
 	})
 	

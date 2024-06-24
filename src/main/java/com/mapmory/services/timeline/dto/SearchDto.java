@@ -2,12 +2,17 @@ package com.mapmory.services.timeline.dto;
 
 import java.sql.Date;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder(toBuilder = true)
-public class SearchDto {	
+@NoArgsConstructor
+@AllArgsConstructor
+public class SearchDto {
+	private int searchCondition;
 	private String userId;
 	private String searchKeyword;
 	private int categoryNo;

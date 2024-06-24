@@ -51,7 +51,7 @@ fieldset {
     </div>
     
     <div class="row">
-      <label for="d_DayDate" class="form-label mt-4" th:text="'D-Day 날짜'"></label>
+      <label for="d_DayDate" class="form-label mt-4" th:text="'D-day 날짜'"></label>
       <input type="text" class="form-control" th:field="*{d_DayDate}" readonly="readonly" autocomplete="off">
     </div>
     
@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 $(function() {
 	$( 'input[name="d_DayDate"]' ).datepicker({
 		dateFormat :"yy-mm-dd",
+	    minDate: 1, // 오늘로부터 1일 뒤부터 선택 가능
 		onSelect: function(dateText) {
             console.log("사용자가 선택한 날짜:", dateText);
             // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
@@ -336,6 +337,13 @@ $(function() {
 	})
 	
 	$('button:contains("작성완료")').on('click',function(){
+		let d_DayDate = $('#d_DayDate').val();
+		let checkpointAddress = $('#checkpointAddress').val();
+		
+		if(d_DayDate===null || d_DayDate.trim()==='' || checkpointAddress===null|| checkpointAddress.trim()===''){
+			showModal('작성완료 오류','D-day 날짜와 체크포인트 주소는 반드시 입력해야합니다.');
+			return false;
+		}
 		$('input[name="tempType"]').val(1);
 		$('form').submit();
 	})
