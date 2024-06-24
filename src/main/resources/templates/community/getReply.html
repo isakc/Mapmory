@@ -25,7 +25,7 @@
 		<div class="card-body">
 			<div class="row">
 			<h6>
-				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<a class="nickname" th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
 				<span th:text="${reply.subscriptionEndDate}"></span>
 				<i class="bi bi-three-dots" style="float: right;"></i>

@@ -35,46 +35,59 @@ public class NoticeController {
     private int pageSize;
 
     @GetMapping("/getNoticeList")
-    public String getNoticeList(@ModelAttribute("search") Search search, Model model) throws Exception{
-            if (search.getCurrentPage() == 0) {
-                search.setCurrentPage(1);
-            }
-            int offset = (search.getCurrentPage() - 1) * pageSize;
-            search.setOffset(offset);
-
-            Map<String, Object> map = noticeService.getNoticeList(search);
-
-            Page resultPage = new Page(search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
-
-            model.addAttribute("search", search);
-            model.addAttribute("noticeList", map.get("noticeList"));
-            model.addAttribute("resultPage", resultPage);
-            
-            return "notice/getNoticeList";
-
-    }
-    
-    @GetMapping("/getFaqList")
-    public String getFaqList(@ModelAttribute("search") Search search, Model model) throws Exception{
+    public String getNoticeList(@ModelAttribute("search") Search search, Model model) {
+        try {
 
             if (search.getCurrentPage() == 0) {
                 search.setCurrentPage(1);
             }
             search.setPageSize(pageSize);
-            int offset = (search.getCurrentPage() - 1) * pageSize;
-            search.setOffset(offset);
 
-            Map<String, Object> map = noticeService.getFaqList(search);
 
-            Page resultPage = new Page(search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            Map<String, Object> map = noticeService.getNoticeList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
 
             model.addAttribute("search", search);
             model.addAttribute("noticeList", map.get("noticeList"));
             model.addAttribute("resultPage", resultPage);
-            model.addAttribute("currentPage", search.getCurrentPage());
-            
-            return "notice/getFaqList";
 
+            return "notice/getNoticeList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+    
+    @GetMapping("/getFaqList")
+    public String getFaqList(@ModelAttribute("search") Search search, Model model) {
+        try {
+
+            if (search.getCurrentPage() == 0) {
+                search.setCurrentPage(1);
+            }
+            search.setPageSize(pageSize);
+
+
+            Map<String, Object> map = noticeService.getFaqList(search);
+            
+            Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("noticeTotalCount")).intValue(), pageUnit, pageSize);
+            
+
+            System.out.println("페이지 확인용 ::::::::::::::::::: " + resultPage);
+
+            model.addAttribute("search", search);
+            model.addAttribute("noticeList", map.get("noticeList"));
+            model.addAttribute("resultPage", resultPage);
+
+            return "notice/getFaqList";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
     }
     
     @GetMapping("/getAdminFaqList")
@@ -207,9 +220,9 @@ public class NoticeController {
         System.out.println("삭제전 문제 테스트 ::::: " + notice);
         
         if (notice.getNoticeType() == 0) {
-            return "redirect:/notice/getNoticeList";
+            return "redirect:/notice/getAdminNoticeList";
         } else {
-            return "redirect:/notice/getFaqList";
+            return "redirect:/notice/getAdminFaqList";
         }
     }
     

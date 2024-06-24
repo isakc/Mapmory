@@ -81,6 +81,9 @@ public class CommunityRestController {
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
+	@Value("${object.timeline.image}")
+	private String recordImage;
+	
 	//공유 기록 목록 무한스크롤 리스트 호출
     @GetMapping("/rest/getSharedRecordList")
     public ResponseEntity<?> getSharedRecordList(Search search, @RequestParam(required = true) int currentPage,  
@@ -373,14 +376,15 @@ public class CommunityRestController {
 	@PostMapping("/rest/getBookmark")
 	public ResponseEntity<Integer> getBookmark(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
 	
-		int bookmark = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int bookmark = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		return ResponseEntity.ok(bookmark);
 	}
 	
-	//신고하기 제출
+	//신고하기
 	@PostMapping("/rest/doReport")
 	public ResponseEntity<Report> doReport(@RequestBody Report report) throws Exception {
 		communityService.doReport(report);
+		
 		return ResponseEntity.ok(report);
 	}
 	
@@ -395,6 +399,18 @@ public class CommunityRestController {
 	@PostMapping("/rest/confirmReport/{reportNo}")
 	public ResponseEntity<Report> confirmReport(Search search, @RequestBody Report report, @PathVariable int reportNo) throws Exception {
 		communityService.confirmReport(report);
+				
+		Map<String, String> suspendData = userService.checkSuspended(communityService.getReport(reportNo).getTargetUserId());
+		
+		String count = suspendData.get("suspentionCount");
+		
+		int count1 = Integer.parseInt(count);
+			
+		if(count1 < 4) {
+			userService.addSuspendUser(communityService.getReport(reportNo).getTargetUserId(), communityService.getReport(reportNo).getReportText());
+		} else {
+			throw new Exception("정지 횟수 초과") ;
+		}	
 		return ResponseEntity.ok(report);
 	}
 	
@@ -405,30 +421,40 @@ public class CommunityRestController {
 		if (userService.checkFollow(followBlock.getUserId(), followBlock.getTargetId()) == true) {
 			communityService.updateBlockUser(followBlock);
 		} 
+		
+		//System.out.println("check:" +userService.checkFollow(followBlock.getUserId(), followBlock.getTargetId()));
 		communityService.addBlockUser(followBlock);
 		return ResponseEntity.ok(followBlock);
 	}
 
 	//사용자 신고 목록 Rest
 	@GetMapping("/rest/getUserReportList/{userId}")
-	public ResponseEntity<Model> getUserReportList(@PathVariable String userId, Search search, HttpServletRequest request, Model model) throws Exception {
+	public ResponseEntity<?> getUserReportList(Search search, @PathVariable String userId, HttpServletRequest request,
+			 										@RequestParam(required = true) int currentPage) throws Exception {
+		
+		System.out.println("REST 시작");
 		
 		userId = redisUtil.getSession(request).getUserId();
+
+       	currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : currentPage;
+        int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 		
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
-		
-		userId = redisUtil.getSession(request).getUserId();
-		
+        // pageSize를 search 객체에 설정
+        search.setPageSize(pageSize);
+        
+        int offset = (currentPage - 1) * pageSize;
+        search.setLimit(pageSize);
+        search.setOffset(offset);
+        
+        System.out.println("현재 페이지: " + currentPage);
+        System.out.println("페이지 사이즈: " + pageSize);
+        System.out.println("계산된 offset 값: " + offset);
+        System.out.println("Search 객체: " + search);        
+        
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
-		System.out.println("테스트 : "+userId);
-		model.addAttribute("reportList",  reportList.get("list"));
-		model.addAttribute("totalCount", reportList.get("totalCount"));		
+
 		
-		return ResponseEntity.ok(model);
+		return ResponseEntity.ok(Map.of("reportList", reportList));
 	}
 	
 	//차단 해제
@@ -443,21 +469,31 @@ public class CommunityRestController {
 
 	//차단 목록 REST
     @GetMapping("/rest/getBlockList/{userId}")
-    public ResponseEntity<Model> getBlockList(Search search, @PathVariable String userId, HttpServletRequest request, Model model) throws Exception {
+    public ResponseEntity<?> getBlockList(Search search, @PathVariable String userId, 
+    										@RequestParam(required = true) int currentPage, HttpServletRequest request, Model model) throws Exception {
 		
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
+		System.out.println("REST 시작");
 		
 		userId = redisUtil.getSession(request).getUserId();
+
+       	currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : currentPage;
+        int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 		
+        // pageSize를 search 객체에 설정
+        search.setPageSize(pageSize);
+        
+        int offset = (currentPage - 1) * pageSize;
+        search.setLimit(pageSize);
+        search.setOffset(offset);
+		
+        System.out.println("현재 페이지: " + currentPage);
+        System.out.println("페이지 사이즈: " + pageSize);
+        System.out.println("계산된 offset 값: " + offset);
+        System.out.println("Search 객체: " + search);           
+        
 		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
-		System.out.println("테스트 : "+userId);
-		model.addAttribute("blockList", blockList.get("list"));
-		model.addAttribute("totalCount", blockList.get("totalCount"));		
-    	return ResponseEntity.ok(model);
+		
+    	return ResponseEntity.ok(Map.of("blockList", blockList));
  
     }			
 }

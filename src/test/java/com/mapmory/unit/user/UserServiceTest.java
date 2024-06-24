@@ -77,6 +77,7 @@ public class UserServiceTest {
 	}
 	*/
 	
+	/*
 	
 	// @Test
 	public void testAddSuspendUser() throws Exception {
@@ -117,6 +118,7 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(flag).isTrue();
 	}
+	*/
 	
 	// @Test
 	public void testAddLeaveUser() {
@@ -425,7 +427,9 @@ public class UserServiceTest {
 		Assertions.assertThat(result).isTrue();
 	}
 	
+	/*
 	// @Test
+
 	public void testUpdateSecondaryAuth() {
 		
 		String userId = "user1";
@@ -434,6 +438,7 @@ public class UserServiceTest {
 		
 		Assertions.assertThat(result).isTrue();
 	}
+	*/
 	
 	/*
 	// @Test

@@ -3,7 +3,7 @@
 <title>공유 기록 상세 보기</title>
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<link rel="stylesheet" href="/css/common/footer.css"> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>	
@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
+	<link rel="stylesheet" href="/css/common/chatBot.css">
 
 	<!-- 기록 작성 유저 프로필로 이동 -->
 	<script th:inline="javascript">
@@ -92,8 +93,9 @@
 	</script>
 	<!-- 신고 모달 -->
 
-	<!-- 기록 좋아요 -->
+	<!-- 기록 좋아요 싫어요 시작-->
 	<script th:inline="javascript">
+	//기록 좋아요
 	$(document).ready(function() {
 		$(document).on("click", '#recordLike', function() {
 			event.preventDefault();
@@ -103,12 +105,18 @@
 	        console.log("2.기록번호 : "+recordNo);
 	        var replyNo = "";
 			var logsType = 2;
+
 			var data = {
 					userId : userId,
 					recordNo : recordNo,
 					replyNo : replyNo,
 					logsType : logsType
 			};
+			
+			var dislikeIcon = $('#recordDislike');
+			if(dislikeIcon.hasClass('bi-hand-thumbs-down-fill')) {
+				return;
+			}
 			
 			$.ajax({
 				type : 'POST',
@@ -124,12 +132,15 @@
 					updateLikes(recordNo, replyNo, logsType);
 					
 				    var likeIcon = $('#recordLike');
+				    
 				    if (likeIcon.hasClass('bi-hand-thumbs-up')) {
 				        likeIcon.removeClass('bi-hand-thumbs-up');
 				        likeIcon.addClass('bi-hand-thumbs-up-fill');
+				        dislikeIcon.prop('disabled', true);
 				    } else {
 				        likeIcon.removeClass('bi-hand-thumbs-up-fill');
 				        likeIcon.addClass('bi-hand-thumbs-up');
+				        dislikeIcon.prop('disabled', false);
 				    }
 				},
 				error : function(xhr, status, error) {
@@ -137,7 +148,59 @@
 				}
 			});
 		});
+		
+		//기록 싫어요
+		$(document).on("click", '#recordDislike', function() {
+			var userId = /*[[${userId}]]*/
+			console.log("1.사용자 ID : "+userId);
+			var recordNo = /*[[${record.recordNo}]]*/
+		    console.log("2.기록번호 : "+recordNo);
+			var replyNo = "";
+			var logsType = 3;
+			var data = {
+					userId : userId,
+					recordNo : recordNo,
+					replyNo : replyNo,
+					logsType : logsType
+			};
+			
+			var likeIcon = $('#recordLike');
+			if(likeIcon.hasClass('bi-hand-thumbs-up-fill')) {
+				return;
+			}			
+			
+			$.ajax({
+				type : 'POST',
+				url  : '/community/rest/checkLogs',
+				contentType : 'application/json',
+				data : JSON.stringify({
+					userId : userId,
+					recordNo : recordNo,
+					logsType : 3 
+				}),
+				success : function(response) {
+					console.log('싫어요 추가 혹은 취소 성공');
+					updateDislikes(recordNo, replyNo, logsType);
+				    var dislikeIcon = $('#recordDislike');
+				    
+				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down');
+				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				        likeIcon.prop('disabled', true);
+				    } else {
+				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
+				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				        likeIcon.prop('disabled', false);
+				    }
+				},
+				error : function(xhr, status, error) {
+					console.error('싫어요 실패');
+				}
+			});
+		});		
 	});
+	
+	//기록 좋아요 Count Update
 	function updateLikes(recordNo, replyNo, logsType) {
 		var data = {
 			recordNo : recordNo,
@@ -158,54 +221,8 @@
 			}
 		});	
 	}
-	</script>
-	<!-- 기록 좋아요 -->
-	
-	<!-- 기록 싫어요 -->
-	<script th:inline="javascript">
-	$(document).ready(function() {
-		$(document).on("click", '#recordDislike', function() {
-			var userId = /*[[${userId}]]*/
-			console.log("1.사용자 ID : "+userId);
-			var recordNo = /*[[${record.recordNo}]]*/
-		    console.log("2.기록번호 : "+recordNo);
-			var replyNo = "";
-			var logsType = 3;
-			var data = {
-					userId : userId,
-					recordNo : recordNo,
-					replyNo : replyNo,
-					logsType : logsType
-			};
-			
-			$.ajax({
-				type : 'POST',
-				url  : '/community/rest/checkLogs',
-				contentType : 'application/json',
-				data : JSON.stringify({
-					userId : userId,
-					recordNo : recordNo,
-					logsType : 3 
-				}),
-				success : function(response) {
-					console.log('싫어요 추가 혹은 취소 성공');
-					updateDislikes(recordNo, replyNo, logsType);
-				    var dislikeIcon = $('#recordDislike');
-				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down');
-				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
-				    } else {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
-				        dislikeIcon.addClass('bi-hand-thumbs-down');
-				    }
-				},
-				error : function(xhr, status, error) {
-					console.error('싫어요 실패');
-				}
-			});
-		});
-	});
-	
+
+	//기록 싫어요 Update	
 	function updateDislikes(recordNo, replyNo, logsType) {
 		var data = {
 			recordNo : recordNo,
@@ -228,7 +245,7 @@
 		});			
 	}
 	</script>
-	<!-- 기록 싫어요 -->
+	<!-- 기록 좋아요 싫어요 종료 -->
 	
 	<!-- 기록 즐겨찾기 -->
 	<script th:inline="javascript">
@@ -297,7 +314,10 @@
 	            logsType : logsType
 	        };
 	        
-	        console.log(data);
+	        var replyDislikeBtn = row.find('.replyDislike');
+	        if (replyDislikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+	        	return ;
+	        }
 
 	        $.ajax({
 	            type : 'POST',
@@ -308,12 +328,15 @@
 	                console.log('좋아요 성공');
 	                updateReplyLikes(row, recordNo, replyNo, logsType);
 
+	                
 				    if (button.hasClass('bi-hand-thumbs-up')) {
 				        button.removeClass('bi-hand-thumbs-up');
 				        button.addClass('bi-hand-thumbs-up-fill');
+				        replyDislikeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-up-fill');
 				    	button.addClass('bi-hand-thumbs-up');
+				    	replyDislikeBtn.prop('disabled', false);				    	
 				    }
 	            },
 	            error : function(xhr, status, error) {
@@ -362,6 +385,11 @@
 					replyNo : replyNo,
 					logsType : logsType
 			};
+
+			var replylikeBtn = row.find('.replyLike');
+			if (replylikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+				return ;
+			}
 			
 			$.ajax({
 				type : 'POST',
@@ -372,12 +400,14 @@
 					console.log('24. 싫어요 성공');
 					updateReplyDislikes(row, recordNo, replyNo, logsType);
 
-				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down');
-				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
+				    if (button.hasClass('bi-hand-thumbs-down')) {
+				    	button.removeClass('bi-hand-thumbs-down');
+				    	button.addClass('bi-hand-thumbs-down-fill');
+				    	replylikeBtn.prop('disabled', true);
 				    } else {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
-				        dislikeIcon.addClass('bi-hand-thumbs-down');
+				    	button.removeClass('bi-hand-thumbs-down-fill');
+				    	button.addClass('bi-hand-thumbs-down');
+				    	replylikeBtn.prop('disabled', false);
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -407,10 +437,7 @@
 			}
 		});			
 	}	
-	
 	</script>
-	
-	
 	
 	<!-- 댓글 목록으로 아동 -->
 	<script th:inline="javascript">
@@ -465,13 +492,26 @@
 
 		.separator2 {
 			border-top : 2px solid;
-			margin-top : 20px;
-		}	
+			margin-top : 10px;
+			margin-bottom : 10px;
+		}
+	
+		.nav-pills {
+			margin-bottom: 20px;
+		}
+		
+		.recordBody {
+			margin-bottom : 20px;
+		}			
 		
 		.profileImage {
 			border-radius: 50%;
 			width : 50px;
 			height : 50px;
+		}
+		
+		.recordTitle {
+			font-size : 25px;
 		}
 		
 		.replyImageName {
@@ -486,43 +526,101 @@
 		}					
 					
 		#recordLike {
-			font-size : 30px;
+			font-size : 50px;
+			color : blue;
 		}			
 		
 		#recordDislike {
-			font-size : 30px;
+			font-size : 50px;
+			transform : scaleX(-1);
+			display : inline-block;
 		}
+		
+		.bi-hand-thumbs-up-fill {
+			color : blue;
+		}			
 		
 		.replyLike {
 			font-size : 25px;
+			color : blue;
 		}			
 		
 		.replyDislike {
 			font-size : 25px;
+			color : red;
+			transform : scaleX(-1);
+			display : inline-block;			
 		}				
+				
+		.read {
+			float: right;
+			margin-right : 5px;
+		}				
+				
+		.updateCount {
+			float: right;
+			color : blue;
+		}		
+		
+		.adderess{
+			font-size : 20px;
+		}
+		
+		.map {
+			width : 100%;
+			height : 70%;
+		}
+		
 					
 		.bi-chat-square-text-fill {
-			font-size : 25px;
+			font-size : 55px;
+			float: right;
 		}					
 					
 		.bi-heart {
-			font-size : 25px;
+			font-size : 45px;
+			float: right;
+			margin-right : 20px;
 		}
 		
 		.bi-heart-fill {
-			font-size : 25px;
+			font-size : 45px;
+			float: right;
+			margin-right : 20px;
+			color : red;			
 		}		
 
-	    .icon-separator {
-	        margin: 10px;
-	    }					
+	 	.category {
+	 		width : 30px;
+	 		height : 30px;
+ 		    float: right;
+	 	}
+	 	
+	 	.reply-count {
+	 		float : right;
+	 		font-size : 45px;
+	 		margin-left : 10px;
+	 	}
+	 	
+	 	.likeCount {
+	 		font-size : 35px;
+	 	}
+	    
+	 	.dislikeCount {
+	 		font-size : 35px;
+	 	}	    
+	    	
+	    body {
+	        overflow-x: hidden;
+	    }	    	
+	    	
 	</style>	
 	
 </head>
 <body>
 	<div id=content-for-footer>	
 		<div class="container">
-			<div class="card mb-3">
+			<div class="card sm-4 recordBody">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active" href="#">
@@ -532,7 +630,7 @@
 				</ul>
 				<div class="profile">
 					<h4>
-						<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${record.profileImageName})}">
+						<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
 						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:if="${record.subscriptionEndDate == 1}">
@@ -542,21 +640,23 @@
 					</h4> 
 				</div>
 				<div class="card=body">
-					<p class="recordTitle" th:text="${record.recordTitle}"></p>
-					<span th:text="${record.sharedDate}"></span>
-					<span th:text="'조회수 : ' + ${record.logsCount}"></span>
-					<span th:text="${record.updateCount}+'회 수정됨'"></span>
+					<span class="recordTitle" th:text="${record.recordTitle}"></span>
+					<span th:if="${record.categoryImoji != null}">
+						<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${record.categoryImoji})}">
+					</span>
+				</div>
+				<div class="card-body">	
+					<p th:text="'작성일시: ' +${record.sharedDate}"></p>
+					<span class="updateCount" th:text="${record.updateCount}+'회 수정됨'"></span>					
+					<span class="read" th:text="'조회수 : ' + ${record.logsCount}+'회'"></span>
+				</div>
+
+				<div class="card-body">
+					<div class="map" th:include="timeline/component/map::kakaoMap" ></div>
+					<p class="address" th:text="${record.checkpointAddress}"></p>
 				</div>
 				<div class="card-body">
-					<span th:text="${record.categoryName}"></span>
-					<span th:text="${record.categoryImoji}"></span>
-				</div>
-				<div class="card-body">
-					<div th:include="timeline/component/map::kakaoMap" ></div>
-					<p th:text="${record.checkpointAddress}"></p>
-				</div>
-				<div class="card-body">
-					<p th:text="${record.mediaName}"></p>
+					<img alt="" class="media" th:src="@{/timeline/rest/media/{uuid}(uuid=${record.mediaName})}">
 					<p th:text="${record.imageName}"></p>
 					<p th:text="${record.hashtag}"></p>
 					<p th:text="${record.recordText}"></p>			
@@ -567,26 +667,19 @@
 					<span class="likeCount" th:text="${record.likeCount}"></span>				    
 				    <i th:if="${isDisliked}" class="bi bi-hand-thumbs-down-fill" id="recordDislike"></i>
 				    <i th:unless="${isDisliked}" class="bi bi-hand-thumbs-down" id="recordDislike"></i>
-					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>					
-				</div>	
-				
-			    <div class="card-body">
-					<div>
-					    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
-					    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>
-						<span class="icon-separator"></span> 
-						<i class="bi bi-chat-square-text-fill"></i>					
-						<span th:text="${record.replyCount}" class="reply-count"></span>
-					</div>	
-			    </div>				
-						
+					<span class="dislikeCount" th:text="${record.dislikeCount}"></span>		
+					<span th:text="${record.replyCount}" class="reply-count"></span>
+					<i class="bi bi-chat-square-text-fill"></i>					
+				    <i th:if="${isBookmarked}" class="bi bi-heart-fill" id="recordBookmark"></i>
+				    <i th:unless="${isBookmarked}" class="bi bi-heart" id="recordBookmark"></i>					
+				</div>					
 				<div class="separator"></div>
 			</div>
 		</div>	
 	
 		<div th:each="reply, iterStat : ${replyList}" th:if="${iterStat.index <5}" class="row">
-			<div class="col-sm-2">
-				<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+			<div class="col-sm-4">
+				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 				<span th:if="${reply.subscriptionEndDate == '1'}">
 					<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
@@ -631,6 +724,7 @@
 			</div>
 		</div>  
 	</div>
+	<div th:include="~{ 'common/chatbotModal.html' }"></div>
 	<div th:replace="common/footer::defaultFooter"></div>	 
 </body>	
 </html>

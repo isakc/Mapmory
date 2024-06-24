@@ -42,9 +42,10 @@
 	<script src="/javascript/user/naveridlogin_js_sdk_2.0.2.js"></script>
     
     <script th:inline="javascript">
+    
+    const temp = /*[[${userId}]]*/ '';
+    
  		$(function() {
- 			
- 			const temp = [[${userId}]];
  			
  			if(temp != null) {
  				
@@ -79,6 +80,12 @@
                     		alert("아이디 또는 비밀번호가 틀렸습니다.");
                     		return;
                     		
+                    	}
+                    	
+                    	if(response == "leaveUser") {
+                    		
+                    		alert('탈퇴한 사용자는 서비스 이용이 불가능합니다...');
+                    		return;
                     	}
                     	
                     	if(response == "secondAuth") {
@@ -119,27 +126,19 @@
                     		
                     	}
                     },
-                    error: function(jqXHR) {
-                        alert("오류 발생: " + jqXHR.responseText);
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    	
+                    	if(jqXHR.status === 0 && jqXHR.statusText === 'error')
+                    		alert('현재 서버가 작동하지 않고 있습니다...');
+                    	else
+                        	alert("오류 발생: " + jqXHR.responseText);
                     }
                 });
         	});
 			
-			
-			$('#logout').on('click', function() {
-				
-				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
-			});
-			
 			$('#signUp').on('click', function() {
 				
 				window.location.href="/user/getAgreeTermsAndConditionsList";
-			});
-			
-			$('#getProfile').on('click', function() {
-				
-				
-				window.location.href="/user/getProfile?userId="+[[${userId}]];
 			});
 			
 			$('#getId').on('click', function() {
@@ -174,11 +173,28 @@
 			});
  		});
  		
+ 		/*
  		$(function(){
+ 			
+			$('#getProfile').on('click', function() {
+				
+				
+				window.location.href="/user/getProfile?userId="+temp;
+			});
+			
+			$('#logout').on('click', function() {
+				
+				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+			});
  			
 			$('#mapView').on('click', function() {
 				
 				window.location.href="/map";
+			});
+			
+			$('#adminMain').on('click', function() {
+				
+				window.location.href="/user/admin/getAdminMain";
 			});
 			
 			$('#footerView').on('click', function() {
@@ -186,7 +202,7 @@
 				window.location.href="/timeline/getAdminCategoryList";
 			});
  		});
-
+		*/
     </script>
 		
 </head>
@@ -258,15 +274,11 @@
 						<a class="mx-3 link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/user/getRecoverAccountView">계정을 복구하시겠습니까?</a>
 					</div>
 	      		 </div>
-	
 		        
+		        <!-- 
 		        <div class="userDiv" style="display:none;">
-			        <button type="button" id="getProfile">내 프로필로 이동</button>
 			        <button type="button" id="logout">로그아웃</button>
 		        </div>
-	       	   
-		        
-		        
 		        <hr>
 		        <hr>
 		        <hr>
@@ -288,6 +300,7 @@
 	        <br/>
 	        <br/>
 	        <button type="button" id="mapView">map으로 바로 이동</button>
+	        <button type="button" id="adminMain" class="btn btn-primary">관리자 메인 화면으로 이동</button>
 	        <button type="button" id="footerView">getAdminCategoryList</button>
 	    
 	    <div class="userDiv" style="display:none;">
@@ -295,7 +308,7 @@
 		</div>
 		
     	</div>
-    	
+    	 -->
 
 </body>
 </html>

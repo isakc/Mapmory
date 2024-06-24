@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
+import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.purchase.domain.Subscription;
@@ -54,6 +56,7 @@ import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Profile;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
+import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
 import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
 import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
@@ -129,6 +132,12 @@ public class UserController {
 	
 	@Value("${naver.state}")
 	private String naverState;
+
+	@Value("${server.host.name}")
+	private String hostName;
+	
+	@Value("${directory.path.tac}")
+	private String tacPath;
 	
 	/*
 	@Value("${google.client.id}")
@@ -251,8 +260,53 @@ public class UserController {
 		// model.addAttribute("userId", userId);
 	}
 	
+	@GetMapping("/getAddSecondaryAuthView")
+	public void getAddSecondaryAuthView(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
+		String secondAuthKeyName = "SECONDAUTH-"+ userId;  // key name도 userId 기반 단방향 암호화 로직이 들어가야 한다.
+		String encodedKey = new String(userService.generateSecondAuthKey());
+		System.out.println("keyName : " + secondAuthKeyName);
+		System.out.println("encodedKey : " + encodedKey);
+		
+		returnKey.setEncodedKey(encodedKey);
+		//returnKey.setUserName(userId);
+		//returnKey.setHostName(hostName);
+		// 2단계 encodedkey는 RDBMS에 저장하는 것이 좋겠다.
+		redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
+		// boolean result = userService.updateSecondaryAuth(userId);
+		boolean result = userService.updateSecondaryAuth(userId, 1);
+		System.out.println("is set secondary auth changed? " + result);
+		
+		String keyQR = "https://quickchart.io/chart?cht=qr&chs=200x200&chl=otpauth://totp/"+userId+"@"+hostName+"?secret="+encodedKey+"&chld=H|0";
+		
+		model.addAttribute("authKey", returnKey);
+		model.addAttribute("keyQR", keyQR);
+
+		/*
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		
+		String encodedKey = userService.generateSecondAuthKey();
+		String userName = userService.getDetailUser(userId).getUserName();
+		
+		model.addAttribute("encodedKey", encodedKey);
+		model.addAttribute("userName", userName);
+		model.addAttribute("hostName", hostName);
+		*/
+
+	}
+	
 	@GetMapping("/getUserInfo")
-	public void getUserInfo() { 
+	public void getUserInfo(HttpServletRequest request, Model model) { 
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		User user = userService.getDetailUser(userId);
+		
+		model.addAttribute("user", user);
 		
 	}
 	
@@ -292,38 +346,34 @@ public class UserController {
 	}
 	
 	@GetMapping("/getFollowList")
-	public void getFollowList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowList(@RequestParam String profileUserId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 0);
+		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, 1, pageSize, 0);
 		
 		System.out.println(followList);
 		
 		// model.addAttribute("type", 0);
 		model.addAttribute("list", followList);
-		model.addAttribute("sessionId", myUserId);
+		// model.addAttribute("sessionId", myUserId);
+		model.addAttribute("profileUserId", profileUserId);
 		// model.addAttribute("sessionId", myUserId);
 		// model.addAttribute("profileFolder",  PROFILE_FOLDER_NAME);
 	}
 	
 	@GetMapping("/getFollowerList")
-	public void getFollowerList(@RequestParam String userId, Model model, HttpServletRequest request) {
+	public void getFollowerList(@RequestParam String profileUserId, Model model, HttpServletRequest request) {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, null, 1, pageSize, 1);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, 1, pageSize, 1);
 		
 		
 		// model.addAttribute("type", 1);
 		model.addAttribute("list", followerList);
-		model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
-	}
-	
-	
-	@GetMapping("/getLeaveAccountView")
-	public void getLeaveAccountView() {
-		
+		// model.addAttribute("profileFolder", PROFILE_FOLDER_NAME);
+		model.addAttribute("profileUserId", profileUserId);
 	}
 	
 	@GetMapping("/getRecoverAccountView")
@@ -332,7 +382,13 @@ public class UserController {
 	}
 	
 	@GetMapping("/getUpdateUserInfoView")
-	public void getUpdateUserInfoView() {
+	public void getUpdateUserInfoView(HttpServletRequest request, Model model) {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		User user = userService.getDetailUser(userId);
+		
+		model.addAttribute("user", user);
 		
 	}
 
@@ -357,11 +413,11 @@ public class UserController {
 	}
 
 	@GetMapping("/getUpdatePasswordView")
-	public void postUpdatePasswordView(@RequestParam Map<String, String> map) {
+	public void postUpdatePasswordView() {
 		
 		
 	}
-
+	
 	
 	@GetMapping("/getSocialLoginLinkedView")
 	public void getSocialLoginLinkedView() {
@@ -422,7 +478,9 @@ public class UserController {
 	}
 	
 	@RequestMapping("/naver/auth/callback")
-	public String naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+	public String naverLogin(HttpServletRequest request, @RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+		
+		System.out.println("Flag");
 		
 	    NaverAuthToken token = userService.getNaverToken(code, state);
 	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
@@ -430,25 +488,51 @@ public class UserController {
 	    String naverId = profileInfo.getId();
 	    String userId = userService.getUserIdBySocialId(naverId);
 	    
-	    // 회원가입 페이지로 이동
+	    System.out.println("naver 소셜 연동이 된 사용자? " + userId);
 	    if(userId == null) {
 
-	    	String uuid = UUID.randomUUID().toString();
-        	String keyName = "n-"+uuid;
-            redisUtilString.insert(keyName, naverId, 10L); 
-            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
-            response.addCookie(cookie);
-	    	
-	    	// model.addAttribute("naverId", naverId);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
+	    	// 회원 : 소셜 로그인을 동록해줌
+	    	SessionData sessionData = redisUtil.getSession(request);    	
+	    	if(sessionData != null) {
+	    		
+	    		boolean result = userService.addSocialLoginLink(sessionData.getUserId(), naverId);
+	    		
+	    		if(result) {
+	    			
+	    			// 이 로직은 REST로 개선해야 사용자에게 성공 여부를 알릴 수 있다...
+		    		System.out.println("네이버 소셜 로그인 등록 성공!");
+		    		loginService.logout(request, response);
+		    		return null;
+		    		// return "redirect:/";
+	    		} else {
+	    			
+	    			System.out.println("실패...");
+	    			return "redirect:/user/getSocialLoginLinkedView";
+	    		}
+	    	} else {
+	    		
+	    		// 신규 : 회원가입 페이지로 이동
+	    		System.out.println("신규 회원입니다. 회원가입 페이지로 이동합니다.");
+		    	String uuid = UUID.randomUUID().toString();
+	        	String keyName = "n-"+uuid;
+	            redisUtilString.insert(keyName, naverId, 10L); 
+	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
+	            response.addCookie(cookie);
+		    	
+		    	// model.addAttribute("naverId", naverId);
+		    	return "redirect:/user/getAgreeTermsAndConditionsList";
+	    		
+	    	}	    	
 	    } else {
 	    	
 	    	User user = userService.getDetailUser(userId);
         	byte role=user.getRole();
         	
 	    	acceptLogin(userId, role, response, false);
-	    	return "redirect:/map";
+	    	if(role == 1)
+	    		return "redirect:/map";
+	    	else
+	    		return "redirect:/user/admin/getAdminMain";
 	    	
 	    }
 	}
@@ -496,9 +580,19 @@ public class UserController {
 	@GetMapping("/admin/getAdminMain")
 	public void getAdminMain() {
 		
+		
+		
 	}
 	
-	@GetMapping("/admin/getDetailTermsAndConditions")
+	@GetMapping("/admin/getAdminTermsAndConditionsList")
+	public void getAdminTermsAndConditionsList(Model model) throws Exception {
+		
+		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
+		
+		model.addAttribute("tacList", tacList);
+	}
+	
+	@GetMapping("/admin/getAdminDetailTermsAndConditions")
 	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
 		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
@@ -548,10 +642,17 @@ public class UserController {
 		
 		String isSuspended = suspendMap.get("isSuspended");
 		
-		if(isSuspended.equals("true"))
-			user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		if(isSuspended.equals("true")) {
+			
+			String endSuspensionDate = suspendMap.get("endSuspensionDate");
+			 user.setEndSuspensionDate(LocalDateTime.parse(endSuspensionDate).toLocalDate());
+			 System.out.println(user.getEndSuspensionDate());
+		}
+			
+			// user.setEndSuspensionDate(java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
 		
-		System.out.println(suspendMap.get("endSuspensionDate"));
+		//  System.out.println("dddddddddddd ::::::: " + java.time.LocalDate.parse(suspendMap.get("endSuspensionDate")));
+		// System.out.println(suspendMap.get("endSuspensionDate"));
 		
 		model.addAttribute("user", user);
 		model.addAttribute("suspendMap", suspendMap);
@@ -564,28 +665,56 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	
 	@GetMapping("/kakaoCallback")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response) throws Exception {
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response, HttpServletRequest request) throws Exception {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
             String kakaoId = userService.getKakaoUserInfo(accessToken);
             
+            /*
             if (kakaoId == null) {
                 throw new Exception("소셜 연동 정보가 없습니다."); // 카카오 사용자 정보가 없으면 에러 처리
             }
-
+            */
+            
             String userId = userService.getUserIdBySocialId(kakaoId);
             // 소셜 로그인 연동 정보가 없는 경우
             if (userId == null) {
-
-            	String uuid = UUID.randomUUID().toString();
-            	String keyName = "k-"+uuid;
-                redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
-                Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
-                response.addCookie(cookie);
-                
-                // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
-                return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트 
+            	
+            	// 회원 : 소셜 로그인을 동록해줌
+            	System.out.println("현재 로그인 상태인지 확인합니다...");
+    	    	SessionData sessionData = redisUtil.getSession(request);    
+    	    	System.out.println("is session null? " + sessionData);
+    	    	if(sessionData != null) {
+    	    		
+    	    		System.out.println("현재 회원을 대상으로 소셜 로그인 연동을 진행합니다...");
+    	    		boolean result = userService.addSocialLoginLink(sessionData.getUserId(), kakaoId);
+    	    		
+    	    		if(result) {
+    	    			
+    	    			// 이 로직은 REST로 개선해야 사용자에게 성공 여부를 알릴 수 있다...
+    		    		System.out.println("카카오 소셜 로그인 등록 성공!");
+    		    		loginService.logout(request, response);
+    		    		// return "redirect:/";
+    		    		return null;
+    	    		} else {
+    	    			
+    	    			System.out.println("실패...");
+    	    			return "redirect:/user/getSocialLoginLinkedView";
+    	    		}
+    	    	} else {
+    	    		
+    	    		System.out.println("신규 유저");
+    	    		// 신규 : 회원가입 페이지로 이동
+                	String uuid = UUID.randomUUID().toString();
+                	String keyName = "k-"+uuid;
+                    redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
+                    Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
+                    response.addCookie(cookie);
+                    
+                    // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
+                    return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
+    	    	}	
                 
             } else {
 

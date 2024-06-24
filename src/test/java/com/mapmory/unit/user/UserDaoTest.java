@@ -415,7 +415,9 @@ public class UserDaoTest {
 		
 	}
 	
+	/*
 	// @Test
+
 	public void testUpdateSecondaryAuth() throws Exception {
 		
 		String userId = "user1";
@@ -433,7 +435,7 @@ public class UserDaoTest {
 		Assertions.assertThat(before).isNotEqualTo(after);
 		
 	}
-
+	*/
 	/*
 	// @Test
 	public void testDeleteFollow() {

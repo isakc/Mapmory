@@ -13,26 +13,17 @@
 	<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9bb092e55e04073df199c8fdf46abadd"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    
+	
     <script src="/javascript/config/key.js"></script>
-    <script src="/javascript/map/mapFunction.js"></script>
     <script src="/javascript/map/element.js"></script>
+    <script src="/javascript/map/mapFunction.js"></script>
     <script src="/javascript/map/drawRoute.js"></script>
 </head>
 <body>
-
-	<div id="content-for-footer" class="content">
-		<div id="map">
-			<div id="bottomBox">
-        		<button class="btn btn-primary" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
-				<div id="result" style="display:none"></div><!-- 결과창 -->
-				<div id="description"></div><!-- 경로 안내 창 -->
-			</div>
-			
-		</div><!-- map -->
-		<div class="footer-map">
-			<div th:replace="common/footer::defaultFooter"></div>
-			</div>
+	
+	<div id=content-for-footer>
+		<div id="map"></div><!-- map -->
+				
 		<div id="searchFormDiv">
     		<form>
     		<input type="hidden" name="categoryNo" value="0"/>
@@ -50,7 +41,7 @@
 				</div><!-- 반경 박스 -->
         		
         		<div class="searchKeywordBox">
-    				<input type="text" name="searchKeyword" placeholder="search" th:value="${searchKeyword}" />
+    				<input type="text" name="searchKeyword" placeholder="search" th:value="${searchKeyword}" autocomplete=off/>
     			</div><!-- 검색어 박스 -->
     			
 				<div id="suggestions"></div><!-- 추천 검색어 -->
@@ -77,12 +68,25 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
-			
     		</form><!-- form -->
     	</div><!-- searchFormDiv -->
+		
+		<div id="bottomBox">
+        		<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
+        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        		<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
+        			<div id="resultDivs">
+						<div id="result" class="infoItem"></div><!-- 결과창 -->
+						<div id="description" class="infoItem"></div><!-- 기록 보기 -->
+						<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창 -->
+					</div>
+			</div>
+			<div class="footer-map">
+	<div th:replace="common/footer::defaultFooter"></div>
 	</div>
+	</div>
+	
 	
 	<script th:inline="javascript">
 	
@@ -90,15 +94,22 @@
 	sessionStorage.setItem("userId", userId);
 	
 	let map; // 지도
-	let bounds;
 	let selectLatitude; // 선택한 마커의 위도
 	let selectLongitude; // 선택한 마커의 경도
 	let markers = []; //기록 마커 모음
-	let tempMarkers = []; //경로 찾기 마커
+	let bounds= new kakao.maps.LatLngBounds(); // 마커들의 주어진 영역이 화면 안에 전부 나타날 수 있도록 지도의 중심 좌표와 확대 수준을 설정
+	let startEndMarkers=[]; //출발, 도착 마커
 	let polylines = []; // 경로 찾기 선 그리기
 	let paths = []; // 경로 찾기 때 paths에 저장
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
 	let placeList=[]; // 추천 장소 리스트 모아놓기
+	let resultDivs = $("#resultDivs");
+	let description = $("#description");
+	let result = $("#result");
+	let routeDescriptionList = $("#routeDescriptionList");
+	let resultDivsBtn = $("#resultDivsBtn");
+	let listBtn = $("#listBtn");
+	let descriptionBtn = $("#descriptionBtn");
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -112,13 +123,10 @@
 		clearMarkers();
 		clearPolylines();
 		deleteResult();
-		showResult();
 		recordList= [];
 		placeList=[];
 		
 		getCurrentLocation().done(function(location) {
-
-			setMarkers([{ latitude: location.coords.latitude, longitude: location.coords.longitude, markerType:4 } ]);
 
 			const requestData = { latitude: location.coords.latitude, 
 						  longitude: location.coords.longitude, 
@@ -146,11 +154,13 @@
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬
 							
-							$('#result').append(recordListElement(index)); // html을 result에 붙이기
+							result.append(recordListElement(index)); // html을 result에 붙이기
 
 							return record;
 						});
 						
+						$(".infoItem").removeClass("on");
+						result.addClass("on");
 						map.setBounds(bounds);
 						setMarkers(recordList);
 					}else{
@@ -165,6 +175,7 @@
 
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
+			alert('내 위치 확인 권한을 허락 해주세요!');
 		});// 위치정보 불러오기 실패
 	};// 기록 불러오기
 	
@@ -172,13 +183,10 @@
 		clearMarkers();
 		clearPolylines();
 		deleteResult();
-		showResult();
 		recordList= [];
 		placeList= [];
 		
 		getCurrentLocation().done(function(location) {
-
-			setMarkers([{ latitude: location.coords.latitude, longitude: location.coords.longitude, markerType:4 }]);
 
 			const requestData = { latitude: location.coords.latitude, 
 						  longitude: location.coords.longitude, 
@@ -203,11 +211,13 @@
 							bounds.extend(latLng);
 							placeList.push(place);
 							
-                        	$('#result').append(recommendListElement(index));
+							result.append(recommendListElement(index));
                         	
 							return place;
 						});
-						
+
+						$(".infoItem").removeClass("on");
+						result.addClass("on");
 						map.setBounds(bounds);
 						setMarkers(placeList);
 					}else{
@@ -230,10 +240,11 @@
 
 	    if (navigator.geolocation) {
 	        navigator.geolocation.getCurrentPosition(function(location) {
-
+			
 	            let locPosition = new kakao.maps.LatLng(location.coords.latitude, location.coords.longitude); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성
 	            map.setCenter(locPosition); // map center 변경
-
+	            setMarkers([{ latitude: location.coords.latitude, longitude: location.coords.longitude, markerType:4 } ]);
+	            
 	            deferred.resolve(location);
 	        }, function(error) {
 	            deferred.reject(error);
@@ -245,21 +256,34 @@
 	    return deferred.promise();
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
-	function hashTagClick(tagText){
-		$('input[name="searchKeyword"]').val(tagText);
+	$(document).on('click', '.hashTag', function(){
+		event.stopPropagation();
+		$('input[name="searchKeyword"]').val($(this).text());
         searchRecord();
-	}// hashTagClick: 해시태그 검색
+	});// 해시태그를 클릭했을 때 검색
 	
 	$(document).on("click", ".recordEmoji", function(event){
 		event.preventDefault();
 		$('input[name="categoryNo"]').val($(this).data('categoryno'));
         searchRecord();
-	});
+	});// 이모지를 클릭했을 때 검색
+	
+	$(document).on('click', '.transitRoute', function() {
+		$(".transitRoute .list-group").empty();
+		
+		if($(this).hasClass('active')){
+			$(this).removeClass('active');
+		}else{
+			$(".transitRoute").removeClass('active');
+			$(this).addClass('active');
+			$(this).append(showPathDetails( $(this).data('index') ) );
+		}
+	 });// 대중교통에서 해당 경로를 선택할 경우
 	
 	$('form').on('submit', function(event) {
 		event.preventDefault();
 		searchRecord();
-	});
+	});// form이 제출될 때 (들어올 때 실행)
 	
 	$('form').trigger('submit'); // 들어오면 실행
 	
@@ -270,20 +294,16 @@
 	
 	$(document).on("click", "#mainButton", function(event){
 		 $(".routeAdditionalButtons").toggle();
-		 event.stopPropagation(); // 이벤트 전파 막기
 	}); // 경로클릭
-		$(document).on("click", ".simpleRecord", function(){
-		const index = $(this).data('index');
-		
+	
+	$(document).on("click", ".simpleRecord .row", function(){
 	    deleteDescription();
-	    $('#description').append(detailRecordElement(index) );
+	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로
 	
-	$(document).on("click", ".detailRecord", function(){
-		const index = $(this).data('index');
-		
+	$(document).on("click", ".detailRecord .row", function(){
 	    deleteDescription();
-	    $('#description').append(simpleRecordElement(index) );
+	    description.append(simpleRecordElement($(this).parent().data('index')) );
 	}); // 상세 보기 눌렀을 때 간단 보기로
 	
 	$('input[name="searchKeyword"]').on('focus', function(){
@@ -324,26 +344,28 @@
         suggestionsBox.show();
     } //displaySuggestions(): 추천 검색어를 화면에 표시하는 함수
 	
-    const checkboxGroup = document.getElementById('checkboxGroup');
-    const searchBoxGroup = document.getElementById('searchBoxGroup');
+    const checkboxGroup = $("#checkboxGroup");
+    const searchBoxGroup = $("#searchBoxGroup");
     const refrestButtn = $(".fa-sync").parent();
     	
     $('#toggle-switch').click(function() {
         $(this).toggleClass('active');
+        
         if ($(this).hasClass('active')) {
           $(this).attr('title', '추천');
-          checkboxGroup.style.visibility = 'hidden';
-          searchBoxGroup.style.visibility = 'hidden';
+          checkboxGroup.css('visibility', 'hidden');
+          searchBoxGroup.css('visibility', 'hidden');
           refrestButtn.attr('onClick', 'getRecommendPlace()');
           getRecommendPlace();
         } else {
           $(this).attr('title', '기록');
-          checkboxGroup.style.visibility = 'visible';
-          searchBoxGroup.style.visibility = 'visible';
+          checkboxGroup.css('visibility', 'visible');
+          searchBoxGroup.css('visibility', 'visible');
           refrestButtn.attr('onClick', 'searchRecord()');
           searchRecord();
         }
     });// 토글 스위치
+    
 	</script>
 </body>
 </html>

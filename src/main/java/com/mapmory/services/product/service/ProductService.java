@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.product.domain.Product;
-import com.mapmory.services.product.domain.ProductImage;
 
 public interface ProductService {
 
@@ -32,4 +31,5 @@ public interface ProductService {
 	
 	public void updateImageTags(int productNo, List<String> imageTags) throws Exception;
 	
+	public Product getProductByName(String productTitle) throws Exception;
 }

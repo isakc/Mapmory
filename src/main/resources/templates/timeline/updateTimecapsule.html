@@ -51,7 +51,7 @@ fieldset {
     </div>
     
     <div class="row">
-      <label for="d_DayDate" class="form-label mt-4" th:text="'D-Day 날짜'"></label>
+      <label for="d_DayDate" class="form-label mt-4" th:text="'D-day 날짜'"></label>
       <input type="text" class="form-control" th:field="*{d_DayDate}" readonly="readonly" autocomplete="off">
     </div>
     
@@ -64,7 +64,7 @@ fieldset {
     <div id=mediaAppend></div>
     <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
 		<video width="320" height="240" controls>
-        	<source th:src="${record.mediaName}" type="video/mp4">
+        	<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
     	</video>
     	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" 
     	th:data-medianame="${record.mediaName}" th:text="x"></button><br/>
@@ -79,7 +79,7 @@ fieldset {
     
 	<div th:each="image : *{imageName}">
 	<div th:name="${image.imageTagOrder}">
-		<img th:src="${image.imageTagText}" />
+		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
 		<!-- <span th:text="${image.imageTagText}"></span> -->
 		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
 		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
@@ -116,17 +116,15 @@ fieldset {
     </div>
     
 	</fieldset>
+	
 	<button type="button" class="btn btn-primary" th:name="updateTimecapsule" th:text="'다시작성'"></button>
 	<button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button>
 	<button type="button" class="btn btn-primary" th:text="'임시저장'"></button>
 	<button type="button"  class="btn btn-primary" th:text="'작성완료'"></button>
 	
-	<!-- <ul>
-	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text="'다시작성'"></a></li>
-	<li><a th:href="@{/timeline/addVoiceToText}" th:text="'녹음하기'"></a></li>
-	<li><button type="submit" th:text="'작성완료'"></button></li>
-	</ul> -->
 	</form>
+	
+	<div th:include="timeline/component/modal::defaultModal"></div>
 		
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script>
@@ -138,7 +136,8 @@ document.getElementById('recordTitle').addEventListener('input', function () {
     let textInt=50;
     if (inputField.value.length > textInt) {
         inputField.value = inputField.value.substring(0, textInt);
-        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    	showModal('제목 오류', "기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+        //alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
     }
 });
 
@@ -147,7 +146,8 @@ document.getElementById('recordText').addEventListener('input', function () {
     let textInt=1000;
     if (inputField.value.length > textInt) {
         inputField.value = inputField.value.substring(0, textInt);
-        alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
+    	showModal('내용 오류', "기록 내용은 "+textInt+"자를 넘길 수 없습니다.");
+        //alert("기록 제목은 "+textInt+"자를 넘길 수 없습니다.");
     }
 });
 
@@ -158,7 +158,9 @@ function processHashtags() {
 
     // 첫 번째 문자가 #이 아닌 경우 처리
     if (!hashtagText.startsWith('#')) {
-        alert("해시태그는 '#'로 시작해야 합니다.");
+    	showModal('해시태그 오류', "해시태그는 '#'로 시작해야 합니다.");
+        //alert("해시태그는 '#'로 시작해야 합니다.");
+        $('#hashtagText').val('#'+$('#hashtagText').val());
         return false;
     }
 
@@ -167,7 +169,8 @@ function processHashtags() {
 
     // 최대 입력 가능한 해시태그 개수는 20개입니다
     if (hashtags.length > 20) {
-        alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
+    	showModal('해시태그 오류', "최대 20개의 해시태그까지 입력할 수 있습니다.");
+        //alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
         return false;
     }
 
@@ -175,7 +178,8 @@ function processHashtags() {
     for (var i = 0; i < hashtags.length; i++) {
         var hashtag = hashtags[i];
         if (hashtag.length > 20) {
-            alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+        	showModal('해시태그 오류', "각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+            //alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
             return false;
         }
     }
@@ -192,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener('change', function(event) {
         if (event.target && event.target.matches('#mediaFile')) {
             const file = event.target.files[0];
-            const maxSize = 2 * 1024 * 1024; // 200MB in bytes
+            const maxSize = 200 * 1024 * 1024; // 200MB in bytes
             
             if (file) {
                 const allowedExtensions = ['mp4', 'avi', 'mkv']; // 허용할 확장자 목록
@@ -200,13 +204,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 const fileExtension = fileName.split('.').pop().toLowerCase();
                 
                 if (!allowedExtensions.includes(fileExtension)) {
-                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                	showModal('영상 파일 오류', '허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                    //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
                     event.target.value = ''; // Clear the file input
                 }
             }
             
             if (file && file.size > maxSize) {
-                alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+            	showModal('영상 파일 오류','파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+                //alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
                 event.target.value = ''; // Clear the file input
             }
         }
@@ -226,7 +232,8 @@ function validateFileCount() {
 
     // 총 파일 갯수가 9개를 넘는지 확인합니다.
     if (totalFiles > 9) {
-        alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
+    	showModal('사진 파일 오류',"이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
+        //alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
         fileInput.value = '';
         return false;
     }
@@ -248,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
                 if (!allowedExtensions.includes(fileExtension)) {
-                    alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                	showModal('사진 파일 오류',"허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.");
+                    //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
                     event.target.value = ''; // Clear the file input
                     break;
                 }
@@ -298,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 $(function() {
 	$( 'input[name="d_DayDate"]' ).datepicker({
 		dateFormat :"yy-mm-dd",
+	    minDate: 1, // 오늘로부터 1일 뒤부터 선택 가능
 		onSelect: function(dateText) {
             console.log("사용자가 선택한 날짜:", dateText);
             // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
@@ -328,14 +337,22 @@ $(function() {
 	})
 	
 	$('button:contains("작성완료")').on('click',function(){
+		let d_DayDate = $('#d_DayDate').val();
+		let checkpointAddress = $('#checkpointAddress').val();
+		
+		if(d_DayDate===null || d_DayDate.trim()==='' || checkpointAddress===null|| checkpointAddress.trim()===''){
+			showModal('작성완료 오류','D-day 날짜와 체크포인트 주소는 반드시 입력해야합니다.');
+			return false;
+		}
 		$('input[name="tempType"]').val(1);
 		$('form').submit();
 	})
 	
 	$(function(){
-		$('button:contains("주소검색")').on('click',function(){
+		$('button:contains("주소검색"), input[name="checkpointAddress"]').on('click',function(){
 				sample5_execDaumPostcode();
 		})
+		
 	})
 	
 	$("button[name='mediaX']").click(function() {
@@ -348,9 +365,11 @@ $(function() {
 					mediaName : mediaName
 				},
 				success : function(response,status){
-					alert(response.text);
+	            	showModal('영상 업로드',response.text);
+					//alert(response.text);
 					console.log(JSON.stringify(response));
 					$('div[name="mediaName"]').remove();
+					$('input[name="mediaName"]').val(null);
 					
 					let text=
 						'<div class="row">'
@@ -380,7 +399,8 @@ $(function() {
 				imageName : imageName
 			},
 			success : function(response,status){
-				alert(response.text);
+            	showModal('사진 업로드',response.text);
+				//alert(response.text);
 				console.log(JSON.stringify(response));
 				$('div[name="'+imageNo+'"]').remove();
 			},

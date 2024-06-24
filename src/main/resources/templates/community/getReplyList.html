@@ -98,7 +98,7 @@
 				var newRow = 
 				'<div class="card-body">' +
 		        '<h6>' +
-		        '<img alt="" class="profileImage" src="/user/rest/image/' + profileImageName + '">' +
+		        '<img alt="" class="profileImage" src="/user/rest/profile/' + profileImageName + '">' +
 		        '<span class="replyNickname" data-reply-userid="' + userId + '">' + nickname + '</span>' + 
 		        '<span>' + subscriptionEndDate + '</span>' +
 		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
@@ -362,8 +362,11 @@
 	            logsType : logsType
 	        };
 	        
-	        console.log(data);
-
+			var likeBtn = row.find('.replyDislike');
+			if (likeBtn.hasClass('bi-hand-thumbs-down-fill')) {
+				return;
+			}
+	        
 	        $.ajax({
 	            type : 'POST',
 	            url  : '/community/rest/checkLogs',
@@ -376,9 +379,11 @@
 				    if (button.hasClass('bi-hand-thumbs-up')) {
 				        button.removeClass('bi-hand-thumbs-up');
 				        button.addClass('bi-hand-thumbs-up-fill');
+				        dislikeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-up-fill');
 				    	button.addClass('bi-hand-thumbs-up');
+				    	dislikeBtn.prop('disabled', false);
 				    }
 	            },
 	            error : function(xhr, status, error) {
@@ -409,7 +414,6 @@
 	        }
 	    });
 	}
-
 	</script>
 	<!-- 댓글 좋아요 -->
 	
@@ -430,6 +434,11 @@
 					logsType : logsType
 			};
 			
+			var likeBtn = row.find('.replyLike');
+			if (likeBtn.hasClass('bi-hand-thumbs-up-fill')) {
+				return;
+			}
+			
 			$.ajax({
 				type : 'POST',
 				url  : '/community/rest/checkLogs',
@@ -439,12 +448,15 @@
 					console.log('24. 싫어요 성공');
 					updateDislikes(row, recordNo, replyNo, logsType);
 
+					
 				    if (button.hasClass('bi-hand-thumbs-down')) {
 				    	button.removeClass('bi-hand-thumbs-down');
 				    	button.addClass('bi-hand-thumbs-down-fill');
+				    	likeBtn.prop('disabled', true);
 				    } else {
 				    	button.removeClass('bi-hand-thumbs-down-fill');
 				    	button.addClass('bi-hand-thumbs-down');
+				    	likeBtn.prop('disabled', false);
 				    }					
 				},
 				error : function(xhr, status, error) {
@@ -475,20 +487,21 @@
 		});			
 	}
 	</script>
-	<!-- 댓글 싫어요 -->	
-	
+	<!-- 댓글 싫어요 종료-->	
+
 	<script>
-	function autoResize() {
-		const textarea = documnet.getElemenetById('replyText');
-		textarea.style.height = 'auto';
-		
-		const computedHeight = textarea.scrollHeight;
-		
-		textarea.style.height = Math.max(computedHeight, 100)+'px';
-	}
+    function autoResize(textarea) {
+        textarea.style.height = 'auto'; // Reset textarea height
+        textarea.style.height = textarea.scrollHeight + 'px'; // Set new height based on content
+    }
 	</script>
 	
 	<style>
+	
+		body {
+		    overflow-x: visible;
+		}	
+	
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -594,8 +607,34 @@
             border: 1px solid #00A7F5; 
             padding: 10px; 
             margin-bottom: 10px; 
-        }				
-			
+        }			
+        
+         .form { 
+         	position : fixed; 
+         	bottom : 80px;	 
+         	width : 100%; 
+         	background : light;  
+  			opacity: 1;  
+  			z-index: 9999; 
+         } 
+        
+        #replyField {
+         	background : light;    
+			opacity: 1;  
+			z-index: 9999;        	    	   
+        }
+        
+		.replyLike {
+			font-size : 25px;
+			color : blue;
+		}			
+		
+		.replyDislike {
+			font-size : 25px;
+			color : red;
+			transform : scaleX(-1);
+			display : inline-block;			
+		}	    
 	</style>
 	
 </head>
@@ -615,7 +654,7 @@
 					<div class="card-body">
 						<div class="row">
 						<h6>
-							<img alt="" class="profileImage" th:src="@{/user/rest/image/{uuid}(uuid=${reply.profileImageName})}">
+							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 							<span class="replyNickname" th:text="${reply.nickname}" th:data-reply-userid="${reply.userId}"></span>
 							<span th:if="${reply.subscriptionEndDate =='1'}">
 								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
@@ -630,13 +669,11 @@
 	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 10px;"></i>
 	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>  
 	  						</span>		
-<!-- 							<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i> -->
 							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
 				            <span>
 					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike" style="float: right; margin-left: 10px;"></i>
 					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike" style="float: right; margin-left: 10px;"></i>
 				            </span>								
-<!-- 							<i class="bi bi-hand-thumbs-up replyLike"  style="float: right;"></i> -->
 							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
 							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
 							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
@@ -653,24 +690,25 @@
 		<div class="separator2"></div>		
 	
 		<br/>
-		
-		<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
-			<fieldset id="replyField">
-			<legend>댓글작성</legend>
-				<div class="row">
-					<label for="replyText" class="form-label mt-4">댓글 내용</label>
-					<textarea id="replyText" name="replyText" class="form=control" style ="height : 100px;" placeholder="댓글을 입력해주세요."></textarea>
-				</div>
-				<div>
-					<label for="replyImageName" class="form-label mt-4">사진 첨부</label>
-					<input type="file" id="replyImageName" name="replyImageName" class="form-control">
-					<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
-					<input type="hidden" id="userId" th:value="${userId}">
-    			</div>
-				<button type="submit" class="btn btn-success">댓글 작성</button>
-  			</fieldset>
-		</form>	
-		
+		<div class= "fixed-bottom p-3 bg-light form">
+			<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
+				<fieldset id="replyField">
+				<legend>댓글작성</legend>
+					<div class="row">
+						<label for="replyText" class="form-label mt-4">댓글 내용</label>
+						<textarea id="replyText" name="replyText" class="form=control" style ="height : 40px;" 
+									 oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
+					</div>
+					<div>
+						<label for="replyImageName" class="form-label mt-4"></label>
+						<input type="file" id="replyImageName" name="replyImageName" class="form-control">
+						<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
+						<input type="hidden" id="userId" th:value="${userId}">
+	    			</div>
+					<button type="submit" class="btn btn-success">댓글 작성</button>
+	  			</fieldset>
+			</form>	
+		</div>
 		<!-- 더보기 모달창 -->
 		<div class="moreModal" id="moreModal">
 			<div class="modal-dialog" role="document">
@@ -705,7 +743,8 @@
 							<fieldset id="updateReplyField">
 								<div class="row">
 									<label for="updateReplyText" class="form-label mt-4">댓글 내용</label>
-									<textarea id="updateReplyText" name="updateReplyText" class="form-control" style="height: 100px;" placeholder="댓글을 입력해주세요."></textarea>
+									<textarea id="updateReplyText" name="updateReplyText" class="form-control" style="height: 40px;" 
+												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
 								</div>
 								<div>
 									<label for="updateReplyImageName" class="form-label mt-4">사진 첨부</label>

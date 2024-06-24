@@ -62,6 +62,7 @@
 						})
 					},
 					error : function(xhr, status, error) {
+						alert("정지 횟수가 초과된 사용자입니다.")
 						console.log("신고 승인 실패", error)
 					}
 				})
@@ -109,6 +110,7 @@
 	<!-- 신고 반려 종료 -->		
 </head>
 <body>
+	<div th:replace="common/toolBar::defaultToolBar"></div>
 	<div class="container">	
 		<ul class="nav nav-pills flex-column">
 			<li class="nav-item">
@@ -119,7 +121,7 @@
 		</ul>
 		<form id="getConfirmReport">
 			<fieldset>
-			<div class="row">
+			<div>
 				<label for="reporTTitle">신고제목</label>
 				<input id="reportTitle" type="text" class="form-control" th:value="${report.reportTitle}" readonly>
 			</div>
@@ -128,11 +130,11 @@
 				<input id="reportText" type="text" class="form-control" th:value="${report.reportText}" readonly>		
 			</div>
 			<div>
-				<label for="reporter">신고자 ID 및 닉네임</label>
+				<label for="reporter">신고자</label>
 				<input type="text" class="form-control" th:value="${report.userId}" readonky>			
 			</div>
 			<div>
-				<label for="target">피신고자 ID</label>
+				<label for="target">피신고자</label>
 				<input id="target" type="text" class="form-control" th:value="'아이디 '+${report.targetUserId}" readonly>
 				<input id="reporter" type="text" class="form-control" th:value="'닉네임 '+${report.nickname}" readonly>				
 			</div>		

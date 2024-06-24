@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -20,6 +18,7 @@ import com.mapmory.common.util.PurchaseUtil;
 import com.mapmory.exception.purchase.SubscriptionException;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.purchase.dao.SubscriptionDao;
+import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
 import com.siot.IamportRestClient.IamportClient;
@@ -49,16 +48,35 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	private String portOneImpSecret;
 	
 	///// Constructor /////
+	
 	@PostConstruct
     private void init() {
-        this.iamportClient = new IamportClient(portOneImpkey, portOneImpSecret);
+        this.iamportClient = new IamportClient(portOneImpkey, portOneImpSecret, true);
     }
 
 	///// Method /////
 	
     @Override
-    public boolean addSubscription(Subscription subscription) throws Exception{
-    	Subscription currentSubscription = getDetailSubscription(subscription.getUserId());
+    public boolean addSubscription(Purchase purchase) throws Exception{
+    	IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(purchase.getImpUid());
+    	int paymentMethod = PurchaseUtil.paymentChangeToInt(returnPayment.getResponse().getPgProvider());
+    	LocalDateTime paidAt = LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.systemDefault());
+    	
+    	Subscription subscription = Subscription.builder()
+    								.userId(purchase.getUserId())
+    								.nextSubscriptionPaymentMethod(paymentMethod)
+    								.nextSubscriptionPaymentDate(paidAt.plusMonths(1))
+    								.subscriptionStartDate(paidAt)
+    								.subscriptionEndDate(paidAt.plusMonths(1))
+    								.customerUid(returnPayment.getResponse().getCustomerUid())
+    								.merchantUid(returnPayment.getResponse().getMerchantUid())
+    								.build();
+    	if(paymentMethod == 1) {
+    		subscription.setNextSubscriptionCardType(returnPayment.getResponse().getCardName());
+    		subscription.setNextSubscriptionLastFourDigits(returnPayment.getResponse().getCardNumber().substring(0, 4));
+		}
+    	
+    	Subscription currentSubscription = getDetailSubscription(purchase.getUserId());
     	
     	if (currentSubscription == null || !(currentSubscription.isSubscribed()) ) {
     		
@@ -72,6 +90,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new SubscriptionException("이미 구독 중입니다");
     	}
     }// addSubscription: 구독 DB에 저장
+    
+    @Override
+    public boolean addSubscriptionFromScheduler(Subscription updatedSubscription) throws Exception{
+    	return subscriptionDao.addSubscription(updatedSubscription) == 1;
+    }// addSubscription: 스케쥴러에 의한 DB에 저장
 
     @Override
     public Subscription getDetailSubscription(String userId) throws Exception{
@@ -83,7 +106,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     		
     		if(subscription.getNextSubscriptionPaymentDate() != null) {
     			subscription.setNextSubscriptionPaymentDateString(PurchaseUtil.purchaseDateChange(subscription.getNextSubscriptionPaymentDate()));
-    			subscription.setNextSubscriptionPaymentMethodString(PurchaseUtil.paymentChange(subscription.getNextSubscriptionPaymentMethod()));
+    			subscription.setNextSubscriptionPaymentMethodString(PurchaseUtil.paymentChangeToString(subscription.getNextSubscriptionPaymentMethod()));
     		}
     	}
     	
@@ -99,15 +122,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public boolean cancelSubscriptionPortOne(String userId) throws Exception{
-		Subscription subscription = getDetailSubscription(userId);
-
 		try {
-			UnscheduleData unscheduleData = new UnscheduleData(subscription.getCustomerUid());
+			UnscheduleData unscheduleData = new UnscheduleData(userId);
 			IamportResponse<List<Schedule>> scheduleResponse = iamportClient.unsubscribeSchedule(unscheduleData);
 
 			return scheduleResponse.getCode() == 0;
 		} catch (Exception e) {
-			throw new SubscriptionException("구독 해지 실패!!", e);
+			return false;
 		}
     }// cancelSubscription: 구독 해지
     
@@ -123,7 +144,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     	AgainPaymentData againPaymentData = new AgainPaymentData(
     			subscription.getCustomerUid(),
                 subscription.getMerchantUid(),
-                BigDecimal.valueOf(product.getPrice()) );
+                BigDecimal.valueOf(product.getPrice()));
     	
     	againPaymentData.setName(product.getProductTitle());
     	
@@ -169,16 +190,17 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }// deleteSubscription: 구독 삭제
 
 	@Override
-	public boolean reSubscription(String userId) throws Exception {
-		return subscriptionDao.reSubscription(userId) == 1;
+	public boolean reSubscription(Subscription subscription) throws Exception {
+		return subscriptionDao.reSubscription(subscription) == 1;
 	}
 
 	@Override
 	public List<Subscription> getSubscriptionList(Search search) throws Exception {
-		List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList(search);
-		
 		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
    	 	search.setOffset(offset);
+        search.setLimit(search.getPageSize());
+
+		List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList(search);
    	 	
 		for(Subscription subscription : subscriptionList) {
 			subscription.setSubscriptionStartDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionStartDate()));

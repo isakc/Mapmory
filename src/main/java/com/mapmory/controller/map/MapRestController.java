@@ -8,8 +8,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -124,21 +122,4 @@ public class MapRestController {
 		
 		return mapRecordList;
 	}// getMapRecordList: map에서 들고오기
-	
-	 @GetMapping("/{type}/{uuid}")
-	 public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
-		 
-		 byte[] bytes;
-		 switch (type) {
-
-		 case "marker":
-			 bytes = objectStorageUtil.getImageBytes(uuid, mapFolderName);
-			 break;
-			 
-		default:
-			bytes = null;
-		}
-
-		 return bytes;
-	}
 }

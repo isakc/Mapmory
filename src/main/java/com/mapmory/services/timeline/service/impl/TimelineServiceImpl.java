@@ -1,5 +1,6 @@
 package com.mapmory.services.timeline.service.impl;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.GeoUtil;
 import com.mapmory.common.util.TimelineUtil;
+import com.mapmory.controller.timeline.TimelineRestController;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
@@ -111,7 +113,11 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public List<Category> getCategoryList() throws Exception {
-		return timelineDao.selectCategoryList();
+		List<Category> categoryList=new ArrayList<Category>();
+		for(Category category:timelineDao.selectCategoryList()) {
+			categoryList.add(category);
+		}
+		return categoryList;
 	}
 
 	@Override
@@ -130,12 +136,34 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
-	public SummaryRecordDto getSummaryRecord(Search search) throws Exception{
-		return timelineDao.selectSummaryRecord(SearchDto.builder()
-				.selectDate(search.getSelectDate())
-				.checkpointTime(checkpointTime)
+	public List<SummaryRecordDto> getSummaryRecord(Search search) throws Exception{
+		String selectDate=timelineDao.selectSummaryDate(SearchDto.builder()
 				.userId(search.getUserId())
+				.searchCondition(search.getSearchCondition())
+				.searchKeyword(search.getSearchKeyword())
 				.build());
+		
+		SearchDto searchDto=SearchDto.builder()
+			.selectDate(Date.valueOf(selectDate.substring(0, 10)))
+			.checkpointTime(checkpointTime)
+			.userId(search.getUserId())
+			.build();
+		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
+		List<SummaryRecordDto> imageList=timelineDao.selectSummaryRecordImage(searchDto);
+		if(!(imageList==null)) {
+			for(SummaryRecordDto s: imageList) {
+				recordList.add(s);
+			}
+		}
+		List<SummaryRecordDto> mediaList=timelineDao.selectSummaryRecordMedia(searchDto);
+		if(!(mediaList==null)) {
+			for(SummaryRecordDto s: mediaList) {
+				recordList.add(s);
+			}
+		}
+		
+		
+		return recordList;
 	}
 	
 	@Override
@@ -175,6 +203,11 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception {
 		return timelineDao.selectProfileTimelineList(search);
+	}
+
+	@Override
+	public int getProfileTimelineCount(Search search) throws Exception {
+		return timelineDao.selectProfileTimelineCount(search);
 	}
 
 //	@Override

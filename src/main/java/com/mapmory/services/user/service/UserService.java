@@ -127,9 +127,6 @@ public interface UserService {
 	
 	/**
 	 * 사용자 전체 로그인 통계를 조회한다. 
-	 * searchCondition(0: 일간, 1: 주간, 2: 월간)
-	 * selectDay1, selectDay2를 사용하여 주간 및 월간 통계를 지원한다.
-	 * 일간 통계는 selectDay1만 입력하면 된다.
 	 * @return
 	 */
 	public List<LoginDailyLog> getUserLoginDailyList(LoginSearch search);
@@ -173,10 +170,11 @@ public interface UserService {
 	
 	public boolean updatePassword(String userId, String userPassword);
 	
-	public boolean updateSecondaryAuth(String userId);
+	// public boolean updateSecondaryAuth(String userId);
+	public boolean updateSecondaryAuth(String userId, int type);
 	
 	/**
-	 * 1: column 변경 성공, 0: column 변경 실패, 2: 정책 상 변경 불가.
+	 * 1: column 변경 성공, 0: column 변경 실패, 2: 정책 상 변경 불가. 4: 현재 탈퇴 상태가 아님
 	 * 1개월 조건 때문에 따로 분리
 	 * @param userId
 	 * @return

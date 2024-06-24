@@ -35,9 +35,9 @@
 					#{nextSubscriptionPaymentMethod},
 					#{nextSubscriptionCardType, jdbcType=VARCHAR},
 					#{nextSubscriptionLastFourDigits, jdbcType=VARCHAR},
-					DATE_ADD(NOW(), INTERVAL 1 MONTH),
-					now(),
-					DATE_ADD(NOW(), INTERVAL 1 MONTH),
+					#{nextSubscriptionPaymentDate},
+					#{subscriptionStartDate},
+					#{subscriptionEndDate},
 					#{customerUid},
 					#{merchantUid}
 				)
@@ -91,9 +91,9 @@
 		UPDATE 
 			subscription 
 		<set>
-			<if test="nextSubscriptionPaymentMethod != null"> next_subscription_payment_method = #{nextSubscriptionPaymentMethod}, </if>
-			<if test="nextSubscriptionCardType != null"> next_subscription_card_type = #{nextSubscriptionCardType}, </if>
-			<if test="nextSubscriptionLastFourDigits != null"> next_subscription_last_four_digits = #{nextSubscriptionLastFourDigits} </if>
+			next_subscription_payment_method = #{nextSubscriptionPaymentMethod}, 
+			next_subscription_card_type = #{nextSubscriptionCardType}, 
+			next_subscription_last_four_digits = #{nextSubscriptionLastFourDigits} 
 		</set>
 		WHERE 
 			user_id = #{userId} 
@@ -110,11 +110,11 @@
 			AND NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</update>
 	
-	<update id="reSubscription" parameterType="string">
+	<update id="reSubscription" parameterType="subscription">
 		UPDATE 
 			subscription
 		SET
-			next_subscription_payment_date = subscription_end_date
+			next_subscription_payment_date = subscription_end_date, merchant_uid = #{merchantUid}
 		WHERE 
 			user_id = #{userId}
 			AND NOW() BETWEEN subscription_start_date AND subscription_end_date

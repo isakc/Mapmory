@@ -46,8 +46,9 @@
 	
 	<script th:inline="javascript">
 	
-		const profileUserId = [[${profile.user.userId}]];
-		const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
+		const profileUserId = /*[[${profile.user.userId}]]*/ '';
+		// const sessionId = /*[[${sessionId}]]*/ '[[${sessionId}]]';
+		const sessionId = sessionStorage.getItem('userId');
 		let isLoading = false;
 		let pageType = null;
 		
@@ -55,8 +56,8 @@
 	
 		$(function(){
 	
-			const myProfile = [[${myProfile}]];
-			const isFollow = [[${isFollow}]];
+			const myProfile = /*[[${myProfile}]]*/ '';
+			const isFollow = /*[[${isFollow}]]*/ '';
 			pageType = $('#pageType');
 			pageType.text('sharedList');
 			console.log(pageType.html());
@@ -98,17 +99,18 @@
 			$('#follow-list').on('click', function() {
 				
 				console.log("flag");
-				window.location.href="/user/getFollowList?userId="+profileUserId;
+				// window.location.href="/user/getFollowList?userId="+profileUserId;
+				window.location.href=`/user/getFollowList?profileUserId=${profileUserId}`;
 			});
 			
 			$('#follower-list').on('click', function() {
 				
-				window.location.href="/user/getFollowerList?userId="+profileUserId;
+				window.location.href=`/user/getFollowerList?profileUserId=${profileUserId}`;
 			});
 			
 			$('#updateProfile').on('click', function() {
 				
-				window.location.href="/user/getUpdateProfileView?userId="+profileUserId;
+				window.location.href=`/user/getUpdateProfileView`;
 			});
 					
 			$('#deleteFollow').on('click', function() {
@@ -208,6 +210,73 @@
 			});
 		});
 
+		// 프로필 숨기기
+		$(document).on('click', '#updateHideProfile', function() {
+			
+			// window.location.href="/user/getUpdatePasswordView";
+			
+			$.ajax({
+				
+				url: `/user/rest/checkHideProfile/${sessionId}`,
+				type : "get",
+				// contentType : "application/json",
+				success : function(response) {
+					
+					if(response == true || response == 'true') {
+						
+						const result = confirm("현재 프로필 숨김 기능이 활성화되어 있습니다. 설정을 해제하시겠습니까?"); 
+						
+						if(result == true) {
+							
+							$.ajax({
+								
+								url: `/user/rest/updateHideProfile/${sessionId}`,
+								type : "post",
+								success : function(response) {
+									
+									alert('프로필 숨김을 해제하였습니다.');
+									
+								},
+								error : function(jqXHR, textStatus, errorThrown) {
+									alert('오류 발생 : ' + jqXHR.responseText)
+								}
+							});
+							
+						}
+						
+					} else {
+						
+						const result = confirm("현재 프로필 숨김이 해제되어 있습니다. 설정하시겠습니까?");
+						if(result == true) {
+							
+							$.ajax({
+								
+								url: `/user/rest/updateHideProfile/${sessionId}`,
+								type : "post",
+								success : function(response) {
+									
+									alert('프로필 숨김을 설정하였습니다.');
+									
+								},
+								error : function(jqXHR, textStatus, errorThrown) {
+									alert('오류 발생 : ' + jqXHR.responseText)
+								}
+							});
+							
+							// window.location.href="/user/getAddSecondaryAuthView";
+						}
+						
+					}
+					
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert('오류 발생 : ' + jqXHR.responseText)
+				}
+				
+			});
+		});
+		
+		// 무한 스크롤
 		$(function(){
 			
 			$('#sharedRecordList').css('display', 'block');
@@ -335,7 +404,7 @@
 			
 			$('#reportUser').on('click', function(){
 				
-				const profileUserNickname = [[${profile.user.nickname}]];
+				const profileUserNickname = /*[[${profile.user.nickname}]]*/ '';
 				
 				const reportData = {
 						userId : sessionId ,
@@ -391,31 +460,6 @@
 			
 		});
 
-		/*
-		function checkIfNeedToLoadMore(setupType, setupFunction, loadType) {
-			
-	        let scrollTop = $(window).scrollTop();
-	        let windowHeight = $(window).height();
-	        let documentHeight = $(document).height();
-
-	        // console.log("is setup finished? :"+(documentHeight <= windowHeight));
-	        if (documentHeight <= windowHeight) {
-	        	
-	        	// console.log('setup start');
-	        	setupFunction().then((value)=> {
-	        		
-	        		console.log(value);
-	        		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
-	        	});
-	        } else {
-
-	        	console.log("setup finished.");
-	        	setupType = false;
-	        	loadType = false; // 로딩 완료 후 플래그 재설정    	
-	        }
-	    }
-		*/
-		
 		</script>
 	
 </head>
@@ -530,7 +574,8 @@
 				  <h2 class="fs-5" id="blockUser">사용자 차단하기</h2>
 				  </th:block>
 				  <th:block th:if="${myProfile == true}">
-					  <h2 class="fs-5">내 프로필 숨기기</h2>
+					  <!-- <h2 class="fs-5" id="updateHideProfile">내 프로필 숨기기</h2>  -->
+					  <p class="fs-5 h2" id="updateHideProfile">내 프로필 숨기기</p>
 				  </th:block>
 				</div>
 		      <div class="modal-footer">

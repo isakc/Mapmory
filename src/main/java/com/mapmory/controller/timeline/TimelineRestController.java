@@ -84,6 +84,10 @@ public class TimelineRestController {
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
 		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now().toString().replace("T"," ").split("\\.")[0]);
+		record.setUpdateCount(-1);
+		record.setTempType(0);
+		record.setTimecapsuleType(0);
+		record.setCategoryNo(0);
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
 		if(recordNo!=0) {
@@ -168,28 +172,11 @@ public class TimelineRestController {
 		return ResponseEntity.ok(map);
 	}
 	
-	//////////이미지 가져오기 용
-//	@GetMapping("/{type}/{uuid}")
-//	public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
-//
-//		byte[] bytes;
-//		switch (type) {
-//
-//		case "profile":
-//			bytes = objectStorageUtil.getImageBytes(uuid, PROFILE_FOLDER_NAME);
-//			break;
-//		case "thumbnail":
-//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_THUMBNAIL);
-//			break;
-//		case "emoji":
-//			bytes = objectStorageUtil.getImageBytes(uuid, TIMELINE_EMOJI);
-//			break;
-//		default:
-//			bytes = null;
-//		}
-//
-//		return bytes;
-//	}
+	//이미지 가져오기 용/서버로드보다 응답이 빠르면 파일이 깨진다. 지원용
+	@GetMapping("/{type}/{name}")
+	public byte[] getImage(@PathVariable String type, @PathVariable String name) throws Exception {
+		return timelineUtil.getFile(type, name);
+	}
 	
 	@GetMapping("checkBadWord")
 	public ResponseEntity<Map<String, Object>> checkBadWord(
@@ -245,7 +232,7 @@ public class TimelineRestController {
 	}
 	
 	// 대민 지원
-
+	// 개수도 주세요
 	/**
 	 * 
 	 * @param map
@@ -267,6 +254,7 @@ public class TimelineRestController {
 		
 		Search search = Search.builder().userId(userId).limit(pageSize).currentPage(currentPage).logsType(logsType).build();
 		map.put("timelineList", timelineService.getProfileTimelineList(search));
+		map.put("count", timelineService.getProfileTimelineCount(search));
 		
 		// System.out.println(map);
 		

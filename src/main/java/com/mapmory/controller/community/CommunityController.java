@@ -15,7 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ObjectStorageUtil;
@@ -50,6 +52,12 @@ public class CommunityController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	@Value("${admin.page.Size}")
+	private int adminPageSize;
+	
+	@Value("${admin.page.Unit}")
+	private int adminPageUnit;	
+	
 	@Value("${object.reply.folderName}")
 	private String replyFolder;
 	
@@ -64,8 +72,9 @@ public class CommunityController {
 		
 		userId = redisUtil.getSession(request).getUserId();
 		
-	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
+	    int currentPage = 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
 	    search.setOffset((currentPage - 1) * pageSize);
 	  
@@ -208,18 +217,19 @@ public class CommunityController {
 	
 	//사용자 신고 목록 조회	
 	@GetMapping("/getUserReportList/{userId}")
-	public String getUserReportListt(@Param("search")Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
+	public String getUserReportListt(Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
     
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
-		
 		userId = redisUtil.getSession(request).getUserId();
+
+	    int currentPage = 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);	
 		
 		Map<String, Object> reportList = communityService.getUserReportList(search, userId);
 		System.out.println("테스트 : "+userId);
+		
 		model.addAttribute("reportList",  reportList.get("list"));
 		model.addAttribute("totalCount", reportList.get("totalCount"));
 		
@@ -227,28 +237,30 @@ public class CommunityController {
 	}	
 	
 	//관리자 신고 조회
-	@GetMapping("/admin/getAdminReportList")
+	@GetMapping("/getAdminReportList")
 	public String getAdminReportList(Search search, Integer role, Model model) throws Exception {
 		
-		role = 0;
-			
-		if(role == null | role !=0) {
-			return "index";
-		}
 		
-    	if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-		
-		search.setPageSize(pageSize);
-		
-		Map<String, Object> allReportList = communityService.getAdminReportList(search);
+        if (search.getCurrentPage() == 0) {
+            search.setCurrentPage(1);
+        }
+        search.setPageSize(pageSize);
 
+        
+		Map<String, Object> allReportList = communityService.getAdminReportList(search);
+		
+        Page resultPage = new Page(search.getCurrentPage(), ((Integer)allReportList.get("totalCount")).intValue(), pageUnit, pageSize);
+
+        System.out.println("122 "+search);
+        System.out.println("123 " +resultPage);
+        
+        model.addAttribute("search", search);
+        model.addAttribute("resultPage", resultPage);
 		model.addAttribute("allReportList", allReportList.get("list"));
 		model.addAttribute("totalCount", allReportList.get("totalCount"));
 		model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
-			
-			return "community/admin/getAdminReportList";
+
+		return "community/admin/getAdminReportList";
 	}
 	
 	//관리자 신고 처리
@@ -263,14 +275,16 @@ public class CommunityController {
 	@GetMapping("/getBlockList/{userId}")
 	public String getBlockList(Search search, @PathVariable String userId, Model model, HttpServletRequest request) throws Exception {
 
-		if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-	
-		search.setPageSize(pageSize);
-		
 		userId = redisUtil.getSession(request).getUserId();
 		
+	    int currentPage = 1;
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
+	    search.setLimit(pageSize);
+	    search.setOffset((currentPage - 1) * pageSize);	
+	    
+	    System.out.println("12 "+search);
+				
 		Map<String, Object> blockList = communityService.getBlockedList(search, userId);
 		System.out.println("테스트 : "+userId);
 		model.addAttribute("blockList", blockList.get("list"));

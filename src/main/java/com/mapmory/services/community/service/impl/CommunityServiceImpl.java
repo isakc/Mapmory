@@ -113,7 +113,7 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception {
 		
-		int count = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int count = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		if(count ==0) {
 			CommunityLogs newCommunityLogs = CommunityLogs.builder()
 					.userId(communityLogs.getUserId())
@@ -128,22 +128,16 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public void checkLog(CommunityLogs communityLogs) throws Exception {
 		
-		int logCount = communityDao.checkDuplicatieLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
+		int logCount = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
 		
 		if(logCount >0) {
 			if(communityLogs.getLogsType() !=0) {
 				communityDao.deleteCommunityLogs(communityLogs);
 			}
 		} else {
-			if(communityLogs.getLogsType() == 2 || communityLogs.getLogsType() == 3) {
-				int conflictCount = communityDao.checkConflictLogs(communityLogs);
-				if (conflictCount > 0) {
-					return;
-				}
-			}
 			communityDao.addCommunityLogs(communityLogs);
 		}
-	}	
+	}
 	
 	@Override
 	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception {
@@ -198,8 +192,9 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public Map<String, Object> getAdminReportList(Search search) throws Exception {
 		
-    	search.setOffset((search.getCurrentPage() - 1) * search.getPageSize());
-        search.setPageSize(search.getPageSize());		
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+	    search.setOffset(offset);
+	    search.setLimit(search.getPageSize());	
 		
 		List<Object> list = communityDao.getAdminReportList(search);
 		int totalCount = communityDao.getAdminReportTotalCount(search);
@@ -265,6 +260,11 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception {
 		return communityDao.getUsersLogs(userId, recordNo);
+	}
+
+	@Override
+	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception {
+		communityDao.deleteCommunityLogs(communityLogs);
 	}
 
 

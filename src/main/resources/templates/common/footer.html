@@ -33,8 +33,8 @@
 	<nav class="mobile-bottom-nav">
 		<!-- <div class="mobile-bottom-nav__item mobile-bottom-nav__item--active"> -->
 		<div class="mobile-bottom-nav__item" >
-		    <div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/user/') ? 'mobile-bottom-nav__item--active' : ''}" name="프로필">
-		        <i class="material-icons notranslate">account_box</i>
+		    <div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/user/') && !#request.requestURI.contains('/user/getPersonalSecurityMenu') ? 'mobile-bottom-nav__item--active' : ''}" name="프로필">
+		        <i class="material-icons">account_box</i>
 		        Profile
 		    </div>        
 		</div>
@@ -71,8 +71,8 @@
 			</div>		
 		</div>
 		<div class="mobile-bottom-nav__item " >
-			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/common/menu') ? 'mobile-bottom-nav__item--active' : ''}" name="메뉴">
-				<i class="material-icons notranslate">list</i>
+			<div class="mobile-bottom-nav__item-content" th:classappend="${#request.requestURI.contains('/common/menu') || #request.requestURI.contains('/user/getPersonalSecurityMenu') ? 'mobile-bottom-nav__item--active' : ''}" name="메뉴">
+				<i class="material-icons">list</i>
 				Menu
 			</div>		
 		</div>
@@ -92,7 +92,7 @@ $(function() {
 	let userId = sessionStorage.getItem("userId");
 
 	$("div[name='타임라인']").on("click", function() {
-		self.location = "/timeline/getTimelineList?userId=user1";
+		self.location = '/timeline/getTimelineList';
 	});
 	
 	$("div[name='체크포인트']").on("click", function() {
@@ -176,7 +176,7 @@ $(function() {
 		
 		
 		$("div[name='프로필']").on("click", function() {
-			window.location.href=`/user/getProfile?userId=[[${userId}]]`;
+			window.location.href=`/user/getProfile?userId=${userId}`;
 		});
 		
 		$("div[name='커뮤니티']").on("click", function() {
