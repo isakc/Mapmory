@@ -12,13 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mapmory.common.domain.Search;
+import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.services.product.dao.ProductDao;
 import com.mapmory.services.product.dao.ProductImageDao;
 import com.mapmory.services.product.domain.Product;
 import com.mapmory.services.product.domain.ProductImage;
 import com.mapmory.services.product.service.ProductService;
-import com.mapmory.common.util.ImageFileUtil;
-import com.mapmory.common.util.ObjectStorageUtil;
 
 @Service("productServiceImpl")
 public class ProductServiceImpl implements ProductService {
@@ -254,5 +253,10 @@ public class ProductServiceImpl implements ProductService {
             productImageDao.updateProductImage(image);
         }
     }
+
+	@Override
+	public Product getProductByName(String productTitle) throws Exception {
+		return productDao.getProductByName(productTitle);
+	}
 
 }
