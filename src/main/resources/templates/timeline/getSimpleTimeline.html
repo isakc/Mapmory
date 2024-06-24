@@ -23,7 +23,7 @@
   		<div class="card-body">
     		<h4>
  				<span th:text="${record.recordTitle}"></span>
- 				<span id="categorySpan" class="badge">
+ 				<span th:if="${!(record.categoryName==null)}" id="categorySpan" class="badge">
  					<img th:src="'data:image/png;base64,' + ${record.categoryImojiByte}" style="height:18px;"/>
  					<span th:text="${record.categoryName}"></span>
  				</span>

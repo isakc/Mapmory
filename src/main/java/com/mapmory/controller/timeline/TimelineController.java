@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,18 +169,26 @@ public class TimelineController {
 	@GetMapping("getSummaryRecord")
 	public String getSummaryRecord(Model model,
 			@RequestParam(name="searchCondition", required = true) int searchCondition,
-			@RequestParam(name="searchKeyword", required = false) String searchKeyword,
+			@RequestParam(name="selectDate", required = false) String selectDate,
 			HttpServletRequest request) throws Exception,IOException{
 		String userId = redisUtil.getSession(request).getUserId();
-		if(searchKeyword==null) {
-			searchKeyword=LocalDateTime.now().toString().replace("T", " ").split("\\.")[0];
+		if(selectDate==null) {
+			selectDate=LocalDateTime.now().toString().split("\\.")[0];
+		}else {
+			selectDate+="T"+LocalTime.now().toString().split("\\.")[0];
 		}
 		
 		Search search = Search.builder()
 				.userId(userId)
 				.searchCondition(searchCondition)
-				.searchKeyword(searchKeyword)
+				.searchKeyword(selectDate)
 				.build();
+		
+		selectDate = timelineService.getSummaryDate(search).substring(0, 10);
+		
+		search.setSelectDate(Date.valueOf(selectDate));
+
+		model.addAttribute("selectDate", selectDate);
 		model.addAttribute("recordList", timelineService.getSummaryRecord(search));
 		return "timeline/getSummaryRecord";
 	}
@@ -564,7 +573,7 @@ public class TimelineController {
 		search=Search.builder()
 				.userId("user1")
 				.currentPage(1)
-				.limit(6)
+				.limit(15)
 				.logsType(0)
 				.build();
 		model.addAttribute("list8",timelineService.getProfileTimelineList(search));

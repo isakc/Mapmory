@@ -414,6 +414,19 @@ public class TimelineUtil {
 			}
 			return record;
 		}
+
+		public Record summaryToByte(Record record) throws Exception {
+			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
+				try {
+				record.setMediaByte(Base64.getEncoder().encodeToString(
+						objectStorageUtil.getImageBytes(record.getMediaName(), mediaFileFolder)));
+				}catch(FileNotFoundException e){
+					record.setMediaByte(null);
+					System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+				}
+			}
+			return record;
+		}
 		
 		public List<Category> categoryImojiListToByte(List<Category> categoryList) throws Exception {
 				List<Category> tempList = new ArrayList<Category>();
