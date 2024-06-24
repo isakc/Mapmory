@@ -61,7 +61,7 @@
 		DATE_FORMAT(reply_update_date, '%Y-%m-%d %H:%i') AS reply_update_date,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
 			(SELECT COUNT(*) FROM community_logs cl WHERE cl.record_no = r2.record_no AND cl.reply_no = r2.reply_no AND cl.logs_type = 2) AS like_count,
 			(SELECT COUNT(*) FROM community_logs cl WHERE cl.record_no = r2.record_no AND cl.reply_no = r2.reply_no AND cl.logs_type = 3) AS dislike_count			
 		FROM reply r2

@@ -135,12 +135,6 @@ public class CommunityServiceImpl implements CommunityService {
 				communityDao.deleteCommunityLogs(communityLogs);
 			}
 		} else {
-			if(communityLogs.getLogsType() == 2 || communityLogs.getLogsType() == 3) {
-				int conflictCount = communityDao.checkConflictLogs(communityLogs);
-				if (conflictCount > 0) {
-					return;
-				}
-			}
 			communityDao.addCommunityLogs(communityLogs);
 		}
 	}
