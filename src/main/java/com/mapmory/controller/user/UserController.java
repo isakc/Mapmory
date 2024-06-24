@@ -198,7 +198,9 @@ public class UserController {
 	@GetMapping("/getUserDetailTermsAndConditions")
 	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
-		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		String filePath = tacPath + TacConstants.getFilePath(tacType);
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(filePath);
 		
 		model.addAttribute("tac", tac);
 	}
