@@ -323,6 +323,7 @@
 	</select>
 	
 	<select id="selectUserLoginMonthlyList" parameterType="search" resultMap="selectLoginMonthlyMap">
+	<!-- 
 		SELECT
 		  EXTRACT(DAY FROM login_date) AS day,
 		  COUNT(*) AS count
@@ -331,6 +332,33 @@
 			AND EXTRACT(YEAR FROM login_date) = #{year} AND EXTRACT(MONTH FROM login_date)  = #{month}
 		GROUP BY day
 		ORDER BY day;
+		 -->
+		 
+		SELECT
+		  calendar.day,
+		  COALESCE(COUNT(sll.login_date), 0) AS count
+		FROM
+		  (WITH RECURSIVE calendar AS (
+		    SELECT DATE_FORMAT(CONCAT(#{year}, '-', #{month}, '-01'), '%Y-%m-%d') AS day
+		    UNION ALL
+		    SELECT DATE_ADD(day, INTERVAL 1 DAY)
+		    FROM calendar
+		    WHERE day &lt; LAST_DAY(CONCAT(#{year}, '-', #{month}, '-01'))
+		  )
+		  SELECT day FROM calendar) AS calendar
+		LEFT JOIN
+		  suspension_login_log sll
+		ON
+		  DATE(sll.login_date) = calendar.day
+		AND
+		  EXTRACT(YEAR FROM sll.login_date) = #{year}
+		AND
+		  EXTRACT(MONTH FROM sll.login_date) = #{month}
+		GROUP BY
+		  calendar.day
+		ORDER BY
+		  calendar.day;
+				 
 	</select>
 	
 	<select id="selectPassword" parameterType="string" resultType="string">

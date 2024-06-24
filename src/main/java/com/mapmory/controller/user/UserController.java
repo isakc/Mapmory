@@ -133,8 +133,11 @@ public class UserController {
 	@Value("${naver.state}")
 	private String naverState;
 
- @Value("${server.host.name}")
+	@Value("${server.host.name}")
 	private String hostName;
+	
+	@Value("${directory.path.tac}")
+	private String tacPath;
 	
 	/*
 	@Value("${google.client.id}")

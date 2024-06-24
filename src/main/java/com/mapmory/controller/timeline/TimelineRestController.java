@@ -232,7 +232,7 @@ public class TimelineRestController {
 	}
 	
 	// 대민 지원
-
+	// 개수도 주세요
 	/**
 	 * 
 	 * @param map
@@ -254,7 +254,7 @@ public class TimelineRestController {
 		
 		Search search = Search.builder().userId(userId).limit(pageSize).currentPage(currentPage).logsType(logsType).build();
 		map.put("timelineList", timelineService.getProfileTimelineList(search));
-		//map.put("count", timelineService.getProfileTimelineCount(search));
+		map.put("count", timelineService.getProfileTimelineCount(search));
 		
 		// System.out.println(map);
 		
