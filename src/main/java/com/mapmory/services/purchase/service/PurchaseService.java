@@ -26,4 +26,6 @@ public interface PurchaseService {
 	public boolean validatePurchase(String impUid, Purchase purchase) throws Exception;
 	
 	public boolean deletePurchase(int purchaseNo) throws Exception;
+	
+	public PurchaseDTO addPurchaseByMobile(String impUid, String merchantUid) throws Exception;
 }

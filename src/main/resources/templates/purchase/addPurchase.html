@@ -12,10 +12,6 @@
 			background-color: #03c75a;
 			color: #fff;
 		}
-		
-		.full-height {
-            height: 85vh; /* Viewport height to fill the screen */
-        }
 	</style>
 	
 	<script src="/javascript/config/key.js"></script> <!-- key관련 JS -->
@@ -34,14 +30,15 @@
     	  const productTitle = $("#productTitle").val();
     	  const currentDate = getCurrentDate();
     	  const userId = $('input[name="userId"]').val();
-
+    	  
           IMP.request_pay({
-              pg: selectedValue == 1 ? 'html5_inicis' : getPaymentMethod(selectedValue),
+              pg: selectedValue == 1 ? 'html5_inicis.INIpayTest' : getPaymentMethod(selectedValue),
               pay_method: getPaymentMethod(selectedValue),
               merchant_uid: "purchase_"+userId+"_"+currentDate,   // 주문번호
               name: $("#productTitle").val(),
               amount: price,              // 숫자 타입
-              m_redirect_url: "/purchase/getPurchaseList"
+              buyer_email: "",
+              m_redirect_url: "https://mapmory.co.kr/purchase/orderCompleteMobile"
           },
           function (rsp) { // callback
             console.log(rsp);
@@ -68,11 +65,11 @@
           IMP.request_pay(
             {
               pg: pg,
-              merchant_uid: "billingKey_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
+              merchant_uid: "subscription_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
               customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
               name: "정기 구독 결제",
-              amount: 0, // 0으로 설정하여 할 시 빌링키만 발급
-              m_redirect_url: "/purchase/getPurchaseList"
+              amount: price, // 0으로 설정하면 빌링키만 발급
+              m_redirect_url: "https://mapmory.co.kr/purchase/subscriptionCompleteMobile"
             },//빌링키 요청
 
             function (rsp) {

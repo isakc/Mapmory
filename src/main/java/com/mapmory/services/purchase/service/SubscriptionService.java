@@ -20,7 +20,7 @@ public interface SubscriptionService {
 	//update
 	public boolean updatePaymentMethod(Subscription subscription) throws Exception;
 	
-	public boolean reSubscription(String userId) throws Exception;
+	public boolean reSubscription(Subscription subscription) throws Exception;
 	
 	//delete
 	public boolean cancelSubscription(String userId) throws Exception;
