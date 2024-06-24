@@ -564,10 +564,12 @@ public class TimelineController {
 		search=Search.builder()
 				.userId("user1")
 				.currentPage(1)
-				.limit(5)
+				.limit(6)
 				.logsType(0)
 				.build();
 		model.addAttribute("list8",timelineService.getProfileTimelineList(search));
+		model.addAttribute("list8_count", timelineService.getProfileTimelineCount(search));
+		
 		search=Search.builder()
 				.userId("user1")
 				.currentPage(1)

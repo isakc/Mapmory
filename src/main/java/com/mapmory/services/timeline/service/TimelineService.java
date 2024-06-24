@@ -52,6 +52,8 @@ public interface TimelineService {
 	
 	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception;
 	
+	public int getProfileTimelineCount(Search search) throws Exception;
+	
 	
 
 	//record select시 imageNo 못가져와서 가져오는 image select

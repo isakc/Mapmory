@@ -205,6 +205,11 @@ public class TimelineServiceImpl implements TimelineService {
 		return timelineDao.selectProfileTimelineList(search);
 	}
 
+	@Override
+	public int getProfileTimelineCount(Search search) throws Exception {
+		return timelineDao.selectProfileTimelineCount(search);
+	}
+
 //	@Override
 //	public void deleteHashtag(int recordNo) throws Exception {
 //	}
