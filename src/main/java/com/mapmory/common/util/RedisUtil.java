@@ -118,12 +118,14 @@ public class RedisUtil<T> {
 		
 		Cookie[] cookies = request.getCookies();
 		if(cookies == null) {
-			System.out.println("asdf");
+			System.out.println("cookie가 아예 없네요.");
+			return null;
 		}
 		for(Cookie cookie : cookies ) {
 			
 			if(cookie.getName().equals("JSESSIONID")) {
 				
+				System.out.println("session으로부터 정보를 불러옵니다...");
 				sessionId = cookie.getValue();
 				return (SessionData) redisTemplate.opsForValue().get(sessionId);
 				

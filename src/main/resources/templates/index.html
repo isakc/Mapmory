@@ -82,6 +82,12 @@
                     		
                     	}
                     	
+                    	if(response == "leaveUser") {
+                    		
+                    		alert('탈퇴한 사용자는 서비스 이용이 불가능합니다...');
+                    		return;
+                    	}
+                    	
                     	if(response == "secondAuth") {
                     		
                     		console.log("2단계 인증을 진행합니다...,");
@@ -120,8 +126,12 @@
                     		
                     	}
                     },
-                    error: function(jqXHR) {
-                        alert("오류 발생: " + jqXHR.responseText);
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    	
+                    	if(jqXHR.status === 0 && jqXHR.statusText === 'error')
+                    		alert('현재 서버가 작동하지 않고 있습니다...');
+                    	else
+                        	alert("오류 발생: " + jqXHR.responseText);
                     }
                 });
         	});
