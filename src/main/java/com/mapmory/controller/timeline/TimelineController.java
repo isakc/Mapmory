@@ -33,6 +33,7 @@ import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
 
 
@@ -87,11 +88,11 @@ public class TimelineController {
 	
 	@GetMapping("getTimelineList")
 	public String getTimelineList(Model model,
-			@RequestParam(value="userId", required = true) String userId,
 			@RequestParam(value="selectDay", required = false) Date selectDay,
 			@RequestParam(value="plus", required = false) Integer plus,
 			HttpServletRequest request
 			) throws Exception,IOException{
+		String userId = redisUtil.getSession(request).getUserId();
 		
 		if(selectDay==null) {
 		LocalDate today = LocalDate.now();
@@ -158,7 +159,7 @@ public class TimelineController {
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
+		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
@@ -166,18 +167,20 @@ public class TimelineController {
 	
 	@GetMapping("getSummaryRecord")
 	public String getSummaryRecord(Model model,
-			@RequestParam(value="userId", required = true) String userId,
-			@RequestParam(value="selectDate", required = false) Date selectDate) throws Exception,IOException{
-		if(selectDate==null) {
-//		LocalDate today = LocalDate.now();
-//		selectDate = Date.valueOf(today);
-		selectDate = Date.valueOf("2024-05-29");
+			@RequestParam(name="searchCondition", required = true) int searchCondition,
+			@RequestParam(name="searchKeyword", required = false) String searchKeyword,
+			HttpServletRequest request) throws Exception,IOException{
+		String userId = redisUtil.getSession(request).getUserId();
+		if(searchKeyword==null) {
+			searchKeyword=LocalDateTime.now().toString().replace("T", " ").split("\\.")[0];
 		}
+		
 		Search search = Search.builder()
 				.userId(userId)
-				.selectDate(selectDate)
+				.searchCondition(searchCondition)
+				.searchKeyword(searchKeyword)
 				.build();
-		model.addAttribute("record", timelineService.getSummaryRecord(search));
+		model.addAttribute("recordList", timelineService.getSummaryRecord(search));
 		return "timeline/getSummaryRecord";
 	}
 	
@@ -191,7 +194,6 @@ public class TimelineController {
 		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
 		model.addAttribute("record",record);
 		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
 		return "timeline/getSimpleTimeline";
@@ -213,7 +215,6 @@ public class TimelineController {
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		return "timeline/getDetailTimeline";
@@ -287,18 +288,18 @@ public class TimelineController {
 	@GetMapping("deleteTimeline")
 	public String deleteTimeline(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo,
-			@RequestParam(value="userId", required = true) String userId,
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimelineList(model, userId, null, null,request);
+		return getTimelineList(model, null, null,request);
 	}
 	
 	@GetMapping("getTimecapsuleList")
 	public String getTimecapsuleList(Model model,
-			@RequestParam(value="userId", required = true) String userId,
 			HttpServletRequest request
 			) throws Exception,IOException{
+		String userId = redisUtil.getSession(request).getUserId();
+		
 		Search search = Search.builder()
 				.userId(userId)
 				.tempType(1)
@@ -307,16 +308,16 @@ public class TimelineController {
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
+		model.addAttribute("userId",userId);
 		model.addAttribute("timecapsuleList", timelineService.getTimelineList(search));
 		return "timeline/getTimecapsuleList";
 	}
 	
 	@GetMapping("getTempTimecapsuleList")
 	public String getTempTimecapsuleList(Model model,
-			@RequestParam(value="userId", required = true) String userId,
 			HttpServletRequest request
 			) throws Exception,IOException{
+		String userId = redisUtil.getSession(request).getUserId();
 		Search search = Search.builder()
 				.userId(userId)
 				.tempType(0)
@@ -325,7 +326,7 @@ public class TimelineController {
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
+		model.addAttribute("userId",userId);
 		model.addAttribute("timecapsuleList", timelineService.getTimelineList(search));
 		return "timeline/getTempTimecapsuleList";
 	}
@@ -354,6 +355,7 @@ public class TimelineController {
 	@GetMapping("addTimecapsule")
 	public String addTimecapsuleView(Model model,
 			HttpServletRequest request) throws Exception,IOException {
+		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
 		model.addAttribute("category", timelineService.getCategoryList());
 		return "timeline/addTimecapsule";
@@ -361,12 +363,23 @@ public class TimelineController {
 	
 	@PostMapping("addTimecapsule")
 	public String addTimecapsule(Model model,
-			@ModelAttribute(value="record") Record record,
+			@ModelAttribute(name="record") Record record,
 			@RequestParam(name="hashtagText",required = false) String hashtagText,
 			@RequestParam(name="mediaFile",required = false) MultipartFile mediaFile,
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
 			HttpServletRequest request
 			) throws Exception,IOException {
+		if(record.getRecordTitle()==null || record.getRecordTitle().trim().equals("")) {
+			if(!(record.getCheckpointAddress()==null || record.getCheckpointAddress().trim().equals("")) 
+					&& !(record.getD_DayDate()==null || record.getD_DayDate().trim().equals(""))) {
+				record.setRecordTitle(record.getCheckpointAddress()+"_"+record.getD_DayDate());
+			}else {
+				if(record.getRecordTitle()==null ||record.getRecordTitle().trim().equals("")){
+					 record.setRecordTitle("임시저장된 타임캡슐_"
+					+LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+				}
+			}
+		}
 		record.setUpdateCount(-1);
 		record = timelineUtil.uploadImageFile(record, imageFile);
 		record = timelineUtil.uploadMediaFile(record, mediaFile);
@@ -388,7 +401,7 @@ public class TimelineController {
 		if(record.getTempType()==1) {
 			return getDetailTimecapsule(model,record.getRecordNo(),request);
 		}else {
-			return getTempTimecapsuleList(model, record.getRecordUserId(),request);
+			return getTempTimecapsuleList(model,request);
 		}
 	}
 	
@@ -434,18 +447,17 @@ public class TimelineController {
 		if(record.getTempType()==1) {
 			return getDetailTimecapsule(model,record.getRecordNo(),request);
 		}else {
-			return getTempTimecapsuleList(model, record.getRecordUserId(),request);
+			return getTempTimecapsuleList(model,request);
 		}
 	}
 
 	@GetMapping("deleteTimecapsule")
 	public String deleteTimecapsule(Model model,
 			@RequestParam(value="recordNo", required = true) int recordNo,
-			@RequestParam(value="userId", required = true) String userId,
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimecapsuleList(model, userId, request);
+		return getTimecapsuleList(model, request);
 	}
 	
 	@GetMapping("addVoiceToText")
@@ -552,10 +564,12 @@ public class TimelineController {
 		search=Search.builder()
 				.userId("user1")
 				.currentPage(1)
-				.limit(5)
+				.limit(6)
 				.logsType(0)
 				.build();
 		model.addAttribute("list8",timelineService.getProfileTimelineList(search));
+		model.addAttribute("list8_count", timelineService.getProfileTimelineCount(search));
+		
 		search=Search.builder()
 				.userId("user1")
 				.currentPage(1)

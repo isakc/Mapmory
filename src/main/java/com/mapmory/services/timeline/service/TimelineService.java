@@ -42,7 +42,7 @@ public interface TimelineService {
 	
 	public CountAddressDto getCountAddress(Record record) throws Exception;
 	
-	public SummaryRecordDto getSummaryRecord(Search search) throws Exception;
+	public List<SummaryRecordDto> getSummaryRecord(Search search) throws Exception;
 	
 	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
@@ -51,6 +51,8 @@ public interface TimelineService {
 	public List<MapRecord> getMapRecordList(Search search) throws Exception;
 	
 	public List<Map<String, Object>> getProfileTimelineList(Search search) throws Exception;
+	
+	public int getProfileTimelineCount(Search search) throws Exception;
 	
 	
 

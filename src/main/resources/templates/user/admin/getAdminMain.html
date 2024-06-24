@@ -17,7 +17,7 @@
 		let selectDate; 			
 	
 		$(function() {
-				
+							
 			$('#daily').on('click', function() {
 			  // const dailyData = [12, 19, 3, 5, 2, 3];
 			  selectDate = new Date();
@@ -39,7 +39,7 @@
 			  
 			  getDailyData();
 			  
-			});
+			}).click();
 	
 			$('#monthly').on('click', function() {
 			  // const monthlyData = [1, 2, 3, 4, 5, 10];
@@ -51,10 +51,14 @@
 			});	  
 			
 			
-			$(document).on('click', '#calander', function(){
+			$(document).on('input', '#calander', function(){
 				
 				const clickedDay = $(this).val();
-				console.log(clickedDay);
+				// console.log(clickedDay);
+				
+				// selectDate.setDate(clickedDay);
+				selectDate = new Date(Date.parse(clickedDay));
+				getDailyData();
 			});
 			
 			$(document).on('click', '#prevDay', function() {
@@ -114,7 +118,7 @@
 			  }),
 			  success : function(responseBody) {
 				  
-				  console.log(responseBody);
+				  // console.log(responseBody);
 				  // console.log(JSON.parse(responseBody));
 				  
 				  const countData = responseBody.map(item => item.count);
@@ -135,11 +139,10 @@
 		
 		function getMonthlyData() {
 			
-		  createChart(selectDate, 'monthly');
-			
-			/*
-			$.ajax({
-			 
+		  
+		  
+		  $.ajax({
+				 
 			  url : `/user/rest/getDailyStatistics`,
 			  type : 'post',
 			  contentType : 'application/json',
@@ -149,12 +152,15 @@
 			  }),
 			  success : function(responseBody) {
 				  
-				  console.log(responseBody);
+				  // console.log(responseBody);
 				  // console.log(JSON.parse(responseBody));
 				  
 				  const countData = responseBody.map(item => item.count);
 				  
-				  createChart(countData, 'daily');
+				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
+				  
+				  createChart(countData, 'monthly');
+				  // createChart(selectDate, 'monthly');
 				  
 			  },
 			  error : function(jqXHR, textStatus, errorThrown) {
@@ -162,11 +168,7 @@
 				  alert('에러 발생 : ' + jqXHR);
 			  }
 			  
-		  });
-			*/
-			
-			
-			
+		  });	
 		}
 		
 		function createChart(data, type) {

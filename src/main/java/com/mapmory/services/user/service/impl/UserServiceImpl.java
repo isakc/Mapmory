@@ -162,28 +162,29 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * 오직 테스트 전용이다. 기존 test data의 비밀번호를 전부 암호화한다.
 	 */
+	// /setupForTest
 	public void setupForTest() {
 
-		/*
-		UserSearch search = UserSearch.builder()
-							.searchCondition(-1)
-							.role(0)
-							.currentPage(1)
-							// .pageSize(100)
-							.limit(100)
-							.build();
-		List<User> list = userDao.selectUserList(search);
 		
-		for(User user : list) {
-			
-			String userId = user.getUserId();
-			String userPassword = getPassword(userId);
-			
-			updatePassword(userId, userPassword);
-		}
-		*/
+//		UserSearch search = UserSearch.builder()
+//							.searchCondition(-1)
+//							.role(0)
+//							.currentPage(1)
+//							// .pageSize(100)
+//							.limit(100)
+//							.build();
+//		List<User> list = userDao.selectUserList(search);
+//		
+//		for(User user : list) {
+//			
+//			String userId = user.getUserId();
+//			String userPassword = getPassword(userId);
+//			
+//			updatePassword(userId, userPassword);
+//		}
 		
-		/*
+		
+		
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -202,7 +203,7 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-		*/
+		
 		
 		/*
 		for (int i = 124; i <= 152; i++) {
