@@ -240,6 +240,14 @@ function sample5_execDaumPostcode() {
                 	//infowindow 이동
            			infowindow.setContent(result.road_address!=null ? result.road_address.address_name:result.address.address_name );
                     infowindow.open(map,marker);
+                 	
+                    // 요소로 스크롤 이동
+                    $('html, body').animate({
+                        scrollTop: $('#map').offset().top
+                    }, 100); // 1000은 애니메이션 속도(1초)입니다.
+
+                    // 지도를 포커스
+                    $('#map').attr('tabindex', '-1').focus();
                 }
             });
         }

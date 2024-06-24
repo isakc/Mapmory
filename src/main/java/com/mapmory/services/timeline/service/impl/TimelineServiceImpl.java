@@ -1,5 +1,6 @@
 package com.mapmory.services.timeline.service.impl;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,12 +136,34 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 	
 	@Override
-	public SummaryRecordDto getSummaryRecord(Search search) throws Exception{
-		return timelineDao.selectSummaryRecord(SearchDto.builder()
-				.selectDate(search.getSelectDate())
-				.checkpointTime(checkpointTime)
+	public List<SummaryRecordDto> getSummaryRecord(Search search) throws Exception{
+		String selectDate=timelineDao.selectSummaryDate(SearchDto.builder()
 				.userId(search.getUserId())
+				.searchCondition(search.getSearchCondition())
+				.searchKeyword(search.getSearchKeyword())
 				.build());
+		
+		SearchDto searchDto=SearchDto.builder()
+			.selectDate(Date.valueOf(selectDate.substring(0, 10)))
+			.checkpointTime(checkpointTime)
+			.userId(search.getUserId())
+			.build();
+		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
+		List<SummaryRecordDto> imageList=timelineDao.selectSummaryRecordImage(searchDto);
+		if(!(imageList==null)) {
+			for(SummaryRecordDto s: imageList) {
+				recordList.add(s);
+			}
+		}
+		List<SummaryRecordDto> mediaList=timelineDao.selectSummaryRecordMedia(searchDto);
+		if(!(mediaList==null)) {
+			for(SummaryRecordDto s: mediaList) {
+				recordList.add(s);
+			}
+		}
+		
+		
+		return recordList;
 	}
 	
 	@Override

@@ -54,7 +54,11 @@ public interface TimelineDao {
 	
 	public CountAddressDto selectCountAddress(Record record) throws Exception;
 	
-	public SummaryRecordDto selectSummaryRecord(SearchDto searchDto) throws Exception;
+	public List<SummaryRecordDto> selectSummaryRecordImage(SearchDto searchDto) throws Exception;
+	
+	public List<SummaryRecordDto> selectSummaryRecordMedia(SearchDto searchDto) throws Exception;
+	
+	public String selectSummaryDate(SearchDto searchDto) throws Exception;
 	
 	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
 	
