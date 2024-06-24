@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -183,8 +184,30 @@ public class UserRestController {
 				boolean keep = Boolean.valueOf(map.get("keepLogin"));
 				boolean needToChangePassword = userService.checkPasswordChangeDeadlineExceeded(userId);
 				
+				
+				// 계정 탈퇴
+				LocalDateTime leaveAccountDate = user.getLeaveAccountDate();
+				if(leaveAccountDate != null) {
+
+					System.out.println("서비스를 탈퇴한 사용자입니다...");
+					return ResponseEntity.ok("leaveUser");
+
+				}
+				
+				
+				// 2단계 인증
 				if(setSecondAuth == 1) {
 					
+					String key = redisUtilString.select("SECONDAUTH-"+userId, String.class);
+					if(key == null) {
+						
+						// 사용자에게도 알릴 수 있도록 로직 개선 필요
+						System.out.println("인증키가 만료되었습니다... 2단계 인증을 해제합니다.");
+						boolean result = userService.updateSecondaryAuth(userId, 0);
+						
+						
+						return doLogin(userId, role, response, keep, needToChangePassword);
+					}
 					
 					System.out.println("2단계 인증을 진행합니다..");
 					// 임시 인증 쿠키 생성
@@ -204,7 +227,8 @@ public class UserRestController {
 					
 				} else {
 					
-					
+					return doLogin(userId, role, response, keep, needToChangePassword);
+					/*
 					acceptLogin(userId, role, response, keep);
 					
 					
@@ -222,6 +246,7 @@ public class UserRestController {
 							return ResponseEntity.ok("admin");
 						
 					}	
+					*/
 				}
 			}	
 		}
@@ -291,9 +316,19 @@ public class UserRestController {
 		
 	}
 
+
+	@PostMapping("/addLeaveAccount/{userId}")
+	public ResponseEntity<Boolean> leaveAccount(@PathVariable String userId) {
+		
+		boolean result = userService.addLeaveAccount(userId);
+		
+		return ResponseEntity.ok(result);
+	}
 	
-	@PostMapping("/getFollowList")
-	public List<FollowMap> getFollowList(@ModelAttribute Search search, HttpServletRequest request) {
+	
+	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
+	// @GetMapping("/getFollowList/{profileUserId}")  
+	public List<FollowMap> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
 		
 		/*
 		if(currentPage == null)
@@ -301,18 +336,20 @@ public class UserRestController {
 		*/
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
-		String userId = search.getUserId();
-		String keyword = search.getSearchKeyword();
-		int currentPage = search.getCurrentPage();
+		// String userId = search.getUserId();
+		// String keyword = search.getSearchKeyword();
+		// int currentPage = search.getCurrentPage();
 		int selectFollow = 0;
 		
-		List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		// List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		return followList;
 	}
 	
-	@PostMapping("/getFollowerList")
-	public List<FollowMap> getFollowerList(@ModelAttribute Search search, HttpServletRequest request) {
+	@PostMapping("/getFollowerList/{profileUserId}")
+	// @GetMapping("/getFollowerList/{profileUserId}")
+	public List<FollowMap> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
 
 		/*
 		if(currentPage == null)
@@ -320,12 +357,12 @@ public class UserRestController {
 		*/
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
-		String userId = search.getUserId();
-		String keyword = search.getSearchKeyword();
-		int currentPage = search.getCurrentPage();
+		// String userId = search.getUserId();
+		// String keyword = search.getSearchKeyword();
+		// int currentPage = search.getCurrentPage();
 		int selectFollow = 1;
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
+		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		return followerList;
 	}
@@ -361,6 +398,41 @@ public class UserRestController {
 		String userId = userService.getId(userName, email);
 		
 		return ResponseEntity.ok(userId);
+	}
+	
+	@PostMapping("/getDailyStatistics")
+	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
+		
+		LocalDate day = map.get("selectDate");
+		
+		System.out.println("which day ? " + day);
+		
+		LoginSearch search = LoginSearch.builder()
+				.selectLoginDate(day)
+				.build();
+		
+		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
+		
+		return ResponseEntity.ok(result);
+	}
+	
+
+	@PostMapping("/getMonthlyStatistics")
+	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, Integer> map) {
+		
+		int year = map.get("year");
+		int month = map.get("month");
+		
+		System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		
+		LoginSearch search = LoginSearch.builder()
+				.year(year)
+				.month(month)
+				.build();
+		
+		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
+		
+		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/updateUserInfo")
@@ -424,6 +496,15 @@ public class UserRestController {
 			return ResponseEntity.internalServerError().body("설정 변경에 실패...");
 	}
 	
+	@PostMapping("/updateHideProfile/{userId}")
+	public ResponseEntity<Boolean> updateHideProfile(@PathVariable String userId) {
+		
+		boolean result = userService.updateHideProfile(userId);
+		
+		return ResponseEntity.ok(result);
+		
+	}
+	
 	@PostMapping("/deleteFollow")
 	public ResponseEntity<Boolean> deleteFollow(HttpServletRequest request, @RequestBody Map<String, String> value) {
 		
@@ -435,11 +516,50 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
-	
-	@PostMapping("/recoverAccount")
-	public ResponseEntity<Boolean> recoverAccount() {
+	@PostMapping("/recoverAccount/{userId}")
+	public ResponseEntity<String> recoverAccount(@PathVariable String userId, @RequestParam String email) {
 		
-		return ResponseEntity.ok(true);
+		User user = userService.getDetailUser(userId);
+		
+		if( !user.getEmail().equals(email)) {
+			
+			System.out.println("일치하지 않는 이메일");
+			return ResponseEntity.ok("mismatch");
+		}
+			
+		
+		int result = userService.updateRecoverAccount(userId);
+		
+		switch(result) {
+		
+			case 0:
+				return ResponseEntity.ok("db-error");
+			case 1:
+				return ResponseEntity.ok("true");
+			case 2:
+				return ResponseEntity.ok("violate-policy");
+			case 3:
+				return ResponseEntity.ok("not-leaving");
+		}
+		
+		return null;
+	}
+	
+	// id email match 유효성 검사
+	@PostMapping("/checkIsMatched/{userId}")
+	public ResponseEntity<Boolean> checkIsMatched(@PathVariable String userId, @RequestParam String email) {
+		
+		User user = userService.getDetailUser(userId);
+		
+		boolean result = (user.getEmail().equals(email));
+		
+		if(!result) {
+			
+			System.out.println("일치하지 않는 이메일");
+			return ResponseEntity.ok(false);
+		} else {
+			return ResponseEntity.ok(true);
+		}
 	}
 	
 	@PostMapping("/sendAuthNum")
@@ -470,6 +590,19 @@ public class UserRestController {
 		String userId = value.get("userId");
 		
 		boolean result = userService.checkSetSecondaryAuth(userId);
+		
+		return ResponseEntity.ok(result);
+	}
+	
+	/**
+	 * true : 프로필 조회 거부, false : 통과
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/checkHideProfile/{userId}")
+	public ResponseEntity<Boolean> checkHideProfile(@PathVariable String userId) {
+		
+		boolean result = userService.checkHideProfile(userId);
 		
 		return ResponseEntity.ok(result);
 	}
@@ -905,4 +1038,24 @@ public class UserRestController {
 		return null;
 	}
     
+    private ResponseEntity<String> doLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean needToChangePassword) throws Exception {
+    	
+    	acceptLogin(userId, role, response, keep);
+		
+		
+		if(!needToChangePassword) {
+		
+			// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
+			return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+			
+		} else {
+
+			System.out.println("role : " + role);
+			if(role == 1)
+				return ResponseEntity.ok("user");
+			else
+				return ResponseEntity.ok("admin");
+			
+		}	
+    }
 }

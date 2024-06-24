@@ -2,20 +2,29 @@ package com.mapmory.services.user.domain;
 
 import java.time.LocalDate;
 
-import com.mapmory.common.domain.Search;
-
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
+
+/**
+ * 월간 통계용 :: year, month
+ * 일간 통계용 :: selectLoginDate
+ * @author rlaeo
+ *
+ */
 @Getter
 @Setter
 @ToString
-@SuperBuilder
-public class LoginSearch extends Search {
+@Builder
+// @SuperBuilder
+public class LoginSearch {
 
+	// 월간 통계 용
 	private int year;
 	private int month;
+	
+	// 일간 통계 용
 	private LocalDate selectLoginDate;
 }

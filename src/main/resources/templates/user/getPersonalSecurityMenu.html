@@ -23,9 +23,11 @@
 	
 	<script th:inline="javascript">
 	
+		const userId = /*[[${userId}]]*/ '[[${userId}]]';
+	
 		$(function() {
 			
-			const userId = /*[[${userId}]]*/ '[[${userId}]]';
+			
 			
 			$('#getMyInfo').on('click', function() {
 				
@@ -117,6 +119,71 @@
 				
 			});
 			
+			$('#updateHideProfile').on('click', function() {
+				
+				// window.location.href="/user/getUpdatePasswordView";
+				
+				$.ajax({
+					
+					url: `/user/rest/checkHideProfile/${userId}`,
+					type : "get",
+					// contentType : "application/json",
+					success : function(response) {
+						
+						if(response == true || response == 'true') {
+							
+							const result = confirm("현재 프로필 숨김 기능이 활성화되어 있습니다. 설정을 해제하시겠습니까?"); 
+							
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: `/user/rest/updateHideProfile/${userId}`,
+									type : "post",
+									success : function(response) {
+										
+										alert('프로필 숨김을 해제하였습니다.');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+							}
+							
+						} else {
+							
+							const result = confirm("현재 프로필 숨김이 해제되어 있습니다. 설정하시겠습니까?");
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: `/user/rest/updateHideProfile/${userId}`,
+									type : "post",
+									success : function(response) {
+										
+										alert('프로필 숨김을 설정하였습니다.');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+								// window.location.href="/user/getAddSecondaryAuthView";
+							}
+							
+						}
+						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert('오류 발생 : ' + jqXHR.responseText)
+					}
+					
+				});
+			});
+			
 			$('#linkSocialLogin').on('click', function() {
 				
 				window.location.href="/user/getSocialLoginLinkedView";
@@ -131,8 +198,33 @@
 			
 			$('#leaveAccount').on('click', function() {
 				
-				window.location.href="/user/getLeaveAccountView";
+				const result = confirm("정말로 계정을 탈퇴하시겠습니까? (탈퇴 이후로 1개월 내로 계정 복구가 가능합니다.)");
 				
+				if(result) {
+					
+					$.ajax({
+						
+						url: `/user/rest/addLeaveAccount/${userId}`,
+						type : "post",
+						success : function(response) {
+							
+							if(response == true || response == 'true') {
+								
+								alert('계정 탈퇴에 성공하셨습니다. 안녕히 가십시오.');
+								$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+								// window.location.href="/";
+								return;
+							} else {
+								
+								alert('서버 문제로 실패...');
+								return;
+							}
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('오류 발생 : ' + jqXHR.responseText)
+						}
+					});
+				}
 			});
 			
 		});
@@ -156,6 +248,9 @@
 			    <tr class="table-light" id="updatePassword">
 			      <td>비밀번호 변경</td>  
 			    </tr>
+			    <tr class="table-light" id="updateHideProfile">
+			      <td>프로필 숨기기</td>  
+			    </tr>
 			    <tr class="table-light" id="linkSocialLogin">
 			      <td>소셜 로그인 연동</td>  
 			    </tr>
@@ -168,7 +263,7 @@
 		    </tbody>
 		</table>
 	</div>
-
+	<form></form>
 <div th:replace="common/footer::defaultFooter"></div>
 	<!-- 
 	<button type="button" id="getMyInfo">내 정보 조회</button>

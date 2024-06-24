@@ -37,9 +37,6 @@ public class MapServiceImpl implements MapService {
 	@Value("${tmap.transit.URL}")
 	private String tmapTransitURL;
 	
-//	@Value("${jsonTest}")
-//	private String jsonTest;
-	
 	/// Constructor /////
 	
 	/// Method /////
@@ -136,8 +133,7 @@ public class MapServiceImpl implements MapService {
 	@Override
 	public List<ResultTransitRouter> getTransitRoute(SearchTransitRouter searchTransitRouter) throws Exception {
 		String resultJson = getRouteResultJson(searchTransitRouter, tmapTransitURL);
-		//String resultJson = jsonTest;
-	    
+	    System.out.println(resultJson);
 		List<ResultTransitRouter> ResultRouterList = new ArrayList<ResultTransitRouter>(); // 대중교통 경로 리스트
 		
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -195,7 +191,8 @@ public class MapServiceImpl implements MapService {
     		    	}//step 중 " " 로 lineString 파싱
     		    	
     		    	}
-    			}else if(resultDetailTransitRouter.getMode().equals("BUS") || resultDetailTransitRouter.getMode().equals("SUBWAY")) {
+    			//}else if(resultDetailTransitRouter.getMode().equals("BUS") || resultDetailTransitRouter.getMode().equals("SUBWAY")) {
+    			}else {
     				JsonNode lineStrings = leg.path("passShape").path("linestring");
     		    	
     				String[] lineStringArray = lineStrings.asText().split(" "); //lineString 파싱

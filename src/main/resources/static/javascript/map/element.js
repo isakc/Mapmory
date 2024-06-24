@@ -83,7 +83,7 @@ const simpleRecordElement = (index) => {
 	                    <div class="profileImageContainer">
 	                    	<img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
 	                    	<span class="">${recordList[index].nickName}</span>
-	                        ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}</span>
+	                        ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}
 	                    </div>
 	                </div>
 	            </div>
@@ -124,9 +124,31 @@ const detailRecordElement = (index) => {
   							</div>
   							
 	                        <p class="recordImageContainer">
-	                        <div>
+	                        	<div class="container mt-5">
+        							<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+            							<div class="carousel-inner">
+            							${recordList[index].imageName.map(image => 
+            							` <div class="carousel-item active">
+            								<img src="/user/rest/thumbnail/${image.imageTagText}" class="d-block w-100"/>
+                						   </div>
+            								`).join('')}
+            							</div>
+            							
+            					<button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                					<span class="visually-hidden">이전</span>
+            					</button>
+            					
+            					<button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                					<span class="carousel-control-next-icon" aria-hidden="true"></span>
+                					<span class="visually-hidden">다음</span>
+            					</button>
+        						</div>
+    						</div>
+    						
+	                        <!--<div>
 	                        	${recordList[index].imageName.map(image => `<img src="/user/rest/thumbnail/${image.imageTagText}"/>`).join('')}
-	                        </div>
+	                        </div>-->
 	                        </p>
 	                        <p class="card-text">
 	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
@@ -196,10 +218,12 @@ const detailPlaceElement = (index) => {
 const routeListElement = (response) => {
 	return `
 		<span class="badge bg-primary">총 거리: ${(response.totalDistance / 1000 ).toFixed(1)} km</span>
-		<span class="badge bg-primary">총 시간: ${(response.totalTime / 60 ).toFixed(0)} 분</span>
-		<div class="">
+		<span class="badge bg-primary">총 시간: ${(response.totalTime / 60) < 60 ? (response.totalTime / 60).toFixed(0) +'분' : 
+  						( (response.totalTime / 60) / 60).toFixed(0) + '시간 ' +  ( (response.totalTime / 60) % 60).toFixed(0) +'분'
+  					 }</span>
+		<div class="list-group">
 			${response.description.map((item, index) =>
-  			`<div id="route-guide" class="list-group">${index+1}. ${index == 0 ? '출발지에서 ' : ''} ${item} </div>`
+  			`<div class="list-group-item route-guide list-group-flush">${index == 0 ? '출발지에서 ' : ''} ${item} </div>`
 			).join('')}
 		</div>
 `;
@@ -208,32 +232,31 @@ const routeListElement = (response) => {
 const transitRouteListElement = (paths) => {
 	return `
 		${paths.map( (path, index)  => 
-		`<div>
-			<ul class="list-group">
+		`<div class="list-group-item list-group-item-action">
+			<ul class="list-group list-group-flush">
   				<li class="transitRoute list-group-item justify-content-between align-items-center" data-index =${index}>
-  					<h1>${(path.totalTime / 60).toFixed(0) }분</h1>
+  					<h1>${(path.totalTime / 60) < 60 ? (path.totalTime / 60).toFixed(0) +'분' : 
+  						( (path.totalTime / 60) / 60).toFixed(0) + '시간 ' +  ( (path.totalTime / 60) % 60).toFixed(0) +'분'
+  					 }</h1>
     				<span>도보 ${(path.totalWalkTime/60).toFixed(0) }분</span>
     				<span>환승 ${path.transferCount}회</span>
     				<span>요금 ${path.totalFare}원</span>
     				<span>거리 ${(path.totalDistance / 1000 ).toFixed(1)}km</span>
   				</li>
 			</ul>
-		
 		</div>`
 		).join('')}
-`;
+		`;
 }
 
 const transitRouteDescriptionElement = (path) => {
 	return `
-		${path.routes.map(route => `
-			<div class="transitRoutePath">
-				<p>출발지</p>
-				<p>Mode: ${route.mode}</p>
-				<p>Route: ${route.routeName}</p>
-				<p>Start: ${route.startName}</p>
-				<p>End: ${route.endName}</p>
+		<div class="list-group list-group-flush">
+		${path.routes.map((route) => `
+			<div class="transitRoutePath list-group-item">
+				${route.mode === 'WALK' ? route.endName + '까지 도보로 이동' : route.startName + '에서 ' + route.routeName + ' 승차 후 ' + route.endName + ' 하차'}
 			 </div>
 		`).join('')}
+		</div>
 		`;
 }
