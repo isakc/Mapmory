@@ -165,24 +165,26 @@ public class UserServiceImpl implements UserService {
 	// /setupForTest
 	public void setupForTest() {
 
+		/*
+		Search search = Search.builder()
+							.searchCondition(-1)
+							.currentPage(1)
+							.pageSize(100)
+							// .limit(100)
+							.build();
 		
-//		UserSearch search = UserSearch.builder()
-//							.searchCondition(-1)
-//							.role(0)
-//							.currentPage(1)
-//							// .pageSize(100)
-//							.limit(100)
-//							.build();
-//		List<User> list = userDao.selectUserList(search);
-//		
-//		for(User user : list) {
-//			
-//			String userId = user.getUserId();
-//			String userPassword = getPassword(userId);
-//			
-//			updatePassword(userId, userPassword);
-//		}
+		System.out.println(search);
 		
+		List<User> list = userDao.selectUserList(search);
+		
+		for(User user : list) {
+			
+			String userId = user.getUserId();
+			String userPassword = getPassword(userId);
+			
+			updatePassword(userId, userPassword);
+		}
+		*/
 		
 		
 		String userId="user1";
@@ -204,7 +206,7 @@ public class UserServiceImpl implements UserService {
 		userPassword="admin";
 		updatePassword(userId, userPassword);
 		
-		
+	
 		/*
 		for (int i = 124; i <= 152; i++) {
 		    String userId = "user_" + i;

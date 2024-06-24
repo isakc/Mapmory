@@ -194,11 +194,20 @@ public class UserController {
 		model.addAttribute("tacList", tacList);
 	}
 	
+	@GetMapping("/getUserTermsAndConditionsList")
+	public void getUserTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
+	
+		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
+		
+		model.addAttribute("tacList", tacList);
+	}
 	
 	@GetMapping("/getUserDetailTermsAndConditions")
 	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
-		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		String filePath = tacPath + TacConstants.getFilePath(tacType);
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(filePath);
 		
 		model.addAttribute("tac", tac);
 	}
@@ -595,7 +604,9 @@ public class UserController {
 	@GetMapping("/admin/getAdminDetailTermsAndConditions")
 	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
-		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		String filePath = tacPath + TacConstants.getFilePath(tacType);
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(filePath);
 		
 		/*  login interceptor에서 할 일
 		int role = redisUtil.getSession(request).getRole();
@@ -860,16 +871,12 @@ public class UserController {
 		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, 0);
 		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, 1);
 		
-		Search search=Search.builder()
-				.userId(userId).
-				currentPage(1)
-				.limit(5)
-				.sharedType(1)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
+		Search search = Search.builder()
+				.userId(userId)
+				.logsType(0).build();
 		
-		int totalSharedListCount = timelineService.getTimelineList(search).size();
+		// int totalSharedListCount = timelineService.getTimelineList(search).size();
+		int totalSharedListCount = timelineService.getProfileTimelineCount(search);
 		
 		Profile profile = Profile.builder()
 					.user(user)

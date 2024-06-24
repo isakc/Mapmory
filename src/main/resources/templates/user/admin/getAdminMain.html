@@ -8,25 +8,41 @@
 	<link rel="stylesheet" href="/css/common/toolBar.css">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	
+	
 	<meta charset="UTF-8">
 	<title>Mapmory Admin</title>
 	
 	<!-- 통계 -->
 	<script>
 		
-		let selectDate; 			
+		// const today = new Date();
+		let selectDate; 	
 	
 		$(function() {
 							
 			$('#daily').on('click', function() {
-			  // const dailyData = [12, 19, 3, 5, 2, 3];
+				
+			  $('#monthPicker').css('display', 'none');	
+				
 			  selectDate = new Date();
+			  // selectDate.setHours(0, 0, 0, 0);
+			  
+			  /*
+			  console.log("오늘 : " + selectDate);
+			  console.log("미국식 표현 : " + selectDate.toISOString());
+			  */
+			  
+			  const year = selectDate.getFullYear();
+			  const month = (selectDate.getMonth() + 1);
+			  const day = selectDate.getDate();
 			  
 			  let temp =`
 			  		<div>
 				  		<div class="d-flex">
 				  			<button id="prevDay">◀</button>
-				  			<p>${selectDate.toISOString().split('T')[0]}</p>
+				  			`;
+				  	temp +=	`<p>${year}년 ${month}월 ${day}일</p>`;
+				  	temp +=	`
 				  			<button id="nextDay">▶</button>
 			  			</div>
 			  			<div>
@@ -37,14 +53,39 @@
 		  		  
 			  $('#chartNav').empty().append(temp);
 			  
+			  const today = new Date().toISOString().split('T')[0];
+			  $('#calander').attr('max', today);
+			  
 			  getDailyData();
 			  
 			}).click();
 	
 			$('#monthly').on('click', function() {
-			  // const monthlyData = [1, 2, 3, 4, 5, 10];
+				
+			  $('#monthPicker').css('display', 'block');
+				
 			  selectDate = new Date();
+			  // selectDate.setHours(0, 0, 0, 0);
 			  
+			  
+			  const year = selectDate.getFullYear();
+			  const month = selectDate.getMonth() + 1;
+			  
+			  let temp =`
+			  		<div>
+			  			<div class="row">
+					  		<div class="d-flex">
+					  			<button id="prevMonth">◀</button>
+					  			`;
+					  	temp +=	`<p>${year}년 ${month}월</p>`;
+					  	temp +=	`
+					  			<button id="nextMonth">▶</button>
+				  			</div>
+			  			</div>
+		  			</div>
+		  		  		`;
+		  		  
+			  $('#chartNav').empty().append(temp);
 			  
 			  getMonthlyData();
 			  
@@ -63,27 +104,36 @@
 			
 			$(document).on('click', '#prevDay', function() {
 				
+				// $('calander').val(null);
 				selectDate.setDate(selectDate.getDate() - 1);
 				// createChart(selectDate, 'daily');
 				getDailyData();
 			});
 			
 			$(document).on('click', '#nextDay', function() {
-				
-				selectDate.setDate(selectDate.getDate() + 1);
-				// createChart(selectDate, 'daily');
-				getDailyData();
+							
+				let nextDate = new Date(selectDate);
+		        nextDate.setDate(selectDate.getDate() + 1);
+		        
+		        const today = new Date();
+		        today.setHours(today.getHours()+1);  // 오늘까지를 이동 허용 범위에 포함시키기 위해 오늘을 약간 미래로 보냄
+		        
+		        console.log("선택한 날짜 : " + selectDate.toISOString());
+				console.log("오늘 날짜 : " + today.toISOString());
+		        
+		        // 오늘 이후 날짜로 이동하지 않도록 함
+		        if (nextDate > today) {
+		        	alert("오늘 이후의 날짜는 볼 수 없습니다.");
+		        } else {
+		        	selectDate.setDate(selectDate.getDate() + 1);
+		        	console.log("다음 날짜 : " + selectDate.toISOString());
+		        	getDailyData();
+		        }
 			});
 			
 			$(document).on('click', '#prevMonth', function() {
-				
-				let currentDay = selectDate.getDate();
-				selectDate.setMonth(selectDay.getMonth() - 1);
 		        
-		        // 월이 변경된 후, 날짜가 그 달의 최대 일자를 초과하면 조정
-		        if (selectDate.getDate() < currentDay) {
-		        	selectDate.setDate(0);
-		        }
+		        selectDate.setMonth(selectDate.getMonth() - 1);
 		        
 		        // createChart(selectDate, 'monthly');
 		        getMonthlyData();
@@ -91,21 +141,36 @@
 			
 			$(document).on('click', '#nextMonth', function() {
 				
-				let currentDay = selectDate.getDate();
-				selectDate.setMonth(selectDate.getMonth() + 1);
-		        
-		        // 월이 변경된 후, 날짜가 그 달의 최대 일자를 초과하면 조정
-		        if (selectDate.getDate() < currentDay) {
-		        	selectDate.setDate(0);
-		        }
-		        
-		        // createChart(selectDate, 'monthly');
-		        getMonthlyData();
+				const today = new Date();
+				
+				//console.log("이번 달 : " + (today.getMonth()+1));
+				//console.log("선택한 달 : " + (selectDate.getMonth()+1));
+				
+				console.log("이번 달 : " + (today.getMonth()+1));
+				console.log("선택한 달 : " + (selectDate.getMonth()+1+1));
+				
+				if(today.getMonth() < (selectDate.getMonth()+1)) {
+					alert('이번 달 이후로는 볼 수 없습니다.');
+					return;
+				} else {
+										
+					selectDate.setMonth(selectDate.getMonth() + 1);	
+					getMonthlyData();
+				}
+				
+			});
+			
+			$('#searchMonthly').on('click', function() {
+				
+				
+				
 			});
 			
 		});
 		
 		function getDailyData() {
+			
+			console.log("선택일자 : " + selectDate.toDateString());
 			
 			$.ajax({
 			 
@@ -122,8 +187,12 @@
 				  // console.log(JSON.parse(responseBody));
 				  
 				  const countData = responseBody.map(item => item.count);
+				  				  
+				  const year = selectDate.getFullYear();
+				  const month = (selectDate.getMonth() + 1);
+				  const day = selectDate.getDate();
 				  
-				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
+				  $('#chartNav').find('p').text(`${year}년 ${month}월 ${day}일`);
 				  
 				  createChart(countData, 'daily');
 				  
@@ -139,28 +208,26 @@
 		
 		function getMonthlyData() {
 			
-		  
+		  const year = selectDate.getFullYear();
+		  const month = selectDate.getMonth() + 1;
 		  
 		  $.ajax({
 				 
-			  url : `/user/rest/getDailyStatistics`,
+			  url : `/user/rest/getMonthlyStatistics`,
 			  type : 'post',
 			  contentType : 'application/json',
 			  dataType : 'json',
 			  data : JSON.stringify({
-				  selectDate : selectDate
+				  year : `${year}`,
+				  month : `${month}`
 			  }),
 			  success : function(responseBody) {
 				  
-				  // console.log(responseBody);
-				  // console.log(JSON.parse(responseBody));
+				  console.log(responseBody);
 				  
-				  const countData = responseBody.map(item => item.count);
+				  $('#chartNav').find('p').text(`${year}년 ${month}월`);
 				  
-				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
-				  
-				  createChart(countData, 'monthly');
-				  // createChart(selectDate, 'monthly');
+				  createChart(responseBody, 'monthly');
 				  
 			  },
 			  error : function(jqXHR, textStatus, errorThrown) {
@@ -175,7 +242,7 @@
 		
 		  $('#chartDiv').empty().append('<canvas id="myChart"></canvas>');
 
-		  console.log(data);
+		  // console.log(data);
 
 		  const ctx = document.getElementById('myChart');
 		  
@@ -187,7 +254,7 @@
 			     // labels: [0, 1, ..., 23],
 			      labels : Array.from({ length: 24 }, (v, i) => i),
 			      datasets: [{
-			        label: '# of login counts',
+			        label: '# 전체 로그인 수',
 			        data: data,
 			        borderWidth: 1
 			      }]
@@ -203,25 +270,25 @@
 			  });
 			  
 		  } else {
+			  			  
+			  const days = data.map(item => item.day);
+			  const counts = data.map(item => item.count);
 			  
 			  new Chart(ctx, {
 			    type: 'bar',
 			    data: {
-			      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+			      labels: days,
 			      datasets: [{
-			        label: '# of Votes',
-			        data: data,
+			        label: '# 전체 로그인 수',
+			        data: counts,
 			        borderWidth: 1
 			      }]
 			    },
 			    options: {
 			      scales: {
 			        y: {
-			          // beginAtZero: true
+			          beginAtZero: true
 			        }
-			      },
-			      layout: {
-			          padding: 100
 			      }
 			    }
 			  });
@@ -235,13 +302,22 @@
 	<div th:replace="common/toolBar::defaultToolBar"></div>
 
 	<div class="container">
+		
 		<div class="mt-3">
 			<button class="btn btn-primary" type="button" id="daily">일간 통계</button>
 			<button class="btn btn-primary" type="button" id="monthly">월간 통계</button>
 		</div>
 		
-		<div id="chartNav">
-			
+		<div>
+			<div id="chartNav">
+	
+			</div>
+			<div id="monthPicker" style="display:none;" >
+				<div class="d-flex">
+					<th:block th:replace="~{/user/fragments/monthPicker}"></th:block>
+					<button type="button" id="searchMonthly">검색</button>
+				</div>
+			</div>
 		</div>
 		
 		<div id="chartDiv" class="chart-container" style="position: relative; height:60vh; width:120vw">

@@ -335,7 +335,7 @@
 		 -->
 		 
 		SELECT
-		  calendar.day,
+		  EXTRACT(DAY FROM calendar.day) AS day,
 		  COALESCE(COUNT(sll.login_date), 0) AS count
 		FROM
 		  (WITH RECURSIVE calendar AS (

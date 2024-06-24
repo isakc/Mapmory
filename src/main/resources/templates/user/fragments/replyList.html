@@ -75,7 +75,7 @@
 		
     	
 		isLoading = true; // 로딩 시작
-		console.log("reply loading start : "+ isLoading);
+		// console.log("reply loading start : "+ isLoading);
     	
     	if(replyListEndOfData == true) {
 
@@ -104,9 +104,10 @@
 			    		 // resolve("contents ended");
 			    	 }
 			    		
-			    	  
+			    	 console.log("I'll plus page");
 			    	 replyListCurrentPage++;
-			    	 console.log("this is increased current page : "+ replyListCurrentPage);
+			    	 console.log("the page is : " + replyListCurrentPage);
+			    	 // console.log("this is increased current page : "+ replyListCurrentPage);
 			    	 
 			    	 response.list.forEach((reply) => {
 			    			
@@ -115,6 +116,7 @@
 			    		 const regDate = reply.replyDate;
 			    		 const recordNo = reply.recordNo;
 			    		 
+			    		 console.log('create row');
 			    		 let temp = '';
 			    		 temp += '<div id="'+recordNo+'" class="reply">';
 			    		 temp += '<p class="fw-bold">'+title+'</p>';
@@ -123,16 +125,15 @@
 			    		 temp += '</div>';
 			    		 temp += '<hr/>';
 			    		 $('#replyList').append(temp);
-			    		 
-			    		 
-			    		 
-			    		 if(replyListSetup)
-		   		    		  	checkIfNeedToLoadMoreReply();
-			    		 
-			    		 console.log("reply loading end : "+ isLoading);
-			    		 resolve("reply contents loaded");
+
 			    	 });
-			    	  
+			    	 
+		    		 if(replyListSetup)
+	   		    		  	checkIfNeedToLoadMoreReply();
+		    		 
+		    		 // console.log("reply loading end : "+ isLoading);
+		    		 resolve("reply contents loaded");
+			    	 
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);

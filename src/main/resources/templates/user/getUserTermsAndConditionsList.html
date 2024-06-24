@@ -3,7 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<title>이용약관</title>
-	
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	
 	<script>
@@ -12,28 +13,37 @@
 			
 			$('button').on('click', function(){
 				
-				window.location.href="/user/getPersonalSecurityMenu";
+				// window.location.href="/user/getPersonalSecurityMenu";
+				history.back();
 			});
 		});
 		
 	</script>
 </head>
-<body>
+<body class="container mt-5">
 
-	<h2>사용자 페이지</h2>
-
-	<div th:each="tac, state : ${tacList}">
-		<div>
-			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
-		</div>
-		<div>
-			[[${tac.title}]]
-		</div>
-		<div>
-			<a th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
-		</div>
+	<div class="row ">
+		<p class="fs-1 col-9 ">이용약관 목록</p>
+		<div class="col-1"></div>
+		<a class="fs-1 col-1" href="javascript:history.back()">⇦</a>
 	</div>
+
+	<form class='row mt-4'>
+		<div th:each="tac, state : ${tacList}">
+			<div>
+				[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>] [[${tac.title}]]
+			</div>
+			<div>
+				<a class="text-body-tertiary" th:href="@{/user/getUserDetailTermsAndConditions(tacType=${state.count})}">&nbsp;&nbsp;&nbsp;&nbsp;> 자세히 보기</a>
+			</div>
+			<br/>
+		</div>
+	</form>
 	
-	<button type="button" id="back">확인</button>
+	<br/>
+	<br/>
+	<div class="d-grid gap-2 col-11 mx-auto fixed-bottom mb-3 ">
+		<button class="btn btn-primary " type="button" id="next">확인</button>
+	</div>
 </body>	
 </html>

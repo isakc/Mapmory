@@ -7,10 +7,10 @@ import com.mapmory.services.purchase.domain.Subscription;
 public interface PurchaseFacadeService {
 
 	//insert
-	public boolean addSubscription(Purchase purchase, Subscription subscription) throws Exception;
+	public boolean addSubscription(Purchase purchase) throws Exception;
 	
 	//update
-	public boolean updatePaymentMethod(Subscription subscription, Product product) throws Exception;
+	public boolean updatePaymentMethod(Purchase purchase, Product product) throws Exception;
 	
 	//cancel
 	public boolean cancelSubscription(String userId) throws Exception;

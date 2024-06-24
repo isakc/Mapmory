@@ -37,7 +37,7 @@
 <resultMap id="sharedRecordResultMap" type="java.util.HashMap">
     <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
-    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>   
     <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
     <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
     <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
@@ -273,7 +273,7 @@ LIMIT #{limit} OFFSET #{offset}
        a1.record_user_id AS record_user_id,
        a1.checkpoint_address AS checkpoint_address,
        a1.checkpoint_date AS checkpoint_date,
-       a2.image_tag_text AS image_tag_text
+       a2.image_tag_text AS imageName
    FROM 
        record a1
    LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
@@ -316,7 +316,7 @@ LIMIT #{limit} OFFSET #{offset}
 		<trim prefix="where" prefixOverrides="AND||OR">
 			a1.record_user_id = #{userId} 
 			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
-			AND a1.checkpoint_date<![CDATA[<=]]>#{searchKeyword}
+			AND a1.checkpoint_date<![CDATA[<=]]>(#{searchKeyword} + INTERVAL 1 DAY)
 			AND timecapsule_type=0
 		</trim>
 		ORDER BY a1.checkpoint_date DESC,
@@ -326,7 +326,7 @@ LIMIT #{limit} OFFSET #{offset}
 		<trim prefix="where" prefixOverrides="AND||OR">
 			a1.record_user_id = #{userId} 
 			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
-			AND a1.checkpoint_date<![CDATA[<]]>(#{searchKeyword} - INTERVAL 1 DAY)
+			AND a1.checkpoint_date<![CDATA[<]]>#{searchKeyword}
 			AND timecapsule_type=0
 		</trim>
 		ORDER BY a1.checkpoint_date DESC,
@@ -496,13 +496,15 @@ SELECT
 	RECORD_NO,
 	RECORD_USER_ID,
 	RECORD_TITLE,
+	RECORD_TEXT,
+	CATEGORY_NO,
     DATE_FORMAT(r.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
 	UPDATE_COUNT,
     (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
     (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
     CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
-    (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
-    (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
+    (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO AND IMAGE_TAG_TYPE = 1 LIMIT 1) AS IMAGE_TAG_TYPE,
+    (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO AND IMAGE_TAG_TYPE = 1 LIMIT 1) AS IMAGE_TAG_TEXT,
     (SELECT category_name FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
     (SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
     (SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
@@ -512,20 +514,33 @@ FROM
 <trim prefix="where" prefixOverrides="AND||OR">
     shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
 <if test="!(searchKeyword==null or searchKeyword=='')">
-<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
-</if>
-<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-	AND (r.record_text LIKE #{searchKeyword} 
-	OR r.record_title LIKE #{searchKeyword} 
-	OR r.record_no IN (
-	SELECT record_no 
-	FROM image_tag 
-	WHERE IMAGE_TAG_TYPE = 0 
-	AND image_tag_text LIKE #{searchKeyword}))
+	<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
+		AND (
+		    <choose>
+		        <when test="searchCondition == 0">
+		            r.record_title LIKE #{searchKeyword}
+		        </when>
+		        <when test="searchCondition == 1">
+		            r.record_text LIKE #{searchKeyword}
+		        </when>
+		    </choose>
+		)
 </if>
 <if test="!(categoryNo==null or categoryNo==0)">
-	AND r.category_no=#{categoryNo}
+    AND r.category_no=#{categoryNo}
 </if>
+<!-- <if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') "> -->
+<!-- 	AND (r.record_text LIKE #{searchKeyword}  -->
+<!-- 	OR r.record_title LIKE #{searchKeyword}  -->
+<!-- 	OR r.record_no IN ( -->
+<!-- 	SELECT record_no  -->
+<!-- 	FROM image_tag  -->
+<!-- 	WHERE IMAGE_TAG_TYPE = 0  -->
+<!-- 	AND image_tag_text LIKE #{searchKeyword})) -->
+<!-- </if> -->
+<!-- <if test="!(categoryNo==null or categoryNo==0)"> -->
+<!-- 	AND r.category_no=#{categoryNo} -->
+<!-- </if> -->
 </trim>
 ORDER BY
 	shared_date DESC,
@@ -711,7 +726,7 @@ ORDER BY
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
        <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date
    	FROM record a1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
    	<!-- LEFT JOIN community_logs a4 ON a1.record_no = a4.record_no -->
@@ -757,15 +772,34 @@ ORDER BY
 </sql>
 
 <select id="selectProfileTimelineList" resultMap="profileRecordResultMap" parameterType="search">
-	SELECT *
+	SELECT
+	   inner_table.record_no AS record_no,
+       inner_table.record_user_id AS record_user_id,
+       inner_table.record_title AS record_title,
+       inner_table.category_name AS category_name,
+       inner_table.category_imoji AS category_imoji,
+       <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
+       DATE_FORMAT(inner_table.record_add_date, '%Y-%m-%d') AS record_add_date
 	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+   	ORDER BY
+    inner_table.record_add_date IS NULL DESC, 
+    inner_table.record_add_date DESC
 	LIMIT #{limit} OFFSET #{offset}
 </select>
 
 <select id="selectProfileTimelineCount" resultType="Integer" parameterType="search">
+	
 	SELECT COUNT(*) AS profileRecord_Count
-	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table 
 	GROUP BY record_user_id=#{userId}
+	 
+	 <!-- 
+	SELECT 
+	COUNT(*) AS profileRecord_Count 
+	FROM( SELECT a1.record_no AS record_no, a1.record_user_id AS record_user_id, a1.record_title AS record_title, a3.category_name AS category_name, a3.category_imoji AS category_imoji, DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date FROM record a1 LEFT JOIN category a3 ON a1.category_no = a3.category_no WHERE record_user_id='user1' AND shared_date IS NOT NULL ) AS inner_table 
+	GROUP BY record_user_id=#{userId}
+	;
+	  -->
 </select>
 
 <select id="selectProfileImage" resultType="imageTag" parameterType="integer">

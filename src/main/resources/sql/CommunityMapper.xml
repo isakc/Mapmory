@@ -75,7 +75,7 @@
 			(SELECT nickname FROM users u WHERE u.USER_ID = r2.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r2.USER_ID) AS profileImageName,
 			(SELECT r.record_title FROM record r WHERE r.record_no = r2.record_no) AS record_title,
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r2.USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate
 		FROM reply r2
 		WHERE r2.user_id = #{userId}
 		ORDER BY reply_date
