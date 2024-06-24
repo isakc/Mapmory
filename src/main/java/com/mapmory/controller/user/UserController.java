@@ -597,7 +597,9 @@ public class UserController {
 	@GetMapping("/admin/getAdminDetailTermsAndConditions")
 	public void getAdminDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
 		
-		TermsAndConditions tac = userService.getDetailTermsAndConditions(TacConstants.getFilePath(tacType));
+		String filePath = tacPath + TacConstants.getFilePath(tacType);
+		
+		TermsAndConditions tac = userService.getDetailTermsAndConditions(filePath);
 		
 		/*  login interceptor에서 할 일
 		int role = redisUtil.getSession(request).getRole();
