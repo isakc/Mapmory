@@ -24,7 +24,7 @@ public interface SubscriptionDao {
 	
 	public int cancelSubscription(String userId) throws Exception;
 	
-	public int reSubscription(String userId) throws Exception;
+	public int reSubscription(Subscription subscription) throws Exception;
 	
 	//delete
 	public int deleteSubscription(int subscriptionNo) throws Exception;

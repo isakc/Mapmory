@@ -1,12 +1,9 @@
 package com.mapmory.services.purchase.service.impl;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -123,7 +120,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     	AgainPaymentData againPaymentData = new AgainPaymentData(
     			subscription.getCustomerUid(),
                 subscription.getMerchantUid(),
-                BigDecimal.valueOf(product.getPrice()) );
+                BigDecimal.valueOf(product.getPrice()));
     	
     	againPaymentData.setName(product.getProductTitle());
     	
@@ -149,6 +146,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		try {
 			IamportResponse<List<Schedule>> subscribeSchedule = iamportClient.subscribeSchedule(scheduleData);
 			
+			if(subscribeSchedule.getCode() == 1) {
+			}
 			return subscribeSchedule.getCode() == 0;
 		}
 		catch (Exception e) {
@@ -169,8 +168,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }// deleteSubscription: 구독 삭제
 
 	@Override
-	public boolean reSubscription(String userId) throws Exception {
-		return subscriptionDao.reSubscription(userId) == 1;
+	public boolean reSubscription(Subscription subscription) throws Exception {
+		return subscriptionDao.reSubscription(subscription) == 1;
 	}
 
 	@Override
