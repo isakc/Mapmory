@@ -1,6 +1,8 @@
 package com.mapmory.services.timeline.service.impl;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +41,8 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Value("${summary.record.time}")
 	private String checkpointTime;
+	
+	private DateTimeFormatter DATE_TIME_FORMATTER=DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	//Record CRUD
 	public int addTimeline(Record record) throws Exception{
@@ -137,35 +141,47 @@ public class TimelineServiceImpl implements TimelineService {
 	
 	@Override
 	public List<SummaryRecordDto> getSummaryRecord(Search search) throws Exception{
-		String selectDate=timelineDao.selectSummaryDate(SearchDto.builder()
-				.userId(search.getUserId())
-				.searchCondition(search.getSearchCondition())
-				.searchKeyword(search.getSearchKeyword())
-				.build());
-		
 		SearchDto searchDto=SearchDto.builder()
-			.selectDate(Date.valueOf(selectDate.substring(0, 10)))
+			.selectDate(search.getSelectDate())
 			.checkpointTime(checkpointTime)
 			.userId(search.getUserId())
 			.build();
 		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
-		List<SummaryRecordDto> imageList=timelineDao.selectSummaryRecordImage(searchDto);
-		if(!(imageList==null)) {
-			for(SummaryRecordDto s: imageList) {
-				recordList.add(s);
-			}
-		}
 		List<SummaryRecordDto> mediaList=timelineDao.selectSummaryRecordMedia(searchDto);
 		if(!(mediaList==null)) {
 			for(SummaryRecordDto s: mediaList) {
 				recordList.add(s);
 			}
 		}
-		
+		List<SummaryRecordDto> imageList=timelineDao.selectSummaryRecordImage(searchDto);
+		if(!(imageList==null)) {
+			for(SummaryRecordDto s: imageList) {
+				recordList.add(s);
+			}
+		}
 		
 		return recordList;
 	}
 	
+	@Override
+	public String getSummaryDate(Search search) throws Exception {
+		LocalDateTime dateTime = LocalDateTime.parse(search.getSearchKeyword());
+		LocalDateTime vaildateDateTime = LocalDateTime.parse(dateTime.toLocalDate()+"T"+checkpointTime);
+		String stringDateTime;
+		if(vaildateDateTime.isBefore(dateTime) || vaildateDateTime.isEqual(dateTime)) {
+			stringDateTime=vaildateDateTime.format(DATE_TIME_FORMATTER);
+		}else {
+
+			stringDateTime=vaildateDateTime.plusDays(-1).format(DATE_TIME_FORMATTER);
+		}
+		
+		return timelineDao.selectSummaryDate(SearchDto.builder()
+				.userId(search.getUserId())
+				.searchCondition(search.getSearchCondition())
+				.searchKeyword(stringDateTime)
+				.build());
+	}
+
 	@Override
 	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception{
 		return TimelineUtil.mapToSharedRecord(timelineDao.selectDetailSharedRecord(recordNo, userId));

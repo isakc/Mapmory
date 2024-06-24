@@ -35,9 +35,9 @@
 					#{nextSubscriptionPaymentMethod},
 					#{nextSubscriptionCardType, jdbcType=VARCHAR},
 					#{nextSubscriptionLastFourDigits, jdbcType=VARCHAR},
-					DATE_ADD(NOW(), INTERVAL 1 MONTH),
-					now(),
-					DATE_ADD(NOW(), INTERVAL 1 MONTH),
+					#{nextSubscriptionPaymentDate},
+					#{subscriptionStartDate},
+					#{subscriptionEndDate},
 					#{customerUid},
 					#{merchantUid}
 				)

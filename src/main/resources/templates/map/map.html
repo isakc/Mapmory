@@ -82,9 +82,11 @@
 						<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창 -->
 					</div>
 			</div>
+			<div class="footer-map">
+	<div th:replace="common/footer::defaultFooter"></div>
+	</div>
 	</div>
 	
-	<div th:replace="common/footer::defaultFooter"></div>
 	
 	<script th:inline="javascript">
 	
@@ -293,7 +295,8 @@
 	$(document).on("click", "#mainButton", function(event){
 		 $(".routeAdditionalButtons").toggle();
 	}); // 경로클릭
-		$(document).on("click", ".simpleRecord .row", function(){
+	
+	$(document).on("click", ".simpleRecord .row", function(){
 	    deleteDescription();
 	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로

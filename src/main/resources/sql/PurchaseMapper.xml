@@ -34,7 +34,7 @@
         	#{paymentMethod},
         	#{cardType, jdbcType=VARCHAR},
         	#{lastFourDigits, jdbcType=VARCHAR},
-        	now(),
+        	#{purchaseDate},
         	#{price}
     	)
 	</insert>

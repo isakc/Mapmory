@@ -104,6 +104,7 @@ public class TimelineUtil {
 					.recordNo((int)map.get("recordNo"))
 					.recordUserId((String)map.get("recordUserId"))
 					.recordTitle((String)map.get("recordTitle"))
+					.recordText((String)map.get("recordText"))
 					.latitude((Double)map.get("latitude"))
 					.longitude((Double)map.get("longitude"))
 					.checkpointAddress((String)map.get("checkpointAddress"))
@@ -121,6 +122,7 @@ public class TimelineUtil {
 					.nickname((String)map.get("nickname"))
 					.profileImageName((String)map.get("profileImageName"))
 					.subscriptionEndDate((long)map.get("subscriptionEndDate"))
+					.categoryNo((int)map.get("categoryNo"))
 					.categoryName((String)map.get("categoryName"))
 					.categoryImoji((String)map.get("categoryImoji"))
 					.bookmark((long)map.get("bookmark"))
@@ -401,6 +403,19 @@ public class TimelineUtil {
 		}
 
 		public Record mediaNameToByte(Record record) throws Exception {
+			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
+				try {
+				record.setMediaByte(Base64.getEncoder().encodeToString(
+						objectStorageUtil.getImageBytes(record.getMediaName(), mediaFileFolder)));
+				}catch(FileNotFoundException e){
+					record.setMediaByte(null);
+					System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+				}
+			}
+			return record;
+		}
+
+		public Record summaryToByte(Record record) throws Exception {
 			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
 				try {
 				record.setMediaByte(Base64.getEncoder().encodeToString(

@@ -1,5 +1,10 @@
 @charset "EUC-KR";
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+.footer-map {
+	position: relative;
+}
+
 .footer-container {
 		border-top: 2px solid #E6F4F1;
 		width : 100%;
@@ -10,6 +15,7 @@
 		left: 0;
 		right: 0;
 		background-color: white;		
+		overflow: hidden;
 	}
 
 	.mobile-bottom-nav {

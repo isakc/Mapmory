@@ -2,8 +2,9 @@
 
 #map {
 	width: 100%;
-	height: 800px;
+	height:93dvh;
 	position: relative;
+	overflow: hidden;
 }
 
 .rounded-image {

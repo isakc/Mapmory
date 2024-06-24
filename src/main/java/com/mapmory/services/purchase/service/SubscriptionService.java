@@ -4,12 +4,15 @@ import java.util.List;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.product.domain.Product;
+import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
 
 public interface SubscriptionService {
 	
 	//insert
-	public boolean addSubscription(Subscription Subscription) throws Exception;
+	public boolean addSubscription(Purchase purchase) throws Exception;
+
+	public boolean addSubscriptionFromScheduler(Subscription subscription) throws Exception;
 	
 	//selectOne
 	public Subscription getDetailSubscription(String userId) throws Exception;
