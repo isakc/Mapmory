@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	public void setupForTest() {
 
-		
+		/*
 		UserSearch search = UserSearch.builder()
 							.searchCondition(-1)
 							.role(0)
@@ -181,8 +181,9 @@ public class UserServiceImpl implements UserService {
 			
 			updatePassword(userId, userPassword);
 		}
+		*/
 		
-		
+		/*
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -201,7 +202,15 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-
+		*/
+		
+		/*
+		for (int i = 124; i <= 152; i++) {
+		    String userId = "user_" + i;
+		    String userPassword = "password" + i;
+		    updatePassword(userId, userPassword);
+		}
+		*/
 	}
 	
 	@Override
