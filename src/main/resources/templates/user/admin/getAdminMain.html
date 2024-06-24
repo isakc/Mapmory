@@ -14,7 +14,8 @@
 	<!-- 통계 -->
 	<script>
 		
-		let selectDate; 			
+		const today = new Date();
+		let selectDate; 	
 	
 		$(function() {
 							
@@ -36,6 +37,9 @@
 		  		  		`;
 		  		  
 			  $('#chartNav').empty().append(temp);
+			  
+			  const today = new Date().toISOString().split('T')[0];
+			  $('#calander').attr('max', today);
 			  
 			  getDailyData();
 			  
@@ -70,9 +74,21 @@
 			
 			$(document).on('click', '#nextDay', function() {
 				
-				selectDate.setDate(selectDate.getDate() + 1);
-				// createChart(selectDate, 'daily');
-				getDailyData();
+				selectDate.setHours(0, 0, 0, 0);
+				let nextDate = new Date(selectDate);
+		        nextDate.setDate(selectDate.getDate() + 1);
+		        
+		        console.log("next day is : " + nextDate.toISOString().split('T')[0]);
+		        console.log("today is : " + today.toISOString().split('T')[0])
+		        console.log("is it future? : " + (nextDate > today));
+		        
+		        // 오늘 이후 날짜로 이동하지 않도록 함
+		        if (nextDate > today) {
+		        	alert("오늘 이후의 날짜는 볼 수 없습니다.");
+		        } else {
+		        	selectDate.setDate(selectDate.getDate() + 1);
+		        	getDailyData();
+		        }
 			});
 			
 			$(document).on('click', '#prevMonth', function() {
