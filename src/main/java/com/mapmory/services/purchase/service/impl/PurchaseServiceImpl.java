@@ -55,7 +55,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 		
 		purchase.setPrice(returnPayment.getResponse().getAmount().intValue());
 		purchase.setPaymentMethod(paymentMethod);
-		purchase.setPurchaseDate(LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.systemDefault()));
+		purchase.setPurchaseDate(LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.of("Asia/Seoul")));
 		
 		if(paymentMethod == 1) {
 			purchase.setCardType(returnPayment.getResponse().getCardName());
@@ -92,22 +92,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
 		return purchaseDao.getPurchaseTotalCount(search);
 	}// getPurchaseTotalCount: 구매 총 개수
-
-//	@Override
-//	public boolean validatePurchase(String impUid, Purchase purchase) {
-//		try {
-//			IamportResponse<Payment> validation = iamportClient.paymentByImpUid(impUid);
-//			
-//			return validation.getResponse().getAmount().compareTo(new BigDecimal(purchase.getPrice())) == 0;
-//			
-//		} catch (IamportResponseException e) {
-//			throw new PaymentValidationException("Iamport response error: " + e.getMessage(), e);
-//		} catch (IOException e) {
-//			throw new PaymentValidationException("IO error: " + e.getMessage(), e);
-//		} catch (Exception e) {
-//			throw new PaymentValidationException("Validation error: " + e.getMessage(), e);
-//		}
-//	}// validatePurchase: 구매 검증
 
 	@Override
 	public boolean deletePurchase(int purchaseNo) throws Exception{
