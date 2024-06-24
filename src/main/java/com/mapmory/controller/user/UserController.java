@@ -194,6 +194,13 @@ public class UserController {
 		model.addAttribute("tacList", tacList);
 	}
 	
+	@GetMapping("/getUserTermsAndConditionsList")
+	public void getUserTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
+	
+		List<TermsAndConditions> tacList = userService.getTermsAndConditionsList();
+		
+		model.addAttribute("tacList", tacList);
+	}
 	
 	@GetMapping("/getUserDetailTermsAndConditions")
 	public void getDetailAgreeTermsAndConditions(@RequestParam Integer tacType, HttpServletRequest request, Model model) throws Exception {
