@@ -79,17 +79,30 @@ public class PurchaseController {
 		return "purchase/addPurchase";
 	}// addPurchaseView
 	
-	@PostMapping(value="addPurchase/{impUid}")
-	public String addPurchase(@PathVariable String impUid, @ModelAttribute Purchase purchase, Model model) throws Exception {
+	@GetMapping(value="addPurchase/{productNo}")
+	public String addPurchase(
+			@PathVariable("productNo") int productNo,
+			@RequestParam(required = false) String imp_uid, 
+			@RequestParam(required = false) String merchant_uid, 
+			@RequestParam(required = false) boolean imp_success,
+			HttpServletRequest request,
+			Model model) throws Exception {
 
-		if(purchaseService.validatePurchase(impUid, purchase)) {
+		if(imp_success) {
+			Purchase purchase = Purchase.builder()
+					.userId(redisUtil.getSession(request).getUserId())
+					.productNo(productNo)
+					.impUid(imp_uid)
+					.build();
+			
 			purchaseService.addPurchase(purchase);
+			
+			return "redirect:/purchase/getPurchaseList";
 		}else {
 			model.addAttribute("errorMessage", "검증하는데 실패하였습니다.");
+			
 			return "common/error";
 		}
-				
-		return "redirect:/purchase/getPurchaseList";
 	}// addPurchase: 구매 검증 후 추가 메소드
 	
 	@GetMapping("/getPurchaseList")
@@ -107,30 +120,54 @@ public class PurchaseController {
         return "purchase/getPurchaseList";
     }// getPurchaseList
 	
-	@PostMapping(value="/addSubscription")
-	public String requestSubscription(@ModelAttribute Subscription subscription, @ModelAttribute Purchase purchase, Model model) throws Exception {
+	@GetMapping(value="/addSubscription/{productNo}")
+	public String addSubscription(
+			@PathVariable("productNo") int productNo, 
+			@RequestParam(required = false) String imp_uid, 
+			@RequestParam(required = false) String merchant_uid, 
+			@RequestParam(required = false) boolean imp_success,
+			HttpServletRequest request, Model model) throws Exception {
 		
 		Product product = productService.getSubscription();
+		String userId = redisUtil.getSession(request).getUserId();
 		
-		purchaseFacadeService.addSubscription(purchase, subscription); 
+		Purchase purchase = Purchase.builder()
+							.productNo(productNo)
+							.userId(userId)
+							.impUid(imp_uid)
+							.build();
 		
-		try {
-			//subscriptionService.requestSubscription(subscription, product);
-			
-			subscription.setNextSubscriptionPaymentDate(LocalDateTime.now().plusMonths(1));
-			subscription.setMerchantUid(subscription.getMerchantUid()+"_schedulePay");
-			subscriptionService.schedulePay(subscription, product);
-		}
-		catch(Exception e) {
-			subscriptionService.deleteSubscription(subscription.getSubscriptionNo());
-			purchaseService.deletePurchase(purchase.getPurchaseNo());
+		if(imp_success) {
+			if(purchaseFacadeService.addSubscription(purchase)) {
+				Subscription addSubscription = subscriptionService.getDetailSubscription(userId);
 				
+				try {
+					addSubscription.setNextSubscriptionPaymentDate(addSubscription.getNextSubscriptionPaymentDate().plusMonths(1));
+					addSubscription.setMerchantUid("subscription_"+userId+LocalDateTime.now());
+					subscriptionService.schedulePay(addSubscription, product);
+				}
+				catch(Exception e) {
+					subscriptionService.deleteSubscription(addSubscription.getSubscriptionNo());
+					purchaseService.deletePurchase(purchase.getPurchaseNo());
+						
+					model.addAttribute("errorMessage", "결제중 에러 발생");
+					
+					return "common/error";
+				}//try~catch
+				
+				model.addAttribute("subscription", subscriptionService.getDetailSubscription(userId));
+			}// db 저장하는 것이 성공하면
+			else {
+				model.addAttribute("errorMessage", "결제중 에러 발생");
+				
+				return "common/error";
+			}// db 저장하는 것이 실패하면
+		}//만약 success면
+		else {
 			model.addAttribute("errorMessage", "결제중 에러 발생");
-				
+			
 			return "common/error";
 		}
-		
-		model.addAttribute("subscription", subscriptionService.getDetailSubscription(subscription.getUserId()));
 
 		return "redirect:/purchase/getDetailSubscription";
 	}// requestSubscription: 구독 시작한 날 결제 추가
@@ -153,13 +190,15 @@ public class PurchaseController {
 	
 	@GetMapping(value="/getDetailSubscription")
 	public String getDetailSubscription(Model model, HttpServletRequest request) throws Exception {
+		String userId = redisUtil.getSession(request).getUserId();
+		
 		PurchaseDTO purchase = purchaseService.getSubscriptionPurchase(
-				Purchase.builder().userId(redisUtil.getSession(request).getUserId()).productNo(productService.getSubscription().getProductNo()).build());
+				Purchase.builder().userId(userId).productNo(productService.getSubscription().getProductNo()).build());
 
 		if(purchase != null) {
 			model.addAttribute("purchase", purchase);
 		}
-		model.addAttribute("subscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
+		model.addAttribute("subscription", subscriptionService.getDetailSubscription(userId));
 		model.addAttribute("productSubscription", productService.getSubscription());
 		
 		return "purchase/getDetailSubscription";
@@ -181,20 +220,40 @@ public class PurchaseController {
 		return "purchase/getSubscriptionList";
 	}// getDetailSubscription: 구독 상세 보기
 	
-	@GetMapping(value="/updatePaymentMethod")
+	@GetMapping(value="/updatePaymentMethodView")
 	public String updatePaymentMethodView(Model model, HttpServletRequest request) throws Exception {
+		String userId = redisUtil.getSession(request).getUserId();
 		
-		model.addAttribute("currentSubscription", subscriptionService.getDetailSubscription(redisUtil.getSession(request).getUserId()));
+		model.addAttribute("userId", userId);
+		model.addAttribute("currentSubscription", subscriptionService.getDetailSubscription(userId));
 		model.addAttribute("productSubscription", productService.getSubscription());
 		
 		return "purchase/updatePaymentMethod";
 		
 	}// updatePaymentMethodView: 구독 결제 수단 변경 네비게이션
 	
-	@PostMapping(value="/updatePaymentMethod")
-	public String updatePaymentMethod(@ModelAttribute Subscription subscription) throws Exception {
+	@GetMapping(value="/updatePaymentMethod")
+	public String updatePaymentMethod(
+			@RequestParam(required = false) String imp_uid, 
+			@RequestParam(required = false) String merchant_uid, 
+			@RequestParam(required = false) boolean imp_success,
+			HttpServletRequest request,
+			Model model) throws Exception {
 		
-		purchaseFacadeService.updatePaymentMethod(subscription, productService.getSubscription());
+		String userId = redisUtil.getSession(request).getUserId();
+		Purchase purchase = Purchase.builder()
+							.userId(userId)
+							.impUid(imp_uid)
+							.build();
+		
+		// 결제한 방법으로 결제하기
+		if(imp_success) {
+			purchaseFacadeService.updatePaymentMethod(purchase, productService.getSubscription());
+		}else {
+			model.addAttribute("errorMessage", "결제중 에러 발생");
+			
+			return "common/error";
+		}
 		
 		return "redirect:/purchase/getDetailSubscription";
 	}// updatePaymentMethod: 구독 결제 수단 변경
@@ -217,124 +276,7 @@ public class PurchaseController {
 	
 	@GetMapping("/image/{uuid}")
     @ResponseBody
-    public byte[] getImage(@PathVariable String uuid) throws Exception {
+    public byte[] getImage(@PathVariable("uuid") String uuid) throws Exception {
         return productService.getImageBytes(uuid, folderName);
     }
-	
-	@GetMapping(value="/orderCompleteMobile")
-	public String orderCompleteMobile(
-			@RequestParam(required = false) String imp_uid, 
-			@RequestParam(required = false) String merchant_uid, 
-			@RequestParam(required = false) boolean imp_success,
-			HttpServletRequest request) throws Exception{
-		
-		if(imp_success) {
-			PurchaseDTO purchaseDTO = purchaseService.addPurchaseByMobile(imp_uid, merchant_uid);
-			
-			Purchase purchase = Purchase.builder()
-					.userId(redisUtil.getSession(request).getUserId())
-					.productNo(productService.getProductByName(purchaseDTO.getProductTitle()).getProductNo())
-					.paymentMethod(purchaseDTO.getPaymentMethod())
-					.cardType(purchaseDTO.getCardType())
-					.purchaseDate(purchaseDTO.getPurchaseDate())
-					.price(purchaseDTO.getPrice())
-					.build();
-			
-			if(purchaseDTO.getPaymentMethod() == 1) {
-				purchase.setCardType(purchaseDTO.getCardType());
-				purchase.setLastFourDigits(purchaseDTO.getLastFourDigits());
-			}
-			
-			purchaseService.addPurchase(purchase);
-			return "redirect:/purchase/getPurchaseList";
-		}else {
-			return "error";
-		}
-	}// orderCompleteMobile: 모바일에서 상품을 구매할 경우
-	
-	@GetMapping(value="/subscriptionCompleteMobile")
-	public String subscriptionCompleteMobile(
-			@RequestParam(required = false) String imp_uid, 
-			@RequestParam(required = false) String merchant_uid, 
-			@RequestParam(required = false) boolean imp_success,
-			HttpServletRequest request, Model model) throws Exception{
-		
-		if(imp_success) {
-			Product product = productService.getSubscription();
-			PurchaseDTO purchaseDTO = purchaseService.addPurchaseByMobile(imp_uid, merchant_uid);
-			
-			Purchase purchase = Purchase.builder()
-					.userId(redisUtil.getSession(request).getUserId())
-					.productNo(productService.getSubscription().getProductNo())
-					.paymentMethod(purchaseDTO.getPaymentMethod())
-					.cardType(purchaseDTO.getCardType())
-					.purchaseDate(purchaseDTO.getPurchaseDate())
-					.price(product.getPrice())
-					.build();
-			
-			Subscription subscription = Subscription.builder()
-					.userId(redisUtil.getSession(request).getUserId())
-					.nextSubscriptionPaymentMethod(purchaseDTO.getPaymentMethod())
-					.nextSubscriptionPaymentDate(LocalDateTime.now().plusMonths(1))
-					.customerUid(redisUtil.getSession(request).getUserId())
-					.merchantUid(merchant_uid)
-					.build();
-			
-			if(purchaseDTO.getPaymentMethod() == 1) {
-				purchase.setCardType(purchaseDTO.getCardType());
-				purchase.setLastFourDigits(purchaseDTO.getLastFourDigits());
-				
-				subscription.setNextSubscriptionCardType(purchaseDTO.getCardType());
-				subscription.setNextSubscriptionLastFourDigits(purchaseDTO.getLastFourDigits());
-			}
-			
-			try {
-				subscription.setNextSubscriptionPaymentDate(LocalDateTime.now().plusMonths(1));
-
-				purchaseFacadeService.addSubscription(purchase, subscription);
-				subscriptionService.schedulePay(subscription, product);
-			}
-			catch(Exception e) {
-				subscriptionService.deleteSubscription(subscription.getSubscriptionNo());
-				purchaseService.deletePurchase(purchase.getPurchaseNo());
-					
-				model.addAttribute("errorMessage", "결제중 에러 발생");
-					
-				return "common/error";
-			}
-			
-			model.addAttribute("subscription", subscriptionService.getDetailSubscription(subscription.getUserId()));
-			
-			return "redirect:/purchase/getDetailSubscription";
-		}else {
-			return "common/error";
-		}
-	}// orderCompleteMobile: 모바일에서 상품을 구매할 경우
-	
-	@GetMapping(value="/updateCompleteMobile")
-	public String updateCompleteMobile(
-			@RequestParam(required = false) String imp_uid, 
-			@RequestParam(required = false) String merchant_uid, 
-			@RequestParam(required = false) boolean imp_success,
-			HttpServletRequest request) throws Exception{
-		
-		if(imp_success) {
-			PurchaseDTO purchaseDTO = purchaseService.addPurchaseByMobile(imp_uid, merchant_uid);
-			Subscription subscription = new Subscription();
-			subscription.setNextSubscriptionPaymentMethod(purchaseDTO.getPaymentMethod());
-			subscription.setUserId(redisUtil.getSession(request).getUserId());
-			subscription.setCustomerUid(redisUtil.getSession(request).getUserId());
-			
-			if(purchaseDTO.getPaymentMethod() == 1) {
-				subscription.setNextSubscriptionCardType(purchaseDTO.getCardType());
-				subscription.setNextSubscriptionLastFourDigits(purchaseDTO.getLastFourDigits());
-			}
-			
-			purchaseFacadeService.updatePaymentMethod(subscription, productService.getSubscription());
-			
-			return "redirect:/purchase/getDetailSubscription";
-		}else {
-			return "common/error";
-		}
-	}// updateCompleteMobile: 모바일에서 결제수단 변경 할 경우
 }

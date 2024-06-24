@@ -27,7 +27,7 @@ public class SubscriptionScheduler {
 				Subscription updatedSubscription = updateSubscription(subscription);
 				
                 subscriptionService.schedulePay(updatedSubscription, productService.getSubscription());
-                subscriptionService.addSubscription(updatedSubscription);
+                subscriptionService.addSubscriptionFromScheduler(updatedSubscription);
                 
 			} catch (Exception e) {
 				e.printStackTrace(); //결제 실패 처리 로직
@@ -36,8 +36,12 @@ public class SubscriptionScheduler {
 	}//processSubscriptions: 매일 자정 결제일인 실행
 	
 	private Subscription updateSubscription(Subscription subscription) {
-        subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
-        subscription.setNextSubscriptionPaymentDate(LocalDateTime.now().plusMonths(1));
+		LocalDateTime now = LocalDateTime.now();
+		
+        subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + now);
+        subscription.setSubscriptionStartDate(now);
+        subscription.setSubscriptionEndDate(now.plusMonths(1));
+        subscription.setNextSubscriptionPaymentDate(now.plusMonths(1));
         
         return subscription;
     }//updateSubscription: merchantUid, 결제일, 구독 시작일, 구독 종료일 업데이트

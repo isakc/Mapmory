@@ -32,33 +32,43 @@
   	  const currentDate = getCurrentDate();
 	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
 	  const pg = getSubscriptionPG(selectedValue);
-	  const userId = $('input[name="userId"]').val();
-        
+	  
         IMP.request_pay( // IMP.request_pay(param, callback) 호출
           {
             pg: pg,
-            merchant_uid: "update_"+userId+"_"+currentDate, // 빌링키 발급용 주문번호
-            customer_uid: userId, // 카드(빌링키)와 1:1로 대응하는 값
+            merchant_uid: "update_"+'[[${userId}]]'+"_"+currentDate, // 빌링키 발급용 주문번호
+            customer_uid: '[[${userId}]]', // 카드(빌링키)와 1:1로 대응하는 값
             name: "결제 수단 변경",
             amount: 0, // 0 으로 설정하여 할 시 빌링키만 발급
-            m_redirect_url: "http://192.168.50.29:8000/purchase/updateCompleteMobile"
+            m_redirect_url: "https://mampory.co.kr/purchase/updatePaymentMethod"
+            /* m_redirect_url: "http://192.168.0.228:8000/purchase/updatePaymentMethod" */
           },//빌링키 요청
 
           function (rsp) {
+        	  alert(rsp);
           	console.log(rsp);
-
-            $('input[name="nextSubscriptionPaymentMethod"]').val(selectedValue);
-            $('input[name="nextSubscriptionCardType"]').val(rsp.card_name);
-            $('input[name="nextSubscriptionLastFourDigits"]').val(getLastFourDigits(rsp.card_number));
-            $('input[name="customerUid"]').val(rsp.customer_uid);
           	
           	if(rsp.success){ //빌링키 발급 성공
+          		$.ajax({
+      				url: "/purchase/updatePaymentMethod?imp_uid="+rsp.imp_uid + "&merchant_uid="+ rsp.merchant_uid + "&imp_success="+rsp.success, // 요청을 보낼 URL을 입력
+      				contentType: 'application/json', // Content-Type을 JSON으로 설정
+      				method: 'GET',
+      				success: function(response) {
+      					console.log(response);
 
-                  	$("form").attr("method", "POST").attr("action", "/purchase/updatePaymentMethod/").submit();
-          	
-  			} else { //빌링키 발급 실패한 경우
-  				alert('결제수단 변경 실패');
-  			}//if~else
+                      	alert("결제 수단 변경 성공!");
+                      	
+      					window.location.href="/purchase/getDetailSubscription";
+      				}, // success
+      				error: function(error) {
+      					console.log('ajax 에러 발생:', error);
+          				alert('결제 수단 변경 실패! 다시 시도해주세요!');
+      				} // error
+      			}); //기록 검색 ajax
+  			}
+          	else { //빌링키 발급 실패한 경우
+  				alert('결제 수단 변경 실패! 다시 시도해주세요!');
+  			}//if~else end
   		});//callback rsp
           	
         }//update: 결제수단 변경
@@ -82,11 +92,6 @@
         
         <div th:if="${ currentSubscription != null && currentSubscription.isSubscribed == true}">
 		<form class="mt-5">
-			<input type="hidden" name="userId" th:value="${currentSubscription.userId}" readonly>
-        	<input type="hidden" name="nextSubscriptionPaymentMethod" readonly>
-        	<input type="hidden" name="nextSubscriptionCardType" readonly>
-        	<input type="hidden" name="nextSubscriptionLastFourDigits" readonly>
-        	<input type="hidden" name="customerUid" readonly>
 
 			<fieldset>
 				<div class="form-check mb-5">
