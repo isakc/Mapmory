@@ -273,7 +273,7 @@ LIMIT #{limit} OFFSET #{offset}
        a1.record_user_id AS record_user_id,
        a1.checkpoint_address AS checkpoint_address,
        a1.checkpoint_date AS checkpoint_date,
-       a2.image_tag_text AS image_tag_text
+       a2.image_tag_text AS imageName
    FROM 
        record a1
    LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
@@ -316,7 +316,7 @@ LIMIT #{limit} OFFSET #{offset}
 		<trim prefix="where" prefixOverrides="AND||OR">
 			a1.record_user_id = #{userId} 
 			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
-			AND a1.checkpoint_date<![CDATA[<=]]>#{searchKeyword}
+			AND a1.checkpoint_date<![CDATA[<=]]>(#{searchKeyword} + INTERVAL 1 DAY)
 			AND timecapsule_type=0
 		</trim>
 		ORDER BY a1.checkpoint_date DESC,
@@ -326,7 +326,7 @@ LIMIT #{limit} OFFSET #{offset}
 		<trim prefix="where" prefixOverrides="AND||OR">
 			a1.record_user_id = #{userId} 
 			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
-			AND a1.checkpoint_date<![CDATA[<]]>(#{searchKeyword} - INTERVAL 1 DAY)
+			AND a1.checkpoint_date<![CDATA[<]]>#{searchKeyword}
 			AND timecapsule_type=0
 		</trim>
 		ORDER BY a1.checkpoint_date DESC,
@@ -711,7 +711,7 @@ ORDER BY
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
        <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date
    	FROM record a1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
    	<!-- LEFT JOIN community_logs a4 ON a1.record_no = a4.record_no -->
@@ -759,6 +759,9 @@ ORDER BY
 <select id="selectProfileTimelineList" resultMap="profileRecordResultMap" parameterType="search">
 	SELECT *
 	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+   	ORDER BY
+    inner_table.record_add_date IS NULL DESC, 
+    inner_table.record_add_date DESC
 	LIMIT #{limit} OFFSET #{offset}
 </select>
 

@@ -1,7 +1,5 @@
 package com.mapmory.services.timeline.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +16,7 @@ public class SummaryRecordDto {
 	private String checkpointDate;
 	private String mediaName;
 	private String imageName;
+
+	private String mediaByte;
+	private String imageByte;
 }
