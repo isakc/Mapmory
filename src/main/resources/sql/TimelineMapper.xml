@@ -645,6 +645,7 @@ ORDER BY
     image_tag_order ASC;
 </select>
 
+<!-- 전체 개수 주세요 -->
 <select id='selectProfileTimelineList' resultMap='recordResultMap2' parameterType='search'>
      SELECT
        a1.record_no AS record_no, 
