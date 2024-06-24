@@ -91,15 +91,23 @@
 		});
 	});
 	</script>
+	
+	<!-- 카테고리 선택 검색 -->
+	<script th:inline="javascript">
+
+
+
+	</script>
 
 	<!-- 무한 스크롤 -->
 	<script th:inline="javascript">
 		var currentPage = 2;
 		var loading = false; 
 		var endOfData = false;
+		var selectedCategory = 0;
 		
 		$(document).ready(function() {
-			loadSharedRecordList();
+			loadSharedRecordList(selectedCategory);
 		});
 		
         $(window).scroll(function() {
@@ -108,24 +116,44 @@
         		if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     loading = true;
                     currentPage++;
-                    loadSharedRecordList();
+                    loadSharedRecordList(selectedCategory);
         		}
         	}
         });	
         
-		function loadSharedRecordList() {
+    	$(function() {
+			$('#shared-record-list').on("click", ".category", function() {
+				var selectedCategory = $(this).data('categoryno');
+				console.log("카테고리 :"+selectedCategory);
+				currentPage = 1;
+				endOfData = false;
+				$('#shared-record-list').empty();
+				loadSharedRecordList(selectedCategory);
+			});
+    	})
+		function loadSharedRecordList(selectedCategory) {
+			var searchCondition = $('#searchCondition').val();
+			var searchKeyword = $('#searchKeyword').val();
+			console.log("검색조건 :"+searchCondition);
+			console.log("검색키워드 :"+searchKeyword);
+			console.log("카테고리 :"+selectedCategory);
 			console.log("호출 시작, 현재 페이지 :"+currentPage);
 
 			$.ajax({
 				url : '/community/rest/getSharedRecordList',
 				type : 'GET',
 				data: { 
-				    currentPage: currentPage
+				    currentPage: currentPage,
+                    searchCondition: searchCondition,
+                    searchKeyword: searchKeyword,
+                    categoryNo : selectedCategory
 				},
 				success : function(response) {
 					console.log("ajax 요청 완료");
+				
+					var sharedRecordList = response.list;
 					
-					var sharedRecordList = response[1]
+					console.log("3 : "+sharedRecordList);
 
 					if (sharedRecordList.length === 0) {
 						endOfData = true;
@@ -166,11 +194,14 @@
 			                recordHtml += '</div>';
 			            }
 			            recordHtml += '<div class="card-body">';
-			            recordHtml += '<h3 class="card-title">';
-			            recordHtml += '<span class="title" data-recordno="${sharedRecord.recordNo}">'+sharedRecord.recordTitle+'</span>';
-			            recordHtml += '<div if="${sharedRecord.categoryImoji != null}">';
-			            recordHtml += '<img alt="" class="category" src="/timeline/rest/imoji/'+sharedRecord.categoryImoji+'">';
-			            recordHtml += '</div>';
+			            recordHtml += '<span class="card-title">';
+			            recordHtml += '<span class="title" data-recordno="'+sharedRecord.recordNo+'">'+sharedRecord.recordTitle +'</span>';
+			            recordHtml += '<span>';
+			            if (sharedRecord.categoryImoji != null) {
+			                recordHtml += '<span>';
+			                recordHtml += '<img alt="" class="category" data-categoryno="'+sharedRecord.categoryNo+'" src="/timeline/rest/imoji/' + sharedRecord.categoryImoji + '">';
+			                recordHtml += '</span>';
+			            }			            
 			            recordHtml += '</h3>';
 			            recordHtml += '</div>';
 			            recordHtml += '<div class="card-body">';
@@ -179,12 +210,13 @@
 			            recordHtml += '</div>';     
 			            recordHtml += '<div class="card-footer text-muted">';
 			            recordHtml += '<span class="list-footer">' + formattedDate + '</span>';
-			            recordHtml += '<span class="list-footer">조회수: ' + sharedRecord.logsCount + '</span>';
-			            recordHtml += '<span class="list-footer">' + sharedRecord.updateCount + '회 수정됨</span>';
+			            recordHtml += '<span class="list-footer viewCount">조회수 : ' + sharedRecord.logsCount + '</span>';
+			            if (sharedRecord.updateCount > 1) {
+			                recordHtml += '<span class="list-footer updateCount" th:text="' + sharedRecord.updateCount + ' + \'회 수정됨\'"></span>';
+			            }
 			            recordHtml += '</div>';
 			            recordHtml += '</div>';
 
-				
 					addrecordHtml += recordHtml;
 					});	
 					$('#shared-record-list').append(addrecordHtml);
@@ -208,10 +240,10 @@
 	</script>
 	
 	<style>
-		.reply-count {
-			font-size : 18px;
-			font-weight : bold;
-		}
+	
+		#shared-record-list {
+		    padding: 0; 
+		}	
 		
 		.title {
 			font-size : 24px;
@@ -225,8 +257,9 @@
 		
 		.profileImage {
 			border-radius: 50%;
-			width : 70px;
-			height : 70px;
+			width : 55px;
+			height : 55px;
+			margin-right : 10px;
 		}
 
 		.category {
@@ -250,8 +283,9 @@
 				
         .list-footer {
             display: inline-block;
-            margin-right: 40px; /* 각 span 태그의 오른쪽에 20px의 마진을 추가 */
+            margin-right: 20px;
         }
+        
         .card-footer .list-footer:last-child {
             margin-right: 0; /* 마지막 요소의 오른쪽 마진을 제거 */
         }		
@@ -260,6 +294,25 @@
 			width : 50%;
 			height : 50%;
 		}	
+	
+		.viewCount {
+			float : right;
+			font-weight : bold;
+		}
+
+		.updateCount {
+			color : blue;
+		}
+
+		.bi-chat-square-text-fill::before {
+			margin-right : 10px;
+		    font-size: 25px; 
+		}
+		
+		.reply-count {
+			font-size : 30px;
+			font-weight : bold;
+		}		
 		
 	</style>
 		
@@ -273,33 +326,30 @@
                     <div class="form-group">
                         <div class="btn-group">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="${search.searchCondition == 0 ? '키워드' : (search.searchCondition == 1 ? '해시태그' : '검색 조건')}"></span>
+                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" data-condition="0">키워드</a></li>
-                                <li><a class="dropdown-item" href="#" data-condition="1">해시태그</a></li>
-                                <li><a class="dropdown-item" href="#" data-condition="2">카테고리</a></li>                                
+                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>                              
                             </ul>
                             <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
                         </div>
                     </div>
-                    
                     <div class="form-group flex-grow-1">
                         <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
                     </div>
                     <button type="submit" class="btn btn-primary">검색</button>
                 </form>
-            </div>
+            	</div>
 				
-				<div class="card-header col-sm-4" >
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
-						<a class="nav-link active" href="#">
+						<span class="nav-link active col-sm-4">
 				    		<i class="bi bi-card-list"> 공유기록목록조회</i> 
-				    	</a>
+				    	</span>
 					</li>
 				</ul>					
-				</div>
+				
 				<div id="shared-record-list">
 				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="col-sm-4" id="list" th:data-record-no="${sharedRecord.recordNo}">
 					<div class="card-body">
@@ -311,16 +361,16 @@
 							</span>
 						</h4> 
 					</div>
-					<div th:if="${sharedRecord.imageTagType == 1 and sharedRecord.imageTagText !=null}">
-						<img alt="" class="recordImage" th:src="@{/timeline/rest/image/{uuid}(uuid=${sharedRecord.imageTagText})}">				
-					</div>
 					<div class="card-body">
-						<h3 class="card-title">
+						<p th:if="${sharedRecord.imageTagType == '1'}">
+							<img alt="" class="recordImage" th:src="@{/timeline/rest/image/{uuid}(uuid=${sharedRecord.imageTagText})}">															
+						</p>
+						<span class="card-title">
 							<span th:text="${sharedRecord.recordTitle}" class="title" th:data-recordno="${sharedRecord.recordNo}"></span>
-						</h3>
-						<div th:if="${sharedRecord.categoryImoji != null}">
-							<img alt="" class="category" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${sharedRecord.categoryImoji})}">
-						</div>
+						</span>
+						<span th:if="${sharedRecord.categoryImoji != null}">
+							<img alt="" class="category" th:data-categoryno="${sharedRecord.categoryNo}" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${sharedRecord.categoryImoji})}">
+						</span>
 					</div>
 					<div class="card-body">
 						<i class="bi bi-chat-square-text-fill"></i>				
@@ -328,11 +378,11 @@
 					</div>					
 					<div class="card-footer text-muted">
 						<span class="list-footer" th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span> 
-						<span class="list-footer" th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span> 
-						<span class="list-footer" th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
+						<span class="list-footer viewCount" th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span> 
+						<span class="list-footer updateCount" th:if="${sharedRecord.updateCount} > 1" th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
 					</div>
 				</div>
-			</div>	
+				</div>	
 			</div>
 		</div>
 	</div>

@@ -1,5 +1,6 @@
 package com.mapmory.controller.community;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,7 +88,7 @@ public class CommunityRestController {
 	
 	//공유 기록 목록 무한스크롤 리스트 호출
     @GetMapping("/rest/getSharedRecordList")
-    public ResponseEntity<?> getSharedRecordList(Search search, @RequestParam(required = true) int currentPage,  
+    public ResponseEntity<?> getSharedRecordList(@ModelAttribute("search") Search search, @RequestParam(required = true) int currentPage,  
     												HttpServletRequest request) throws Exception{
         
     	System.out.println("REST 시작");
@@ -103,14 +105,18 @@ public class CommunityRestController {
         search.setLimit(pageSize);
         search.setOffset(offset);
         
+	    List<SharedRecordDto> list = timelineService.getSharedRecordList(search);
+        
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("list", list);
+	    response.put("search", search);
+
         System.out.println("현재 페이지: " + currentPage);
         System.out.println("페이지 사이즈: " + pageSize);
         System.out.println("계산된 offset 값: " + offset);
-        System.out.println("Search 객체: " + search);
-        
-	    List<SharedRecordDto> list = timelineService.getSharedRecordList(search);
-        
-        return ResponseEntity.ok(List.of("list" , list));
+        System.out.println("Search 객체: " + search);	    
+	    
+        return ResponseEntity.ok(response);
     }
 
 	//댓글 추가

@@ -79,6 +79,7 @@ public class CommunityController {
 	    search.setOffset((currentPage - 1) * pageSize);
 	  
 		model.addAttribute("sharedRecordlist",timelineService.getSharedRecordList(search));	
+		model.addAttribute("search", search);
 		System.out.println("목록 :"+model);
 		return "community/getSharedRecordList";
 	}
