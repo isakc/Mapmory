@@ -154,7 +154,7 @@
 
 #bottomBox {
     position: absolute;
-    bottom: 0; /* 컨테이너를 화면 하단에 고정 */
+    bottom: 7dvh; /* 컨테이너를 화면 하단에 고정 */
     left: 0;
     width: 100%;
     display: flex;
@@ -194,7 +194,7 @@
 }
 
 .detailRecord{
-	height: 500px;
+	height: 700px;
 }
 
 .recordEmoji{
