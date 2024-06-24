@@ -1,7 +1,8 @@
 @charset "UTF-8";
+
 #map {
 	width: 100%;
-	height: 848px;
+	height: 800px;
 	position: relative;
 }
 
@@ -146,6 +147,10 @@
 }
 /*토글 버튼 end*/
 
+#resultDivs{
+	width: 100%;
+}
+
 #bottomBox {
     position: absolute;
     bottom: 0; /* 컨테이너를 화면 하단에 고정 */
@@ -192,8 +197,8 @@
 }
 
 .recordEmoji{
-	width: 20px;
-	height: 20px;
+	width: 30px;
+	height: 30px;
 } 
 
 .ellipsis {
@@ -234,4 +239,29 @@
 
 .routeAdditionalButtons button {
      margin-left: 10px;
+}
+
+.transitRoute .on{
+	border: #424242 solid;
+}
+
+.carousel-inner img {
+    max-height: 300px; /* 이미지 최대 높이 설정 */
+    object-fit: cover; /* 이미지 비율 유지 */
+}
+
+.infoItem {
+	display: none;
+}
+
+.infoItem.on {
+	display: block;
+}
+
+.mapButton{
+	display: none;
+}
+
+.mapButton.on{
+	display: block;
 }

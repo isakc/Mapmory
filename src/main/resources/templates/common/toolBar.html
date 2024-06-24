@@ -15,7 +15,7 @@
 	<div th:fragment="defaultToolBar">
 		<nav class="navbar navbar-expand-lg" data-bs-theme="dark" th:fragment="defalutToolbar">
 		  <div class="container-fluid">
-		    <a class="navbar-brand" href="/user/getAdminMain">Mapmory</a>
+		    <a class="navbar-brand" href="/user/admin/getAdminMain">Mapmory</a>
 		    <button class="navbar-toggler collapsed"  type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
 		      <span class="navbar-toggler-icon"></span>
 		    </button>
@@ -30,7 +30,7 @@
 		          </div>
 		       	 </li>
 		        <li class="nav-item">
-		          <a class="nav-link" href="/user/getTermsAndConditionsList">이용약관 목록 조회</a>
+		          <a class="nav-link" href="/user/admin/getAdminTermsAndConditionsList">이용약관 목록 조회</a>
 		        </li>
 		        <li class="nav-item">
 		          <a class="nav-link" href="/notice/getAdminNoticeList">공지사항 목록 조회</a>
@@ -44,9 +44,18 @@
 		        <li class="nav-item">
 		          <a class="nav-link" href="/product/getAdminProductList">상점 목록 조회</a>
 		        </li>
-		        
-		        
+		        <li class="nav-item">
+		        	<a class="nav-link" href="/user/getAddSecondaryAuthView">2단계 key 재발급</a>
+		        </li>
 		      </ul>
+		      
+		      <span class="navbar-text">
+		      	<!-- <a class="nav-link" href="/user/logout"></a>  -->
+		      	
+		      	<form>
+		      		<p id="logout">logout</p>
+		      	</form>
+		      </span>
 		    </div>
 		  </div>
 		</nav>
@@ -62,7 +71,22 @@
 				});
 				
 				$.getScript('/javascript/common/toolBar.js');
-			   
+
+				$('#logout').on('click', function() {
+					
+					$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+				});
+
+				$( "#logout" ).hover(
+				  	() => { //hover
+				  		console.log('come on!');
+				    	$(this).css('cursor', 'pointer');
+				  	}, 
+				  	() => { //out
+				  		console.log('bye');
+				    	$(this).css('cursor', 'default');
+				  	}
+				);
 			});
 			
 		</script>

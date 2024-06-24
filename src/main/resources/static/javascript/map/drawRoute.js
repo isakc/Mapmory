@@ -29,10 +29,8 @@ const drawRoute = (type) => {
 				console.log(response);
 				
 				hideMarkers();
-				
 				setMarkers([{ latitude: requestData.startY, longitude: requestData.startX, markerType:5 },
 							{ latitude: requestData.endY,   longitude: requestData.endX,   markerType:6 } ]);
-
 				bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 				
 				for (let i = 0; i < response.lat.length; i++) {
@@ -41,9 +39,15 @@ const drawRoute = (type) => {
 					drawInfoArr.push(latlng);
 				}
 				
+				$(".infoItem").removeClass("on");
+				routeDescriptionList.addClass("on");
+				
+				deleteRouteDescriptionList();
 				routeDescriptionList.append(routeListElement(response));
 				
-				description.css('display', 'none');
+				$(".mapButton").removeClass('on');
+				descriptionBtn.addClass('on');
+				
 				drawLine(drawInfoArr, 1);
 				map.setBounds(bounds);
 			}, // success
@@ -65,7 +69,7 @@ const drawTransitRoute = () => {
 
 		let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 		bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
-
+		
 		const requestData = {
 			startX: location.coords.longitude,
 			startY: location.coords.latitude,
@@ -86,7 +90,6 @@ const drawTransitRoute = () => {
 			success: function(response) {
 				console.log(response);
 				
-				description.css('display', 'none');
 				hideMarkers();
 				
 				setMarkers([
@@ -122,14 +125,25 @@ const drawTransitRoute = () => {
 							}))// routes
 						});//path.push
 					});//foreach
-
+				
+					$(".infoItem").removeClass("on");
+					routeDescriptionList.addClass("on");
+					
+					deleteRouteDescriptionList();
 					routeDescriptionList.append(transitRouteListElement(paths) );
+					
+					$(".mapButton").removeClass('on');
+					descriptionBtn.addClass('on');
+					
 					showPathDetails(0); // 0번째 경로로 그리기
 				}//if
 				else {
 					alert("해당 경로찾기가 없습니다!!");
 				}//else
 			} // success
+			, error(){
+				alert("경로찾기를 찾아오는데 실패했습니다!!");
+			}
 		}); // ajax 대중교통
 	}).fail(function(error) {
 		alert("경로찾기를 찾아오는데 실패했습니다!!");
@@ -145,24 +159,26 @@ function showPathDetails(index) {
 		drawInfoArr = [];
 
 		for (let j = 0; j < paths[index].routes[i].lineStringLat.length; j++) {
-			const lat = paths[index].routes[i].lineStringLat[j];
-			const lon = paths[index].routes[i].lineStringLon[j];
-			const latlng = new kakao.maps.LatLng(lat, lon);
+			const latlng = new kakao.maps.LatLng(paths[index].routes[i].lineStringLat[j], paths[index].routes[i].lineStringLon[j]);
 			bounds.extend(latlng);
 			drawInfoArr.push(latlng);
 		} // 이게 안에 있는 세부정보들
 
-		const list2= [{ latitude: paths[index].routes[i].startLat, longitude: paths[index].routes[i].startLon }];
+		const route= [{ latitude: paths[index].routes[i].startLat, longitude: paths[index].routes[i].startLon }];
 		
 		if(paths[index].routes[i].mode  === 'WALK'){
-			list2[0].markerType = 8;
+			route[0].markerType = 8;
 		}else if(paths[index].routes[i].mode  === 'SUBWAY'){
-			list2[0].markerType = 9;
+			route[0].markerType = 9;
 		}else if(paths[index].routes[i].mode  === 'BUS'){
-			list2[0].markerType = 10;
+			route[0].markerType = 10;
+		}else if(paths[index].routes[i].mode === 'EXPRESSBUS'){
+			route[0].markerType = 11;
+		}else if(paths[index].routes[i].mode === 'AIRPLANE'){
+			route[0].markerType = 12;
 		}
 		
-		setMarkers(list2);
+		setMarkers(route);
 
 		if (paths[index].routes[i].mode == 'WALK') {
 			drawLine(drawInfoArr, 0);

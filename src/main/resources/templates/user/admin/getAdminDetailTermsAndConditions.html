@@ -2,21 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link rel="stylesheet" href="/css/common/mapmory-color.css"  >
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/common/toolBar.css">
 	<title>이용약관 상세 조회</title>
+	
+		
+	<style>
+	
+		#contents {
+			white-space: pre-wrap;
+		}
+	</style>
+	
+	
 </head>
 <body>
-	<h2>관리자 페이지</h2>
-
-	
-		<div>
-			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
-		</div>
-		<div>
+<div th:replace="common/toolBar::defaultToolBar"></div>
+	<div class="container mt-5">
+		<p class="h1 mb-3">이용약관 상세 정보</p>
+		<p class="h5">조항 명</p>
+		<div class="mb-3">
 			[[${tac.title}]]
 		</div>
-		<div>
-			[[${tac.contents}]]
+		<p class="h5">약관 성격</p>
+		<div class="mb-3">
+			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
 		</div>
-
+		<p class="h5">약관 내용</p>
+		<div class="mb-3" id="contents" th:text="${#strings.trim(tac.contents)}"></div>
+		<button type="button" class="btn btn-primary mb-3" onclick="javascript:history.back()">확인</button>
+	</div>
 </body>	
 </html>

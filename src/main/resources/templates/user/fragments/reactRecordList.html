@@ -56,7 +56,7 @@
         console.log("documentHeight : "+documentHeight);
         console.log("windowHeight : "+windowHeight);
         console.log("is setup? " + !(documentHeight <= windowHeight));
-        if (documentHeight <= windowHeight) {
+        if (documentHeight <= windowHeight + 200) {
         	
         	// console.log('setup start');
         	loadMoreReactRecordList().then((value)=> {
