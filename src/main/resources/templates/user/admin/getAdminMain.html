@@ -139,7 +139,7 @@
 		
 		function getMonthlyData() {
 			
-		  createChart(selectDate, 'monthly');
+		  
 		  
 		  $.ajax({
 				 
@@ -159,7 +159,8 @@
 				  
 				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
 				  
-				  createChart(countData, 'daily');
+				  createChart(countData, 'monthly');
+				  // createChart(selectDate, 'monthly');
 				  
 			  },
 			  error : function(jqXHR, textStatus, errorThrown) {
