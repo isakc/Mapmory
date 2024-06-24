@@ -4,15 +4,20 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class SharedRecord {
 	private int recordNo;
 	private String recordUserId;
 	private String recordTitle;
+	private String recordText;
 	private Double latitude;
 	private Double longitude;
 	private String checkpointAddress;
@@ -22,7 +27,6 @@ public class SharedRecord {
 	private List<ImageTag> imageName;
 	private List<ImageTag> hashtag;
 	private int categoryNo;
-	private String recordText;
 	private int tempType;
 	private String recordAddDate;
 	private String sharedDate;

@@ -610,6 +610,11 @@
 	 		font-size : 35px;
 	 	}	    
 	    	
+	    .recordImage {
+	    	width : 70%;
+	    	height : 70%;
+	    }	
+	    	
 	    body {
 	        overflow-x: hidden;
 	    }	    	
@@ -656,9 +661,21 @@
 					<p class="address" th:text="${record.checkpointAddress}"></p>
 				</div>
 				<div class="card-body">
+					<span th:if="${record.mediaName != null}">
 					<img alt="" class="media" th:src="@{/timeline/rest/media/{uuid}(uuid=${record.mediaName})}">
-					<p th:text="${record.imageName}"></p>
-					<p th:text="${record.hashtag}"></p>
+					</span>
+					<p th:if="${record.imageName != null}">
+					<span th:each="image : ${record.imageName}">
+						<img alt="" class="recordImage" th:src="@{/timeline/rest/image/{uuid}(uuid=${image.imageTagText})}">
+					</span>
+					</p>
+					<p th:if="${record.hashtag != null}">
+					<span th:each="tag : ${record.hashtag}">
+						<span th:text="${tag.imageTagText}"></span>
+					<span th:utext="'&nbsp;'"></span>
+					</span>
+					</p>
+<!-- 					<p th:text="${record.imageName}"></p> -->
 					<p th:text="${record.recordText}"></p>			
 				</div>
 				<div class="card-body">
