@@ -46,7 +46,7 @@
 			});
 			
 			$('#getUserReportList').on('click', function() {
-				var userId = [[${userId}]]
+				var userId = /*[[${userId}]]*/ '';
 				console.log(userId);
 				window.location.href='/community/getUserReportList/'+userId;
 				/* window.location.href=`/community/getUserReportList/[[${userId}]]`;  */

@@ -453,42 +453,42 @@ LIMIT #{limit} OFFSET #{offset}
     </select>
     
 <select id='selectDetailSharedRecord' resultMap='sharedRecordResultMap' parameterType='map'>
-    SELECT 
-       a1.record_no AS record_no,
-       a1.record_user_id AS record_user_id,
-       a1.record_title AS record_title,
-       a1.latitude AS latitude,
-       a1.longitude AS longitude,
-       a1.checkpoint_address AS checkpoint_address,
-       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
-       a1.media_name AS media_name,
-       a1.category_no AS category_no,
-       a1.record_text AS record_text,
-       a1.temp_type AS temp_type,
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
-       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i') AS shared_date,
-       a1.update_count AS update_count,
-       a1.d_day_date AS d_day_date,
-       a1.timecapsule_type AS timecapsule_type,
-       (SELECT nickname FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS nickname,
-       (SELECT profile_image_name FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS profile_image_name,
-       CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = a1.RECORD_USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
-    	(SELECT category_name FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_name,
-    	(SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_imoji,
-    	(CASE WHEN EXISTS (SELECT 1 FROM community_logs l WHERE l.record_no = a1.record_no AND l.logs_type = 1 AND l.user_id = #{userId}) THEN 1 ELSE 0 END) AS bookmark,
-    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 2) AS like_count,
-    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 3) AS dislike_count,   	    	
-    	(SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = a1.RECORD_NO) AS reply_count,
-    	(SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = a1.RECORD_NO) logs_count,
-
-       a2.image_tag_order AS image_tag_order,
-       a2.image_tag_type AS image_tag_type,
-       a2.image_tag_text AS image_tag_text
-   FROM 
-       record a1
-   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
-   WHERE 
-       a1.record_no = #{recordNo}
+	    SELECT 
+	       a1.record_no AS record_no,
+	       a1.record_user_id AS record_user_id,
+	       a1.record_title AS record_title,
+	       a1.latitude AS latitude,
+	       a1.longitude AS longitude,
+	       a1.checkpoint_address AS checkpoint_address,
+	       DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d %H:%i:%s') AS checkpoint_date,
+	       a1.media_name AS media_name,
+	       a1.category_no AS category_no,
+	       a1.record_text AS record_text,
+	       a1.temp_type AS temp_type,
+	       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,
+	       DATE_FORMAT(a1.shared_date, '%Y-%m-%d %H:%i') AS shared_date,
+	       a1.update_count AS update_count,
+	       a1.d_day_date AS d_day_date,
+	       a1.timecapsule_type AS timecapsule_type,
+	       (SELECT nickname FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS nickname,
+	       (SELECT profile_image_name FROM users u WHERE u.USER_ID = a1.RECORD_USER_ID) AS profile_image_name,
+	       CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = a1.RECORD_USER_ID ORDER BY subscription_end_date DESC LIMIT 1)  > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
+	    	(SELECT category_name FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_name,
+	    	(SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = a1.CATEGORY_NO) AS category_imoji,
+	    	(CASE WHEN EXISTS (SELECT 1 FROM community_logs l WHERE l.record_no = a1.record_no AND l.logs_type = 1 AND l.user_id = #{userId}) THEN 1 ELSE 0 END) AS bookmark,
+	    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 2) AS like_count,
+	    	(SELECT COUNT(*) FROM community_logs l WHERE l.record_no = a1.record_no AND l.reply_no IS NULL AND l.logs_type = 3) AS dislike_count,   	    	
+	    	(SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = a1.RECORD_NO) AS reply_count,
+	    	(SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = a1.RECORD_NO) logs_count,
+	
+	       a2.image_tag_order AS image_tag_order,
+	       a2.image_tag_type AS image_tag_type,
+	       a2.image_tag_text AS image_tag_text
+	   FROM 
+	       record a1
+	   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+	   WHERE 
+	       a1.record_no = #{recordNo}
 </select>
     
 <sql id="selectSharedRecordListUnit">

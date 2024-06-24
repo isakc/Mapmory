@@ -2,22 +2,45 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
+	<th:block th:replace="~{/common/dependencies}"></th:block>
+	<link rel="stylesheet" href="/css/common/mapmory-color.css"  >
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/common/toolBar.css">
 	<title>이용약관</title>
-</head>
-<body>
 
-	<h2>관리자 페이지</h2>
+	<script>
 	
-	<div th:each="tac, state : ${tacList}">
-		<div>
-			[<span th:text="${tac.required == true} ? '필수' : '선택'"></span>]
-		</div>
-		<div>
-			[[${tac.title}]]
-		</div>
-		<div>
-			<a th:href="@{/user/admin/getAdminDetailTermsAndConditions(tacType=${state.count})}">자세히 보기</a>
-		</div>
+		$(function() {
+			
+			$('td').on('click', function() {
+				
+				const tacType = $(this).attr('id');
+				console.log(tacType);
+				window.location.href=`/user/admin/getAdminDetailTermsAndConditions?tacType=${tacType}`;
+				
+			});
+			
+		});
+		
+	</script>
+	
+</head>
+<body >
+<div th:replace="common/toolBar::defaultToolBar"></div>
+	
+	<div class="container">
+		<table class="table mt-3">
+		  <thead>
+		    <tr>
+		      <th scope="col">조항 명</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+	  		<tr th:each="tac, state : ${tacList}">
+		      <td th:id="${state.count}">[[${tac.title}]]</td>
+		    </tr>
+		  </tbody>
+		</table>
 	</div>
 </body>	
 </html>

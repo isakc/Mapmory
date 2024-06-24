@@ -164,12 +164,12 @@ public class UserServiceImpl implements UserService {
 	 */
 	public void setupForTest() {
 
-		
+		/*
 		UserSearch search = UserSearch.builder()
 							.searchCondition(-1)
 							.role(0)
 							.currentPage(1)
-							.pageSize(100)
+							// .pageSize(100)
 							.limit(100)
 							.build();
 		List<User> list = userDao.selectUserList(search);
@@ -181,8 +181,9 @@ public class UserServiceImpl implements UserService {
 			
 			updatePassword(userId, userPassword);
 		}
+		*/
 		
-		
+		/*
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -201,7 +202,15 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-
+		*/
+		
+		/*
+		for (int i = 124; i <= 152; i++) {
+		    String userId = "user_" + i;
+		    String userPassword = "password" + i;
+		    updatePassword(userId, userPassword);
+		}
+		*/
 	}
 	
 	@Override
@@ -535,14 +544,14 @@ public class UserServiceImpl implements UserService {
 		List<TermsAndConditions> result = new ArrayList<>();
 		
 		try (Stream<Path> paths = Files.walk(Paths.get(tacDirectoryPath))){
-			
+
 			List<Path> files = paths.filter(Files::isRegularFile).collect(Collectors.toList());
 			
 			for (Path filePath : files) {
 				
-				// System.out.println("filePath : " + filePath);
+				System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
-				// System.out.println("tac : " + temp);
+				System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
@@ -734,7 +743,15 @@ public class UserServiceImpl implements UserService {
 					.userId(userId)
 					.build();
 		
-		LocalDate leaveAccountDate = userDao.selectUser(user).getLeaveAccountDate().toLocalDate();
+		// LocalDate leaveAccountDate = userDao.selectUser(user).getLeaveAccountDate().toLocalDate();
+		LocalDateTime value = userDao.selectUser(user).getLeaveAccountDate();
+		if(value == null) {
+			
+			System.out.println("탈퇴 상태가 아님");
+			return 3;
+		} 
+		
+		LocalDate leaveAccountDate = value.toLocalDate();
 		
 		// 변경 일자가 오늘로부터 1개월이 지난 경우면 진행 불가능.
 		if( leaveAccountDate.isBefore( LocalDate.now().minusMonths(1) ) ) {
@@ -1254,7 +1271,8 @@ public class UserServiceImpl implements UserService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
-            sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            // sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());

@@ -175,10 +175,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 	@Override
 	public List<Subscription> getSubscriptionList(Search search) throws Exception {
-		List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList(search);
-		
 		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
    	 	search.setOffset(offset);
+        search.setLimit(search.getPageSize());
+
+		List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList(search);
    	 	
 		for(Subscription subscription : subscriptionList) {
 			subscription.setSubscriptionStartDateString(PurchaseUtil.purchaseDateChange(subscription.getSubscriptionStartDate()));

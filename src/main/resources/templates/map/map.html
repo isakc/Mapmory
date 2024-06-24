@@ -22,15 +22,8 @@
 <body>
 	
 	<div id=content-for-footer>
-		<div id="map">
-			<div id="bottomBox">
-        		<button class="btn btn-primary" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
-				<div id="result"></div><!-- 결과창 -->
-				<div id="description"></div><!-- 경로 안내 창 -->
-				<div id="routeDescriptionList"></div><!-- 경로 안내 창 -->
-			</div>
-		</div><!-- map -->
-		
+		<div id="map"></div><!-- map -->
+				
 		<div id="searchFormDiv">
     		<form>
     		<input type="hidden" name="categoryNo" value="0"/>
@@ -75,11 +68,20 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
-			
     		</form><!-- form -->
     	</div><!-- searchFormDiv -->
+		
+		<div id="bottomBox">
+        		<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
+        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        		<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
+        			<div id="resultDivs">
+						<div id="result" class="infoItem"></div><!-- 결과창 -->
+						<div id="description" class="infoItem"></div><!-- 기록 보기 -->
+						<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창 -->
+					</div>
+			</div>
 	</div>
 	
 	<div th:replace="common/footer::defaultFooter"></div>
@@ -99,9 +101,13 @@
 	let paths = []; // 경로 찾기 때 paths에 저장
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
 	let placeList=[]; // 추천 장소 리스트 모아놓기
+	let resultDivs = $("#resultDivs");
 	let description = $("#description");
 	let result = $("#result");
 	let routeDescriptionList = $("#routeDescriptionList");
+	let resultDivsBtn = $("#resultDivsBtn");
+	let listBtn = $("#listBtn");
+	let descriptionBtn = $("#descriptionBtn");
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -115,7 +121,6 @@
 		clearMarkers();
 		clearPolylines();
 		deleteResult();
-		showResult();
 		recordList= [];
 		placeList=[];
 		
@@ -152,6 +157,8 @@
 							return record;
 						});
 						
+						$(".infoItem").removeClass("on");
+						result.addClass("on");
 						map.setBounds(bounds);
 						setMarkers(recordList);
 					}else{
@@ -174,7 +181,6 @@
 		clearMarkers();
 		clearPolylines();
 		deleteResult();
-		showResult();
 		recordList= [];
 		placeList= [];
 		
@@ -207,7 +213,9 @@
                         	
 							return place;
 						});
-						
+
+						$(".infoItem").removeClass("on");
+						result.addClass("on");
 						map.setBounds(bounds);
 						setMarkers(placeList);
 					}else{
@@ -248,7 +256,6 @@
 	
 	$(document).on('click', '.hashTag', function(){
 		event.stopPropagation();
-		
 		$('input[name="searchKeyword"]').val($(this).text());
         searchRecord();
 	});// 해시태그를 클릭했을 때 검색
@@ -259,15 +266,17 @@
         searchRecord();
 	});// 이모지를 클릭했을 때 검색
 	
-	 $(document).on('click', '.transitRoute', function() {
-	    	if($(this).hasClass('on')){
-	        	$(this).removeClass('on');
-	        	$(".transitRoutePath").empty();
-	    	}else{
-	    		$(this).addClass('on');
-	        	$(this).append(showPathDetails( $(this).data('index') ) );
-	    	}
-	    });// 대중교통에서 해당 경로를 선택할 경우
+	$(document).on('click', '.transitRoute', function() {
+		$(".transitRoute .list-group").empty();
+		
+		if($(this).hasClass('active')){
+			$(this).removeClass('active');
+		}else{
+			$(".transitRoute").removeClass('active');
+			$(this).addClass('active');
+			$(this).append(showPathDetails( $(this).data('index') ) );
+		}
+	 });// 대중교통에서 해당 경로를 선택할 경우
 	
 	$('form').on('submit', function(event) {
 		event.preventDefault();
@@ -285,18 +294,13 @@
 		 $(".routeAdditionalButtons").toggle();
 	}); // 경로클릭
 		$(document).on("click", ".simpleRecord .row", function(){
-		const index = $(this).parent().data('index');
-		
 	    deleteDescription();
-	    description.append(detailRecordElement(index) );
+	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로
 	
 	$(document).on("click", ".detailRecord .row", function(){
-		const index = $(this).parent().data('index');
-		
 	    deleteDescription();
-	    
-	    description.append(simpleRecordElement(index) );
+	    description.append(simpleRecordElement($(this).parent().data('index')) );
 	}); // 상세 보기 눌렀을 때 간단 보기로
 	
 	$('input[name="searchKeyword"]').on('focus', function(){
@@ -337,22 +341,23 @@
         suggestionsBox.show();
     } //displaySuggestions(): 추천 검색어를 화면에 표시하는 함수
 	
-    const checkboxGroup = document.getElementById('checkboxGroup');
-    const searchBoxGroup = document.getElementById('searchBoxGroup');
+    const checkboxGroup = $("#checkboxGroup");
+    const searchBoxGroup = $("#searchBoxGroup");
     const refrestButtn = $(".fa-sync").parent();
     	
     $('#toggle-switch').click(function() {
         $(this).toggleClass('active');
+        
         if ($(this).hasClass('active')) {
           $(this).attr('title', '추천');
-          checkboxGroup.style.visibility = 'hidden';
-          searchBoxGroup.style.visibility = 'hidden';
+          checkboxGroup.css('visibility', 'hidden');
+          searchBoxGroup.css('visibility', 'hidden');
           refrestButtn.attr('onClick', 'getRecommendPlace()');
           getRecommendPlace();
         } else {
           $(this).attr('title', '기록');
-          checkboxGroup.style.visibility = 'visible';
-          searchBoxGroup.style.visibility = 'visible';
+          checkboxGroup.css('visibility', 'visible');
+          searchBoxGroup.css('visibility', 'visible');
           refrestButtn.attr('onClick', 'searchRecord()');
           searchRecord();
         }
