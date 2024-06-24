@@ -864,16 +864,12 @@ public class UserController {
 		int totalFollowCount = userService.getFollowListTotalCount(userId, null, 0, 0, 0);
 		int totalFollowerCount = userService.getFollowListTotalCount(userId, null, 0, 0, 1);
 		
-		Search search=Search.builder()
-				.userId(userId).
-				currentPage(1)
-				.limit(5)
-				.sharedType(1)
-				.tempType(1)
-				.timecapsuleType(0)
-				.build();
+		Search search = Search.builder()
+				.userId(userId)
+				.logsType(0).build();
 		
-		int totalSharedListCount = timelineService.getTimelineList(search).size();
+		// int totalSharedListCount = timelineService.getTimelineList(search).size();
+		int totalSharedListCount = timelineService.getProfileTimelineCount(search);
 		
 		Profile profile = Profile.builder()
 					.user(user)

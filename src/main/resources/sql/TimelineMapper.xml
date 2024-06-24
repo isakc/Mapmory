@@ -711,7 +711,7 @@ ORDER BY
        a3.category_name AS category_name,
        a3.category_imoji AS category_imoji,
        <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
-       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date
+       DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date
    	FROM record a1
    	LEFT JOIN category a3 ON a1.category_no = a3.category_no
    	<!-- LEFT JOIN community_logs a4 ON a1.record_no = a4.record_no -->
@@ -757,15 +757,34 @@ ORDER BY
 </sql>
 
 <select id="selectProfileTimelineList" resultMap="profileRecordResultMap" parameterType="search">
-	SELECT *
+	SELECT
+	   inner_table.record_no AS record_no,
+       inner_table.record_user_id AS record_user_id,
+       inner_table.record_title AS record_title,
+       inner_table.category_name AS category_name,
+       inner_table.category_imoji AS category_imoji,
+       <!-- DATE_FORMAT(a1.record_add_date, '%Y-%m-%d %H:%i:%s') AS record_add_date,  -->
+       DATE_FORMAT(inner_table.record_add_date, '%Y-%m-%d') AS record_add_date
 	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+	ORDER BY
+    inner_table.record_add_date IS NULL DESC, 
+    inner_table.record_add_date DESC
 	LIMIT #{limit} OFFSET #{offset}
 </select>
 
 <select id="selectProfileTimelineCount" resultType="Integer" parameterType="search">
+	
 	SELECT COUNT(*) AS profileRecord_Count
-	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table
+	FROM(<include refid="selectProfileTimelineListUnit"/>) AS inner_table 
 	GROUP BY record_user_id=#{userId}
+	 
+	 <!-- 
+	SELECT 
+	COUNT(*) AS profileRecord_Count 
+	FROM( SELECT a1.record_no AS record_no, a1.record_user_id AS record_user_id, a1.record_title AS record_title, a3.category_name AS category_name, a3.category_imoji AS category_imoji, DATE_FORMAT(a1.record_add_date, '%Y-%m-%d') AS record_add_date FROM record a1 LEFT JOIN category a3 ON a1.category_no = a3.category_no WHERE record_user_id='user1' AND shared_date IS NOT NULL ) AS inner_table 
+	GROUP BY record_user_id=#{userId}
+	;
+	  -->
 </select>
 
 <select id="selectProfileImage" resultType="imageTag" parameterType="integer">
