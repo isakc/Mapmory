@@ -141,14 +141,15 @@
 				    		  temp += '</div>';
 			    		  temp += '<hr/>';
 			    		  $('#reactRecordList').append(temp);
-			    		  
-			    		  if(reactRecordListSetup)
-			    			  checkIfNeedToLoadMoreReactRecord();
-			    		  
-			    		  
-			    		  resolve("content loaded");
+
 			    	  });
 			    	  
+		    		  
+		    		  if(reactRecordListSetup)
+		    			  checkIfNeedToLoadMoreReactRecord();
+		    		  
+		    		  
+		    		  resolve("content loaded");
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);

@@ -124,14 +124,15 @@
 			    		 temp += '<hr/>';
 			    		 $('#reactReplyList').append(temp);
 			    		 
-			    		 
-			    		 if(reactReplyListSetup)
-			    			  checkIfNeedToLoadMoreReactReply();
-			    		  
-			    		  
-			    		  resolve("content loaded");
+
 			    	 });
 			    	  
+		    		 
+		    		 if(reactReplyListSetup)
+		    			  checkIfNeedToLoadMoreReactReply();
+		    		  
+		    		  
+		    		  resolve("content loaded");
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);

@@ -194,22 +194,16 @@ public class CommunityRestController {
 	//사용자별 댓글 목록 조회
 	@GetMapping("/rest/getReplyList/user/{userId}")
 	public ResponseEntity<Map<String, Object>> getReplyListByUser(Search search, @PathVariable String userId, @RequestParam Integer currentPage, HttpServletRequest request) throws Exception {
-		
-		System.out.println("pageSize = " + pageSize);
-		System.out.println(search);
-
-			search = Search.builder()
-					.userId(userId)
-					.currentPage(currentPage)
-					.limit(pageSize)
-					// .pageSize(pageSize)
-					.build();
-
-		
-		System.out.println("============="+"=============");
-		System.out.println( search);
-		System.out.println("============="+"=============");
 	
+		System.out.println("get user's replyList");
+		
+		search = Search.builder()
+				.userId(userId)
+				.currentPage(currentPage)
+				.limit(pageSize)
+				// .pageSize(pageSize)
+				.build();
+
 		Map<String, Object> replyData = communityService.getUserReplyList(search, userId);
 		System.out.println("replyData :: "+ replyData);
 		return ResponseEntity.ok(replyData);	
