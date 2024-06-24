@@ -609,20 +609,20 @@
             margin-bottom: 10px; 
         }			
         
-         .form { 
-         	position : fixed; 
-         	bottom : 80px;	 
-         	width : 100%; 
-         	background : light;  
-  			opacity: 1;  
-  			z-index: 9999; 
-         } 
+/*          .form {  */
+/*          	position : fixed;  */
+/*          	bottom : 80px;	  */
+/*          	width : 100%;  */
+/*          	background : light;   */
+/*   			opacity: 1;   */
+/*   			z-index: 9999;  */
+/*          }  */
         
-        #replyField {
-         	background : light;    
-			opacity: 1;  
-			z-index: 9999;        	    	   
-        }
+/*         #replyField { */
+/*          	background : light;     */
+/* 			opacity: 1;   */
+/* 			z-index: 9999;        	    	    */
+/*         } */
         
 		.replyLike {
 			font-size : 25px;
@@ -690,7 +690,7 @@
 		<div class="separator2"></div>		
 	
 		<br/>
-		<div class= "fixed-bottom p-3 bg-light form">
+		<div class= "form">
 			<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 				<fieldset id="replyField">
 				<legend>댓글작성</legend>

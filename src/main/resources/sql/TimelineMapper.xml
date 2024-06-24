@@ -37,7 +37,7 @@
 <resultMap id="sharedRecordResultMap" type="java.util.HashMap">
     <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
-    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
+    <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>   
     <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
     <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
     <result property="checkpointAddress" column="checkpoint_address" jdbcType="VARCHAR"/>
@@ -496,13 +496,15 @@ SELECT
 	RECORD_NO,
 	RECORD_USER_ID,
 	RECORD_TITLE,
+	RECORD_TEXT,
+	CATEGORY_NO,
     DATE_FORMAT(r.shared_date, '%Y-%m-%d %H:%i:%s') AS shared_date,
 	UPDATE_COUNT,
     (SELECT nickname FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS nickname,
     (SELECT profile_image_name FROM users u WHERE u.USER_ID = r.RECORD_USER_ID) AS profile_image_name,
     CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.RECORD_USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscription_end_date,
-    (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TYPE,
-    (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO limit 1) AS IMAGE_TAG_TEXT,
+    (SELECT IMAGE_TAG_TYPE FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO AND IMAGE_TAG_TYPE = 1 LIMIT 1) AS IMAGE_TAG_TYPE,
+    (SELECT IMAGE_TAG_TEXT FROM image_tag i WHERE i.RECORD_NO = r.RECORD_NO AND IMAGE_TAG_TYPE = 1 LIMIT 1) AS IMAGE_TAG_TEXT,
     (SELECT category_name FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_name,
     (SELECT category_imoji FROM category c WHERE c.CATEGORY_NO = r.CATEGORY_NO) AS category_imoji,
     (SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
@@ -512,20 +514,33 @@ FROM
 <trim prefix="where" prefixOverrides="AND||OR">
     shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
 <if test="!(searchKeyword==null or searchKeyword=='')">
-<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
-</if>
-<if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') ">
-	AND (r.record_text LIKE #{searchKeyword} 
-	OR r.record_title LIKE #{searchKeyword} 
-	OR r.record_no IN (
-	SELECT record_no 
-	FROM image_tag 
-	WHERE IMAGE_TAG_TYPE = 0 
-	AND image_tag_text LIKE #{searchKeyword}))
+	<bind name="searchKeyword" value="'%' + _parameter.getSearchKeyword() + '%'" />
+		AND (
+		    <choose>
+		        <when test="searchCondition == 0">
+		            r.record_title LIKE #{searchKeyword}
+		        </when>
+		        <when test="searchCondition == 1">
+		            r.record_text LIKE #{searchKeyword}
+		        </when>
+		    </choose>
+		)
 </if>
 <if test="!(categoryNo==null or categoryNo==0)">
-	AND r.category_no=#{categoryNo}
+    AND r.category_no=#{categoryNo}
 </if>
+<!-- <if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') "> -->
+<!-- 	AND (r.record_text LIKE #{searchKeyword}  -->
+<!-- 	OR r.record_title LIKE #{searchKeyword}  -->
+<!-- 	OR r.record_no IN ( -->
+<!-- 	SELECT record_no  -->
+<!-- 	FROM image_tag  -->
+<!-- 	WHERE IMAGE_TAG_TYPE = 0  -->
+<!-- 	AND image_tag_text LIKE #{searchKeyword})) -->
+<!-- </if> -->
+<!-- <if test="!(categoryNo==null or categoryNo==0)"> -->
+<!-- 	AND r.category_no=#{categoryNo} -->
+<!-- </if> -->
 </trim>
 ORDER BY
 	shared_date DESC,
