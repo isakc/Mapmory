@@ -128,13 +128,14 @@
 				    		  temp += '</div>';
 			    		  temp += '<hr/>';
 			    		  $('#bookMarkList').append(temp);
-			    		  
-			    		  if(bookmarkListSetup)
-		   		    		  	checkIfNeedToLoadMoreBookmark();
-			    		  
-			    		  resolve();
+			    	
 			    	  });
 			    	  
+			    	  
+		    		  if(bookmarkListSetup)
+	   		    		  	checkIfNeedToLoadMoreBookmark();
+		    		  
+		    		  resolve();
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);
