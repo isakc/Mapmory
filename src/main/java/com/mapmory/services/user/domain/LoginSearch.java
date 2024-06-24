@@ -22,8 +22,12 @@ import lombok.ToString;
 public class LoginSearch {
 
 	// 월간 통계 용
-	private int year;
-	private int month;
+//	private int year;
+//	private int month;
+	
+	private String year;
+	private String month;
+	
 	
 	// 일간 통계 용
 	private LocalDate selectLoginDate;

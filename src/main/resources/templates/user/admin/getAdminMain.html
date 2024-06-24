@@ -14,20 +14,31 @@
 	<!-- 통계 -->
 	<script>
 		
-		const today = new Date();
+		// const today = new Date();
 		let selectDate; 	
 	
 		$(function() {
 							
 			$('#daily').on('click', function() {
-			  // const dailyData = [12, 19, 3, 5, 2, 3];
 			  selectDate = new Date();
+			  // selectDate.setHours(0, 0, 0, 0);
+			  
+			  /*
+			  console.log("오늘 : " + selectDate);
+			  console.log("미국식 표현 : " + selectDate.toISOString());
+			  */
+			  
+			  const year = selectDate.getFullYear();
+			  const month = (selectDate.getMonth() + 1);
+			  const day = selectDate.getDate();
 			  
 			  let temp =`
 			  		<div>
 				  		<div class="d-flex">
 				  			<button id="prevDay">◀</button>
-				  			<p>${selectDate.toISOString().split('T')[0]}</p>
+				  			`;
+				  	temp +=	`<p>${year}년 ${month}월 ${day}일</p>`;
+				  	temp +=	`
 				  			<button id="nextDay">▶</button>
 			  			</div>
 			  			<div>
@@ -46,9 +57,37 @@
 			}).click();
 	
 			$('#monthly').on('click', function() {
-			  // const monthlyData = [1, 2, 3, 4, 5, 10];
 			  selectDate = new Date();
+			  // selectDate.setHours(0, 0, 0, 0);
 			  
+			  
+			  const year = selectDate.getFullYear();
+			  const month = selectDate.getMonth() + 1;
+			  
+			  let temp =`
+			  		<div>
+			  			<div class="row">
+					  		<div class="d-flex">
+					  			<button id="prevMonth">◀</button>
+					  			`;
+					  	temp +=	`<p>${year}년 ${month}월</p>`;
+					  	temp +=	`
+					  			<button id="nextMonth">▶</button>
+				  			</div>
+			  			</div>
+						<form>
+				  			<div class="d-flex">
+					  			<input type="number" id="year" name="year" class="form-control">
+					  			<label for="year" class="form-label">년
+					  			<input type="number" id="month" name="month" class="form-control">
+					  			<label for="month" class="form-label">월
+					  			<button type="button" id="search">검색</button>
+				  			</div>
+						</form>
+		  			</div>
+		  		  		`;
+		  		  
+			  $('#chartNav').empty().append(temp);
 			  
 			  getMonthlyData();
 			  
@@ -73,20 +112,22 @@
 			});
 			
 			$(document).on('click', '#nextDay', function() {
-				
-				selectDate.setHours(0, 0, 0, 0);
+							
 				let nextDate = new Date(selectDate);
 		        nextDate.setDate(selectDate.getDate() + 1);
 		        
-		        console.log("next day is : " + nextDate.toISOString().split('T')[0]);
-		        console.log("today is : " + today.toISOString().split('T')[0])
-		        console.log("is it future? : " + (nextDate > today));
+		        const today = new Date();
+		        today.setHours(today.getHours()+1);  // 오늘까지를 이동 허용 범위에 포함시키기 위해 오늘을 약간 미래로 보냄
+		        
+		        console.log("선택한 날짜 : " + selectDate.toISOString());
+				console.log("오늘 날짜 : " + today.toISOString());
 		        
 		        // 오늘 이후 날짜로 이동하지 않도록 함
 		        if (nextDate > today) {
 		        	alert("오늘 이후의 날짜는 볼 수 없습니다.");
 		        } else {
 		        	selectDate.setDate(selectDate.getDate() + 1);
+		        	console.log("다음 날짜 : " + selectDate.toISOString());
 		        	getDailyData();
 		        }
 			});
@@ -123,6 +164,8 @@
 		
 		function getDailyData() {
 			
+			console.log("선택일자 : " + selectDate.toDateString());
+			
 			$.ajax({
 			 
 			  url : `/user/rest/getDailyStatistics`,
@@ -138,8 +181,12 @@
 				  // console.log(JSON.parse(responseBody));
 				  
 				  const countData = responseBody.map(item => item.count);
+				  				  
+				  const year = selectDate.getFullYear();
+				  const month = (selectDate.getMonth() + 1);
+				  const day = selectDate.getDate();
 				  
-				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
+				  $('#chartNav').find('p').text(`${year}년 ${month}월 ${day}일`);
 				  
 				  createChart(countData, 'daily');
 				  
@@ -155,28 +202,26 @@
 		
 		function getMonthlyData() {
 			
-		  
+		  const year = selectDate.getFullYear();
+		  const month = selectDate.getMonth() + 1;
 		  
 		  $.ajax({
 				 
-			  url : `/user/rest/getDailyStatistics`,
+			  url : `/user/rest/getMonthlyStatistics`,
 			  type : 'post',
 			  contentType : 'application/json',
 			  dataType : 'json',
 			  data : JSON.stringify({
-				  selectDate : selectDate
+				  year : `${year}`,
+				  month : `${month}`
 			  }),
 			  success : function(responseBody) {
 				  
-				  // console.log(responseBody);
-				  // console.log(JSON.parse(responseBody));
+				  console.log(responseBody);
 				  
-				  const countData = responseBody.map(item => item.count);
+				  $('#chartNav').find('p').text(`${year}년 ${month}월`);
 				  
-				  $('#chartNav').find('p').text(selectDate.toISOString().split('T')[0]);
-				  
-				  createChart(countData, 'monthly');
-				  // createChart(selectDate, 'monthly');
+				  createChart(responseBody, 'monthly');
 				  
 			  },
 			  error : function(jqXHR, textStatus, errorThrown) {
@@ -203,7 +248,7 @@
 			     // labels: [0, 1, ..., 23],
 			      labels : Array.from({ length: 24 }, (v, i) => i),
 			      datasets: [{
-			        label: '# of login counts',
+			        label: '# 전체 로그인 수',
 			        data: data,
 			        borderWidth: 1
 			      }]
@@ -219,25 +264,25 @@
 			  });
 			  
 		  } else {
+			  			  
+			  const days = data.map(item => item.day);
+			  const counts = data.map(item => item.count);
 			  
 			  new Chart(ctx, {
 			    type: 'bar',
 			    data: {
-			      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+			      labels: days,
 			      datasets: [{
-			        label: '# of Votes',
-			        data: data,
+			        label: '# 전체 로그인 수',
+			        data: counts,
 			        borderWidth: 1
 			      }]
 			    },
 			    options: {
 			      scales: {
 			        y: {
-			          // beginAtZero: true
+			          beginAtZero: true
 			        }
-			      },
-			      layout: {
-			          padding: 100
 			      }
 			    }
 			  });

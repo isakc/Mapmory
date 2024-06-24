@@ -418,12 +418,13 @@ public class UserRestController {
 	
 
 	@PostMapping("/getMonthlyStatistics")
-	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, Integer> map) {
+	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, String> map) {
 		
-		int year = map.get("year");
-		int month = map.get("month");
+		String year = map.get("year");
+		String month = map.get("month");
 		
-		System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		// System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		System.out.println("YYYY-MM : " + year + "-" + month);
 		
 		LoginSearch search = LoginSearch.builder()
 				.year(year)
