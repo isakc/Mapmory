@@ -20,16 +20,19 @@
     <script src="/javascript/map/drawRoute.js"></script>
 </head>
 <body>
-	
-	<div id=content-for-footer>
+
+	<div id="content-for-footer" class="content">
 		<div id="map">
 			<div id="bottomBox">
         		<button class="btn btn-primary" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
 				<div id="result" style="display:none"></div><!-- 결과창 -->
 				<div id="description"></div><!-- 경로 안내 창 -->
 			</div>
+			
 		</div><!-- map -->
-		
+		<div class="footer-map">
+			<div th:replace="common/footer::defaultFooter"></div>
+			</div>
 		<div id="searchFormDiv">
     		<form>
     		<input type="hidden" name="categoryNo" value="0"/>
@@ -80,8 +83,6 @@
     		</form><!-- form -->
     	</div><!-- searchFormDiv -->
 	</div>
-	
-	<div th:replace="common/footer::defaultFooter"></div>
 	
 	<script th:inline="javascript">
 	
