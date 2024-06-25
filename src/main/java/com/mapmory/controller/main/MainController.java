@@ -57,9 +57,9 @@ public class MainController {
 			
 			SessionData sessionData = redisUtil.getSession(request);
 			
-			/*
 			if(sessionData == null) {
 
+				/// 현재 '로그인 유지'가 무의미한 상황...
 				System.out.println("현재 redis 로그인 버그로 인해 세션이 만료됨. 쿠키를 강제 제거합니다...");
 				cookie.setMaxAge(0);
 				cookie.setPath("/");
@@ -67,7 +67,7 @@ public class MainController {
 				// response.sendRedirect("/");
 				return "redirect:/";
 			}
-			*/
+
 			
 			System.out.println("login 상태... main으로 이동합니다.");
 			if(sessionData.getRole() == 1)

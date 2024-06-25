@@ -414,6 +414,7 @@ public class UserRestController {
 		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
 		
 		return ResponseEntity.ok(result);
+
 	}
 	
 
