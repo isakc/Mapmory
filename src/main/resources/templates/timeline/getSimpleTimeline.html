@@ -10,6 +10,17 @@
 #categorySpan{
 	background-color: #00C6E1;
 }
+
+#getSimpleTimeline {
+    position: absolute;
+    bottom: 7dvh; /* 컨테이너를 화면 하단에 고정 */
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: left; /* 중앙 정렬  */
+    z-index: 2;
+}
 </style>
 </head>
 <body>
@@ -18,7 +29,7 @@
  
 	<div th:name="getKakaoMap" th:include="timeline/component/map::kakaoMap"></div>
 	
-	<div class="card border-primary mb-3" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}"><!-- style="max-width: 20rem;" -->
+	<div class="card border-primary mb-3" th:id="getSimpleTimeline" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}"><!-- style="max-width: 20rem;" -->
  		<!-- <div class="card-header"></div> -->
   		<div class="card-body">
     		<h4>
