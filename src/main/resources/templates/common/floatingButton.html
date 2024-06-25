@@ -41,7 +41,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		$.getScript('https://cdn.socket.io/4.0.0/socket.io.min.js');
+		/* $.getScript('https://cdn.socket.io/4.0.0/socket.io.min.js');
 		
 		
 		let userId = sessionStorage.getItem("userId");
@@ -51,7 +51,7 @@
 		function getAllUnreadCount() {
 			$.ajax({
 				type: "POST",
-				/* url: "http://192.168.0.45:3001/chatting/countAllUnreadMessges", */
+				/* url: "http://192.168.0.45:3001/chatting/countAllUnreadMessges", 
 				url: "/chatting/countAllUnreadMessges",
 				contentType: "application/json",
 				data: JSON.stringify({
@@ -68,12 +68,12 @@
 			});
 		}
 		
-		/* const socket = io("http://192.168.0.45:3001"); */
+		/* const socket = io("http://192.168.0.45:3001"); 
 		const socket = io("https:mapmory.co.kr");
 		
 		socket.on("getAllUnreadCount",function(){
 			getAllUnreadCount();
-		});
+		}); */
 		
 		
 		
@@ -147,8 +147,8 @@
 		
 		
 		$('#chatList').on('click', function() {
-			window.location.href="http://192.168.0.45:3000/video-call/chatList";
-			/* window.location.href="/video-call/chatList"; */
+			/* window.location.href="http://192.168.0.45:3000/video-call/chatList"; */
+			window.location.href="/video-call/chatList"; 
 		});
 		
 		
