@@ -123,16 +123,33 @@ public class LoginInterceptor implements HandlerInterceptor {
 				}
 				
 				
-				// 불필요한 세션 업데이트 방지 리스트
+
 				boolean needToUpdate = true;
-				String[] sessionUpdateBlackList = {"/rest", "/bot"};
-				for(String s : sessionUpdateBlackList) {
+				boolean isWhiteList = false;
+				String[] sessionUpdateWhiteList = {"/chat/rest/json/getUser"};
+				
+				for(String s : sessionUpdateWhiteList) {
 					
-					if (requestURI.contains(s) ) {
-						needToUpdate = false; 
+					if(requestURI.equals(s)) {
+						isWhiteList = true;
 						break;
 					}
+					
 				}
+				
+				if(!isWhiteList) {
+					
+					// 불필요한 세션 업데이트 방지 리스트
+					String[] sessionUpdateBlackList = {"/rest", "/bot"};
+					for(String s : sessionUpdateBlackList) {
+						
+						if (requestURI.contains(s) ) {
+							needToUpdate = false; 
+							break;
+						}
+					}
+				}
+				
 				
 				// 세션을 연장한다.
 				boolean result = true;
