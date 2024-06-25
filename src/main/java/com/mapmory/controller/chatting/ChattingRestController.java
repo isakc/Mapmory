@@ -42,7 +42,7 @@ import com.mapmory.services.user.service.UserService;
 
 @CrossOrigin(origins = {"http://192.168.0.45:3000","http://localhost:3000"},allowCredentials = "true")
 @RestController
-@RequestMapping("/chat/*")
+@RequestMapping("/chat/rest/*")
 public class ChattingRestController {
 	
 	@Autowired
@@ -79,7 +79,7 @@ public class ChattingRestController {
 		try {
 			SessionData sessionData =redisUtil.getSession(request);
 			String userId = sessionData.getUserId();
-			System.out.println("+_+_+_+_+_+"+userId+"_+_+_+_+_+_+");
+			/* System.out.println("+_+_+_+_+_+"+userId+"_+_+_+_+_+_+"); */
 			return userId;
 		} catch (Exception e) {
 			System.out.println(e);
