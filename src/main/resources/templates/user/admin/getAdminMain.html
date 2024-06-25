@@ -21,13 +21,13 @@
 		// const today = new Date();
 		let selectDate; 	
 		
-	
 		$(function() {
 
 			$('#daily').on('click', function() {
 				
 			  $('#monthPicker').css('display', 'none');	
-			  $('#datepicker').css('display', 'block');
+			  $('#datepickerDiv').css('display', 'block');
+			  // $('#datepickerDiv').css('display', 'block');
 				
 			  selectDate = new Date();
 			  // selectDate.setHours(0, 0, 0, 0);
@@ -65,6 +65,7 @@
 			$('#monthly').on('click', function() {
 				
 			  $('#monthPicker').css('display', 'block');
+			  $('#datepickerDiv').css('display', 'none');
 				
 			  selectDate = new Date();
 			  // selectDate.setHours(0, 0, 0, 0);
@@ -75,13 +76,13 @@
 			  
 			  let temp =`
 			  		<div>
-			  			<div class="row">
-					  		<div class="d-flex">
-					  			<button id="prevMonth">◀</button>
+			  			<div class="row justify-content-md-center">
+					  		<div class="col-auto d-flex align-items-center">
+					  			<button id="prevMonth" class="btn btn-secondary-custom btn-sm">◀</button>
 					  			`;
-					  	temp +=	`<p>${year}년 ${month}월</p>`;
+					  	temp +=	`<p class="mt-2 mx-3 h4">${year}년 ${month}월</p>`;
 					  	temp +=	`
-					  			<button id="nextMonth">▶</button>
+					  			<button id="nextMonth" class="btn btn-secondary-custom btn-sm">▶</button>
 				  			</div>
 			  			</div>
 		  			</div>
@@ -335,21 +336,24 @@
 		</div>
 		
 		<div>
-			<div id="chartNav">
+			<div id="chartNav"> 
 	
 			</div>
-			<div >
-				<input type="text" id="datepicker" style="visibility:hidden;">
+			 
+			<div id="datepickerDiv" class="text-end" style="display:none;" >
+				<input type="text" id="datepicker"  style="visibility:hidden;">
 			</div>
-			<div id="monthPicker" style="display:none;" >
-				<div class="d-flex">
-					<th:block th:replace="~{/user/fragments/monthPicker}"></th:block>
+			 
+			<!--  <input type="text" id="datepicker"  style="visibility:hidden;">  -->
+			<div id="monthPicker"  style="display:none;" >
+				<div class="d-flex flex-row-reverse">
 					<button type="button" id="searchMonthly">검색</button>
+					<th:block th:replace="~{/user/fragments/monthPicker}"></th:block>
 				</div>
 			</div>
 		</div>
 		
-		<div id="chartDiv" class="chart-container" style="position: relative; height:60vh; width:120vw">
+		<div id="chartDiv" class="chart-container" style="position: relative; height:80vh; width:160vw">
 			<canvas id="myChart"></canvas>
 		</div>
 	</div>
