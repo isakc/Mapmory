@@ -151,15 +151,24 @@ public class TimelineController {
         	map3.put("viaY", timelineList.get(i).getLatitude().toString());
         	mapList.add(map3);
         }
-        map.put("viaPoints", mapList);
+        //경유지가 없으면 오류뜬다. 그래서 도착지에 경유지를 추가한다 
+        if(mapList==null || mapList.isEmpty()) {
+    		Map<String,Object> map3=new HashMap<String, Object>();
+        	map3.put("viaPointId", "stopover");
+        	map3.put("viaPointName", "경유지");
+        	map3.put("viaX", timelineList.get(timelineList.size()-1).getLongitude().toString());
+        	map3.put("viaY", timelineList.get(timelineList.size()-1).getLatitude().toString());
+        	mapList.add(map3);
+        }
+    	map.put("viaPoints", mapList);
         String jsonParam=objectMapper.writeValueAsString(map);
         
 		model.addAttribute("positions",jsonPostions);
 		model.addAttribute("positionParam",jsonParam);
 		}
-		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("tMapApiKey",tMapApiKey);
-		model.addAttribute("restKey",restKey);
+//		model.addAttribute("apiKey", kakaoMapApiKey);
+//		model.addAttribute("tMapApiKey",tMapApiKey);
+//		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
@@ -172,6 +181,7 @@ public class TimelineController {
 			@RequestParam(name="selectDate", required = false) String selectDate,
 			HttpServletRequest request) throws Exception,IOException{
 		String userId = redisUtil.getSession(request).getUserId();
+		
 		if(selectDate==null) {
 			selectDate=LocalDateTime.now().toString().split("\\.")[0];
 		}else {
@@ -187,26 +197,32 @@ public class TimelineController {
 		selectDate = timelineService.getSummaryDate(search).substring(0, 10);
 		
 		search.setSelectDate(Date.valueOf(selectDate));
-
+		
+		List<SummaryRecordDto> recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
+		
+		search.setSearchCondition(3);
+		
+		model.addAttribute("startDay",timelineService.getSummaryDate(search).substring(0, 10));
+		model.addAttribute("today", LocalDate.now().toString());
 		model.addAttribute("selectDate", selectDate);
-		model.addAttribute("recordList", timelineService.getSummaryRecord(search));
+		model.addAttribute("recordList", recordList);
 		return "timeline/getSummaryRecord";
 	}
 	
-	@GetMapping("getSimpleTimeline")
-	public String getSimpleTimeline(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo,
-			HttpServletRequest request) throws Exception,IOException {
-		Record record=timelineService.getDetailTimeline(recordNo);
-//		record=timelineUtil.imojiNameToUrl(record);
-		record=timelineUtil.imojiNameToByte(record);
-		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
-		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("restKey",restKey);
-		model.addAttribute("record",record);
-		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
-		return "timeline/getSimpleTimeline";
-	}
+	//getDetailTimeline에서 처리 완료
+//	@GetMapping("getSimpleTimeline")
+//	public String getSimpleTimeline(Model model,
+//			@RequestParam(value="recordNo", required = true) int recordNo,
+//			HttpServletRequest request) throws Exception,IOException {
+//		Record record=timelineService.getDetailTimeline(recordNo);
+//		record=timelineUtil.imojiNameToByte(record);
+//		System.out.println("record.getCheckpointDate().toString().substring(0, 10) :"+record.getCheckpointDate().toString().substring(0, 10));
+//		model.addAttribute("apiKey", kakaoMapApiKey);
+//		model.addAttribute("restKey",restKey);
+//		model.addAttribute("record",record);
+//		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
+//		return "timeline/getSimpleTimeline";
+//	}
 	
 	@GetMapping("getDetailTimeline")
 	public String getDetailTimeline(Model model,
@@ -226,6 +242,7 @@ public class TimelineController {
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
+		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
 		return "timeline/getDetailTimeline";
 	}
 	
