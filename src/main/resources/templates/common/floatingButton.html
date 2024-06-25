@@ -51,8 +51,8 @@
 		function getAllUnreadCount() {
 			$.ajax({
 				type: "POST",
-				url: "http://192.168.0.45:3001/chatting/countAllUnreadMessges",
-				/* url: "/chatting/countAllUnreadMessges" */
+				/* url: "http://192.168.0.45:3001/chatting/countAllUnreadMessges", */
+				url: "/chatting/countAllUnreadMessges",
 				contentType: "application/json",
 				data: JSON.stringify({
 					userId: [[userId]],
@@ -68,7 +68,8 @@
 			});
 		}
 		
-		const socket = io("http://192.168.0.45:3001");
+		/* const socket = io("http://192.168.0.45:3001"); */
+		const socket = io("https:mapmory.co.kr");
 		
 		socket.on("getAllUnreadCount",function(){
 			getAllUnreadCount();
