@@ -10,214 +10,309 @@ const preloadImage = (src, callback) => {
 };
 
 const recordListElement = (index) => {
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
 	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
 	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
 		'https://via.placeholder.com/150?text=No+Image';
-
 	const htmlString = `
-		<div class="card" onClick='clickMarkerFromCard(${JSON.stringify(index)}, recordList)'>
-	    <div class="row g-0">
-	      <div class="col-9">
-	        <div class="card-body p-1">
-	            <div class="row">
-	                <h5 class="card-title col-9 fw-bold ellipsis fs-6">${recordList[index].recordTitle}</h5>
-	                <span class="col-3"> 
-	                    <img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	                    class="recordEmoji" data-categoryNo ="${recordList[index].categoryNo}"/> 
-	                </span>
-	            </div>
-	          <p class="card-text">${recordList[index].recordAddDate}</p>
-	          <p class="card-text">
-	          	${recordList[index].hashtag && recordList[index].hashtag.length > 0 ?
-				recordList[index].hashtag.slice(0, 3).map(tag => 
-				`<a href="#"><small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('')
-				: ''}
-	          </p>
-	        </div>
-	      </div>
-	      <div class="col-3">
-	      	<div>
-	      		<span class="badge bg-primary">${recordList[index].stringDistance}</span>
-	      	</div>
-	      	<div class="recordImageContainer">
-	      		<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>
-	      	</div>
-	      </div>
-	    </div>
-	  </div>
+		<div class="card border-0 border-bottom mb-3 container" onClick='clickMarkerFromCard(${JSON.stringify(index)}, recordList)'>
+		
+			<div class="profileImageContainer">
+				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
+	        	<span class="fs-5 ">${recordList[index].nickName}</span>
+	        	${recordList[index].subscribed ? `<img src="https://via.placeholder.com/150?text=Loading..." class="rounded-image subImage"/>` : ''}
+			</div><!-- 프로필 상자 -->
+
+	    	<div class="row g-0">
+	      		<div class="col-9 card-body p-1">
+	            	<div class="mb-4">
+	                	<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	            	</div><!-- 제목 -->
+	            
+	      			<div>    
+	      				<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
+	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    		
+	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	      			</div><!-- 이모지 + 거리 -->
+	      			
+	          		<p class="card-text">
+        				${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
+         				<a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
+    				</p><!-- 해시태그 -->
+	      	
+	          		<p class="card-text text-muted mt-3"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
+	          		
+	      		</div><!-- 본문 중간부분 col-9 -->
+	      
+	      	<div class="col-3">
+	      		<div class="recordImageContainer">
+	      			<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>
+	      		</div>
+	      	</div><!-- 사진 부분 col-3 -->
+	     </div><!--row-->
+	  </div><!-- card -->
 	`;
 
 	const htmlElement = $(htmlString);
-  
-  preloadImage(categoryImgSrc, (err, src) => {
-    const categoryImgElement = htmlElement.find(`#category-img-${index}`);
-    categoryImgElement.attr('src', err ? '/images/defaultCategory.png' : src);
-  });
-
-  preloadImage(recordImgSrc, (err, src) => {
-    const recordImgElement = htmlElement.find(`#record-img-${index}`);
-    recordImgElement.attr('src', err ? 'https://via.placeholder.com/150?text=No+Image' : src);
-  });
 	
-	return htmlElement;
+	preloadImage(categoryImgSrc, (err, src) => {
+		const categoryImgElement = htmlElement.find(`#category-img-${index}`);
+		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  	});
+
+	preloadImage(recordImgSrc, (err, src) => {
+    	const recordImgElement = htmlElement.find(`#record-img-${index}`);
+    	recordImgElement.attr('src', err ? recordImgSrc : src);
+  	});
+  		
+  	preloadImage(subImgSrc, (err, src) => {
+    	const subImgElement = htmlElement.find(`.subImage`);
+    	subImgElement.attr('src', err ? subImgSrc : src);
+  	});
+  	
+  	preloadImage(profileImgSrc, (err, src) => {
+    	const profileImgElement = htmlElement.find(`#profileImg-${index}`);
+    	profileImgElement.attr('src', err ? profileImgSrc : src);
+  	});
+  
+  return htmlElement;
 };
 
 const simpleRecordElement = (index) => {
-	return `
-	        <div class="card simpleRecord" data-index=${index} >
-	            <div class="row g-0">
-	                <div class="col-9">
-	                    <div class="card-body p-1">
-	                        <div class="row">
-	                            <h5 class="card-title col-9 fw-bold ellipsis fs-6">${recordList[index].recordTitle}</h5>
-	                            <span class="col-3">
-	                            	<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji" 
-	                            	onclick = "categoryClick(${recordList[index].categoryNo})" class="recordEmoji"/>
-	                            </span>
-	                        </div>
-	                        <p class="card-text">${recordList[index].recordAddDate}</p>
-	                        <p class="card-text">${recordList[index].checkpointAddress}</p>
-	                        <p class="card-text">
-	                            ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-	                             <a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
-	                        </p>
-	                        
-	                    </div>
-	                </div>
-	                <div class="col-3">
-	                	<div>
-	                		<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
-	                		<span class="badge bg-primary">${recordList[index].stringDistance}</span>
-	                	</div>
-	                	
-	                	<div class="recordImageContainer">
-	      					${recordList[index].imageName && recordList[index].imageName.length > 0 ? 
-	      					recordList[index].imageName.slice(0, 1).map(image =>
-	      					`<img src="/user/rest/thumbnail/${image.imageTagText}" class="img-fluid rounded-start" alt="기록 사진"/>`) : 
-	      					`<img src="/user/rest/thumbnail/default.jpg" class="img-fluid rounded-start" alt="기본 사진"/>`}
-	      				</div>
-	                    
-	                    <div class="profileImageContainer">
-	                    	<img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
-	                    	<span class="">${recordList[index].nickName}</span>
-	                        ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}
-	                    </div>
-	                </div>
-	            </div>
-	            
-	            <div class="routeButtonGroup">
-	        	<button id="routeButton" class="btn btn-primary">경로</button>
-    				<div class="routeAdditionalButtons">
-      					<button class="btn btn-primary" onclick="drawRoute('1')"><i class="fas fa-walking"></i></button>
-	        			<button class="btn btn-primary" onclick="drawRoute('2')"><i class="fas fa-car"></i></button>
-	        			<button class="btn btn-primary" onclick="drawTransitRoute()"><i class="fas fa-bus"></i></button>
- 					</div>
-	        	</div>
+	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
+	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
+		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
+		'https://via.placeholder.com/150?text=No+Image';
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
+	const htmlString = `
+	        <div class="card border-0 border-bottom mb-3 simpleRecord container" data-index=${index} >
+	        
+	        	<div class="row">
+	        		<div class="profileImageContainer col-6">
+						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
+	        			<span class="fs-5 ">${recordList[index].nickName}</span>
+	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
+					</div><!-- 프로필 상자 -->
+					
+					<div class="routeButtonGroup col-6">
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+	        			
+    					<div class="routeAdditionalButtons">
+      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+	        			</div>
+	        		</div>
+	        	</div><!-- row -->
+	        		
+				<div class="row g-0">
+	      			<div class="col-9 card-body p-1">
+	            		<div class="mb-4 border-bottom">
+	                		<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	            		</div><!-- 제목 -->
+	            		
+	      			<div class="border-0 border-bottom">    
+	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    		
+	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	      			</div><!-- 이모지 + 거리 -->
+	      			
+	      			<p class="card-text">
+        				${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
+         				<a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
+    				</p><!-- 해시태그 -->
+	      			
+	      			<div class="mt-3">
+	      				<p class="card-text text-muted border-bottom"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
+	      			</div>
+	          		
+	          		<div class="mt-3">
+	          			<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
+	          		</div>
+	          		
+	      			</div><!-- 본문 중간부분 col-9 -->
+	      
+	      		<div class="col-3">
+	      			<div class="recordImageContainer">
+	      				<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>
+	      			</div>
+	      		</div><!-- 사진 부분 col-3 -->
+	     	</div><!--row-->
 	    `;
+	    
+	    const htmlElement = $(htmlString);
+  
+  		preloadImage(categoryImgSrc, (err, src) => {
+    		const categoryImgElement = htmlElement.find(`.recordEmoji`);
+    		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  		});
+
+  		preloadImage(recordImgSrc, (err, src) => {
+    		const recordImgElement = htmlElement.find(`#record-img-${index}`);
+    		recordImgElement.attr('src', err ? recordImgSrc : src);
+  		});
+  		
+  		preloadImage(subImgSrc, (err, src) => {
+    		const subImgElement = htmlElement.find(`.subImage`);
+    		subImgElement.attr('src', err ? subImgSrc : src);
+  		});
+  		
+  		preloadImage(profileImgSrc, (err, src) => {
+    		const profileImgElement = htmlElement.find(`#profileImg-${index}`);
+    		profileImgElement.attr('src', err ? profileImgSrc : src);
+  		});
+  
+  return htmlElement;
 }
 
 const detailRecordElement = (index) => {
-	return `
-	        <div class="card detailRecord" data-index=${index}>
-    <div class="row g-0">
-        <div class="col-9">
-            <div class="card-body p-1">
-                <div class="row">
-                    <h5 class="card-title col-9 fw-bold fs-6">${recordList[index].recordTitle}</h5>
-                    <span class="col-3">
-                        <img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
-                        onclick = "categoryClick(${recordList[index].categoryNo})" class="recordEmoji"/>
-                    </span>
-                </div>
-                <p class="card-text">${recordList[index].recordAddDate}</p>
-                <p class="card-text">${recordList[index].checkpointAddress}</p>
-            </div>
-        </div>
-        <div class="col-3">
-            <div>
-                <span class="badge bg-primary">${recordList[index].markerTypeString}</span>
-                <span class="badge bg-primary">${recordList[index].stringDistance}</span>
-            </div>
-            
-            <div class="profileImageContainer">
-                <img class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
-                <span class="">${recordList[index].nickName}</span>
-                ${recordList[index].isSubscribed ? `<img src="/user/rest/profile/sub.png"/>` : ''}</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mt-5">
-        <div class="media">
-            <video width="320" height="240" controls class="mr-3">
-                <source src="/timeline/rest/media/${recordList[index].mediaName}" type="video/mp4">
-              </video>
-              
-        </div>
-      </div>
-      
-        <div class="container mt-5">
-        
-            <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                ${recordList[index].imageName.map(image => 
-                ` <div class="carousel-item active">
-                    <img src="/user/rest/thumbnail/${image.imageTagText}" class="d-block w-100"/>
-                  </div>
-                    `).join('')}
+	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
+	const htmlString = `
+	        <div class="card border-0 border-bottom mb-3 detailRecord container" data-index=${index} >
+	        
+	        	<div class="row">
+	        		<div class="profileImageContainer col-6">
+						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
+	        			<span class="fs-5 ">${recordList[index].nickName}</span>
+	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
+					</div><!-- 프로필 상자 -->
+					
+					<div class="routeButtonGroup col-6">
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+	        			
+    					<div class="routeAdditionalButtons">
+      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+	        			</div>
+	        		</div>
+	        	</div><!-- row -->
+	        		
+				<div class="row g-0">
+	      			<div class="col-9 card-body p-1">
+	            		<div class="mb-4 border-bottom">
+	                		<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	            		</div><!-- 제목 -->
+	            		
+	      			<div class="border-0 border-bottom">    
+	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    		
+	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	      			</div><!-- 이모지 + 거리 -->
+	      			
+	      			<p class="card-text">
+        				${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
+         				<a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
+    				</p><!-- 해시태그 -->
+	      			
+	      			<div class="mt-3">
+	      				<p class="card-text text-muted border-bottom"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
+	      			</div>
+	          		
+	          		<div class="mt-3">
+	          			<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
+	          		</div>
+	          		
+	      			</div><!-- 본문 중간부분 col-9 -->
+	      		
+	      		<div class="media container mt-3">
+	      			<video width="100%" height="100%" controls>
+                		<source src="/timeline/rest/media/${recordList[index].mediaName}" type="video/mp4">
+                	</video>
                 </div>
                 
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">이전</span>
-                </button>
-        
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">다음</span>
-                </button>
-            </div>
-            
-        </div>
-    <p class="card-text">
-        ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-         <a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
-    </p>
-    <p class="card-text">${recordList[index].recordText}</p>
-    
-    <div class="routeButtonGroup">
-    <button id="routeButton" class="btn btn-primary">경로</button>
-        <div class="routeAdditionalButtons">
-              <button class="btn btn-primary" onclick="drawRoute('1')"><i class="fas fa-walking"></i></button>
-            <button class="btn btn-primary" onclick="drawRoute('2')"><i class="fas fa-car"></i></button>
-            <button class="btn btn-primary" onclick="drawTransitRoute()"><i class="fas fa-bus"></i></button>
-         </div>
-    </div>
-</div>
+                ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
+                `
+                <div class="swiper mySwiper">
+                	<div class="swiper-wrapper">
+                		${recordList[index].imageName.map(image => 
+                		` <div class="swiper-slide">
+                    		<img src="/user/rest/thumbnail/${image.imageTagText}" class="swiperImg"/>
+                    	   </div>
+                    `).join('')}
+                	</div>
+                	
+                	<div class="swiper-pagination"></div>
+                	<div class="swiper-scrollbar"></div>
+                </div>
+                `
+                :'' }
+        		
+    			<p class="card-text mt-3">${recordList[index].recordText}</p><!-- 기록 텍스트 -->
 	    `;
+	    
+	    const htmlElement = $(htmlString);
+	    
+	    preloadImage(categoryImgSrc, (err, src) => {
+    		const categoryImgElement = htmlElement.find(`.recordEmoji`);
+    		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  		});
+  		
+  		recordList[index].imageName.map( (image, index) =>
+  			preloadImage("/user/rest/thumbnail/"+ image.imageTagText, (err, src) => {
+    			const recordImgElement = htmlElement.find(`.swiperImg`)[index];
+    			$(recordImgElement).attr('src', err ? "/user/rest/thumbnail/"+image.imageTagText : src);
+  			})
+  		);
+  		
+  		preloadImage(subImgSrc, (err, src) => {
+    		const subImgElement = htmlElement.find(`.subImage`);
+    		subImgElement.attr('src', err ? subImgSrc : src);
+  		});
+  		
+  		preloadImage(profileImgSrc, (err, src) => {
+    		const profileImgElement = htmlElement.find(`#profileImg`);
+    		profileImgElement.attr('src', err ? profileImgSrc : src);
+  		});
+  		
+  		setTimeout(() => {
+        	new Swiper(htmlElement.find('.mySwiper')[0], {
+            	direction: 'horizontal', // 가로 방향 슬라이드
+            	loop: true,
+            	slidesPerView: 1, // 한 번에 1개 슬라이드만 보이도록 설정
+            	spaceBetween: 10,
+            
+            	pagination: {
+                	el: '.swiper-pagination',
+                	clickable: true,
+            	},
+            	scrollbar: {
+                	el: '.swiper-scrollbar',
+            	},
+        	});
+    	}, 0);
+  
+  		return htmlElement;
 }
 
 const recommendListElement = (index) => {
-	return `<div class="place card" onClick='clickMarkerFromCard( ${JSON.stringify(index)}, placeList )'>
-    			<h2 class="card-title fw-bold ellipsis fs-6">  ${placeList[index].placeName} </h2>
+	return `<div class="card border-0 border-bottom mb-3 place" onClick='clickMarkerFromCard( ${JSON.stringify(index)}, placeList )'>
+    			<h2 class="card-title fw-bold ellipsis fs-3">${index+1}. ${placeList[index].placeName} </h2>
     			<p class="card-text">${placeList[index].categoryName} </p>
-    			<p class="card-text">주소: ${placeList[index].addressName} </p>
+    			<p class="card-text fs-5">${placeList[index].addressName} </p>
     		</div>
     		`;
 }// recommendListElement: 추천 장소 리스트
 
 const detailPlaceElement = (index) => {
 	return `
-	        <div class="card detailPlace" data-index=${index}>
+	        <div class="card border-0 border-bottom mb-3 detailPlace" data-index=${index}>
 	            <div class="g-0">
 	                    <div class="card-body">
-	                        <div class="row">
-	                            <h5 class="card-title fw-bold">${placeList[index].placeName}</h5>
-	                        </div>
-	                        <p class="card-text">${placeList[index].categoryName}</p>
-	                        <p class="card-text">${placeList[index].addressName}</p>
-    						<p class="card-text">${placeList[index].phone} </p> 
+	                        <h5 class="card-title fw-bold fs-3">${placeList[index].placeName}</h5>
+	                        <p class="card-text"><i class="fas fa-list"></i> ${placeList[index].categoryName}</p>
+	                        <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${placeList[index].addressName}</p>
+    						<p class="card-text"><i class="fas fa-phone"></i> ${placeList[index].phone} </p> 
     						<p class="card-text"><a href=${placeList[index].placeUrl}>More Info</a></p>
 	                        
 	                </div>
@@ -225,7 +320,7 @@ const detailPlaceElement = (index) => {
 	        </div>
 	            		
     		<div class="routeButtonGroup">
-	        	<button id="routeButton" class="btn btn-primary">경로</button>
+	        	<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
     			<div class="routeAdditionalButtons">
       				<button class="btn btn-primary" onclick="drawRoute('1')"><i class="fas fa-walking"></i></button>
 	        		<button class="btn btn-primary" onclick="drawRoute('2')"><i class="fas fa-car"></i></button>

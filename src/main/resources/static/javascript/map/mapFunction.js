@@ -59,7 +59,7 @@ function setMarkers(contentList) {
 	
 function createMarkerImage(location) {
 	let markerPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
-	let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(35, 39) );//마커 이미지
+	let icon = new kakao.maps.MarkerImage(markerImages[location.markerType], new kakao.maps.Size(40, 45) );//마커 이미지
 
 	let markerOptions = {
 		position: markerPosition,
@@ -101,6 +101,8 @@ function clickContentMarker(marker, index, contentList) {
 	}else{
 		description.append(simpleRecordElement(index) );
 	}
+	
+	showResultDivs();
     
 } // 마커나 리스트에서 클릭했을 경우
 
