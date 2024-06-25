@@ -129,6 +129,9 @@
 						$('#deleteFollow').css('display', 'none');
 						$('#addFollow').css('display', 'block');
 						
+						const num = Number($("#follower-list").find('span:last').text());
+						$("#follower-list").find('span:last').text((num-1));
+						
 					} else {
 						
 						console.log('false');
@@ -159,7 +162,8 @@
 						$('#deleteFollow').css('display', 'block');
 						$('#addFollow').css('display', 'none');
 						
-						// 팔로우/팔로잉 수 동적 처리 ajax 필요함
+						const num = Number($("#follower-list").find('span:last').text());
+						$("#follower-list").find('span:last').text((num+1));
 						
 					} else {
 						

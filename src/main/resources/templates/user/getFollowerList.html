@@ -122,30 +122,32 @@
 				return;
 			}
 			
+			if(sessionId != targetId) {
 				
-			
-			$.ajax({
-					
-					url: `/user/rest/checkHideProfile/${targetId}`,
-					type : "get",
-					// contentType : "application/json",
-					success : function(response) {
+				$.ajax({
 						
-						if(response == false || response == 'false') {
-
-							window.location.href=`/user/getProfile?userId=${targetId}`;
-							return;
+						url: `/user/rest/checkHideProfile/${targetId}`,
+						type : "get",
+						// contentType : "application/json",
+						success : function(response) {
 							
-						} else {
-							
-							alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
-							return;
-						}						
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						alert('오류 발생 : ' + jqXHR.responseText)
-					}
-			});
+							if(response == false || response == 'false') {
+	
+								window.location.href=`/user/getProfile?userId=${targetId}`;
+								return;
+								
+							} else {
+								
+								alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
+								return;
+							}						
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('오류 발생 : ' + jqXHR.responseText)
+						}
+						
+				});
+			}
 		});
 	});
 </script>
