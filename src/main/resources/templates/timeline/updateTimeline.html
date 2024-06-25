@@ -39,7 +39,11 @@
 		
     <div class="row">
     	<label for="recordTitle" class="form-label mt-4" th:text="'제목'"></label>
-    	<input type="text" class="form-control" th:field="*{recordTitle}" placeholder="제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.">
+    	<input type="text" class="form-control"
+	       th:id="recordTitle"
+	       th:name="'recordTitle'"
+	       th:value="${record.updateCount != -1 ? record.recordTitle : ''}"
+	       th:placeholder="${record.updateCount == -1 ? record.recordTitle : '제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.'}">	
 		<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
 		<div id="recordTitleHelp3" class="d-none">
 			<small class="form-text text-muted" 
