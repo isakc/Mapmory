@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedYear = yearPicker.value;
         const selectedMonth = monthPicker.value;
         // console.log(`Selected Year: ${selectedYear}, Selected Month: ${selectedMonth}`);
-        // 여기에 추가적인 로직을 넣어 원하는 작업을 수행할 수 있습니다.
     }
 
     yearPicker.addEventListener('change', handleDateChange);

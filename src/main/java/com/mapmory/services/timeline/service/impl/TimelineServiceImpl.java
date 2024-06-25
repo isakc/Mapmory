@@ -223,7 +223,14 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public int getProfileTimelineCount(Search search) throws Exception {
-		return timelineDao.selectProfileTimelineCount(search);
+		
+		// null처리
+		Integer result = timelineDao.selectProfileTimelineCount(search);
+		
+		if(result == null)
+			return 0;
+		else
+			return result; 
 	}
 
 //	@Override
