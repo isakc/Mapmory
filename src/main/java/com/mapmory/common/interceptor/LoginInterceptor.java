@@ -130,6 +130,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 				
 				for(String s : sessionUpdateWhiteList) {
 					
+					// equals 해도 상관없을듯
 					if(requestURI.contains(s)) {
 						
 						System.out.println("이번 요청은 반드시 session update가 됩니다.");
