@@ -125,8 +125,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 				
 				
 				// 세션을 연장한다.
-				boolean result = redisUtil.updateSession(request, response);
-				System.out.println("is session update successfully? : " + result);
+				boolean result = true;
+				if(!requestURI.contains("/rest")) {
+					
+					result = redisUtil.updateSession(request, response);
+					System.out.println("is session update successfully? : " + result);
+				}
+				
 				
 				/*
 				if(requestURI.equals("/")) {
