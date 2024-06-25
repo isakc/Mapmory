@@ -93,7 +93,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 			return false;
 		} else {
 			
-			System.out.println("현재 login 상태입니다.");
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
 			
@@ -139,6 +138,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 				boolean result = true;
 				if(needToUpdate) {
 					
+					System.out.println("현재 login 상태입니다.");
 					result = redisUtil.updateSession(request, response);
 					System.out.println("is session update successfully? : " + result);
 				}
