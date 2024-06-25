@@ -7,83 +7,38 @@
     <title>Mapmory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/css/common/chatBot.css">
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    
+    <link rel="stylesheet" href="/css/common/chatBot.css">
     <style>
         body {
             background-color: #f8f9fa;
-            padding: 20px;
         }
 
-        .notice-header-left {
+        .notice-header {
             background-color: #00A7F5;
             color: #fff;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
             margin-bottom: 30px;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: 30px;
         }
 
-        .notice-header-text {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .notice-header-text h1 {
+        .notice-header h1 {
             margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-
-        .notice-header-left .icon-wrapper {
-            margin-right: 10px;
-        }
-
-        .notice-header-left .icon-wrapper i {
             font-size: 24px;
-        }
-
-        .empty-div {
-            width: 24px;
-            /* 아이콘과 동일한 너비 */
+            font-weight: bold;
         }
 
         .notice-header a {
             color: #fff;
             text-decoration: none;
             font-size: 20px;
-        }
-
-        .notice-table {
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .notice-table th {
-            background-color: #2780E3;
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .notice-table td {
-            vertical-align: middle;
-        }
-
-        .notice-table .notice-reg-date {
-            font-size: 0.9em;
-            color: #6c757d;
         }
 
         .search-box {
@@ -102,6 +57,45 @@
         .search-box .btn-primary:hover {
             background-color: #00DFB6;
             border-color: #00DFB6;
+        }
+
+        .table-container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .notice-table {
+            margin-bottom: 0;
+        }
+
+        .notice-table th {
+            background-color: #2780E3;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .notice-table td {
+            vertical-align: middle;
+        }
+
+        .notice-reg-date {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .notice-content {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: inherit;
+            font-size: inherit;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            overflow-x: auto;
         }
 
         .notice-content-row {
@@ -138,83 +132,83 @@
 </head>
 
 <body>
-<div id=content-for-footer>
-    <div id=content-for-left>
-        <div class="container">
-            <div class="notice-header-left">
-                <div class="icon-wrapper">
+    <div id="content-for-footer">
+        <div id="content-for-left">
+            <div class="container">
+                <div class="notice-header">
                     <a th:href="@{/notice/noticeMenu}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
-                </div>
-                <div class="notice-header-text">
                     <h1><i class="bi bi-bell"></i> 자주하는질문 목록</h1>
+                    <div></div>
                 </div>
-                <div class="empty-div"></div>
+                <div class="search-box">
+                    <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
+                        <div class="form-group">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
+                                    <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
+                                </ul>
+                                <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+                            </div>
+                        </div>
+                        <div class="form-group flex-grow-1">
+                            <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">검색</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <form id="noticeForm" th:action="@{/notice/getFaqList}" method="post">
+                        <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+                    </form>
+                    <table class="table table-hover notice-table">
+                        <thead>
+                            <tr>
+                                <th>제목</th>
+                                <th>자세히보기</th>
+                            </tr>
+                        </thead>
+                        <tbody class="notice-list">
+                            <tr th:each="notice, status : ${FaqList}">
+                                <td>
+                                    <div>
+                                        <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
+                                        <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
+                                    <input type="hidden" th:value="${notice.noticeNo}">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-            <div class="search-box">
-                <form th:action="@{/notice/getFaqList}" method="get" class="input-group">
-                    <div class="form-group">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="${search.searchCondition == 0 ? '제목' : (search.searchCondition == 1 ? '내용' : '검색 조건')}"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" data-condition="0">제목</a></li>
-                                <li><a class="dropdown-item" href="#" data-condition="1">내용</a></li>
-                            </ul>
-                            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
-                        </div>
-                    </div>
-                    <div class="form-group flex-grow-1">
-                        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">검색</button>
-                </form>
-            </div>
-            <form id="noticeForm" th:action="@{/notice/getFaqList}" method="post">
-                <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
-            </form>
-
-            <table class="table table-hover notice-table">
-                <thead>
-                    <tr>
-                        <th>제목</th>
-                        <th>자세히보기</th>
-                    </tr>
-                </thead>
-                <tbody class="notice-list">
-                    <tr th:each="notice, status : ${noticeList}">
-                        <td>
-                            <div>
-                                <a th:href="@{/notice/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
-                                <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <i class="bi bi-caret-down-fill" th:id="'caret-' + ${notice.noticeNo}"></i>
-                            <input type="hidden" th:value="${notice.noticeNo}">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     <script th:inline="javascript">
         let currentPage = 2; // 초기 페이지 설정
         let loading = false;
         let endOfData = false; // 데이터를 모두 로드했는지 확인하는 변수
-        let isSearchActive = false; // 검색 활성화 여부 확인 변수
+        let isSearching = false; // 검색 활성화 여부 확인 변수
 
         $(document).ready(function() {
             loadMoreNotices();
+            bindSearchForm();
+            bindDropdownEvents();
+            bindToggleEvent();
         });
 
         $(window).scroll(function() {
-            if (!endOfData && !loading && !isSearchActive) {
+            if (!endOfData && !loading && !isSearching) {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     loading = true;
                     currentPage++;
@@ -232,20 +226,20 @@
                 },
                 success: function(response) {
                     let html = '';
-                    response.noticeList.forEach(function(notice) {
+                    response.FaqList.forEach(function(notice) {
                         html += '<tr>';
                         html += '<td><a href="/notice/getDetailNotice/' + notice.noticeNo + '">' + notice.noticeTitle + '</a>';
                         html += '<div class="notice-reg-date">' + formatDate(notice.noticeRegDate) + '</div></td>';
                         html += '<td class="text-center">';
-                        html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>'; // id를 고유하게 변경
+                        html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>';
                         html += '<input type="hidden" value="' + notice.noticeNo + '">';
                         html += '</td>';
                         html += '</tr>';
                     });
                     $('.notice-list').append(html);
                     loading = false;
-                    checkIfMoreContentNeeded(response.noticeList.length);
-                    bindToggleEvent(); // 추가된 목록에 이벤트 바인딩
+                    checkIfMoreContentNeeded(response.FaqList.length);
+                    bindToggleEvent();
                 },
                 error: function() {
                     console.log('Error occurred while loading more notices.');
@@ -277,7 +271,9 @@
                                 "Content-Type": "application/json"
                             },
                             success: function(JSONData) {
-                                var newContentRow = '<tr class="notice-content-row"><td colspan="2">' + JSONData.noticeText + '</td></tr>';
+                                console.log("Received data:", JSONData.noticeText); // 디버깅용
+                                var formattedContent = JSONData.noticeText;
+                                var newContentRow = '<tr class="notice-content-row"><td colspan="2"><pre class="notice-content">' + formattedContent + '</pre></td></tr>';
                                 $tr.after(newContentRow);
                                 $("#caret-" + noticeNo).toggleClass("bi-caret-down-fill bi-caret-up-fill");
                             },
@@ -311,7 +307,7 @@
                 const searchKeyword = $('#searchKeyword').val();
                 currentPage = 1;
                 endOfData = false;
-                isSearchActive = true;
+                isSearching = true;
                 $.ajax({
                     url: '/rest/notice/getFaqList',
                     method: 'GET',
@@ -322,44 +318,39 @@
                     },
                     success: function(response) {
                         let html = '';
-                        response.noticeList.forEach(function(notice) {
+                        response.FaqList.forEach(function(notice) {
                             html += '<tr>';
                             html += '<td><a href="/notice/getDetailNotice/' + notice.noticeNo + '">' + notice.noticeTitle + '</a>';
                             html += '<div class="notice-reg-date">' + formatDate(notice.noticeRegDate) + '</div></td>';
                             html += '<td class="text-center">';
-                            html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>'; // id를 고유하게 변경
+                            html += '<i class="bi bi-caret-down-fill" id="caret-' + notice.noticeNo + '"></i>';
                             html += '<input type="hidden" value="' + notice.noticeNo + '">';
                             html += '</td>';
                             html += '</tr>';
                         });
                         $('.notice-list').html(html);
                         loading = false;
-                        checkIfMoreContentNeeded(response.noticeList.length);
-                        bindToggleEvent(); // 추가된 목록에 이벤트 바인딩
-                        isSearchActive = false;
+                        checkIfMoreContentNeeded(response.FaqList.length);
+                        bindToggleEvent();
                     },
                     error: function() {
-                        console.log('Error occurred while loading notices.');
+                        console.log('검색중 에러에러에러에러에러');
                         loading = false;
+                        isSearching = false;
                     }
                 });
             });
         }
 
-        $(document).ready(function() {
-            bindSearchForm();
-        });
 
-        $(document).ready(function() {
+        function bindDropdownEvents() {
             $('.dropdown-item').click(function(e) {
                 e.preventDefault();
                 var condition = $(this).data('condition');
                 $('#searchCondition').val(condition);
                 $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
             });
-        });
-        // 페이지 로드 후 첫 번째 페이지 목록에 이벤트 바인딩
-        bindToggleEvent();
+        }
     </script>
 </body>
 

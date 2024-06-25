@@ -83,27 +83,23 @@ public class ProductController {
         return "redirect:/product/getAdminProductList";
     }
     
-    @GetMapping("/getProductList") //상품 목록 조회 
+    @GetMapping("/getProductList")
     public String getProductList(@ModelAttribute("search") Search search, Model model) throws Exception {
-    	
-    	if(search.getCurrentPage() == 0) {
-			search.setCurrentPage(1);
-		}
-    	int offset = (search.getCurrentPage() - 1) * pageSize;
+        if (search.getCurrentPage() == 0) {
+            search.setCurrentPage(1);
+        }
+        int offset = (search.getCurrentPage() - 1) * pageSize;
         search.setOffset(offset);
-		search.setLimit(pageSize);
-		
-        Map<String, Object> map = productService.getProductList(search);
-        List<Product> productList = (List<Product>) map.get("productList");
-        
-        
-        int totalCount = (int) map.get("productTotalCount");
-        
-        System.out.println("productList =====" + productList);
+        search.setLimit(pageSize);
 
-        model.addAttribute("productList", productList);
+        Map<String, Object> map = productService.getProductList(search);
+        Page resultPage = new Page(search.getCurrentPage(), ((Integer) map.get("productTotalCount")).intValue(), pageUnit, pageSize);
+
+        System.out.println("productList =====" + resultPage);
+
+        model.addAttribute("productList", map.get("productList"));
         model.addAttribute("search", search);
-        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("resultPage", resultPage);
 
         return "product/getProductList";
     }
