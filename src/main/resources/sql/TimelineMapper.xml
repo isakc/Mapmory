@@ -342,6 +342,16 @@ LIMIT #{limit} OFFSET #{offset}
 		ORDER BY a1.checkpoint_date ASC,
 		a1.checkpoint_date IS NULL DESC
 	</if>
+	<if test="searchCondition==3">
+		<trim prefix="where" prefixOverrides="AND||OR">
+			a1.record_user_id = #{userId} 
+			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
+			AND a1.checkpoint_date<![CDATA[<=]]>(#{searchKeyword} + INTERVAL 1 DAY)
+			AND timecapsule_type=0
+		</trim>
+		ORDER BY a1.checkpoint_date ASC,
+		a1.checkpoint_date IS NULL DESC
+	</if>
 	Limit 1
 </select>
 

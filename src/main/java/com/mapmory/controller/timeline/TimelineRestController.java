@@ -25,6 +25,7 @@ import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.Record;
+import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.TimelineUtil;
@@ -90,8 +91,15 @@ public class TimelineRestController {
 		record.setCategoryNo(0);
 		String text="";
 		int recordNo=timelineService.addTimeline(record);
+		record=timelineService.getDetailTimeline(recordNo);
+		CountAddressDto countAddressDto=timelineService.getCountAddress(record);
 		if(recordNo!=0) {
-			text+="체크포인트가 저장 완료 WHYNOT!"+timelineService.getDetailTimeline(recordNo);
+			text+="체크포인트가 저장 완료 : "+record.getLatitude()+"/"+record.getLongitude()+"/"
+					+record.getCheckpointAddress()+"/"+record.getCheckpointDate();
+			if(countAddressDto.getCheckpointCount()>1) {
+				text+=", 현재 위치에 "+ countAddressDto.getCheckpointCount() + " 회, 재방문하였습니다. 최근 방문 일시는" 
+						+ countAddressDto.getCheckpointDate()+ "입니다.";
+;			}
 		}else {
 			text+="체크포인트 저장 안됨";
 		}
