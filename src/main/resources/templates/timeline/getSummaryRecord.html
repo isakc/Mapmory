@@ -35,9 +35,9 @@
 		            <div class="media-preview">
 		                <video th:if="${record.mediaName}" controls muted preload="metadata" class="preview-video">
 		                    <!-- 자동 재생이 필요하면 autoplay 속성 추가 -->
-		                    <source th:src="@{/path/to/media/${record.mediaName}}" type="video/mp4">
+		                    <source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
 		                </video>
-		                <!-- 동영상을 클릭할 때 동작하는 스크립트 -->
+		                <!-- 동영상을 클릭할 때 동작하는 스크립트
 		                <script th:inline="javascript">
 		                    /*<![CDATA[*/
 		                    function playVideo(mediaName) {
@@ -52,14 +52,14 @@
 		                    }
 		                    /*]]>*/
 		                </script>
-		                <!-- 동영상 클릭 시 -->
+		                동영상 클릭 시
 		                <span th:if="${record.mediaName}" onclick="playVideo('${record.mediaName}')">
 		                    Click to play video
-		                </span>
+		                </span> -->
 		            </div>
 				    <!-- 이미지가 있으면 렌더링 -->
 				    <span th:if="${record.imageName}">
-				        <img th:src="@{https://placehold.co/600x400}" alt="Image" style="width:100%;" >
+				        <img th:src="'data:image/png;base64,' + ${record.categoryImojiByte}"  alt="Image" style="width:100%;" >
 				    </span>
 			    </div>
 			</div>

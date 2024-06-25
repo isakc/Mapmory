@@ -10,26 +10,50 @@
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="/css/common/chatBot.css">
-    
+
     <style>
         body {
-            background-color: #f5f5f5;
-            padding: 20px;
+            background-color: #f8f9fa;
         }
 
-        .product-header {
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .search-box .form-group {
+            margin-right: 10px;
+        }
+
+        .search-box .btn-primary {
+            background-color: #00C6E1;
+            border-color: #00C6E1;
+        }
+
+        .search-box .btn-primary:hover {
+            background-color: #00DFB6;
+            border-color: #00DFB6;
+        }
+
+        .product-header-left {
             background-color: #00A7F5;
             color: #fff;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 20px;
-            border-radius: 10px;
+            margin-bottom: 30px;
+            border-radius: 5px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
         }
 
-        .product-header h1 {
+        .product-header-text {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-header-text h1 {
             margin: 0;
             font-size: 20px;
             font-weight: bold;
@@ -37,12 +61,23 @@
             align-items: center;
         }
 
-        .product-header .icon-wrapper {
+        .product-header-left .icon-wrapper {
             margin-right: 10px;
         }
 
-        .product-header .icon-wrapper i {
+        .product-header-left .icon-wrapper i {
             font-size: 24px;
+        }
+        
+        .product-table th {
+            background-color: #2780E3;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .empty-div {
+            width: 24px;
         }
 
         .product-header a {
@@ -51,15 +86,23 @@
             font-size: 20px;
         }
 
-        .product-item {
+        .table-container {
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
             padding: 15px;
-            margin-bottom: 20px;
+        }
+
+        .product-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
         }
 
         .product-image {
@@ -78,6 +121,7 @@
 
         .product-info {
             flex: 1;
+            margin-left: 15px;
         }
 
         .product-info h2 {
@@ -92,71 +136,101 @@
         }
 
         .product-info .price {
-            font-size: 12px;
+            font-size: 16px;
             color: #6c757d;
         }
 
         .product-actions {
-            text-align: right;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
         }
 
-        .product-actions a {
-            color: #2780e3;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 5px;
+        .product-actions .btn {
+            width: 100%;
         }
 
-        .product-actions a:hover {
-            color: #1c67c2;
-        }
-
-        .product-actions p {
+        .reg-date {
+            font-size: 0.9em;
             color: #6c757d;
-            font-size: 12px;
         }
     </style>
 </head>
 
 <body>
-    <div id=content-for-footer>
-        <div class="container">
-            <div class="product-header">
-                <div class="icon-wrapper">
-                    <a th:href="@{/common/menu}">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
+    <div id="content-for-footer">
+        <div id="content-for-left">
+            <div class="container">
+                <div class="product-header-left">
+                    <div class="icon-wrapper">
+                        <a th:href="@{/common/menu}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </div>
+                    <div class="product-header-text">
+                        <h1><i class="bi bi-bell"></i> 상품 목록</h1>
+                    </div>
+                    <div class="empty-div"></div>
                 </div>
-                <h1><i class="bi bi-bag"></i> 상품 목록</h1>
-                <div></div>
+
+                <div class="search-box">
+                    <form th:action="@{/product/getProductList}" method="get" class="input-group">
+                        <div class="form-group">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span th:text="${search.searchCondition == 0 ? '상품명' : (search.searchCondition == 1 ? '가격' : '검색 조건')}"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-condition="0">상품명</a></li>
+                                    <li><a class="dropdown-item" href="#" data-condition="1">가격</a></li>
+                                </ul>
+                                <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+                            </div>
+                        </div>
+                        <div class="form-group flex-grow-1">
+                            <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">검색</button>
+                    </form>
+                </div>
             </div>
+        </div>
+        <div class="table-container">
             <table class="table table-hover product-table">
+                                    <thead>
+                            <tr>
+                                <th>상품정보</th>
+                                <th>구매</th>
+                            </tr>
+                        </thead>
                 <tbody class="product-list">
                     <!-- 상품 목록이 여기 추가됩니다 -->
                 </tbody>
             </table>
-        </div><!-- Modal for Image Slideshow -->
-        <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="imageModalLabel">상품 이미지</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                <!-- 이미지 슬라이드가 여기 추가됩니다 -->
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
+        </div>
+    </div>
+    <!-- Modal for Image Slideshow -->
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">상품 이미지</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <!-- 이미지 슬라이드가 여기 추가됩니다 -->
                         </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -169,9 +243,10 @@
         let currentPage = 1;
         let loading = false;
         let endOfData = false;
+        let isSearching = false;
 
         $(window).scroll(function() {
-            if (!endOfData && !loading) {
+            if (!endOfData && !loading && !isSearching) {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                     loading = true;
                     currentPage++;
@@ -190,7 +265,8 @@
                 success: function(response) {
                     let html = '';
                     response.forEach(function(product) {
-                        html += '<tr><td>';
+                        html += '<tr>';
+                        html += '<td>';
                         html += '<div class="product-item">';
                         html += '<div class="product-image">';
                         if (product.uuid && product.uuid.length > 0) {
@@ -200,13 +276,15 @@
                         html += '<div class="product-info">';
                         html += '<h2><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></h2>';
                         html += '<p class="price">' + product.price + '원</p>';
+                        html += '<p class="reg-date">' + formatDate(product.productRegDate) + '</p>';
                         html += '</div>';
                         html += '<div class="product-actions">';
-                        html += '<a href="/purchase/addPurchaseView/'+product.productNo+'">구매</a>';
-                        html += '<p>' + formatDate(product.productRegDate) + '</p>';
+                        html += '</td><td>'
+                        html += '<button class="btn btn-primary btn-sm" onclick="location.href=\'/purchase/addPurchaseView/' + product.productNo + '\'">구매</button>';
                         html += '</div>';
                         html += '</div>';
-                        html += '</td></tr>';
+                        html += '</td>';
+                        html += '</tr>';
                     });
                     $('.product-list').append(html);
                     loading = false;
@@ -267,9 +345,75 @@
             });
         }
 
+        function bindSearchForm() {
+            $(document).on('submit', '.search-box form', function(e) {
+                e.preventDefault();
+                const searchCondition = $('#searchCondition').val();
+                const searchKeyword = $('#searchKeyword').val();
+                currentPage = 1;
+                endOfData = false;
+                loading = true;
+                isSearching = true;
+
+                $.ajax({
+                    url: '/rest/products/getProductList',
+                    method: 'GET',
+                    data: {
+                        currentPage: currentPage,
+                        searchCondition: searchCondition,
+                        searchKeyword: searchKeyword
+                    },
+                    success: function(response) {
+                        let html = '';
+                        response.forEach(function(product) {
+                            html += '<tr>';
+                            html += '<td>';
+                            html += '<div class="product-item">';
+                            html += '<div class="product-image">';
+                            if (product.uuid && product.uuid.length > 0) {
+                                html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" data-product-no="' + product.productNo + '" data-image-urls="' + product.uuid.map(u => '/product/image/' + u).join(',') + '">';
+                            }
+                            html += '</div>';
+                            html += '<div class="product-info">';
+                            html += '<h2><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></h2>';
+                            html += '<p class="price">' + product.price + '원</p>';
+                            html += '<p class="reg-date">' + formatDate(product.productRegDate) + '</p>';
+                            html += '</div>';
+                            html += '<div class="product-actions">';
+                            html += '<button class="btn btn-primary btn-sm" onclick="location.href=\'/purchase/addPurchaseView/' + product.productNo + '\'">구매</button>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</td>';
+                            html += '</tr>';
+                        });
+                        $('.product-list').html(html);
+                        loading = false;
+                        isSearching = false;
+                        checkIfMoreContentNeeded(response.length);
+                    },
+                    error: function() {
+                        console.log('검색 중 오류가 발생했습니다.');
+                        loading = false;
+                        isSearching = false;
+                    }
+                });
+            });
+        }
+
         $(document).ready(function() {
             loadMoreProducts();
+            bindDropdownEvents();
+            bindSearchForm();
         });
+
+        function bindDropdownEvents() {
+            $('.dropdown-item').click(function(e) {
+                e.preventDefault();
+                var condition = $(this).data('condition');
+                $('#searchCondition').val(condition);
+                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+            });
+        }
     </script>
 </body>
 

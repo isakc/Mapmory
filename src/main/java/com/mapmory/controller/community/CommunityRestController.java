@@ -104,6 +104,7 @@ public class CommunityRestController {
         int offset = (currentPage - 1) * pageSize;
         search.setLimit(pageSize);
         search.setOffset(offset);
+	    search.setUserId(userId);
         
 	    List<SharedRecordDto> list = timelineService.getSharedRecordList(search);
         

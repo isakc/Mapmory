@@ -183,17 +183,4 @@ public class ChatbotRestController {
 		        response.put("message", welcomeMessage);
 		        return ResponseEntity.ok(response.toString());
 		    }
-		    // 페이지 내비게이션 서비스
-		    @RequestMapping("navi")
-		    public ResponseEntity<Map<String, String[]>> pageNavigation(@RequestBody(required = false) Map<String, String[]> data, HttpServletRequest request) throws Exception {
-		        if (data != null && data.containsKey("url")) {
-		            String[] urls = data.get("url");
-		            if (urls != null && urls.length > 0) {
-		                String[] responseData = new String[]{urls[0]};
-
-		                return ResponseEntity.ok().body(Collections.singletonMap("url", responseData));
-		            }
-		        }
-		        return ResponseEntity.badRequest().build();
-		    }
 		}

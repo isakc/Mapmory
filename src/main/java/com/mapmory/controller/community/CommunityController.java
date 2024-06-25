@@ -76,6 +76,7 @@ public class CommunityController {
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
+	    search.setUserId(userId);
 	    search.setOffset((currentPage - 1) * pageSize);
 	  
 		model.addAttribute("sharedRecordlist",timelineService.getSharedRecordList(search));	
@@ -89,7 +90,8 @@ public class CommunityController {
 	public String getDetailSharedRecord(Search search, String userId, Model model, @PathVariable int recordNo, HttpServletRequest request) throws Exception{
 		
 		userId = redisUtil.getSession(request).getUserId();
-			
+		search.setUserId(userId);
+		
 		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
 		
 		List<CommunityLogs> userLogs = communityService.getUsersLogs(userId, recordNo);

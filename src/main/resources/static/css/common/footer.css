@@ -6,7 +6,7 @@
 }
 
 .footer-container {
-		border-top: 2px solid #E6F4F1;
+		border-top: 2px solid #2780e3;
 		width : 100%;
 		height : 30%;
 		margin: 0;
@@ -24,7 +24,7 @@
 	  transform: translateZ(0);
 	  display: flex;
 	  /* box-shadow: 0 -2px 5px -2px #333; */
-	  background-color: #E3F0FF;
+	  background-color: #ffffff;
 	}
 	.mobile-bottom-nav__item {
 	  flex-grow: 1;
