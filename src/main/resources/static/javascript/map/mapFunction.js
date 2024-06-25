@@ -36,6 +36,8 @@ function setMarkers(contentList) {
         if(content.markerType === 5 || content.markerType === 6 || content.markerType === 8 || 
         content.markerType === 9 ||content.markerType === 10 || content.markerType === 11 || content.markerType === 12){
 			startEndMarkers.push(marker);
+		}else if(content.markerType == 4) {
+			currentMarker = marker;
 		}else{
 			markers.push(marker);
 		}

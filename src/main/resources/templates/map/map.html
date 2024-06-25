@@ -23,10 +23,8 @@
 	
 	<div id=content-for-footer>
 		<div id="map"></div><!-- map -->
-				
-		<div id="searchFormDiv">
-    		<form>
-    		<input type="hidden" name="categoryNo" value="0"/>
+		<form>
+			<input type="hidden" name="categoryNo" value="0"/>
     		<div id="searchBoxGroup">
     		
     			<div class="radius-links">
@@ -48,45 +46,50 @@
     		</div><!-- searchBoxGroup: 위의 검색 조건 박스 -->
     		
     		<div class="mt-5" id="toggleBox">
-				<div class="toggle-container justify-content-end d-flex">
-					<div class="btn btn-light" onclick="searchRecord()"><i class="fas fa-sync"></i></div>
+				<div class="toggle-container">
   					<div class="toggle-switch" id="toggle-switch"></div>
 				</div><!-- 토글버튼 -->
-				
-				<div class="justify-content-end d-flex" id="checkboxGroup">
-					<div class="checkbox-container">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" id="private" checked>
-						</div>
-						
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" id="public" checked>
-						</div>
-						
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" id="follow" checked>
-						</div>
+
+				<div class="checkbox-container" id="checkboxGroup">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="private" checked>
+					</div>
+
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="public" checked>
+					</div>
+
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="follow" checked>
 					</div>
 				</div>
+
+				<div class="justify-content-end d-flex">
+					<div class="btn btn-light rounded-circle" onclick="getCurrentLocation()"><i class="fas fa-crosshairs"></i></div>
+				</div><!-- 내위치 -->
+				
+				<div class="justify-content-end d-flex">
+					<div class="btn btn-light rounded-circle" onclick="searchRecord()"><i class="fas fa-sync"></i></div>
+				</div><!-- 새로고침 -->
 			</div>
-    		</form><!-- form -->
-    	</div><!-- searchFormDiv -->
+    	</form><!-- form -->
 		
 		<div id="bottomBox">
-        		<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
-        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
-        		<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
-        			<div id="resultDivs">
-						<div id="result" class="infoItem"></div><!-- 결과창 -->
-						<div id="description" class="infoItem"></div><!-- 기록 보기 -->
-						<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창 -->
-					</div>
+        	<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
+        	<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        	<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
+        		
+        	<div id="resultDivs">
+				<div id="result" class="infoItem"></div><!-- 결과창 -->
+				<div id="description" class="infoItem"></div><!-- 기록 보기 -->
+				<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창 -->
 			</div>
-			<div class="footer-map">
-	<div th:replace="common/footer::defaultFooter"></div>
+		</div>
+		
+		<div class="footer-map">
+			<div th:replace="common/footer::defaultFooter"></div>
+		</div>
 	</div>
-	</div>
-	
 	
 	<script th:inline="javascript">
 	
@@ -99,6 +102,7 @@
 	let markers = []; //기록 마커 모음
 	let bounds= new kakao.maps.LatLngBounds(); // 마커들의 주어진 영역이 화면 안에 전부 나타날 수 있도록 지도의 중심 좌표와 확대 수준을 설정
 	let startEndMarkers=[]; //출발, 도착 마커
+	let currentMarker;
 	let polylines = []; // 경로 찾기 선 그리기
 	let paths = []; // 경로 찾기 때 paths에 저장
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
@@ -163,16 +167,13 @@
 						result.addClass("on");
 						map.setBounds(bounds);
 						setMarkers(recordList);
-					}else{
-						alert("해당하는 기록이 없습니다!!");
-					}//if~else
+					}
 					
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
 				} // error
 			}); //기록 검색 ajax
-
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
 			alert('내 위치 확인 권한을 허락 해주세요!');
@@ -243,8 +244,13 @@
 			
 	            let locPosition = new kakao.maps.LatLng(location.coords.latitude, location.coords.longitude); // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성
 	            map.setCenter(locPosition); // map center 변경
-	            setMarkers([{ latitude: location.coords.latitude, longitude: location.coords.longitude, markerType:4 } ]);
+	            map.setLevel(3); // 지도 확대레벨 변경
 	            
+	            if(currentMarker != null){
+	            	currentMarker.setMap(null);
+	            }
+	            
+	            setMarkers([{ latitude: location.coords.latitude, longitude: location.coords.longitude, markerType:4 } ]);
 	            deferred.resolve(location);
 	        }, function(error) {
 	            deferred.reject(error);
@@ -292,7 +298,8 @@
 		searchRecord();
 	});// private, public, follow, 반경 변경 시 다시 검색
 	
-	$(document).on("click", "#mainButton", function(event){
+	$(document).on("click", "#routeButton", function(event){
+		event.stopPropagation();
 		 $(".routeAdditionalButtons").toggle();
 	}); // 경로클릭
 	
@@ -301,10 +308,14 @@
 	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로
 	
-	$(document).on("click", ".detailRecord .row", function(){
-	    deleteDescription();
-	    description.append(simpleRecordElement($(this).parent().data('index')) );
+	$(document).on("click", ".detailRecord", function(event){
+		deleteDescription();
+		description.append(simpleRecordElement($(this).data('index')) );
 	}); // 상세 보기 눌렀을 때 간단 보기로
+	
+	$(document).on('click', '.carousel-inner .carousel-control-prev, .carousel-control-next', function(event) {
+        event.stopPropagation(); // 이벤트 전파 중지
+    });
 	
 	$('input[name="searchKeyword"]').on('focus', function(){
         getSuggestions();
@@ -353,14 +364,14 @@
         
         if ($(this).hasClass('active')) {
           $(this).attr('title', '추천');
-          checkboxGroup.css('visibility', 'hidden');
-          searchBoxGroup.css('visibility', 'hidden');
+          checkboxGroup.css('display', 'none');
+          searchBoxGroup.css('display', 'none');
           refrestButtn.attr('onClick', 'getRecommendPlace()');
           getRecommendPlace();
         } else {
           $(this).attr('title', '기록');
-          checkboxGroup.css('visibility', 'visible');
-          searchBoxGroup.css('visibility', 'visible');
+          checkboxGroup.css('display', 'inline-block');
+          searchBoxGroup.css('display', 'block');
           refrestButtn.attr('onClick', 'searchRecord()');
           searchRecord();
         }
