@@ -323,12 +323,13 @@ $(function() {
 		$('input[name="tempType"]').val(1);
 		$('form').submit();
 	})
+	/* 
+	$('button:contains("주소검색"), input[name="checkpointAddress"]').on('click',function(){
+			sample5_execDaumPostcode();
+	}) */
 	
-	$(function(){
-		$('button:contains("주소검색"), input[name="checkpointAddress"]').on('click',function(){
-				sample5_execDaumPostcode();
-		})
-		
+	$('button:contains("주소검색")').on('click',function(){
+			sample5_execDaumPostcode();
 	})
 	
 	$('textarea[name="recordText"]').on('keyup',function(event){
