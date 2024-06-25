@@ -18,7 +18,7 @@
         }
 
         .product-header {
-            background-color: #007bff;
+            background-color: #27B0E3;
             color: #fff;
             padding: 20px;
             text-align: center;
@@ -59,7 +59,7 @@
         }
 
         .product-detail h2 {
-            color: #007bff;
+            color: #27B0E3;
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 20px;
@@ -83,6 +83,64 @@
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        
+        .action-links {
+            margin-top: 40px;
+        }
+
+        .action-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-left: 270px;
+            transition: background-color 0.3s;
+        }
+
+        .action-links a:hover {
+            background-color: #27B0E3;
+        }
+        
+        .modal-header {
+            background-color: #27B0E3;
+            color: #fff;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            font-size: 18px;
+        }
+
+        .modal-footer .btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+
+        .action-links a.purchase-link {
+            background-color: #27B0E3;
+        }
+
+        .action-links a.purchase-link:hover {
+            background-color: #c82333;
+        }
+        
+        .price {
+		    font-size: 24px;
+		    font-weight: bold;
+		    color: #6675D4;
+		}
+
+		.won {
+		    font-size: 20px;
+		    font-weight: bold;
+		    color: #6675D4;
+		}
     </style>
 </head>
 
@@ -100,15 +158,54 @@
             </div>
             <div class="product-detail">
                 <h2 th:text="${product.productTitle}">상품 제목</h2>
-                <p th:text="${product.price}">가격</p>
+                <p><span th:text="${product.price}" class="price"></span><span class="won">원</span></p>
                 <div class="product-image">
                     <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" class="img-fluid rounded">
+                </div>
+                <div class="action-links">
+                <a class="purchase-link" data-toggle="modal" data-target="#confimPurchaseModal">구매</a>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="confimPurchaseModal" tabindex="-1" role="dialog" aria-labelledby="confimPurchaseModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confimPurchaseModal">구매 확인</h5>
+                </div>
+                <div class="modal-body">
+                    <p>정말로 구매하시겠습니까?</p>
+                </div>
+                <div class="modal-footer">
+                    <a th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${product.productNo})}" class="btn btn-primary">구매</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                 </div>
             </div>
         </div>
     </div>
     <div th:include="~{ 'common/chatbotModal.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Popper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.min.js"></script>
+
+    <!-- 모달 관련 스크립트 -->
+    <script>
+        $(document).ready(function() {
+            $('.purchase-link').click(function() {
+                $('#confimPurchaseModal').modal('show');
+            });
+
+            $('#confimPurchaseModal .btn-secondary').click(function() {
+                $('#confimPurchaseModal').modal('hide');
+            });
+        });
+    </script>
 </body>
 
 </html>
