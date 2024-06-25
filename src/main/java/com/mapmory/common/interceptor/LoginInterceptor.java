@@ -93,7 +93,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 			return false;
 		} else {
 			
-			System.out.println("현재 login 상태입니다.");
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
 			
@@ -124,25 +123,25 @@ public class LoginInterceptor implements HandlerInterceptor {
 				}
 				
 				
+				// 불필요한 세션 업데이트 방지 리스트
+				boolean needToUpdate = true;
+				String[] sessionUpdateBlackList = {"/rest", "/bot"};
+				for(String s : sessionUpdateBlackList) {
+					
+					if (requestURI.contains(s) ) {
+						needToUpdate = false; 
+						break;
+					}
+				}
+				
 				// 세션을 연장한다.
 				boolean result = true;
-				if(!requestURI.contains("/rest")) {
+				if(needToUpdate) {
 					
+					System.out.println("현재 login 상태입니다.");
 					result = redisUtil.updateSession(request, response);
 					System.out.println("is session update successfully? : " + result);
 				}
-				
-				
-				/*
-				if(requestURI.equals("/")) {
-					
-					System.out.println("login 상태... main으로 이동합니다.");
-					if(sessionData.getRole() == 1)
-						response.sendRedirect("/map");
-					else
-						response.sendRedirect("/user/admin/getAdminMain");
-				}
-				*/
 				
 				return result;
 				

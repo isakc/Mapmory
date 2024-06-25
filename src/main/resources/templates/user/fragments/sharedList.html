@@ -144,10 +144,13 @@
     			    		  if(thumbnailName != null)
     			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
     			    		  temp += '<p class="fw-bold">'+title+'</p>';
-    			    		  temp += '<div class="category d-flex">'
-    				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
-    				    		  temp += '<p>'+categoryName+'</p>';
-    			    		  temp += '</div>'
+    			    	if(categoryEmoji != undefined) {
+    			    		temp += '<div class="category d-flex">'
+  				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+  				    		  temp += '<p>'+categoryName+'</p>';
+  			    		  temp += '</div>'
+    			    		
+    			    	}	  
     			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
     			    		  temp += '</div>';
     		    		  temp += '<hr/>';

@@ -877,6 +877,8 @@ public class UserController {
 		
 		// int totalSharedListCount = timelineService.getTimelineList(search).size();
 		int totalSharedListCount = timelineService.getProfileTimelineCount(search);
+		System.out.println("profile count : " + totalSharedListCount);
+		
 		
 		Profile profile = Profile.builder()
 					.user(user)
