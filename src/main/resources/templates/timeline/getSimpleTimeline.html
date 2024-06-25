@@ -11,15 +11,38 @@
 	background-color: #00C6E1;
 }
 
-#getSimpleTimeline {
-    position: absolute;
-    bottom: 7dvh; /* 컨테이너를 화면 하단에 고정 */
+#map {
+    position: fixed; /* 상단에 고정 */
+    top: 0; /* 화면의 맨 위에 배치 */
     left: 0;
     width: 100%;
+    height: 100dvh; /* 높이를 화면의 100%로 설정 */
+    z-index: 1; /* 다른 요소보다 뒤에 배치 */
+    overflow-y: hidden; /* 세로 스크롤 추가 */
+    transition: top 0.3s ease-in-out;
+}
+
+#map.visible {
+    top: -15dvh; /* 보이는 위치: 화면 하단 */
+}
+
+#getSimpleTimeline {
+    position: fixed; /* fixed 위치로 변경 */
+    bottom: -11dvh; /* 하단에 고정 */
+    left: 0;
+    width: 100%;
+    height: 18dvh; /* 높이를 화면의 60%로 설정 */
     display: flex;
     flex-direction: column;
-    align-items: left; /* 중앙 정렬  */
-    z-index: 2;
+    align-items: left;
+    z-index: 2; /* #map 요소보다 앞에 배치 */
+    overflow-y: auto; /* 세로 스크롤 추가 */
+    background-color: white; /* 배경색을 설정하여 다른 요소와 구분 */
+    transition: bottom 0.3s ease-in-out; /* 애니메이션 */
+}
+
+#getSimpleTimeline.visible {
+    bottom: 7dvh; /* 보이는 위치: 화면 하단 */
 }
 </style>
 </head>
@@ -55,9 +78,15 @@
 $(function() {
 	
 	$("div[name='getKakaoMap']").click(function() {
-		let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
-		uri="?selectDay="+selectDay;
-		self.location.replace("/timeline/getTimelineList"+uri);
+
+        $('#getSimpleTimeline').removeClass('visible');
+        $('#map').removeClass('visible');
+		
+	    setTimeout(function() {
+			let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
+			uri="?selectDay="+selectDay;
+			self.location.replace("/timeline/getTimelineList"+uri);
+	    }, 300); // 페이지 로드 후 100ms 후에 애니메이션 시작
 	})
 	
 	$("div[name='getSimpleTimeline']").click(function() {
@@ -65,6 +94,12 @@ $(function() {
 		uri="?recordNo="+recordNo;
 		self.location.replace("/timeline/getDetailTimeline"+uri);
 	})
+	
+    setTimeout(function() {
+        $('#getSimpleTimeline').addClass('visible');
+        $('#map').addClass('visible');
+    }, 100); // 페이지 로드 후 100ms 후에 애니메이션 시작
+
 })
 </script>
 </body>	
