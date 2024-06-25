@@ -199,7 +199,11 @@ public class TimelineController {
 		search.setSelectDate(Date.valueOf(selectDate));
 		
 		List<SummaryRecordDto> recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
-
+		
+		search.setSearchCondition(3);
+		
+		model.addAttribute("startDay",timelineService.getSummaryDate(search).substring(0, 10));
+		model.addAttribute("today", LocalDate.now().toString());
 		model.addAttribute("selectDate", selectDate);
 		model.addAttribute("recordList", recordList);
 		return "timeline/getSummaryRecord";
