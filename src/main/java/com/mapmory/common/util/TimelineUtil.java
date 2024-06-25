@@ -24,6 +24,7 @@ import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
+import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -415,17 +416,31 @@ public class TimelineUtil {
 			return record;
 		}
 
-		public Record summaryToByte(Record record) throws Exception {
-			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
-				try {
-				record.setMediaByte(Base64.getEncoder().encodeToString(
-						objectStorageUtil.getImageBytes(record.getMediaName(), mediaFileFolder)));
-				}catch(FileNotFoundException e){
-					record.setMediaByte(null);
-					System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+		public List<SummaryRecordDto> summaryFileNameToByte(List<SummaryRecordDto> recordList) throws Exception {
+			List<SummaryRecordDto> tempList=new ArrayList<SummaryRecordDto>();
+			for(SummaryRecordDto record : recordList) {
+				if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
+					try {
+					record.setMediaByte(Base64.getEncoder().encodeToString(
+							objectStorageUtil.getImageBytes(record.getMediaName(), mediaFileFolder)));
+					tempList.add(record);
+					}catch(FileNotFoundException e){
+						record.setMediaByte(null);
+						System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+					}
+				}
+				if (!(record.getImageName() == null || record.getImageName().equals(""))) {
+					try {
+					record.setImageByte(Base64.getEncoder().encodeToString(
+							objectStorageUtil.getImageBytes(record.getImageName(), imageFileFolder)));
+					tempList.add(record);
+					}catch(FileNotFoundException e){
+						record.setMediaByte(null);
+						System.out.println("데이터베이스에 파일이 존재 하나 ObjectStorige에 없습니다.:"+e);
+					}
 				}
 			}
-			return record;
+			return tempList;
 		}
 		
 		public List<Category> categoryImojiListToByte(List<Category> categoryList) throws Exception {

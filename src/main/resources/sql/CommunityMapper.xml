@@ -66,6 +66,13 @@
 			(SELECT COUNT(*) FROM community_logs cl WHERE cl.record_no = r2.record_no AND cl.reply_no = r2.reply_no AND cl.logs_type = 3) AS dislike_count			
 		FROM reply r2
 		WHERE r2.record_no = #{recordNo}
+	    AND NOT EXISTS (
+	        SELECT 1
+	        FROM follow_block fb
+	        WHERE fb.user_id = #{search.userId}
+	        AND fb.target_id = r2.user_id
+	        AND fb.fb_type = 1
+	    )		
 		ORDER BY reply_date ASC
 	</select>
 

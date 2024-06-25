@@ -67,7 +67,6 @@ public class MainController {
 				// response.sendRedirect("/");
 				return "redirect:/";
 			}
-
 			
 			System.out.println("login 상태... main으로 이동합니다.");
 			if(sessionData.getRole() == 1)

@@ -98,7 +98,7 @@
 </head>
 
 <body>
-<div th:replace="common/toolBar::defaultToolBar"></div>
+    <div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <div class="notice-header">
             <h2><i class="bi bi-megaphone"></i> 자주하는질문 목록</h2>
@@ -137,7 +137,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="notice, status : ${noticeList}" scope="row">
+                    <tr th:each="notice, status : ${FaqList}" scope="row">
                         <td>
                             <a class="notice-title" th:href="@{/notice/admin/getDetailNotice/{noticeNo}(noticeNo=${notice.noticeNo})}" th:text="${notice.noticeTitle}"></a>
                             <div class="notice-reg-date" th:text="${notice.noticeRegDate}"></div>
