@@ -162,12 +162,15 @@ body{margin-top:20px;}
 	<ul class="timeline" th:each="record : ${timelineList}">
 		<li class="event" ><!-- th:data-date="${record.checkpointDate}" -->
 			<h3 th:text="${record.checkpointDate}"></h3>
-			<p><span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span></p>
+			<p><span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span>
+				<span>&nbsp &nbsp</span>
+				<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}"></label>
+				<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'"></label>
+			</p>
 			<p>
 			<span class="recordNo">
-				<a class="text-primary" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="'&nbsp ' + ${record.recordTitle} + '&nbsp '"></a>
+				<a class="text-primary" th:id="getSimpleTimeline" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
 			</span>
-			<span th:text="${record.tempType==1 ? '기록됨' : ''}"></span>
 			</p>
 	<!-- <table border='1'>
 		<thead>
@@ -234,7 +237,7 @@ $(function() {
 		let recordNo=$(this).data('recordno');
 		/* alert(recordNo); */
 		uri="?recordNo="+recordNo;
-		self.location="/timeline/getSimpleTimeline"+uri;
+		self.location.replace("/timeline/getDetailTimeline"+uri);
 	})
 	
 	 /* $("input[name='getTimelineListSelect']").datepicker({

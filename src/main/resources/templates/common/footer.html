@@ -15,7 +15,7 @@
 </style>	
 </head>
 
-<body >
+<body>
 <footer th:fragment="defaultFooter" class="footer-container">
  <!--	<table>
 		<tbody>
@@ -50,7 +50,7 @@
 			<div class="mobile-bottom-nav__item" >
 				<div class="mobile-bottom-nav__item-content" name="체크포인트">
 					<i class="large material-icons notranslate">album</i>
-					Record
+					Checkpoint
 				</div>		
 			</div>
 		</th:block>
@@ -102,12 +102,12 @@ $(function() {
 		    // GeoLocation을 이용해서 접속 위치를 얻어옵니다
 		    navigator.geolocation.getCurrentPosition(function(position) {
 		        
-		    	var lat = position.coords.latitude; // 위도
-		    	var lon = position.coords.longitude; // 경도
-		        console.log(lat);
-		        console.log(lon);
-		    	$('input[name="latitudeOfFooter"]').val(lat).trigger('change');
-		        $('input[name="longitudeOfFooter"]').val(lon);
+		    	var latFooter = position.coords.latitude; // 위도
+		    	var lonFooter = position.coords.longitude; // 경도
+		        console.log(latFooter);
+		        console.log(lonFooter);
+		    	$('input[name="latitudeOfFooter"]').val(latFooter).trigger('change');
+		        $('input[name="longitudeOfFooter"]').val(lonFooter);
 		      });
 		    
 		} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
@@ -117,8 +117,8 @@ $(function() {
 	})//$("img[name='체크포인트']").on("click", function() { 끝
 		
 	$('input[name="latitudeOfFooter"]').on("change",function(){
-		let latitude = $('input[name="latitudeOfFooter"]').val();
-		let longitude = $('input[name="longitudeOfFooter"]').val();
+		let latitudeFooter = $('input[name="latitudeOfFooter"]').val();
+		let longitudeFooter = $('input[name="longitudeOfFooter"]').val();
 		$.ajax("https://dapi.kakao.com/v2/local/geo/coord2address.json",{
 			method : "GET",
 			dataType : "json",
@@ -127,8 +127,8 @@ $(function() {
 				"Content-type" : "application/json;charset=UTF-8"
 			},
 			data : {
-				x : longitude,
-				y : latitude
+				x : longitudeFooter,
+				y : latitudeFooter
 			},
 			success : function(response,status){
 				//console.log(response.documents[0].road_address);
@@ -146,8 +146,8 @@ $(function() {
 		
 		$('input[name="checkpointAddressOfFooter"]').on("change",function(){
 			let recordUserId = $('input[name="recordUserIdOfFooter"]').val();
-			let latitude = $('input[name="latitudeOfFooter"]').val();
-			let longitude = $('input[name="longitudeOfFooter"]').val();
+			let latitudeFooter = $('input[name="latitudeOfFooter"]').val();
+			let longitudeFooter = $('input[name="longitudeOfFooter"]').val();
 			let checkpointAddress = $('input[name="checkpointAddressOfFooter"]').val();
 			$.ajax("/timeline/rest/addTimeline",{
 				method : "POST",
@@ -158,8 +158,8 @@ $(function() {
 				},
 				data : JSON.stringify({
 		  		  	recordUserId : recordUserId,
-		    		latitude : latitude,
-		    		longitude : longitude,
+		    		latitude : latitudeFooter,
+		    		longitude : longitudeFooter,
 		    		checkpointAddress : checkpointAddress
 				}),
 				success : function(response,status){

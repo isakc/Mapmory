@@ -40,12 +40,11 @@
     })
 	</script>
 
-
 	<!-- 댓글 아이콘 클릭 댓글 목록 이동 -->
 	<script>
 	$(function () {
 		$('#shared-record-list').on("click", ".bi-chat-square-text-fill", function() {
-			var $row = $(this).closest('div.col-sm-4');
+			var $row = $(this).closest('div.sharedRecord');
 			console.log($row);  
 			var recordNo = $row.data('record-no');
 			console.log("기록번호 :"+recordNo);
@@ -62,7 +61,35 @@
 			console.log($row);
 			var userId = $row.data('record-userid');
 			console.log("유저 ID : "+userId);
-			window.location.href = '/user/getProfile?userId='+userId;
+			var sessionId = /*[[${search.userId}]]*/''
+			console.log("세션 ID :"+sessionId);
+			
+			if(sessionId !== userId) {
+							
+			$.ajax({
+				url: '/user/rest/checkHideProfile/'+userId,
+				type : "get",
+				// contentType : "application/json",
+				success : function(response) {
+					
+					if(response == false || response == 'false') {
+
+						window.location.href='/user/getProfile?userId='+userId;
+						return;
+						
+					} else {
+						
+						alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
+						return;
+					}						
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert('오류 발생 : ' + jqXHR.responseText)
+				}
+			});
+			} else {
+				window.location.href='/user/getProfile?userId='+userId;
+			}
 		});
 	});
 	</script>
@@ -75,7 +102,35 @@
 			console.log($row);
 			var userId = $row.data('record-userid');
 			console.log("유저 ID : "+userId);
-			window.location.href = '/user/getProfile?userId='+userId;
+			var sessionId = /*[[${search.userId}]]*/''
+				console.log("세션 ID :"+sessionId);
+				
+			if(sessionId !== userId) {
+			
+			$.ajax({
+				url: '/user/rest/checkHideProfile/'+userId,
+				type : "get",
+				// contentType : "application/json",
+				success : function(response) {
+					
+					if(response == false || response == 'false') {
+
+						window.location.href='/user/getProfile?userId='+userId;
+						return;
+						
+					} else {
+						
+						alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
+						return;
+					}						
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert('오류 발생 : ' + jqXHR.responseText)
+				}
+			});
+			} else {
+				window.location.href='/user/getProfile?userId='+userId;
+			}			
 		});
 	});
 	</script>	
@@ -89,16 +144,16 @@
 			var recordNo = $row.data('recordno');
 			window.location.href = '/community/getDetailSharedRecord/'+recordNo;
 		});
+		
+		$('#shared-record-list').on("click", ".recordImage", function() {
+            var $row = $(this).closest('div.card-body').find('span.title');
+            console.log($row);
+            var recordNo = $row.data('recordno');
+			window.location.href = '/community/getDetailSharedRecord/'+recordNo;
+		});		
 	});
 	</script>
 	
-	<!-- 카테고리 선택 검색 -->
-	<script th:inline="javascript">
-
-
-
-	</script>
-
 	<!-- 무한 스크롤 -->
 	<script th:inline="javascript">
 		var currentPage = 2;
@@ -123,12 +178,14 @@
         
     	$(function() {
 			$('#shared-record-list').on("click", ".category", function() {
-				var selectedCategory = $(this).data('categoryno');
+				selectedCategory = $(this).data('categoryno');
 				console.log("카테고리 :"+selectedCategory);
 				currentPage = 1;
 				endOfData = false;
 				$('#shared-record-list').empty();
 				loadSharedRecordList(selectedCategory);
+				
+				 $(window).scrollTop(0);
 			});
     	})
 		function loadSharedRecordList(selectedCategory) {
@@ -178,17 +235,19 @@
 				                            ' (' + dayOfWeek + ')';
 						
 			            var recordHtml = '';
-			            recordHtml += '<div class="col-sm-4" id="list" data-record-no="' + sharedRecord.recordNo + '">';
+			            recordHtml += '<div class="sharedRecord" id="list" data-record-no="' + sharedRecord.recordNo + '">';
 			            recordHtml += '<div class="card-body">';
 			            recordHtml += '<h4>';
-			            recordHtml += '<img alt="" class="profileImage" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
+			            recordHtml += '<img alt="" class="profileImage" data-record-userid="' + sharedRecord.recordUserId +'" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
 			            recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
-			            recordHtml += '<span if="${sharedRecord.subscriptionEndDate == 1}">'
-			                			+ '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
-			                			+ '</span>';
+			            if (sharedRecord.subscriptionEndDate == 1) {
+			                recordHtml += '<span>'
+			                            + '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
+			                            + '</span>';
+			            }
 			            recordHtml += '</h4>';
 			            recordHtml += '</div>';
-			            if (sharedRecord.imageTagType === 1 && sharedRecord.imageTagText != null) {
+			            if (sharedRecord.imageTagType == 1) {
 			                recordHtml += '<div>';
 			                recordHtml += '<img alt="" class="recordImage" src="/timeline/rest/image/'+sharedRecord.imageTagText+'">';
 			                recordHtml += '</div>';
@@ -240,6 +299,19 @@
 	</script>
 	
 	<style>
+		body {
+			background-color : #E6F4F1;
+		}
+	
+		#top {
+			background-color : #9EB4EA;
+			color : black;
+			font-weight: bold;
+		}
+	
+		.bi-card-list {
+			font-size : 20px;
+		}
 	
 		#shared-record-list {
 		    padding: 0; 
@@ -291,10 +363,24 @@
         }		
 	
 		.recordImage {
-			width : 50%;
-			height : 50%;
+			width : 100%;
+			height : 100%;
 		}	
 	
+		.bi-chat-square-text-fill::before {
+			margin-right : 10px;
+		    font-size: 35px; 
+		}
+		
+		.reply-count {
+			font-size : 30px;
+			font-weight : bold;
+		}		
+
+		.sharedDate	{
+			font-weight : bold;
+		}
+		
 		.viewCount {
 			float : right;
 			font-weight : bold;
@@ -303,16 +389,6 @@
 		.updateCount {
 			color : blue;
 		}
-
-		.bi-chat-square-text-fill::before {
-			margin-right : 10px;
-		    font-size: 25px; 
-		}
-		
-		.reply-count {
-			font-size : 30px;
-			font-weight : bold;
-		}		
 		
 	</style>
 		
@@ -320,7 +396,7 @@
 <body>
 	<div id=content-for-footer>	
 		<div class="container">
-			<div class="card sm-4">
+			<div class="card">
             	<div class="search">
                 <form th:action="@{/community/getSharedRecordList}" method="get" class="input-group" id="searachForm">
                     <div class="form-group">
@@ -344,14 +420,14 @@
 				
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
-						<span class="nav-link active col-sm-4">
-				    		<i class="bi bi-card-list"> 공유기록목록조회</i> 
+						<span class="nav-link active" id="top">
+				    		<i class="bi bi-card-list"> 공유된 기록</i> 
 				    	</span>
 					</li>
 				</ul>					
 				
 				<div id="shared-record-list">
-				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="col-sm-4" id="list" th:data-record-no="${sharedRecord.recordNo}">
+				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="sharedRecord" id="list" th:data-record-no="${sharedRecord.recordNo}">
 					<div class="card-body">
 						<h4>
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${sharedRecord.profileImageName})}" th:data-record-userid="${sharedRecord.recordUserId}">
@@ -377,7 +453,7 @@
 						<span th:text="${sharedRecord.replyCount}" class="reply-count"></span>
 					</div>					
 					<div class="card-footer text-muted">
-						<span class="list-footer" th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span> 
+						<span class="list-footer sharedDate" th:text="${#temporals.format(sharedRecord.sharedDate, 'yyyy-MM-dd (E)')}"></span> 
 						<span class="list-footer viewCount" th:text="'조회수 : ' + ${sharedRecord.logsCount}"></span> 
 						<span class="list-footer updateCount" th:if="${sharedRecord.updateCount} > 1" th:text="${sharedRecord.updateCount}+'회 수정됨'"></span>
 					</div>

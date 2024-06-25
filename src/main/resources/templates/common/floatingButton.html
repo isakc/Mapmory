@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+
+	<div id="chat-container" class="closed">
+        <div id="chat-header">
+            <h3>Mapmory Bot</h3>
+            <button id="close-chat-button" ><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-log"></div>
+        <div id="chat-input">
+            <input type="text" id="user-input" placeholder="메세지 입력란">
+            <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+	<div class="floating-container">
+  <div class="floating-button">+</div>
+  <div class="element-container">
+
+    <!-- <a href="google.com"> 
+    	<span class="float-element tooltip-left">
+      	<i class="material-icons">phone</i>
+    	</span>
+    </a> -->
+    <span class="float-element">
+    <div class="float-badge" id="unreadCount">0</div>
+      <i class="material-icons" id="chatList">chat</i>
+    </span>
+    <span class="float-element">
+    
+    <button id="open-chat-button">&#129302;</button>
+    </span>
+  </div>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		$.getScript('https://cdn.socket.io/4.0.0/socket.io.min.js');
+		
+		
+		let userId = sessionStorage.getItem("userId");
+		let unreadCount=10;
+		getAllUnreadCount();
+		//안읽은 메시지 표시
+		function getAllUnreadCount() {
+			$.ajax({
+				type: "POST",
+				/* url: "http://192.168.0.45:3001/chatting/countAllUnreadMessges", */ 
+				url: "/chatting/countAllUnreadMessges",
+				contentType: "application/json",
+				data: JSON.stringify({
+					userId: [[userId]],
+				}),
+				success: function(response) {
+					console.log(response);
+					if(response > 99){
+						response = 99;
+					}
+					unreadCount = response;
+					$('#unreadCount').text(response);
+				}
+			});
+		}
+		
+		/* const socket = io("http://192.168.0.45:3001"); */
+		const socket = io("https:mapmory.co.kr");
+		
+		socket.on("getAllUnreadCount",function(){
+			getAllUnreadCount();
+		});
+		
+		
+		
+		$('<meta>', {
+			  name: 'viewport',
+			  content: 'width=device-width, initial-scale=1.0'
+		}).appendTo('head');
+		
+		$('<link>')
+			.appendTo('head')
+			.attr({
+				type: 'text/css',
+				rel: 'stylesheet',
+				href: '/css/common/floatingButton.css'
+		});
+		
+		$('<link>')
+			.appendTo('head')
+			.attr({
+				type: 'text/css',
+				rel: 'stylesheet',
+				href: 'https://fonts.googleapis.com/icon?family=Material+Icons'
+		});
+		
+		$('<link>')
+		  .appendTo('head')
+		  .attr({
+		    href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
+		    rel: 'stylesheet'
+	  });
+		
+		$('<link>')
+		  .appendTo('head')
+		  .attr({
+		    href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap',
+		    rel: 'stylesheet'
+	  });
+		
+		$('<link>')
+			.appendTo('head')
+			.attr({
+				type: 'text/css',
+				rel: 'stylesheet',
+				href: '/css/common/chatBot2.css'
+		});
+		
+		$('<link>')
+		.appendTo('head')
+		.attr({
+			type: 'text/css',
+			rel: 'stylesheet',
+			href: 'https://fonts.googleapis.com'
+		});
+		
+		$('<link>')
+		  .appendTo('head')
+		  .attr({
+		    rel: 'preconnect',
+		    href: 'https://fonts.gstatic.com',
+		    crossorigin: 'anonymous' // crossorigin 속성 추가
+		});
+		
+		$('<link>')
+		  .appendTo('head')
+		  .attr({
+		    href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
+		    rel: 'stylesheet'
+		});
+
+		
+		
+		
+		$('#chatList').on('click', function() {
+			/* window.location.href="http://192.168.0.45:3000/video-call/chatList"; */
+			window.location.href="/video-call/chatList"; 
+		});
+		
+		
+/* 		/* 챗봇 조금 수정 
+		$('#open-chat-button').on('click', function() {
+			openChat();
+			console.log("open");
+		});
+		
+		$('#send-button').on('click', function() {
+			sendMessage();
+		});
+		
+		$('$close-chat-button').on('click', function() {
+			closeChat();
+			console.log("closeChat");
+		}); */
+		
+		/* 챗봇 관련 */
+		
+	});
+	
+	document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("send-button").addEventListener("click", sendMessage);
+        document.getElementById("open-chat-button").addEventListener("click", openChat);
+        document.getElementById("close-chat-button").addEventListener("click", closeChat);
+        document.getElementById("user-input").addEventListener("keydown", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 페이지 로드 시 웰컴 메시지 가져오기
+        fetch("/bot/welcome")
+            .then(response => response.json())
+            .then(data => {
+                var welcomeMessage = data.message;
+                displayBotMessage(welcomeMessage);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    });
+
+    function openChat() {
+        document.getElementById("chat-container").style.display = "flex";
+        document.getElementById("open-chat-button").style.display = "none";
+    }
+
+    function closeChat() {
+        document.getElementById("chat-container").style.display = "none";
+        document.getElementById("open-chat-button").style.display = "flex";
+    }
+
+    function sendMessage() {
+        var userInput = document.getElementById("user-input").value;
+        if (userInput.trim() !== "") {
+            displayUserMessage(userInput);
+            document.getElementById("user-input").value = "";
+
+            fetch("/bot/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userInput)
+            })
+            .then(response => response.json())
+            .then(respon => {
+                if (respon.bubbles && respon.bubbles.length > 0) {
+                	respon.bubbles.forEach(bubble => {
+                	    if (bubble.type === "text") {
+                	        var botResponse = bubble.data.description;
+                	        displayBotMessage(botResponse);
+                	    } else if (bubble.type === "template") {
+                	        var botResponse = bubble.data.cover.data.description;
+                	        var buttons = [];
+                	        
+                	        if (bubble.data.contentTable && bubble.data.contentTable.length > 0) {
+                	            bubble.data.contentTable.forEach(row => {
+                	                row.forEach(cell => {
+                	                    if (cell.data && cell.data.type === "button") {
+                	                        buttons.push({
+                	                            title: cell.data.title,
+                	                            url: cell.data.data.action.data.url
+                	                        });
+                	                    }
+                	                });
+                	            });
+                	        }
+                	        
+                	        displayBotMessage(botResponse, buttons);
+                	    }
+                	});
+                } else {
+                    console.error("Error: Empty response or invalid format");
+                }
+                document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    }
+
+    function displayUserMessage(message) {
+        var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var userMessage = document.createElement("div");
+        userMessage.className = "message-row user-message";
+        userMessage.innerHTML = "<div class='message-content'><div class='message-bubble'>" + message + "</div><div class='message-time'>" + currentTime + "</div></div>";
+        document.getElementById("chat-log").prepend(userMessage);
+    }
+
+    function displayBotMessage(message, buttons) {
+        var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var botMessage = document.createElement("div");
+        botMessage.className = "message-row bot-message";
+        
+        var messageContent = "<div class='profile-image'>&#129302;</div><div class='message-content'><div class='message-bubble'>" + message + "</div>";
+        
+        if (buttons && buttons.length > 0) {
+            messageContent += "<div class='button-container'>";
+            buttons.forEach(function(button) {
+                messageContent += "<a href='" + button.url + "' target='_blank' class='message-button'>" + button.title + "</a>";
+            });
+            messageContent += "</div>";
+        }
+        
+        messageContent += "<div class='message-time'>" + currentTime + "</div></div>";
+        botMessage.innerHTML = messageContent;
+        document.getElementById("chat-log").prepend(botMessage);
+    }
+</script>
+
+</body>
+</html>

@@ -8,65 +8,126 @@
 <link rel="stylesheet" href="/css/common/footer.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
 <style type="text/css">
-#datepicker{
-	width: 150px;
-}
+
+		body {
+			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+			background-color: #E3F0FF;
+			color: #333;
+		}
+		
+		h1 {
+			font-size: 2.5em;
+			font-weight: bold;
+			text-align: center;
+			margin-top: 20px;
+			color: #1F85DE;
+			text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+		}
+		
+		h4 {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-top: 20px;
+			font-size: 1.5em;
+			color: #555;
+		}
+
+		h4 svg {
+			cursor: pointer;
+			transition: transform 0.3s ease;
+		}
+
+		h4 svg:hover {
+			transform: scale(1.1);
+		}
+
+		h4 input[type="text"] {
+			width: 200px;
+			height: 40px;
+			margin: 0 15px;
+			padding: 0 10px;
+			border: 2px solid #1F85DE;
+			border-radius: 5px;
+			background-color: #87CEFA;
+			font-size: 1.2em;
+			text-align: center;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+			transition: border-color 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		h4 input[type="text"]:focus {
+			border-color: #87CEFA;
+			background-color: white;
+			box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+			outline: none;
+		}
+		.media-preview {
+			position: relative;
+			width: 100%;
+			padding-bottom: 100%; /* 1:1 Aspect Ratio */
+			background-color: #f8f8f8;
+			margin-bottom: 16px;
+			overflow: hidden;
+		}
+		.preview-video, .preview-image {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.date-text {
+			position: absolute;
+			bottom: 8px;
+			right: 8px;
+			color: white;
+			background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+			padding: 2px 4px;
+			border-radius: 3px;
+			font-size: 12px;
+		}
 </style>
 </head>
 <body>
-<div id=content-for-footer>
-	<div th:if="!(${recordList}==null)">
-		<h1 th:text="${'getSummaryRecord'}"></h1>
-		<!-- <a th:href="@{/timeline/getSummaryRecord(searchCondition=0)}" th:text="${'getSummaryRecordSelectDate'}"></a><br/>
-		<a th:href="@{/timeline/getSummaryRecord(userId=${record.recordUserId})}" th:text="${'getSummaryRecordLeftDate'}"></a><br/>
-		<a th:href="@{/timeline/getSummaryRecord(userId=${record.recordUserId})}" th:text="${'getSummaryRecordRightDate'}"></a><br/> -->
+
+<div id="content-for-footer">
+	<div th:if="!(${recordList} == null)">
+		<h1 th:text="${'스토리'}"></h1>
 		<input type="hidden" th:name="selectDate">
-		
+
 		<h4>
-			<svg th:name="getSummaryRecordLeft" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#1F85DE"><path d="M400-80 0-480l400-400 61 61.67L122.67-480 461-141.67 400-80Z"/></svg>
+			<svg th:if="${selectDate>startDay}" th:name="getSummaryRecordLeft" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#1F85DE">
+				<path d="M400-80 0-480l400-400 61 61.67L122.67-480 461-141.67 400-80Z"/>
+			</svg>
+			<span th:if="${selectDate<=startDay}" th:text="'&nbsp &nbsp &nbsp'"></span>
 			<input class="text-center" id="datepicker" type="text" th:name="getSummaryRecordSelect" th:value="${selectDate}" readonly="readonly" />
 			<input type="hidden" th:name="selectDate" th:value="${selectDate}" />
-			<svg th:name="getSummaryRecordRight" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#1F85DE"><path d="m309.67-81.33-61-61.67L587-481.33 248.67-819.67l61-61.66 400 400-400 400Z"/></svg>
+			<svg th:if="${selectDate<today}" th:name="getSummaryRecordRight" xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#1F85DE">
+				<path d="m309.67-81.33-61-61.67L587-481.33 248.67-819.67l61-61.66 400 400-400 400Z"/>
+			</svg>
+			<span th:if="${selectDate>=today}" th:text="'&nbsp &nbsp &nbsp'"></span>
 		</h4>
 		<div class="container text-center">
 			<div class="row">
-			    <div class="col-12 col-md-6 col-lg-4" th:each="record : ${recordList}">
+			    <div class="col-12 col-sm-6 col-md-4 col-lg-3" th:each="record : ${recordList}">
 		            <!-- 미디어 파일이 있으면 렌더링 -->
-		            <div class="media-preview">
-		                <video th:if="${record.mediaName}" controls muted preload="metadata" class="preview-video">
-		                    <!-- 자동 재생이 필요하면 autoplay 속성 추가 -->
-		                    <source th:src="@{/path/to/media/${record.mediaName}}" type="video/mp4">
+		            <div class="media-preview" th:if="${record.mediaName}">
+		                <video controls muted preload="metadata" class="preview-video">
+		                    <source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
 		                </video>
-		                <!-- 동영상을 클릭할 때 동작하는 스크립트 -->
-		                <script th:inline="javascript">
-		                    /*<![CDATA[*/
-		                    function playVideo(mediaName) {
-		                        // 동영상을 재생
-		                        var video = document.querySelector('.preview-video');
-		                        if (video) {
-		                            video.src = "@{/path/to/media/}" + mediaName;
-		                            video.load();
-		                            video.play();
-		                            video.controls = true; // 재생 중에는 컨트롤 보이기
-		                        }
-		                    }
-		                    /*]]>*/
-		                </script>
-		                <!-- 동영상 클릭 시 -->
-		                <span th:if="${record.mediaName}" onclick="playVideo('${record.mediaName}')">
-		                    Click to play video
-		                </span>
 		            </div>
 				    <!-- 이미지가 있으면 렌더링 -->
-				    <span th:if="${record.imageName}">
-				        <img th:src="@{https://placehold.co/600x400}" alt="Image" style="width:100%;" >
-				    </span>
+				    <div class="media-preview" th:if="${record.imageName}">
+				        <img th:src="'data:image/png;base64,' + ${record.imageByte}" alt="Image" class="preview-image">
+				        <span class="date-text" th:text="${record.checkpointDate}"></span>
+				    </div>
 			    </div>
 			</div>
 		</div>
-		
 	</div>
-	<div th:if="${recordList}==null">
+	<div th:if="${recordList} == null">
 		<p th:text="'기록 없습니다.'"></p>
 	</div>
 </div>
@@ -80,16 +141,17 @@ $(function() {
 	let selectDate=$('input[name="getSummaryRecordSelect"]').val();
 	let uri;
 	
-	$( "#datepicker" ).datepicker({
-		dateFormat :"yy-mm-dd",
-		onSelect: function(dateText) {
-	        console.log("사용자가 선택한 날짜:", dateText);
-	        // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
-	        // 예: AJAX 요청을 보내거나 다른 동작을 수행
-			uri="?searchCondition="+0+"&selectDate="+dateText
-			self.location.replace("/timeline/getSummaryRecord"+uri);
-	    }
-	});
+    $("#datepicker").datepicker({
+        dateFormat: "yy-mm-dd",
+        maxDate: -1,
+        onSelect: function(dateText) {
+            console.log("사용자가 선택한 날짜:", dateText);
+            // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
+            // 예: AJAX 요청을 보내거나 다른 동작을 수행
+            var uri = "?searchCondition=0&selectDate=" + dateText;
+            self.location.replace("/timeline/getSummaryRecord" + uri);
+        }
+    });
 	
 	$("svg[name='getSummaryRecordLeft']").click(function() {
 		uri="?searchCondition="+1+"&selectDate="+selectDate
