@@ -472,7 +472,8 @@
 				<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
 				<div class="col-10 mt-2 d-flex">
 					<strong><span class="align-middle me-2 h4" th:text="${profile.user.nickname}"></span></strong>
-					<p th:if="${profile.isSubscribed == true}">☑️</p>
+					<!-- <p th:if="${profile.isSubscribed == true}">☑️</p> -->
+					<img th:if="${profile.isSubscribed == true}" src="/user/rest/profile/sub.png" style="width:40px; height:40px; position: relative; top: -5px; left: -10px">
 				</div>
 				<p class="col-1 text-end fs-1" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;">=</p>
 			</div>
