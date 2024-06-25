@@ -165,6 +165,7 @@ body{margin-top:20px;}
 			<p><span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span>
 				<span>&nbsp &nbsp</span>
 				<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}"></label>
+				<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'"></label>
 			</p>
 			<p>
 			<span class="recordNo">
@@ -236,7 +237,7 @@ $(function() {
 		let recordNo=$(this).data('recordno');
 		/* alert(recordNo); */
 		uri="?recordNo="+recordNo;
-		self.location="/timeline/getSimpleTimeline"+uri;
+		self.location.replace("/timeline/getDetailTimeline"+uri);
 	})
 	
 	 /* $("input[name='getTimelineListSelect']").datepicker({
