@@ -716,7 +716,9 @@
 						</h6>
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span>
+							<span th:if="${reply.replyImageName != null && reply.replyImageName != 'null'}">
 							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+							</span>
 						</h4>
 						<h6>	
 							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			

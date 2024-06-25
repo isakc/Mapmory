@@ -144,6 +144,13 @@
 			var recordNo = $row.data('recordno');
 			window.location.href = '/community/getDetailSharedRecord/'+recordNo;
 		});
+		
+		$('#shared-record-list').on("click", ".recordImage", function() {
+            var $row = $(this).closest('div.card-body').find('span.title');
+            console.log($row);
+            var recordNo = $row.data('recordno');
+			window.location.href = '/community/getDetailSharedRecord/'+recordNo;
+		});		
 	});
 	</script>
 	
@@ -292,6 +299,19 @@
 	</script>
 	
 	<style>
+		body {
+			background-color : #E6F4F1;
+		}
+	
+		#top {
+			background-color : #9EB4EA;
+			color : black;
+			font-weight: bold;
+		}
+	
+		.bi-card-list {
+			font-size : 20px;
+		}
 	
 		#shared-record-list {
 		    padding: 0; 
@@ -400,8 +420,8 @@
 				
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
-						<span class="nav-link active">
-				    		<i class="bi bi-card-list"> 공유기록목록조회</i> 
+						<span class="nav-link active" id="top">
+				    		<i class="bi bi-card-list"> 공유된 기록</i> 
 				    	</span>
 					</li>
 				</ul>					
