@@ -21,8 +21,70 @@
 			console.log($row);
 			var userId = $row.data('reply-userid');
 			console.log("댓글 유저:"+userId);
-			window.location.href='/user/getProfile?userId='+userId;
+			var sessionId = /*[[${search.userId}]]*/''
+			console.log("세션 ID :"+sessionId);
+				
+			if(sessionId !== userId) {
+				$.ajax({
+					url: '/user/rest/checkHideProfile/'+userId,
+					type : "get",
+					// contentType : "application/json",
+					success : function(response) {
+						
+						if(response == false || response == 'false') {
+
+							window.location.href='/user/getProfile?userId='+userId;
+							return;
+							
+						} else {
+							
+							alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
+							return;
+						}						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert('오류 발생 : ' + jqXHR.responseText)
+					}
+				});
+				} else {
+					window.location.href='/user/getProfile?userId='+userId;
+				}				
 		});
+		
+		$(document).on("click", '.profileImage', function() {
+		    var $h6 = $(this).closest('h6');
+		    var userId = $h6.find('.replyNickname').data('reply-userid');
+			console.log("댓글 유저:"+userId);
+			var sessionId = /*[[${search.userId}]]*/''
+				console.log("세션 ID :"+sessionId);
+				
+			if(sessionId !== userId) {			
+		
+			$.ajax({
+				url: '/user/rest/checkHideProfile/'+userId,
+				type : "get",
+				// contentType : "application/json",
+				success : function(response) {
+					
+					if(response == false || response == 'false') {
+
+						window.location.href='/user/getProfile?userId='+userId;
+						return;
+						
+					} else {
+						
+						alert('해당 사용자의 프로필에는 접근하실 수 없습니다.');
+						return;
+					}						
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert('오류 발생 : ' + jqXHR.responseText)
+				}
+			});
+			} else {
+				window.location.href='/user/getProfile?userId='+userId;
+			}
+		});	
 	}); 
 	</script>	
 	
@@ -123,7 +185,7 @@
 				console.log("7.현재행 : "+newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('#container').append(newRow);
+				$('.container').append(newRow);
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
@@ -187,7 +249,7 @@
 	}	
 	
 	$(function() {
-		$('#container').on("click", ".bi-three-dots", function() {
+		$('.container').on("click", ".bi-three-dots", function() {
 			var $row = $(this).closest('div');
 			openModal($row);
 		});
@@ -362,8 +424,8 @@
 	            logsType : logsType
 	        };
 	        
-			var likeBtn = row.find('.replyDislike');
-			if (likeBtn.hasClass('bi-hand-thumbs-down-fill')) {
+			var dislikeBtn = row.find('.replyDislike');
+			if (dislikeBtn.hasClass('bi-hand-thumbs-down-fill')) {
 				return;
 			}
 	        
@@ -497,11 +559,6 @@
 	</script>
 	
 	<style>
-	
-		body {
-		    overflow-x: visible;
-		}	
-	
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -591,10 +648,15 @@
 			border-top : 2px solid;
 			margin-top : 10px;
 		}					
+		
+		#totalCount {
+			font-size : 18px;
+		}		
 			
 		#replyText {
-			width : 100%;
+			width : 90%;
 			resize : vertical;
+			margin-left : 20px;
 		}
 		
 		.replyImageName {
@@ -603,26 +665,16 @@
 		    height: auto; 
 		    width: auto; 
 		}
+		
         .card-body {
             border: 1px solid #00A7F5; 
             padding: 10px; 
             margin-bottom: 10px; 
         }			
         
-/*          .form {  */
-/*          	position : fixed;  */
-/*          	bottom : 80px;	  */
-/*          	width : 100%;  */
-/*          	background : light;   */
-/*   			opacity: 1;   */
-/*   			z-index: 9999;  */
-/*          }  */
-        
-/*         #replyField { */
-/*          	background : light;     */
-/* 			opacity: 1;   */
-/* 			z-index: 9999;        	    	    */
-/*         } */
+        .form {
+        	border : 2px solid;
+        }        
         
 		.replyLike {
 			font-size : 25px;
@@ -640,17 +692,18 @@
 </head>
 <body>
 	<div id=content-for-footer>
-		<div id="container">
-			<div class="card mb-3">
+		<div class="container">
+			<div class="card">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
 							<i class="bi bi-journal-richtext">댓글 </i>
+							<span th:utext="'&nbsp;'"></span>
 							<span th:text=${totalCount}></span>
 				    	</a>
 					</li>
 				</ul>				
-				<div th:each="reply, rowStat : ${replyList}" class="col-sm-4">
+				<div th:each="reply, rowStat : ${replyList}" class="replyList">
 					<div class="card-body">
 						<div class="row">
 						<h6>
@@ -664,6 +717,8 @@
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span>
 							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+						</h4>
+						<h6>	
 							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
 				            <span>
 	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 10px;"></i>
@@ -677,7 +732,7 @@
 							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
 							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
 							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
-						</h4>
+						</h6>
 						<h6>
 							<span th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
 						</h6>
@@ -685,30 +740,30 @@
 					</div>
 				</div>	
 			</div>	
+			<div class="separator2"></div>							
 		</div>
 		
-		<div class="separator2"></div>		
-	
-		<br/>
-		<div class= "form">
-			<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
-				<fieldset id="replyField">
-				<legend>댓글작성</legend>
-					<div class="row">
-						<label for="replyText" class="form-label mt-4">댓글 내용</label>
-						<textarea id="replyText" name="replyText" class="form=control" style ="height : 40px;" 
-									 oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
-					</div>
-					<div>
-						<label for="replyImageName" class="form-label mt-4"></label>
-						<input type="file" id="replyImageName" name="replyImageName" class="form-control">
-						<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
-						<input type="hidden" id="userId" th:value="${userId}">
-	    			</div>
-					<button type="submit" class="btn btn-success">댓글 작성</button>
-	  			</fieldset>
-			</form>	
+		<div class="container-fluid">
+			<div class= "form">
+				<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
+					<fieldset id="replyField">
+						<div class="row">
+							<label for="replyText" class="form-label mt-2">댓글 내용</label>
+							<textarea id="replyText" name="replyText" class="form-control" style ="height : 40px;" 
+								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
+						</div>
+						<div>
+							<label for="replyImageName" class="form-label mt-2"></label>
+							<input type="file" id="replyImageName" name="replyImageName" class="form-control">
+							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
+							<input type="hidden" id="userId" th:value="${userId}">
+		    			</div>
+						<button type="submit" class="btn btn-success">댓글 작성</button>
+		  			</fieldset>
+				</form>	
+			</div>	
 		</div>
+		
 		<!-- 더보기 모달창 -->
 		<div class="moreModal" id="moreModal">
 			<div class="modal-dialog" role="document">
@@ -742,12 +797,12 @@
 						<form id="updateReplyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 							<fieldset id="updateReplyField">
 								<div class="row">
-									<label for="updateReplyText" class="form-label mt-4">댓글 내용</label>
+									<label for="updateReplyText" class="form-label mt-2">댓글 내용</label>
 									<textarea id="updateReplyText" name="updateReplyText" class="form-control" style="height: 40px;" 
 												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
 								</div>
 								<div>
-									<label for="updateReplyImageName" class="form-label mt-4">사진 첨부</label>
+									<label for="updateReplyImageName" class="form-label mt-2">사진 첨부</label>
 									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
 									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 									<input type="hidden" id="userId" th:value="${userId}">

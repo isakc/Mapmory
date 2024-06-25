@@ -202,6 +202,9 @@ public class UserServiceImpl implements UserService {
 		userId="user7";
 		userPassword="password7";	
 		updatePassword(userId, userPassword);			
+		userId="user8";
+		userPassword="password8";	
+		updatePassword(userId, userPassword);	
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);

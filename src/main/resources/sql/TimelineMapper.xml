@@ -510,7 +510,7 @@ SELECT
     (SELECT COUNT(*) FROM reply p WHERE p.RECORD_NO = r.RECORD_NO) AS reply_count,
     (SELECT COUNT(*) FROM community_logs l WHERE LOGS_TYPE = 0 AND l.RECORD_NO = r.RECORD_NO) AS logs_count
 FROM 
-    record r
+    record r     
 <trim prefix="where" prefixOverrides="AND||OR">
     shared_date IS NOT NULL AND temp_type=1 AND timecapsule_type=0
 <if test="!(searchKeyword==null or searchKeyword=='')">
@@ -529,19 +529,15 @@ FROM
 <if test="!(categoryNo==null or categoryNo==0)">
     AND r.category_no=#{categoryNo}
 </if>
-<!-- <if test="!(searchKeyword==null or searchKeyword=='' or searchKeyword=='%%') "> -->
-<!-- 	AND (r.record_text LIKE #{searchKeyword}  -->
-<!-- 	OR r.record_title LIKE #{searchKeyword}  -->
-<!-- 	OR r.record_no IN ( -->
-<!-- 	SELECT record_no  -->
-<!-- 	FROM image_tag  -->
-<!-- 	WHERE IMAGE_TAG_TYPE = 0  -->
-<!-- 	AND image_tag_text LIKE #{searchKeyword})) -->
-<!-- </if> -->
-<!-- <if test="!(categoryNo==null or categoryNo==0)"> -->
-<!-- 	AND r.category_no=#{categoryNo} -->
-<!-- </if> -->
+    AND NOT EXISTS (
+        SELECT 1 
+        FROM follow_block fb 
+        WHERE fb.user_id = #{userId} 
+        AND fb.target_id = r.RECORD_USER_ID 
+        AND fb.fb_type = 1
+    )
 </trim>
+
 ORDER BY
 	shared_date DESC,
 	shared_date IS NULL DESC
