@@ -10,48 +10,92 @@
 #categorySpan{
 	background-color: #00C6E1;
 }
+#map {
+    position: fixed; /* 상단에 고정 */
+    top: 0; /* 화면의 맨 위에 배치 */
+    left: 0;
+    width: 100%;
+    height: 90dvh; /* 높이를 화면의 100%로 설정 */
+    z-index: 1; /* 다른 요소보다 뒤에 배치 */
+    overflow-y: hidden; /* 세로 스크롤 추가 */
+    transition: top 0.3s ease-in-out;
+}
+
+#map.visible {
+    top: -30dvh; /* 보이는 위치: 화면 하단 */
+    z-index: 1;
+}
+
+#bottomWindow {
+    position: fixed; /* fixed 위치로 변경 */
+    bottom: 7dvh; /* 하단에 고정 */
+    left: 0;
+    width: 100%;
+    height: 18dvh; /* 높이를 화면의 60%로 설정 */
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    z-index: 2; /* #map 요소보다 앞에 배치 */
+    overflow-y: hidden; /* 세로 스크롤 추가 */
+    background-color: white; /* 배경색을 설정하여 다른 요소와 구분 */
+    transition: height 0.3s ease-in-out; /* 애니메이션 */
+}
+
+#bottomWindow.visible {
+    height: 63dvh;
+    overflow-y: auto; /* 세로 스크롤 추가 */
+    z-index: 2;
+}
+
 </style>
 </head>
 <body>
 <div id=content-for-footer>
-	<div th:name="getKakaoMap" th:data-recordno="${record.recordNo}" th:include="timeline/component/map::kakaoMap"></div>
-	
-	<div class="card border-primary mb-3" th:name="getDetailTimeline"> <!-- style="max-width: 20rem;" -->
- 		<!-- <div class="card-header"></div> -->
-  		<div class="card-body">
-    		<h4 class="card-title">
- 				<span th:text="${record.recordTitle}"></span>
- 				<span th:if="${!(record.categoryName==null)}" id="categorySpan" class="badge">
- 					<img th:src="'data:image/png;base64,' + ${record.categoryImojiByte}" style="height:18px;"/>
- 					<span th:text="${record.categoryName}"></span>
- 				</span>
- 				<span class="badge bg-primary" th:text="${updateCountText}"></span>
- 				<span class="badge bg-primary" th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span>
- 			</h4>
-    		<div class="card-text">
-    			<span class="badge bg-primary" th:text="'일시'"></span>
- 				<span th:text="${record.checkpointDate}"></span><br/>
-    			<span class="badge bg-primary" th:text="'주소'"></span>
- 				<span th:text="${record.checkpointAddress}"></span><br/><br/>
- 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
- 				<video width="320" height="240" controls>
-        			<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
-    			</video><br/>
-				<!-- <span th:text="${record.mediaName}"></span><br/> -->
+	<div th:id="getKakaoMap" th:data-recordno="${record.recordNo}" th:include="timeline/component/map::kakaoMap"></div>
+		<div th:id="bottomWindow">
+			<div class="card border-primary mb-3" th:id="getDetailTimeline" th:name="getDetailTimeline"> <!-- style="max-width: 20rem;" -->
+		 		<!-- <div class="card-header"></div> -->
+		  		<div class="card-body">
+		    		<h4 class="card-title">
+		 				<span th:text="${record.recordTitle}"></span>
+		 				<span th:if="${!(record.categoryName==null)}" id="categorySpan" class="badge">
+		 					<img th:src="'data:image/png;base64,' + ${record.categoryImojiByte}" style="height:18px;"/>
+		 					<span th:text="${record.categoryName}"></span>
+		 				</span>
+		 				<span class="badge bg-primary" th:text="${updateCountText}"></span>
+		 				<span class="badge bg-primary" th:text="${record.sharedDate!=null ? '공유됨' : '비공유'}"></span>
+		 			</h4>
+		    		<div class="card-text">
+		    			<span class="badge bg-primary" th:text="'일시'"></span>
+		 				<span th:text="${record.checkpointDate}"></span><br/>
+		    			<span class="badge bg-primary" th:text="'주소'"></span>
+		 				<span th:text="${record.checkpointAddress}"></span><br/><br/><br/>
+		 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
+		 				<video width="320" height="240" controls>
+		        			<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
+		    			</video><br/>
+						<!-- <span th:text="${record.mediaName}"></span><br/> -->
+						</div>
+						<div th:each="image : ${record.imageName}">
+							<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/><br/>
+		 					<!-- <span th:text="${image.imageTagText}"></span> -->
+		 				</div>
+		    			<span class="badge bg-primary" th:text="'해시태그'"></span>
+		 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
+		    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
+		 				<span th:utext="${record.recordText}"></span>
+		 			</div>
+		 		</div>
+			</div>
+			<div class="container text-left">
+				<div class="row">
+				    <div class="col-12">
+						<button type="button" class="btn btn-primary btn-lg" th:name="updateTimeline" th:text=" '수정' "></button>
+						<button type="button" class="btn btn-primary btn-lg" th:name="deleteTimeline" th:text=" '삭제' "></button>
+					</div>
 				</div>
-				<div th:each="image : ${record.imageName}">
-					<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/><br/>
- 					<!-- <span th:text="${image.imageTagText}"></span> -->
- 				</div>
-    			<span class="badge bg-primary" th:text="'해시태그'"></span>
- 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
-    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
- 				<span th:utext="${record.recordText}"></span>
- 			</div>
- 		</div>
-	</div>
-	<button type="button" class="btn btn-primary btn-lg" th:name="updateTimeline" th:text=" '수정' "></button>
-	<button type="button" class="btn btn-primary btn-lg" th:name="deleteTimeline" th:text=" '삭제' "></button>
+			</div>
+		</div>
 	</div>
 	<div th:replace="common/footer::defaultFooter"></div>
 	
@@ -65,12 +109,27 @@
 $(function() {
 	
 	let recordNo=$('input[name="recordNo"]').val();
+    let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
 	let uri;
 	
-	$("div[name='getKakaoMap']").click(function() {
-		uri="?recordNo="+recordNo;
-		self.location.replace("/timeline/getSimpleTimeline"+uri);
-	})
+	$(document).on('click', '#getKakaoMap', function() {
+	    if ($('#map').hasClass('visible')) {
+	        // #map에 visible 클래스가 있는 경우
+	        $(this).addClass('returnList');
+	        $('#map').removeClass('visible');
+	        $('#bottomWindow').removeClass('visible');
+	    } else {
+			uri="?selectDay="+selectDay;
+			self.location.replace("/timeline/getTimelineList"+uri);
+	    }
+	});
+
+
+	$(document).on('click', '#getKakaoMap.returnList', function() {
+		uri="?selectDay="+selectDay;
+		self.location.replace("/timeline/getTimelineList"+uri);
+	});
+
 	
 	$("button[name='updateTimeline']").click(function() {
 		uri="?recordNo="+recordNo;
@@ -87,6 +146,12 @@ $(function() {
 		let encodeHash=encodeURIComponent(hash)
 		uri="?searchKeyword="+encodeHash;
 		self.location="/map"+uri;
+	})
+	
+	$('#getDetailTimeline').on('click',function(){
+	    $('#getKakaoMap.returnList').removeClass('returnList');
+        $('#bottomWindow').addClass('visible');
+        $('#map').addClass('visible');
 	})
 })
 </script>
