@@ -72,26 +72,25 @@ public class NoticeRestController {
         ));
     }
 
-    @GetMapping("/getFaqList")
-    public ResponseEntity<?> getFaqList(@ModelAttribute("search") Search search) throws Exception {
-        if (search.getCurrentPage() == 0) {
-            search.setCurrentPage(1);
-        }
-
-        search.setLimit(pageSize);
-
-        Map<String, Object> map = noticeService.getFaqList(search);
-        List<Notice> noticeList = (List<Notice>) map.get("noticeList");
-        int totalCount = (int) map.get("noticeTotalCount");
-
-        System.out.println("noticeList =====" + noticeList);
-
-        return ResponseEntity.ok(Map.of(
-            "noticeList", noticeList,
-            "search", search,
-            "totalCount", totalCount
-        ));
-    }
+	@GetMapping("/getFaqList")
+	public ResponseEntity<?> getFaqList(@ModelAttribute("search") Search search) throws Exception {
+	    if (search.getCurrentPage() == 0) {
+	        search.setCurrentPage(1);
+	    }
+	    search.setPageSize(pageSize);
+	    
+	    Map<String, Object> map = noticeService.getFaqList(search);
+	    
+	    Page resultPage = new Page(search.getCurrentPage(), ((Integer) map.get("FaqTotalCount")).intValue(), pageUnit, pageSize);
+	    
+	    System.out.println("FaqList =====" + map.get("FaqList"));
+	    
+	    return ResponseEntity.ok(Map.of(
+	        "FaqList", map.get("FaqList"),
+	        "search", search,
+	        "resultPage", resultPage
+	    ));
+	}
 	
 	
 

@@ -54,14 +54,15 @@ public class NoticeServiceImpl implements NoticeService {
 	public Map<String,Object> getFaqList(Search search) throws Exception {
 	    int offset = (search.getCurrentPage() - 1) * search.getPageSize();
 	    search.setOffset(offset);
-	    search.setPageSize(search.getPageSize());
+	    search.setLimit(search.getPageSize());
+	    // search.setPageSize(search.getPageSize()); - 이 줄은 불필요합니다.
 
-	    List<Notice> noticeList = noticeDao.getFaqList(search);
+	    List<Notice> FaqList = noticeDao.getFaqList(search);
 	    int totalCount = noticeDao.getFaQTotalCount(search);
 
 	    Map<String,Object> map = new HashMap<String, Object>();
-	    map.put("noticeList", noticeList);
-	    map.put("noticeTotalCount", new Integer(totalCount));
+	    map.put("FaqList", FaqList);
+	    map.put("FaqTotalCount", totalCount);  // Integer 래핑 불필요
 
 	    return map;
 	}

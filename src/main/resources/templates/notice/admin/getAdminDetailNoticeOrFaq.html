@@ -33,6 +33,13 @@
             margin-bottom: 40px;
         }
 
+        .notice-detail .content {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
         .notice-detail h2 {
             color: #007bff;
             margin-bottom: 20px;
@@ -96,12 +103,12 @@
 </head>
 
 <body>
-<div th:replace="common/toolBar::defaultToolBar"></div>
+    <div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <h1>공지사항 상세</h1>
         <div class="notice-detail">
             <h2 th:text="${notice.noticeTitle}">공지사항 제목</h2>
-            <p th:text="${notice.noticeText}">공지사항 내용</p>
+            <p class="content" th:text="${notice.noticeText}">공지사항 내용</p>
             <div class="action-links">
                 <a th:href="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}">수정</a>
                 <a class="delete-link" data-toggle="modal" data-target="#confirmDeleteModal">삭제</a>
