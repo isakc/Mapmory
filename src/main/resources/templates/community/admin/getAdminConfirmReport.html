@@ -42,13 +42,13 @@
 				var reportStatus = 2;
 				var reportResult = 1;
 				var reportNo = $('#reportNo').val();
-				console.log(reportNo);
+				console.log("신고번호 :"+reportNo);
 				var data = {
 						reportStatus : reportStatus,
 						reportResult : reportResult,
 						reportNo : reportNo
 				};
-				
+				console.log("전달 데이터 :"+data);
 				$.ajax({
 					type : 'POST',
 					url : '/community/rest/confirmReport/'+reportNo,
@@ -58,11 +58,10 @@
 						console.log("신고 승인 완료");
 						$('#confirm').show();
 						$('#backButton').on("click", function() {
-							window.location.href = '/community/admin/getAdminReportList';
+							window.location.href = '/community/getAdminReportList';
 						})
 					},
 					error : function(xhr, status, error) {
-						alert("정지 횟수가 초과된 사용자입니다.")
 						console.log("신고 승인 실패", error)
 					}
 				})
@@ -96,7 +95,7 @@
 					console.log("신고 반려 완료");
 					$('#confirm').show();
 					$('#backButton').on("click", function() {
-						window.location.href = '/community/admin/getAdminReportList';
+						window.location.href = '/community/getAdminReportList';
 					})
 				},
 				error : function(xhr, status, error) {
@@ -131,7 +130,7 @@
 			</div>
 			<div>
 				<label for="reporter">신고자</label>
-				<input type="text" class="form-control" th:value="${report.userId}" readonky>			
+				<input type="text" class="form-control" th:value="${report.userId}" readonly>			
 			</div>
 			<div>
 				<label for="target">피신고자</label>

@@ -54,6 +54,7 @@ html, body {
   position: fixed;
   width: 9vh;
 /*   height: 1vh; */
+	z-index:1;
   bottom: 9vh;
   right: 0;
   /* margin: 35px 25px; */
@@ -133,7 +134,7 @@ html, body {
   box-shadow: 0 20px 20px -10px rgba(255, 152, 0, 0.5);
 } */
 
-.badge {
+.float-badge {
   box-sizing: border-box;
   position: absolute;
   width: 1.3rem;

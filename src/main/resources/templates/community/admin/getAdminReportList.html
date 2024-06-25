@@ -14,17 +14,21 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 	
 	<script th:inline="javascript">
-	$(document).ready(function() {
-		$('.reportTitle').on('click', function () {
-			var $row = $(this).closest('tr');
-			console.log($row);  
-			var reportNo = $row.data('report-no');
-			
-			console.log(reportNo);
-			
-			window.location.href = '/community/admin/getAdminConfirmReport/'+reportNo;
-		})
-	});
+    $(document).ready(function() {
+        $('.reportTitle').on('click', function () {
+            var $row = $(this).closest('tr');
+            var reportNo = $row.data('report-no');
+            var reportStatus = $row.find('td:nth-child(2)').text().trim(); // 진행상황 열에서 텍스트 가져오기
+            
+            if (reportStatus === '처리완료') {
+                // 이미 처리된 신고인 경우, 클릭 이벤트를 막음
+                return false;
+            }
+            
+            // 아직 처리되지 않은 신고인 경우, 페이지 이동 처리
+            window.location.href = '/community/admin/getAdminConfirmReport/' + reportNo;
+        });
+    });
 	</script>
 	
 	<style>
