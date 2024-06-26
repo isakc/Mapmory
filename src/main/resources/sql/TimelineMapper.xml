@@ -342,17 +342,22 @@ LIMIT #{limit} OFFSET #{offset}
 		ORDER BY a1.checkpoint_date ASC,
 		a1.checkpoint_date IS NULL DESC
 	</if>
-	<if test="searchCondition==3">
-		<trim prefix="where" prefixOverrides="AND||OR">
-			a1.record_user_id = #{userId} 
-			AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
-			AND a1.checkpoint_date<![CDATA[<=]]>(#{searchKeyword} + INTERVAL 1 DAY)
-			AND timecapsule_type=0
-		</trim>
-		ORDER BY a1.checkpoint_date ASC,
-		a1.checkpoint_date IS NULL DESC
-	</if>
 	Limit 1
+</select>
+
+<select id="selectSummaryDateList" parameterType="String" resultType="String">
+	SELECT DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d') AS checkpointDate
+	FROM mapmory_db.record a1
+	LEFT JOIN image_tag a2 ON a1.record_no=a2.record_no
+	<trim prefix="where" prefixOverrides="AND||OR">
+		a1.record_user_id = #{userId} 
+		AND ( (a2.IMAGE_TAG_TEXT IS NOT NULL AND a2.IMAGE_TAG_TYPE=1) OR a1.MEDIA_NAME IS NOT NULL)
+		AND a1.checkpoint_date<![CDATA[<=]]>(NOW() + INTERVAL 1 DAY)
+		AND timecapsule_type=0
+	</trim>
+	GROUP BY DATE_FORMAT(a1.checkpoint_date, '%Y-%m-%d')
+	ORDER BY checkpointDate ASC,
+	checkpointDate IS NULL DESC
 </select>
 
 <update id="updateTimeline" parameterType="record">
@@ -448,15 +453,16 @@ LIMIT #{limit} OFFSET #{offset}
 	GROUP BY checkpoint_address=#{checkpointAddress:VARCHAR}
     </select>
     
-    <select id="selectNotifyTimecapsule" resultType="notifyTimecapsuleDto" parameterType="java.time.LocalTime">
+    <!-- <select id="selectNotifyTimecapsule" resultType="notifyTimecapsuleDto" parameterType="java.time.LocalTime"> -->
+    <select id="selectNotifyTimecapsule" resultType="notifyTimecapsuleDto">
     SELECT
-		a1.record_user_id AS record_user_id,
-		COUNT(a1.d_day_date) AS timecapsule_count,
-		a2.phone_number AS phone_number
+		a1.record_user_id AS userId,
+		COUNT(a1.d_day_date) AS timecapsuleCount,
+		a2.phone_number AS userPhoneNumber
 	FROM record a1
 	LEFT JOIN users a2 ON a1.record_user_id=a2.user_id 
-	WHERE d_day_date 
-	BETWEEN TIMESTAMP(CURRENT_DATE(), #{dDayTime}) AND TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY), #{dDayTime}) 
+	WHERE d_day_date = CURRENT_DATE()
+	<!-- BETWEEN TIMESTAMP(CURRENT_DATE(), #{dDayTime}) AND TIMESTAMP(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY), #{dDayTime}) --> 
 	AND temp_type=1 
 	AND timecapsule_type=1
 	GROUP BY record_user_id

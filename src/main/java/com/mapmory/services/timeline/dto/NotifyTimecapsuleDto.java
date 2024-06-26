@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NotifyTimecapsuleDto {
 	private String userId;
-	private int timecapsulCount;
+	private int timecapsuleCount;
 	private String userPhoneNumber;
 
 }
