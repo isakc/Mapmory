@@ -1,188 +1,318 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
-	<title>결제하기</title>
-	
-	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
-	<link rel="stylesheet" href="/css/common/footer.css">
-	
-	<style>
-		.change-color{
-			background-color: #03c75a;
-			color: #fff;
-		}
-	</style>
-	
-	<script src="/javascript/config/key.js"></script> <!-- key관련 JS -->
-	<script src="/javascript/purchase/purchase.js"></script> <!-- purchase 관련 유틸 JS -->
-	<script src="https://cdn.iamport.kr/v1/iamport.js"></script><!-- 결제 iamport JS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-	<script>
-	
-      var IMP = window.IMP;
-      IMP.init(API_KEYS.imp);
-      
-      function nomralRequestPay() {
-    	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
-    	  const pg = getSubscriptionPG(selectedValue);
-    	  const currentDate = getCurrentDate();
-    	  
-          IMP.request_pay({
-              pg: selectedValue == 1 ? 'html5_inicis.INIpayTest' : getPaymentMethod(selectedValue),
-              pay_method: getPaymentMethod(selectedValue),
-              merchant_uid: "purchase_"+'[[${userId}]]'+"_"+currentDate,   // 주문번호
-              name: '[[${product.productTitle}]]',
-              amount: [[${product.price}]],              // 숫자 타입
-              buyer_email: "",
-              m_redirect_url: "https://mapmory.co.kr/purchase/orderCompleteMobile/"+[[${product.productNo}]]
-              /* m_redirect_url: "http://192.168.0.228:8000/purchase/addPurchase/"+[[${product.productNo}]] */
-          },
-          function (rsp) {
-          	console.log(rsp);
-          	
-              if(rsp.success){ //빌링키 발급 성공
-              	$.ajax({
-      				url: "/purchase/addPurchase/"+[[${product.productNo}]] + 
-      				"?imp_uid="+rsp.imp_uid + "&merchant_uid"+ rsp.merchant_uid + "&imp_success="+rsp.success,// 요청을 보낼 URL을 입력
-      				contentType: 'application/json', // Content-Type을 JSON으로 설정
-      				method: 'GET',
-      				success: function(response) {
-      					console.log(response);
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>간편 결제</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
+    
+    <style>
+        :root {
+            --primary-color: #2780E3;
+            --secondary-color: #00A7F5;
+            --tertiary-color: #00C6E1;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .payment-method-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .payment-method-label:hover {
+            background-color: var(--light-gray);
+            border-color: var(--secondary-color);
+        }
+        .payment-method-label.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 167, 245, 0.1);
+        }
+        .payment-method-label img {
+            max-height: 30px;
+        }
+        .price-tag {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--tertiary-color);
+            text-align: center;
+            margin: 20px 0;
+        }
+        .product-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .form-check-input {
+            width: 1.5em;
+            height: 1.5em;
+            margin-right: 10px;
+        }
+        .payment-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: var(--secondary-color);
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .step {
+            text-align: center;
+            color: var(--dark-gray);
+            font-weight: bold;
+        }
+        .step.active {
+            color: var(--primary-color);
+        }
+    </style>
+    
+    <script src="/javascript/config/key.js"></script>
+    <script src="/javascript/purchase/purchase.js"></script>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <div id="content-for-footer">
+        <div class="container">
+            <h1 class="text-center mb-4" style="color: var(--primary-color);">간편 결제</h1>
+            
+            <div class="purchase mb-3">
+                <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            
+            <div class="step-indicator mb-4">
+                <div class="step active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div>상품 선택</div>
+                </div>
+                <div class="step active">
+                    <i class="fas fa-credit-card"></i>
+                    <div>결제</div>
+                </div>
+                <div class="step">
+                    <i class="fas fa-check-circle"></i>
+                    <div>완료</div>
+                </div>
+            </div>
 
-                      	alert("상품 결제 성공!");
-                      	
-      					window.location.href="/purchase/getPurchaseList";
-      				}, // success
-      				error: function(error) {
-      					console.log('ajax 에러 발생:', error);
-          				alert('상품 결제 실패! 다시 시도해주세요!');
-      				} // error
-      			}); //기록 검색 ajax
-  			} else { //빌링키 발급 실패한 경우
-  				alert('상품 결제 실패! 다시 시도해주세요!');
-  			}//if~else end
-  		});//callback rsp
-      } //nomralRequestPay
-      
-      function monthlyRequestPay() {
-    	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
-    	  const pg = getSubscriptionPG(selectedValue);
-    	  const currentDate = getCurrentDate();
-    	  
-          // IMP.request_pay(param, callback) 호출
-          IMP.request_pay(
-            {
-              pg: pg,
-              merchant_uid: "subscription_"+'[[${userId}]]'+"_"+currentDate, // 빌링키 발급용 주문번호
-              customer_uid: '[[${userId}]]', // 카드(빌링키)와 1:1로 대응하는 값
-              name: '[[${product.productTitle}]]',
-              amount: [[${product.price}]], // 0으로 설정하면 빌링키만 발급
-              m_redirect_url: "https://mapmory.co.kr/purchase/addSubscription/"+[[${product.productNo}]]
-              /* m_redirect_url: "http://192.168.0.228:8000/purchase/addSubscription/"+[[${product.productNo}]] */
-            },//빌링키 요청
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-tag"></i> 상품 정보
+                </div>
+                <div class="card-body">
+                    <h5 class="product-title" th:text="${product.productTitle}"></h5>
+                    <p class="price-tag" th:text="|${#numbers.formatInteger(product.price, 0, 'COMMA')}원|"></p>
+                </div>
+            </div>
 
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-wallet"></i> 결제 수단 선택
+                </div>
+                <div class="card-body">
+                    <div class="payment-method-label">
+                        <div>
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="card" value="1">
+                            <label class="form-check-label" for="card">
+                                <i class="fas fa-credit-card payment-icon"></i>카드결제
+                            </label>
+                        </div>
+                        <img src="/purchase/image/card.png" alt="카드결제" />
+                    </div>
+                    <div class="payment-method-label">
+                        <div>
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="kakaopay" value="2">
+                            <label class="form-check-label" for="kakaopay">
+                                <i class="fas fa-comment payment-icon"></i>카카오페이
+                            </label>
+                        </div>
+                        <img src="/purchase/image/kakaopay.png" alt="카카오페이" />
+                    </div>
+                    <div class="payment-method-label">
+                        <div>
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="payco" value="3">
+                            <label class="form-check-label" for="payco">
+                                <i class="fas fa-p payment-icon"></i>페이코
+                            </label>
+                        </div>
+                        <img src="/purchase/image/payco.png" alt="페이코" />
+                    </div>
+                    <div class="payment-method-label" th:if="${product.period == 0}">
+                        <div>
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="tosspay" value="4">
+                            <label class="form-check-label" for="tosspay">
+                                <i class="fas fa-exchange-alt payment-icon"></i>토스페이
+                            </label>
+                        </div>
+                        <img src="/purchase/image/tosspay.png" alt='토스페이'/>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button th:if="${product.period == 0}" class="btn btn-primary w-100" onclick="nomralRequestPay()">
+                    <i class="fas fa-lock mr-2"></i> 안전결제
+                </button>
+                <button th:if="${product.period == 30}" class="btn btn-primary w-100" onclick="monthlyRequestPay()">
+                    <i class="fas fa-sync-alt mr-2"></i> 구독하기
+                </button>
+            </div>
+        </div>
+    </div>
+    <div th:include="~{ 'common/floatingButton.html' }"></div>
+    <div th:replace="common/footer::defaultFooter"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+        <script>
+        $(document).ready(function() {
+            $('.payment-method-label').click(function() {
+                $('.payment-method-label').removeClass('selected');
+                $(this).addClass('selected');
+                $(this).find('input[type="radio"]').prop('checked', true);
+            });
+        });
+        
+        var IMP = window.IMP;
+        IMP.init(API_KEYS.imp);
+        
+        function nomralRequestPay() {
+      	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
+      	  const pg = getSubscriptionPG(selectedValue);
+      	  const currentDate = getCurrentDate();
+      	  
+            IMP.request_pay({
+                pg: selectedValue == 1 ? 'html5_inicis.INIpayTest' : getPaymentMethod(selectedValue),
+                pay_method: getPaymentMethod(selectedValue),
+                merchant_uid: "purchase_"+'[[${userId}]]'+"_"+currentDate,   // 주문번호
+                name: '[[${product.productTitle}]]',
+                amount: [[${product.price}]],              // 숫자 타입
+                buyer_email: "",
+                m_redirect_url: "https://mapmory.co.kr/purchase/orderCompleteMobile/"+[[${product.productNo}]]
+                /* m_redirect_url: "http://192.168.0.228:8000/purchase/addPurchase/"+[[${product.productNo}]] */
+            },
             function (rsp) {
             	console.log(rsp);
             	
                 if(rsp.success){ //빌링키 발급 성공
                 	$.ajax({
-        				url: "/purchase/addSubscription/"+[[${product.productNo}]] + 
+        				url: "/purchase/addPurchase/"+[[${product.productNo}]] + 
         				"?imp_uid="+rsp.imp_uid + "&merchant_uid"+ rsp.merchant_uid + "&imp_success="+rsp.success,// 요청을 보낼 URL을 입력
         				contentType: 'application/json', // Content-Type을 JSON으로 설정
         				method: 'GET',
         				success: function(response) {
         					console.log(response);
 
-                        	alert("구독 결제 성공!");
+                        	alert("상품 결제 성공!");
                         	
-        					window.location.href="/purchase/getDetailSubscription";
+        					window.location.href="/purchase/getPurchaseList";
         				}, // success
         				error: function(error) {
         					console.log('ajax 에러 발생:', error);
-            				alert('구독 결제 중 에러가 발생! 다시 시도해주세요!');
+            				alert('상품 결제 실패! 다시 시도해주세요!');
         				} // error
         			}); //기록 검색 ajax
     			} else { //빌링키 발급 실패한 경우
-    				alert('구독 결제 중 에러가 발생! 다시 시도해주세요!');
+    				alert('상품 결제 실패! 다시 시도해주세요!');
     			}//if~else end
     		});//callback rsp
-            	
-          } //monthlyRequestPay: 정기결제
-		
-      </script>
-</head>
-<body>
-	
-	<div id=content-for-footer>
-		<div th:if="${message != null}" class="text-center full-height d-flex align-items-center justify-content-center">
-			<div>
-				<h1>현재 구독 중입니다!</h1>
-				
-				<p>
-					<a href="/purchase/getDetailSubscription" class="btn btn-primary">내 구독으로 가기</a>
-				</p>
-			
-			</div>
-		</div><!-- 사용자가 현재 구독 중인 경우 나오는 div -->
-	
-	<div class="container mt-3" th:if="${message == null}">
-		<h1 class="fs-1 fw-bold text-center">결제하기</h1>
-		
-		<form>
-			<fieldset>
-					<div class="row mb-3 align-items-center border-bottom">
-						<label for="productTitle" class="col-4 col-form-label fs-1 fw-bold ">상품명</label>
-						<div class="col-8">
-							<input type="text" readonly="" class="form-control-plaintext fs-1" 
-							id="productTitle" th:value="${product.productTitle}">
-						</div>
-					</div>
+        } //nomralRequestPay
+        
+        function monthlyRequestPay() {
+      	  const selectedValue = $('input[name="paymentMethod"]:checked').val();
+      	  const pg = getSubscriptionPG(selectedValue);
+      	  const currentDate = getCurrentDate();
+      	  
+            // IMP.request_pay(param, callback) 호출
+            IMP.request_pay(
+              {
+                pg: pg,
+                merchant_uid: "subscription_"+'[[${userId}]]'+"_"+currentDate, // 빌링키 발급용 주문번호
+                customer_uid: '[[${userId}]]', // 카드(빌링키)와 1:1로 대응하는 값
+                name: '[[${product.productTitle}]]',
+                amount: [[${product.price}]], // 0으로 설정하면 빌링키만 발급
+                m_redirect_url: "https://mapmory.co.kr/purchase/addSubscription/"+[[${product.productNo}]]
+                /* m_redirect_url: "http://192.168.0.228:8000/purchase/addSubscription/"+[[${product.productNo}]] */
+              },//빌링키 요청
 
-					<div class="row mb-3 align-items-center border-bottom">
-						<label for="price" class="col-4 col-form-label fs-1 fw-bold">가격</label>
-						<div class="col-custom col-8">
-							<input type="text" readonly="" class="form-control-plaintext fs-1"
-								id="price" th:value="|${#numbers.formatInteger(product.price, 0, 'COMMA')}원|" />
-						</div>
-					</div>
-					
-					<h2 class="fs-1 fw-bold mb-5">결제 수단</h2>
-					
-					<fieldset>
-						<div class="form-check mb-5">
-							<input class="form-check-input" type="radio" name="paymentMethod" id="card" value="1">
-							<label class="form-check-label" for="card"> <img src="/purchase/image/card.png" alt="카드결제" /> </label>
-						</div>
+              function (rsp) {
+              	console.log(rsp);
+              	
+                  if(rsp.success){ //빌링키 발급 성공
+                  	$.ajax({
+          				url: "/purchase/addSubscription/"+[[${product.productNo}]] + 
+          				"?imp_uid="+rsp.imp_uid + "&merchant_uid"+ rsp.merchant_uid + "&imp_success="+rsp.success,// 요청을 보낼 URL을 입력
+          				contentType: 'application/json', // Content-Type을 JSON으로 설정
+          				method: 'GET',
+          				success: function(response) {
+          					console.log(response);
 
-						<div class="form-check mb-5">
-							<input class="form-check-input" type="radio" name="paymentMethod" id="kakaopay" value="2">
-							<label class="form-check-label" for="kakaopay"> <img src="/purchase/image/kakaopay.png" alt="카카오페이" /> </label>
-						</div>
-
-						<div class="form-check mb-5">
-							<input class="form-check-input" type="radio" name="paymentMethod" id="payco" value="3">
-							<label class="form-check-label" for="payco"> <img src="/purchase/image/payco.png" alt="페이코" /> </label>
-						</div>
-						
-						<div class="form-check mb-5" th:if="${product.period == 0}">
-							<input class="form-check-input" type="radio" name="paymentMethod" id="tosspay" value="4">
-							<label class="form-check-label" for="tosspay"> <img src="/purchase/image/tosspay.png" alt='토스페이'/> </label>
-						</div>
-					</fieldset>
-			</fieldset>
-		</form>
-		
-		<div th:if="${product.period == 0}" class="d-grid">
-			<button class="btn change-color fs-1" onclick="nomralRequestPay()">결제</button>
-		</div>
-    	
-    	<div th:if="${product.period == 30}" class="d-grid">
-    		<button class="btn change-color fs-1" onclick="monthlyRequestPay()">구독결제</button>
-		</div>
-	</div>
-	</div>
-	
-	<div th:replace="common/footer::defaultFooter"></div>
-</body>	
+                          	alert("구독 결제 성공!");
+                          	
+          					window.location.href="/purchase/getDetailSubscription";
+          				}, // success
+          				error: function(error) {
+          					console.log('ajax 에러 발생:', error);
+              				alert('구독 결제 중 에러가 발생! 다시 시도해주세요!');
+          				} // error
+          			}); //기록 검색 ajax
+      			} else { //빌링키 발급 실패한 경우
+      				alert('구독 결제 중 에러가 발생! 다시 시도해주세요!');
+      			}//if~else end
+      		});//callback rsp
+              	
+            } //monthlyRequestPay: 정기결제
+    </script>
+</body>
 </html>

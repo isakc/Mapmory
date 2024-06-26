@@ -139,6 +139,20 @@ public class RedisUtil<T> {
 	public boolean updateSession(HttpServletRequest request, HttpServletResponse response) {
 
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
+		
+		/*
+		System.out.println("=================BEFORE UPDATE SESSION====================");
+		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+		System.out.println("=====================================");
+		*/
+		
 		if(cookie == null)
 			return true;
 		
@@ -158,6 +172,19 @@ public class RedisUtil<T> {
 			
 		response.addCookie(cookie);
 		
+		/*
+		System.out.println("=================AFTER UPDATE SESSION====================");
+		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+		System.out.println("=====================================");
+		*/
+		
 		if( !successed) {
 			System.out.println("Transaction 오류");
 			return false;
@@ -165,6 +192,11 @@ public class RedisUtil<T> {
 			return true;
 	}
 	
+	
+	public Long getTTL(String keyName) {
+		
+		return redisTemplate.getExpire(keyName);
+	}
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////

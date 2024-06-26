@@ -1,147 +1,201 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-    <meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>구독 상세 정보</title>
     
-    <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
-    <link rel="stylesheet" href="/css/common/modalScreen.css"> <!-- Bootstrap modal watch min.css -->
-    <link rel="stylesheet" href="/css/common/footer.css"> <!-- footer css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
     
     <style>
-        .change-color {
-            background-color: #03c75a;
-            color: #fff;
+        :root {
+            --primary-color: #2780E3;
+            --secondary-color: #00A7F5;
+            --tertiary-color: #00C6E1;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
         }
-        
-        .change-unsub-color {
-            background-color: #fff;
-            color: #03c75a;
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            color: var(--dark-gray);
+            line-height: 1.6;
         }
-        
+        .container {
+            max-width: 100%;
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .subscription-info {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .subscription-info .label {
+            font-weight: bold;
+            color: var(--dark-gray);
+        }
+        .subscription-info .value {
+            color: var(--primary-color);
+        }
+        .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--tertiary-color);
+        }
         .full-height {
-            height: 85vh; /* Viewport height to fill the screen */
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-    </style>
-    
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-	<script>
-		  function showModal(event) {
-	          event.preventDefault(); // 기본 동작을 막습니다.
-	          
-	          const href = event.target.href;
-	          $('#confirmModal').data('href', href).modal('show');
-	      }
-	  
-		  function confirmAction() {
-	            const href = $('#confirmModal').data('href');
-	            window.location.href = href;
-	        }
-	</script> <!-- 모달 관련 JS -->
+    </style> 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-	<div id=content-for-footer>
-    <div class="container mt-3">
-        <h1 class="fs-1 fw-bold text-center">구독 조회</h1>
-        
-        <div class="card mb-3" th:if="${ subscription !=null && subscription.isSubscribed}">
-            <div class="card-header fs-1 fw-bold" th:text="${purchase.productTitle}"></div>
-            <div class="card-body p-0">
-                <div class="row mt-4">
-                    <label for="productTitle" class="col-4 fs-5 fw-bold">구독기간</label>
-                    <span class="card-text col-3 fs-5" th:text="${subscription.subscriptionStartDateString}"></span>
-                    <span class="col-1 fs-5">~</span>
-                    <span class="card-text col-3 fs-5" th:text="${subscription.subscriptionEndDateString}"></span>
-                </div>
-                
-                <div class="row mt-4">
-                    <label for="productTitle" class="col-4 fs-3 fw-bold">가격</label>
-                    <span class="card-text col-8 fs-3" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
-                </div>
-                
-                <div class="row mt-4">
-                    <label for="productTitle" class="col-4 fs-3 fw-bold">결제수단</label>
-                    <span class="card-text col-8 fs-3" th:if="${purchase != null && purchase.paymentMethod == 1}" 
-                    th:text="${purchase.cardType} + ${purchase.lastFourDigits}"></span>
-                    
-                    <span class="card-text col-8 fs-3" th:if="${purchase != null && purchase.paymentMethod != 1}" 
-                    th:text="${purchase.paymentMethodString}"></span>
-                </div>
-                
-            </div><!-- card-body -->
-        </div><!-- card -->
-        
-        <div class="card mb-3" th:if="${ subscription !=null && subscription.isSubscribed}">
-            <div class="card-header fs-3 fw-bold">다음 결제 예정</div>
-            <div class="card-body p-0" th:if="${subscription.nextSubscriptionPaymentDate != null}">
-            	<div class="row mt-4">
-                    <label for="productTitle" class="col-5 fs-3 fw-bold">결제예정일</label>
-                    <p class="card-text col-7 fs-3" th:text="${subscription.nextSubscriptionPaymentDateString}"></p>
-                </div>
-                
-                <div class="row mt-4">
-                    <label for="productTitle" class="col-5 fs-3 fw-bold">가격</label>
-                    <span class="card-text col-7 fs-3" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
-                </div>
-                
-                <div class="row mt-4">
-                    <label for="productTitle" class="col-5 fs-3 fw-bold">다음 결제</label>
-                    <p class="card-text col-7 fs-3" th:if="${subscription.nextSubscriptionPaymentMethod == 1}" 
-                    th:text="${subscription.nextSubscriptionCardType} + ${subscription.nextSubscriptionLastFourDigits}"></p>
-                    
-                    <p class="card-text col-7 fs-3" th:if="${subscription.nextSubscriptionPaymentMethod != 1}" 
-                    th:text="${subscription.nextSubscriptionPaymentMethodString}"></p>
-                </div>
-                
-            </div><!-- card-body -->
+    <div id="content-for-footer">
+        <div class="container">
+            <h1 class="text-center mb-4" style="color: var(--primary-color);">구독 상세 정보</h1>
             
-            <a href="/purchase/reSubscription" class="btn btn-primary" th:if="${subscription.nextSubscriptionPaymentDate == null}">다시 구독하기</a>
-        </div><!-- card -->
-        
-        <div th:if="${ subscription == null || subscription.isSubscribed == false}" class="text-center full-height d-flex align-items-center justify-content-center">
-			<div>
-				<h1>현재 구독 중이 아닙니다!</h1>
-				
-				<p>
-					<a th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${productSubscription.productNo}) }" class="btn btn-primary">구독하러 가기</a>
-				</p>
-			
-			</div>
+            <div th:if="${subscription != null && subscription.isSubscribed}">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-box"></i> 구독 정보
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title mb-3" th:text="${purchase.productTitle}"></h2>
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-calendar-alt"></i> 구독 기간:</span>
+                            <span class="value" th:text="${subscription.subscriptionStartDateString + ' ~ ' + subscription.subscriptionEndDateString}"></span>
+                        </div>
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-tag"></i> 가격:</span>
+                            <span class="value price" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
+                        </div>
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-credit-card"></i> 결제 수단:</span>
+                            <span class="value" th:if="${purchase != null && purchase.paymentMethod == 1}" 
+                                  th:text="${purchase.cardType + ' ' + purchase.lastFourDigits}"></span>
+                            <span class="value" th:if="${purchase != null && purchase.paymentMethod != 1}" 
+                                  th:text="${purchase.paymentMethodString}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4" th:if="${subscription.nextSubscriptionPaymentDate != null}">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-check"></i> 다음 결제 예정
+                    </div>
+                    <div class="card-body">
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-calendar"></i> 결제 예정일:</span>
+                            <span class="value" th:text="${subscription.nextSubscriptionPaymentDateString}"></span>
+                        </div>
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-tag"></i> 가격:</span>
+                            <span class="value price" th:text="|${#numbers.formatInteger(purchase.price, 0, 'COMMA')}원|"></span>
+                        </div>
+                        <div class="subscription-info">
+                            <span class="label"><i class="fas fa-credit-card"></i> 결제 수단:</span>
+                            <span class="value" th:if="${subscription.nextSubscriptionPaymentMethod == 1}" 
+                                  th:text="${subscription.nextSubscriptionCardType + ' ' + subscription.nextSubscriptionLastFourDigits}"></span>
+                            <span class="value" th:if="${subscription.nextSubscriptionPaymentMethod != 1}" 
+                                  th:text="${subscription.nextSubscriptionPaymentMethodString}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="/purchase/updatePaymentMethodView" class="btn btn-primary" th:if="${subscription.nextSubscriptionPaymentDate != null}">
+                        <i class="fas fa-edit"></i> 결제 수단 변경
+                    </a>
+                    <a href="/purchase/cancelSubscription" class="btn btn-outline-primary" onclick="showModal(event)" th:if="${subscription.nextSubscriptionPaymentDate != null}">
+                        <i class="fas fa-times-circle"></i> 구독 해지
+                    </a>
+                    <a href="/purchase/reSubscription" class="btn btn-primary" th:if="${subscription.nextSubscriptionPaymentDate == null}">
+                        <i class="fas fa-sync"></i> 다시 구독하기
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${subscription == null || subscription.isSubscribed == false}" class="full-height">
+                <div class="text-center">
+                    <h2 class="mb-4">현재 구독 중이 아닙니다!</h2>
+                    <a th:href="@{/purchase/addPurchaseView/{productNo}(productNo=${productSubscription.productNo})}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-cart"></i> 구독하러 가기
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="mt-5 d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">
-        <a href="/purchase/updatePaymentMethodView" class="btn btn-dark change-color">결제수단 변경</a>
-    </div>
-    
-    <div class="d-grid" th:if="${subscription != null && subscription.isSubscribed && subscription.nextSubscriptionPaymentDate != null}">
-    	<a href="/purchase/cancelSubscription" class="btn btn-dark change-unsub-color" onclick="showModal(event)">구독해지</a>
+    <div th:include="~{ 'common/floatingButton.html' }"></div>
+    <div th:replace="common/footer::defaultFooter"></div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">구독 해지</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>정기결제를 해지하시겠습니까?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="confirmAction()">네</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">아니요</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-	<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">구독 해지</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true"></span>
-					</button>
-				</div>
-				
-				<div class="modal-body">
-					<p>정기결제를 해지하시겠습니까?</p>
-				</div>
-				
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" onclick="confirmAction()">네</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">아니요</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	</div>
-	
-	<div th:replace="common/footer::defaultFooter"></div>
+    <script>
+        function showModal(event) {
+            event.preventDefault();
+            const href = event.target.href;
+            $('#confirmModal').data('href', href).modal('show');
+        }
+    
+        function confirmAction() {
+            const href = $('#confirmModal').data('href');
+            window.location.href = href;
+        }
+    </script>
 </body>    
 </html>

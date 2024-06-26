@@ -290,7 +290,15 @@ public class UserRestController {
 			socialId = map.get("socialId");
 		}
 		
-		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), user.getPhoneNumber(), socialId);
+		String simplePhoneNumber = user.getPhoneNumber();
+		String part1 = simplePhoneNumber.substring(0, 3);
+        String part2 = simplePhoneNumber.substring(3, 7);
+        String part3 = simplePhoneNumber.substring(7);
+
+        String phoneNubmer = String.format("%s-%s-%s", part1, part2, part3);
+		
+		
+		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), phoneNubmer, socialId);
 		
 		if( !isDone) {
 			
@@ -783,7 +791,14 @@ public class UserRestController {
 	
 	@PostMapping("/sendPhoneNumberAuthNum")
 	public ResponseEntity<Boolean> sendPhoneNumberAuthNum(@RequestParam(value="to") String to, HttpServletResponse response) throws Exception {
-		int codeValue = userService.PhoneNumberCheck(to);
+		
+		String part1 = to.substring(0, 3);
+        String part2 = to.substring(3, 7);
+        String part3 = to.substring(7);
+
+        String phoneNubmer = String.format("%s-%s-%s", part1, part2, part3);
+		
+		int codeValue = userService.PhoneNumberCheck(phoneNubmer);
 		
 		String codeKey = "p-"+UUID.randomUUID().toString();
 		// authMap.put(codeKey, codeValue);
@@ -965,6 +980,17 @@ public class UserRestController {
 		
 		Cookie cookie = createLoginCookie(sessionId, keep);
 		response.addCookie(cookie);
+		
+		System.out.println("==================ACCEPT LOGIN===================");
+		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+		System.out.println("=====================================");
 		
 		userService.addLoginLog(userId);
 	}
