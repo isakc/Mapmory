@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.Model;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -123,6 +124,7 @@ public class UserRestController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+	/*
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
@@ -131,6 +133,7 @@ public class UserRestController {
 	
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
+	*/
 	
 	@Value("${kakao.client.Id}")
     private String kakaoClientId;
@@ -255,6 +258,8 @@ public class UserRestController {
 
 	
 	////////// 이미지 가져오기 용
+	// @Deprecated
+	/*
     @GetMapping("/{type}/{uuid}")
     public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
     	
@@ -276,7 +281,7 @@ public class UserRestController {
 
         return bytes;
     }
-	
+    */
 	
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -678,7 +683,6 @@ public class UserRestController {
 	}
 */	
 
-	//////////////////// 2단계 인증 key가 날라가는 문제를 확인. 왜 날라갔지? ////////////////////
 	@PostMapping("/checkSecondaryKey")
 	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

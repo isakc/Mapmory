@@ -42,8 +42,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -154,6 +156,16 @@ public class UserServiceImpl implements UserService {
 
 	@Value("${google.redirect.uri}")
 	private String googleTokenRequestUrl;
+	
+
+	@Value("${object.profile.folderName}")
+	private String PROFILE_FOLDER_NAME;
+	
+	@Value("${object.timeline.image}")
+	private String TIMELINE_THUMBNAIL;
+	
+	@Value("${object.timeline.imoji}")
+	private String TIMELINE_EMOJI;
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -1098,6 +1110,26 @@ public class UserServiceImpl implements UserService {
         return false;
 		
 	}
+	
+	public String getImage(String type, String imageName) throws Exception {
+    	
+    	byte[] bytes = null; 
+    	switch(type) {
+    	
+    		case "profile" :
+    			bytes = objectStorageUtil.getImageBytes(imageName, PROFILE_FOLDER_NAME);
+    			break;
+    		case "thumbnail" :
+    			bytes = objectStorageUtil.getImageBytes(imageName, TIMELINE_THUMBNAIL);
+    			break;
+    		case "emoji" :
+    			bytes = objectStorageUtil.getImageBytes(imageName, TIMELINE_EMOJI);
+    			break;
+    	}
+    	
+    	// System.out.println("변환된 byte[] : " + bytes );
+    	return Base64Utils.encodeToString(bytes);
+    }
 	
 	/*
 	@Override
