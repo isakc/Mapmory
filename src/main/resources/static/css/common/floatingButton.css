@@ -1,6 +1,6 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Roboto");
-/* @-webkit-keyframes come-in {
+ @-webkit-keyframes come-in {
   0% {
     -webkit-transform: translatey(100px);
             transform: translatey(100px);
@@ -19,7 +19,7 @@
             transform: translatey(0px) scale(1);
     opacity: 1;
   }
-} */
+}  
 @keyframes come-in {
   0% {
     -webkit-transform: translatey(100px);
@@ -55,9 +55,10 @@ html, body {
   width: 9vh;
 /*   height: 1vh; */
 	z-index:1;
-  bottom: 9vh;
-  right: 0;
-  /* margin: 35px 25px; */
+  bottom: 10dvh;
+  right: 1vh;
+/*   right: 0; */
+  margin: 0;
 }
 .floating-container:hover {
   height: 180px;
@@ -117,10 +118,12 @@ html, body {
   -webkit-transform: translateY(100px);
           transform: translateY(100px);
 }
-.floating-container .float-element .material-icons {
+.floating-container .float-element .floating-material-icons {
   vertical-align: middle;
   font-size: 16px;
 }
+
+
 /* .floating-container .float-element:nth-child(2) {
   background: #42A5F5;
   box-shadow: 0 20px 20px -10px rgba(66, 165, 245, 0.5);
