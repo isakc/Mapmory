@@ -134,9 +134,6 @@
 	</script>
 
 	<style>
-	
-	
-	
 		.moreIcon-cell {
 			vertical-align: middle;
 			text-align : center;
@@ -237,20 +234,23 @@
 					<thead>
 						<tr class="table-active">
 							<th scope="col">닉네임</th>
-							<th></th>
 							<th class="more" scope="col">더보기</th>
 						</tr>
-				  </thead>
-				  <tbody id="blockList">
+					</thead>
+					<tbody id="blockList">
 				  	<tr class="table-info" th:each="block, rowStat : ${blockList}" th:data-target-id="${block.targetId}">
 						<td class="profile-cell"> 
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${block.profileImageName})}">
 							<span class="nickname" th:text="${block.nickname}"></span>
 						</td>
-						<td class="target-cell"><span class="targetId" style="display:none;" th:text="${block.targetId}" data-targetId = "${block.targetId}"></span></td>
-						<td class="moreIcon-cell"><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>
+						<td class="moreIcon-cell">
+							<span>
+								<i id="moreIcon" class="bi bi-three-dots"></i>
+							</span>
+							<span class="targetId" style="display:none" th:text="${block.targetId}" th:data-target-id="${block.targetId}"></span>
+						</td>
 					</tr>	
-				  </tbody>
+					</tbody>
 				</table>
 				</div>
 			</div>
