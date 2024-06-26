@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.3/cosmo/bootstrap.min.css">
@@ -8,18 +7,18 @@
         .pagination {
             justify-content: center;
         }
-
+        
         .pagination .page-link {
             color: #495057;
             background-color: #fff;
             border: 1px solid #dee2e6;
         }
-
+        
         .pagination .page-item.active .page-link {
             background-color: #007bff;
             border-color: #007bff;
         }
-
+        
         .pagination .page-item.disabled .page-link {
             color: #6c757d;
             pointer-events: none;
@@ -28,33 +27,33 @@
         }
     </style>
 </head>
-
 <body>
     <nav th:fragment="pageNavigator(resultPage, baseUrl)">
-    <ul class="pagination justify-content-center">
-        <!-- 좌측 네비게이션 -->
-        <li th:class="${resultPage.currentPage <= 1} ? 'page-item disabled' : 'page-item'">
-            <a th:href="${resultPage.currentPage <= 1} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage - 1})}" aria-label="Previous" class="page-link">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-
-        <!-- 중앙 페이지 -->
-        <th:block th:each="i : ${#numbers.sequence(resultPage.beginUnitPage, resultPage.endUnitPage)}">
-            <li th:class="${resultPage.currentPage == i} ? 'page-item active' : 'page-item'">
-                <a th:href="@{${baseUrl}(currentPage=${i})}" class="page-link" th:text="${i}"></a>
+        <ul class="pagination justify-content-center">
+            <!-- 좌측 네비게이션 -->
+            <li th:class="${resultPage.currentPage <= 1} ? 'page-item disabled' : 'page-item'">
+                <a th:href="${resultPage.currentPage <= 1} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage - 1})}" aria-label="Previous" class="page-link">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
             </li>
-        </th:block>
-
-        <!-- 우측 네비게이션 -->
-        <li th:class="${resultPage.currentPage >= resultPage.maxPage} ? 'page-item disabled' : 'page-item'">
-            <a th:href="${resultPage.currentPage >= resultPage.maxPage} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage + 1})}" aria-label="Next" class="page-link">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-    </ul>
-</nav>
-
+            
+            <!-- 중앙 페이지 -->
+            <th:block th:with="startPage=${T(java.lang.Math).floor((resultPage.currentPage-1)/5)*5+1},
+                               endPage=${T(java.lang.Math).floor((resultPage.currentPage-1)/5)*5+5}">
+                <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                    <li th:if="${i <= resultPage.maxPage}" th:class="${resultPage.currentPage == i} ? 'page-item active' : 'page-item'">
+                        <a th:href="@{${baseUrl}(currentPage=${i})}" class="page-link" th:text="${i}"></a>
+                    </li>
+                </th:block>
+            </th:block>
+            
+            <!-- 우측 네비게이션 -->
+            <li th:class="${resultPage.currentPage >= resultPage.maxPage} ? 'page-item disabled' : 'page-item'">
+                <a th:href="${resultPage.currentPage >= resultPage.maxPage} ? '#' : @{${baseUrl}(currentPage=${resultPage.currentPage + 1})}" aria-label="Next" class="page-link">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </body>
-
 </html>

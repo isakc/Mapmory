@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="/css/common/chatBot.css">
     <style>
         body {
             background-color: #f8f9fa;
@@ -192,7 +191,7 @@
             </div>
         </div>
     </div>
-    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+    <div th:include="~{ 'common/floatingButton.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     <script th:inline="javascript">
         let currentPage = 1; // 초기 페이지 설정
