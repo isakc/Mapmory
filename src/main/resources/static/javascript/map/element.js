@@ -17,7 +17,7 @@ const recordListElement = (index) => {
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
 		'https://via.placeholder.com/150?text=No+Image';
 	const htmlString = `
-		<div class="card border-0 border-bottom mb-3 container" onClick='clickMarkerFromCard(${JSON.stringify(index)}, recordList)'>
+		<div class="card border-0 border-bottom mb-3 container resultListItem">
 		
 			<div class="profileImageContainer">
 				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
@@ -101,7 +101,7 @@ const simpleRecordElement = (index) => {
 					<div class="routeButtonGroup col-6">
 	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        			
-    					<div class="routeAdditionalButtons">
+    					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
@@ -112,7 +112,7 @@ const simpleRecordElement = (index) => {
 				<div class="row g-0">
 	      			<div class="col-9 card-body p-1">
 	            		<div class="mb-4 border-bottom">
-	                		<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	                		<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
@@ -199,7 +199,7 @@ const detailRecordElement = (index) => {
 				<div class="row g-0">
 	      			<div class="col-9 card-body p-1">
 	            		<div class="mb-4 border-bottom">
-	                		<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	                		<h5 class="card-title fw-bold ellipsis fs-3"> ${recordList[index].recordTitle}</h5>
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
@@ -233,7 +233,7 @@ const detailRecordElement = (index) => {
                 
                 ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
                 `
-                <div class="swiper mySwiper">
+                <div class="swiper mySwiper mt-3">
                 	<div class="swiper-wrapper">
                 		${recordList[index].imageName.map(image => 
                 		` <div class="swiper-slide">
@@ -330,29 +330,83 @@ const detailPlaceElement = (index) => {
 	    `;
 }
 	
+	
 const routeListElement = (response) => {
+	console.log(response);
+	
 	return `
-		<span class="badge bg-primary">총 거리: ${(response.totalDistance / 1000 ).toFixed(1)} km</span>
-		<span class="badge bg-primary">총 시간: ${(response.totalTime / 60) < 60 ? (response.totalTime / 60).toFixed(0) +'분' : 
+		<div class="btn-secondary-custom">
+			<div class="text-center text-light fs-4">
+				<span>${response.startEndAddressName[0]} 
+			</div>
+			<div class="text-center text-light fs-5">
+				<i class="fas fa-arrow-down"></i>
+			</div>
+			<div class="text-center text-light border-bottom fs-4">
+				<span>${response.startEndAddressName[1]} 
+			</div>
+			
+			<div class="routeButtonGroup d-flex">
+    			<div class="d-flex justify-content-center w-100">
+      				<button class="btn text-light mx-2" onclick="drawRoute('1')"><i class="fas fa-walking fs-4"></i></button>
+	        		<button class="btn text-light mx-2" onclick="drawRoute('2')"><i class="fas fa-car fs-4"></i></button>
+	        		<button class="btn text-light mx-2" onclick="drawTransitRoute()"><i class="fas fa-bus fs-4"></i></button>
+	        	</div>
+	        	
+	        	<div class="ml-auto">
+ 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left fs-4"></i></button>
+ 				</div>
+	        </div>
+		</div>
+		
+		<div class="border-bottom mb-3 p-3">
+			<span class="fs-3 fw-bold">${(response.totalTime / 60) < 60 ? (response.totalTime / 60).toFixed(0) +'분' : 
   						( (response.totalTime / 60) / 60).toFixed(0) + '시간 ' +  ( (response.totalTime / 60) % 60).toFixed(0) +'분'
   					 }</span>
-		<div class="list-group">
-			${response.description.map((item, index) =>
-  			`<div class="list-group-item route-guide list-group-flush">${index == 0 ? '출발지에서 ' : ''} ${item} </div>`
-			).join('')}
+			<span class="fs-6">${(response.totalDistance / 1000 ).toFixed(1)} km</span>
 		</div>
+		
+		<ul class="list-group">
+			${response.description.map((item, index) =>
+  			`<li class="list-group-item border-0 border-bottom">${index+1}. ${index == 0 ? '출발지에서 ' : ''} ${item} </li>`
+			).join('')}
+		</ul>
 `;
 }
 
 const transitRouteListElement = (paths) => {
 	return `
+		<div class="btn-secondary-custom">
+			<div class="text-center text-light fs-4">
+				<span>${paths[0].startEndAddressName[0]} 
+			</div>
+			<div class="text-center text-light fs-5">
+				<i class="fas fa-arrow-down"></i>
+			</div>
+			<div class="text-center text-light border-bottom fs-4">
+				<span>${paths[0].startEndAddressName[1]} 
+			</div>
+			
+			<div class="routeButtonGroup d-flex">
+    			<div class="d-flex justify-content-center w-100">
+      				<button class="btn text-light mx-2" onclick="drawRoute('1')"><i class="fas fa-walking fs-4"></i></button>
+	        		<button class="btn text-light mx-2" onclick="drawRoute('2')"><i class="fas fa-car fs-4"></i></button>
+	        		<button class="btn text-light mx-2" onclick="drawTransitRoute()"><i class="fas fa-bus fs-4"></i></button>
+	        	</div>
+	        	
+	        	<div class="ml-auto">
+ 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left fs-4"></i></button>
+ 				</div>
+	        </div>
+		</div>
 		${paths.map( (path, index)  => 
 		`<div class="list-group-item list-group-item-action">
-			<ul class="list-group list-group-flush">
-  				<li class="transitRoute list-group-item justify-content-between align-items-center" data-index =${index}>
+			<ul class="list-group">
+  				<li class="transitRoute list-group-item justify-content-between align-items-center border-0" data-index =${index}>
   					<h1>${(path.totalTime / 60) < 60 ? (path.totalTime / 60).toFixed(0) +'분' : 
   						( (path.totalTime / 60) / 60).toFixed(0) + '시간 ' +  ( (path.totalTime / 60) % 60).toFixed(0) +'분'
   					 }</h1>
+  					 ${path.type == 1 }
     				<span>도보 ${(path.totalWalkTime/60).toFixed(0) }분</span>
     				<span>환승 ${path.transferCount}회</span>
     				<span>요금 ${path.totalFare}원</span>

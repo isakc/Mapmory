@@ -2,6 +2,18 @@
  * 
  */
 
+async function getAddressName(geocoder, coord) {
+	return new Promise((resolve, reject) => {
+		geocoder.coord2Address(coord.getLng(), coord.getLat(), function(result, status) {
+			if (status === kakao.maps.services.Status.OK) {
+				resolve(result[0].address.address_name);
+			} else {
+				reject('Failed to get address');
+			}
+		});
+	});
+}
+        
 const drawRoute = (type) => {
 	const urlParameter = type == 1 ? "getPedestrianRoute" : "getCarRoute";
 
@@ -25,12 +37,24 @@ const drawRoute = (type) => {
 			url: "/map/rest/" + urlParameter,
 			data: JSON.stringify(requestData),
 
-			success: function(response) {
+			success: async function(response) {
 				console.log(response);
 				
+				const geocoder = new kakao.maps.services.Geocoder();
+            	const startEndCoord = [
+                	new kakao.maps.LatLng(location.coords.latitude, location.coords.longitude), 
+                	new kakao.maps.LatLng(selectLatitude, selectLongitude)
+            	];
+                const [startAddress, endAddress] = await Promise.all(startEndCoord.map(coord => getAddressName(geocoder, coord)));
+                
+                response.startEndAddressName = [startAddress, endAddress];
+				
+				clearPolylines();
 				hideMarkers();
+				clearStartEndMarkers();
 				setMarkers([{ latitude: requestData.startY, longitude: requestData.startX, markerType:5 },
 							{ latitude: requestData.endY,   longitude: requestData.endX,   markerType:6 } ]);
+							
 				bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 				
 				for (let i = 0; i < response.lat.length; i++) {
@@ -44,10 +68,6 @@ const drawRoute = (type) => {
 				
 				deleteRouteDescriptionList();
 				routeDescriptionList.append(routeListElement(response));
-				
-				$(".mapButton").removeClass('on');
-				descriptionBtn.addClass('on');
-				
 				drawLine(drawInfoArr, 1);
 				map.setBounds(bounds);
 			}, // success
@@ -66,8 +86,6 @@ const drawTransitRoute = () => {
 	paths = [];
 
 	getCurrentLocation().done(function(location) {
-
-		let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 		bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 		
 		const requestData = {
@@ -87,18 +105,19 @@ const drawTransitRoute = () => {
 			url: "/map/rest/getTransitRouteList", // 대중교통
 			data: JSON.stringify(requestData),
 
-			success: function(response) {
+			success: async function(response) {
 				console.log(response);
-				
-				hideMarkers();
-				
-				setMarkers([
-					{ latitude: requestData.startY, longitude: requestData.startX,  markerType:5 },
-					{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }
-				]);
 
 				if (response.length != 0) {
-
+					const geocoder = new kakao.maps.services.Geocoder();
+            		const startEndCoord = [
+                		new kakao.maps.LatLng(location.coords.latitude, location.coords.longitude), 
+                		new kakao.maps.LatLng(selectLatitude, selectLongitude)
+            		];
+                	const [startAddress, endAddress] = await Promise.all(startEndCoord.map(coord => getAddressName(geocoder, coord)));
+                
+					hideMarkers();
+					
 					response.forEach((path, index) => {
 						const routeList = path.routeList;
 
@@ -110,6 +129,7 @@ const drawTransitRoute = () => {
 							totalWalkTime: path.totalWalkTime,
 							transferCount: path.transferCount,
 							pathType: path.pathType,
+							startEndAddressName: [startAddress, endAddress],
 
 							routes: routeList.map(route => ({
 								mode: route.mode,
@@ -125,17 +145,13 @@ const drawTransitRoute = () => {
 							}))// routes
 						});//path.push
 					});//foreach
-				
+					
 					$(".infoItem").removeClass("on");
 					routeDescriptionList.addClass("on");
 					
 					deleteRouteDescriptionList();
 					routeDescriptionList.append(transitRouteListElement(paths) );
-					
-					$(".mapButton").removeClass('on');
-					descriptionBtn.addClass('on');
-					
-					showPathDetails(0); // 0번째 경로로 그리기
+					showPathDetails(0, requestData); // 0번째 경로로 그리기
 				}//if
 				else {
 					alert("해당 경로찾기가 없습니다!!");
@@ -151,9 +167,15 @@ const drawTransitRoute = () => {
 	});
 }; // 대중교통 경로찾기
 
-function showPathDetails(index) {
+function showPathDetails(index, requestData) {
+	let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 	clearPolylines();
 	clearStartEndMarkers();
+	
+	setMarkers([
+		{ latitude: requestData.startY, longitude: requestData.startX,  markerType:5 },
+		{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }
+		]);
 	
 	for (let i = 0; i < paths[index].routes.length; i++) {
 		drawInfoArr = [];
