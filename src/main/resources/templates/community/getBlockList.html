@@ -134,8 +134,16 @@
 	</script>
 
 	<style>
+	
+	
+	
+		.moreIcon-cell {
+			vertical-align: middle;
+			text-align : center;
+		}
 		#moreIcon {
-			font-size: 20px;
+			font-size: 25px;
+			font-weight : bold;	
 		}
 		
 		.moreModal {
@@ -174,12 +182,38 @@
 		}
 		
 		.profileImage {
-			width : 30%;
+			width : 20%;
 			height : 30%;
             margin-right: 10px; 
             vertical-align: middle; 			
 		}		
 				
+		.header {
+		    font-size : 16px;
+		    font-weight : bold;			
+		}
+		
+		.blockCount {
+			float : right;
+		    font-weight: bold;
+		    font-size : 16px;		
+		}		 
+		
+		.bi.bi-ban.custom-icon {
+			color : red;
+			font-size : 18px;
+			margin-right : 5px;
+		}
+		
+		.nickname {
+			font-size : 15px;
+			font-weight : bold;
+		}
+		
+		.more {
+			text-align : center;
+		}
+	
 	</style>
 
 </head>
@@ -191,8 +225,9 @@
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<div class="nav-link active">
-							<i class="bi bi-ban-fill"> 차단목록조회</i>
-							<span class="blockCount" th:text="'차단한 유저 : '+${totalCount}+'명'" style="float: right; margin-left: 10px;"></span>
+							<i class="bi bi-ban custom-icon"></i>
+							<span class="header">차단목록조회</span>
+							<span class="blockCount" th:text="'차단한 유저 : '+${totalCount}+'명'"></span>
 				    	</div>
 					</li>
 				</ul>		
@@ -203,17 +238,17 @@
 						<tr class="table-active">
 							<th scope="col">닉네임</th>
 							<th></th>
-							<th scope="col" >더보기</th>
+							<th class="more" scope="col">더보기</th>
 						</tr>
 				  </thead>
 				  <tbody id="blockList">
 				  	<tr class="table-info" th:each="block, rowStat : ${blockList}" th:data-target-id="${block.targetId}">
-						<td> 
+						<td class="profile-cell"> 
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${block.profileImageName})}">
-							<span th:text="${block.nickname}"></span>
+							<span class="nickname" th:text="${block.nickname}"></span>
 						</td>
-						<td><span class="targetId" style="display:none;" th:text="${block.targetId}" data-targetId = "${block.targetId}"></span></td>
-						<td><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>
+						<td class="target-cell"><span class="targetId" style="display:none;" th:text="${block.targetId}" data-targetId = "${block.targetId}"></span></td>
+						<td class="moreIcon-cell"><span><i id="moreIcon" class="bi bi-three-dots"></i></span></td>
 					</tr>	
 				  </tbody>
 				</table>

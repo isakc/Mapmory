@@ -30,7 +30,7 @@ public class ContentFilterUtil {
 	public static boolean checkBadWord(String text) {
 		BadWordFiltering badWordFiltering = new BadWordFiltering();
 
-		String[] addBadWord = {"니엄마", "ㅆㅣ발","ㅆㅣ바","애미","@ㅐ미","느검마","느개비","느검"};
+		String[] addBadWord = {"니엄마", "ㅆㅣ발","ㅆㅣ바","애미","@ㅐ미","느검마","느개비","느검","^^ㅣ발"};
 		for (String word : addBadWord) {
 			badWordFiltering.add(word);
 		}
