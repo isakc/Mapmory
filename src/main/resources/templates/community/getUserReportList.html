@@ -87,80 +87,99 @@
 		}	
 	</script>
 		
-	<!-- 행 클릭하여 신고 내용 조회 -->	
-    <script>
-        $(document).ready(function(){
-            $("#reportTable").on("click", "tr.table-info", function(){
-                var $detailRow = $(this).next(".reportDetail");
-                var reportText = $(this).data("report-text");
+	<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('#reportList tr');
 
-                // 토글 기능: 이미 열려 있으면 닫고, 닫혀 있으면 연다
-                if ($detailRow.is(":visible")) {
-                    $detailRow.hide();
-                } else {
-                    $(".reportDetail").hide(); // 다른 열려있는 행 닫기
-                    $(".reportDetail .reportText").text(''); // 다른 열려있는 행 텍스트 초기화
-                    $detailRow.find(".reportText").text(reportText);
-                    $detailRow.show();
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                // 이미 열려 있는 신고 내용을 감추기
+                const openDetails = document.querySelector('.report-details');
+                if (openDetails) {
+                    openDetails.remove();
                 }
+
+                // 클릭한 행의 다음 행에 신고 내용 표시
+                const reportText = row.dataset.reportText;
+                const newRow = document.createElement('tr');
+                newRow.classList.add('report-details');
+                const newCell = document.createElement('td');
+                newCell.colSpan = 4; // 모든 열을 병합하여 신고 내용 표시
+                newCell.textContent = '신고내용 : ' +reportText;
+                newRow.appendChild(newCell);
+                row.after(newRow);
             });
         });
-    </script>	
+    });
+	</script>	
 		
 	<style>
 		.reportCount {
 		    font-weight: bold;
 		}
+		
+		th {
+			font-size : 14px;
+            font-weight : bold;
+		}
+		
+        .report-details {
+            background-color: #ebddf1;
+            font-size: 16px;
+            font-weight : bold;
+            border : 3px solid;
+        }
+       
+		.nav-link .bi-exclamation-circle-fill {
+		    font-style: normal;
+		    font-weight : bold;
+		}  
+        		
 	</style>
 </head>
 <body>
-	<div id=content-for-footer>
-		<div class="container">
+    <div id="content-for-footer">
+        <div class="container">
             <div class="report-header">
-                <div class="icon-wrapper">		
-				<ul class="nav nav-pills flex-column">
-					<li class="nav-item">
-						<a class="nav-link active">
-				    		<i class="bi bi-exclamation-circle-fill"> 신고목록조회</i>
-   							<span class="reportCount" th:text="'신고 : ' + ${totalCount}+ '건'"  style="float: right;"></span> 
-				    	</a>
-					</li>
-				</ul>		
-				<div>
-					<table class="table table-hover" id="reportTable">
-						<thead>
-							<tr class="table-active">
-								<th scope="col">신고제목</th>
-								<th scope="col">신고대상</th>
-								<th scope="col">신고진행상황</th>
-								<th scope="col">신고일시</th>
-							</tr>
-				  	</thead>
-				  	<tbody id="reportList">
-				   		<tr class="table-info" th:each="report, rowStat : ${reportList}" th:data-report-text="${report.reportText}">
-							<td th:text="${report.reportTitle}"></td>
-							<td th:text="${report.nickname}"></td>
-							<td class="reportStatus">
-								<span th:switch="${report.reportStatus}">
-									<span th:case="'1'">신고완료</span>
-									<span th:case="'2'">처리완료</span>
-								</span>
-							</td>
-							<td th:text="${report.reportDate}"></td>
-    					</tr>
-    					<tr class="reportDetail" th:each="report, rowStat : ${reportList}" style="display:none;">
-    						<td colspan="4">
-    							<p class="reportText"></p>
-    						</td>
-    					</tr>		
-				  </tbody>
-				</table>		
-				</div>
-			</div>
-			</div>
-		</div>
-	</div>	
-	<div th:include="~{ 'common/chatbotModal.html' }"></div>	
-	<div th:replace="common/footer::defaultFooter"></div>		
+                <div class="icon-wrapper">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active">
+                                <i class="bi bi-exclamation-circle-fill"> 신고목록조회</i>
+                                <span class="reportCount" th:text="'신고 : ' + ${totalCount}+ '건'" style="float: right;"></span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div>
+                        <table class="table table-hover" id="reportTable">
+                            <thead>
+                                <tr class="table-active">
+                                    <th scope="col">신고제목</th>
+                                    <th scope="col">신고대상</th>
+                                    <th scope="col">신고진행상황</th>
+                                    <th scope="col">신고일시</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportList">
+                                <tr class="table-info" th:each="report, rowStat : ${reportList}" th:data-report-text="${report.reportText}">
+                                    <td th:text="${report.reportTitle}" onclick="toggleReportText(this)"></td>
+                                    <td th:text="${report.nickname}"></td>
+                                    <td class="reportStatus">
+                                        <span th:switch="${report.reportStatus}">
+                                            <span th:case="'1'">신고완료</span>
+                                            <span th:case="'2'">처리완료</span>
+                                        </span>
+                                    </td>
+                                    <td th:text="${report.reportDate}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+    <div th:replace="common/footer::defaultFooter"></div>	
 </body>	
 </html>

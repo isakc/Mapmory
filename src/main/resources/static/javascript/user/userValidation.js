@@ -46,7 +46,7 @@ $(function() {
 			if(!result) {
 				
 				// $('#userIdMsg').text('욕설은 사용할 수 없습니다.').css('color', 'red').show();
-				$('#userIdMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success').addClass('text-danger').show();
+				$('#userIdMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success-custom').addClass('text-danger-custom').show();
 				return;
 			}
 				
@@ -104,13 +104,14 @@ $(function() {
 	    console.log(passwordRegex.test(password))
 	    if (!passwordRegex.test(password)) {
 			
-	        $('#passwordMsg').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.').css('color', 'red').show();
+	        // $('#passwordMsg').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.').css('color', 'red').show();
+	        $('#passwordMsg').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.').removeClass('text-success').addClass('text-danger').show();
 	        $('passwordChecked').text('false');
 	        event.preventDefault();
 	        return;
 	    } else {
 			
-			$('#passwordMsg').text('사용 가능한 비밀번호입니다.').css('color', 'green').show();
+			$('#passwordMsg').text('사용 가능한 비밀번호입니다.').removeClass('text-danger').addClass('text-success').show();
 			$('#passwordChecked').text('true');
 	        event.preventDefault();
 	        return;
@@ -125,13 +126,13 @@ $(function() {
 	    
 	    if ( !nameRegex.test(name)) {
 
-	        $('#userNameMsg').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.').css('color', 'red').show();
+	        $('#userNameMsg').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.').removeClass('text-success').addClass('text-danger').show();
 	        $('#userNameChecked').text('false');
 	        event.preventDefault();
 	        return;
 	    } else {
 			
-			$('#userNameMsg').text('사용 가능한 이름입니다.').css('color', 'green').show();
+			$('#userNameMsg').text('사용 가능한 이름입니다.').removeClass('text-danger').addClass('text-success').show();
 			$('#userNameChecked').text('true');
 	        event.preventDefault();
 	        return;
@@ -144,7 +145,7 @@ $(function() {
 	    const nicknameRegex = /^[A-Za-z가-힣\d][A-Za-z가-힣\d\s]{0,9}$/;
 	    if (!nicknameRegex.test(nickname)) {
 			
-	        $('#nicknameMsg').text('닉네임은 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.').css('color', 'red').show();
+	        $('#nicknameMsg').text('닉네임은 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.').removeClass('text-success').addClass('text-danger').show();
 	        $('#nicknameChecked').text('false');
 	        event.preventDefault();
 	        return;
@@ -179,7 +180,7 @@ $(function() {
 			
 			if (result === false) {
 
-				$('#nicknameMsg').text('욕설은 사용할 수 없습니다.').css('color', 'red').show();
+				$('#nicknameMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success').addClass('text-danger').show();
 				return;
 			}
 			
@@ -210,12 +211,12 @@ $(function() {
 							
 			if (result === true) {
 
-				$('#nicknameMsg').text('사용 가능한 아이디입니다.').css('color', 'green').show();
+				$('#nicknameMsg').text('사용 가능한 닉네임입니다.').removeClass('text-danger').addClass('text-success').show();
 				$('#nicknameChecked').text('true');
 				
 			} else {
 
-				$('#nicknameMsg').text('중복되는 닉네임입니다.').css('color', 'red').show();
+				$('#nicknameMsg').text('중복되는 닉네임입니다.').removeClass('text-success').addClass('text-danger').show();
 			}
 		}
 		
@@ -285,11 +286,11 @@ $(function() {
 		
 		var phone = $('#phoneNumber').val(); // 입력된 휴대폰 번호 가져오기
 		
-		const phoneRegex = /^(?:(010)|(01[1|6|7|8|9]))-\d{3,4}-(\d{4})$/;
+		const phoneRegex = /^(?:(010)|(01[1|6|7|8|9]))\d{3,4}(\d{4})$/;
 		
 		if( !phoneRegex.test(phone)) {
 			
-			$('#phoneNumberMsg').text("양식에 맞게 작성해주세요. (ex. 010-1234-1234)").css('color', 'red').show();
+			$('#phoneNumberMsg').text("양식에 맞게 작성해주세요. (ex. 01012341234)").removeClass('text-success').addClass('text-danger').show();
 			event.preventDefault();
 			return;
 		} else {
@@ -342,7 +343,7 @@ $(function() {
 				
                 if (data==true) { // 요청이 성공하면
                    
-					$('#phoneNumberMsg').text("인증번호가 일치합니다.").css('color', 'green');
+					$('#phoneNumberMsg').text("인증번호가 일치합니다.").removeClass('text-danger').addClass('text-success').show();
 		            $('#phoneNumber').attr('readonly', true);
 		            $('#sendAuthPhoneNum').attr('disabled', true);
 		            $('#phoneAuthCode').attr('type', 'hidden');
@@ -350,7 +351,7 @@ $(function() {
                     
                 } else {
 					
-                    $('#phoneNumberMsg').text("인증번호가 일치하지 않습니다.").css('color', 'red');
+                    $('#phoneNumberMsg').text("인증번호가 일치하지 않습니다.").removeClass('text-success').addClass('text-danger').show();
                     
                 }
             },
@@ -377,7 +378,7 @@ $(function() {
 		
 		if( !email_regex.test(email) ) {
 			
-			$('#emailMsg').text("양식에 맞게 작성해주세요. (ex. test@test.com)").css('color', 'red').show();
+			$('#emailMsg').text("양식에 맞게 작성해주세요. (ex. test@test.com)").removeClass('text-success').addClass('text-danger').show();
 			event.preventDefault();
 			return;
 			
@@ -425,7 +426,7 @@ $(function() {
 				
                 if (data==true) { // 요청이 성공하면
                    
-					$("#emailMsg").text('인증번호가 일치합니다.').css('color', 'green');
+					$("#emailMsg").text('인증번호가 일치합니다.').removeClass('text-danger').addClass('text-success').show();
 					$('#sendAuthEmail').attr('disabled', true);
 					$('#email').attr('readonly', true);
 					$('#emailAuthCode').attr('type', 'hidden');
@@ -433,7 +434,7 @@ $(function() {
                     
                 } else {
 					
-                    $("#emailMsg").text('인증번호가 불일치합니다.').css('color', 'red');
+                    $("#emailMsg").text('인증번호가 불일치합니다.').removeClass('text-success').addClass('text-danger').show();
                     
                 }
             },

@@ -15,7 +15,7 @@
 	
 	<script th:inline="javascript">
     $(document).ready(function() {
-        $('.reportTitle').on('click', function () {
+        $('.table-warning').on('click', function () {
             var $row = $(this).closest('tr');
             var reportNo = $row.data('report-no');
             var reportStatus = $row.find('td:nth-child(2)').text().trim(); // 진행상황 열에서 텍스트 가져오기

@@ -565,19 +565,18 @@ public class TimelineUtil {
 	    	System.out.println("INSERT_API_SECRET_KEY : " + INSERT_API_SECRET_KEY);
 	    	System.out.println("COOL_SMS_URL : " + COOL_SMS_URL);
 	    	System.out.println("FROM_PHONE_NUMBER : " + FROM_PHONE_NUMBER);
-//	    	DefaultMessageService messageService=NurigoApp.INSTANCE.initialize(INSERT_API_KEY, INSERT_API_SECRET_KEY, COOL_SMS_URL);
-//	    	
-//	        Message message = new Message();
-//	        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
-//	        message.setFrom(FROM_PHONE_NUMBER);
-//	        message.setTo(toPhoneNumber.replace("-", ""));
-//	        message.setText(text);
-//
-//	        SingleMessageSentResponse response = messageService.sendOne(new SingleMessageSendingRequest(message));
-//	        System.out.println(response);
-//
-//	        return response;
-	    	return null;
+	    	DefaultMessageService messageService=NurigoApp.INSTANCE.initialize(INSERT_API_KEY, INSERT_API_SECRET_KEY, COOL_SMS_URL);
+	    	
+	        Message message = new Message();
+	        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
+	        message.setFrom(FROM_PHONE_NUMBER);
+	        message.setTo(toPhoneNumber.replace("-", ""));
+	        message.setText(text);
+
+	        SingleMessageSentResponse response = messageService.sendOne(new SingleMessageSendingRequest(message));
+	        System.out.println(response);
+
+	        return response;
 	    }
 
 }

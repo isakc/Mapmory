@@ -158,10 +158,10 @@
             <div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/user/admin/getAdminUserList')}"></div>
         </div>
 
-		<!-- 
+		 
         <script th:inline="javascript">
             $(document).ready(function() {
-                $('.dropdown-item').click(function(e) {
+                $('.userDropDown').click(function(e) {
                     e.preventDefault();
                     var condition = $(this).data('condition');
                     $('#searchCondition').val(condition);
@@ -169,7 +169,7 @@
                 });
             });
         </script>
-         -->
+         
 </body>
 
 </html>

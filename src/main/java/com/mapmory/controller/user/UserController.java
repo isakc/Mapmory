@@ -922,7 +922,7 @@ public class UserController {
 		return cookie;
 	}
     
-private HttpEntity<MultiValueMap<String, String>> makeTokenRequest(MultiValueMap<String, String> params) {
+    private HttpEntity<MultiValueMap<String, String>> makeTokenRequest(MultiValueMap<String, String> params) {
 		
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");

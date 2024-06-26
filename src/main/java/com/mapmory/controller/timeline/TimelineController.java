@@ -166,9 +166,9 @@ public class TimelineController {
 		model.addAttribute("positions",jsonPostions);
 		model.addAttribute("positionParam",jsonParam);
 		}
-//		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("apiKey", kakaoMapApiKey);
 //		model.addAttribute("tMapApiKey",tMapApiKey);
-//		model.addAttribute("restKey",restKey);
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
@@ -200,10 +200,13 @@ public class TimelineController {
 		
 		List<SummaryRecordDto> recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
 		
-		search.setSearchCondition(3);
+		List<String> dateList=timelineService.getSummaryDateList(userId);
 		
-		model.addAttribute("startDay",timelineService.getSummaryDate(search).substring(0, 10));
-		model.addAttribute("today", LocalDate.now().toString());
+		model.addAttribute("dateList",dateList);
+		model.addAttribute("startDay", dateList.get(0));
+		model.addAttribute("endDay", dateList.get(dateList.size()-1) );
+		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("selectDate", selectDate);
 		model.addAttribute("recordList", recordList);
 		return "timeline/getSummaryRecord";
@@ -305,8 +308,6 @@ public class TimelineController {
 		
 		record=TimelineUtil.validateRecord(record);
 		
-//		System.out.println("record.getImageName() : "+record.getImageName());
-//		System.out.println("record.getHashtag() : "+record.getHashtag());
 		timelineService.updateTimeline(record);
 		return getDetailTimeline(model,record.getRecordNo(),request);
 	}
@@ -381,6 +382,8 @@ public class TimelineController {
 	@GetMapping("addTimecapsule")
 	public String addTimecapsuleView(Model model,
 			HttpServletRequest request) throws Exception,IOException {
+		
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("userId",redisUtil.getSession(request).getUserId());
 		model.addAttribute("category", timelineService.getCategoryList());
@@ -439,6 +442,7 @@ public class TimelineController {
 		record=timelineUtil.mediaNameToByte(record);
 		model.addAttribute("hashtagText",TimelineUtil.hashtagListToText(record.getHashtag()));
 		model.addAttribute("category", timelineService.getCategoryList());
+		model.addAttribute("restKey",restKey);
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("record",record);
 		return "timeline/updateTimecapsule";
