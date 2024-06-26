@@ -13,14 +13,27 @@
     <style>
         body {
             background-color: #f8f9fa;
+            font-size: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.9375em;
         }
 
         .search-box {
-            margin-bottom: 30px;
+            margin-bottom: 1.875em;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-box .form-group {
-            margin-right: 10px;
+            margin-right: 0.625em;
+            margin-bottom: 0.625em;
+            flex: 1 1 auto;
         }
 
         .search-box .btn-primary {
@@ -36,14 +49,14 @@
         .product-header-left {
             background-color: #00A7F5;
             color: #fff;
-            padding: 10px;
+            padding: 0.625em;
             text-align: center;
-            margin-bottom: 30px;
-            border-radius: 5px;
+            margin-bottom: 1.875em;
+            border-radius: 0.3125em;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 30px;
+            margin-top: 1.875em;
         }
 
         .product-header-text {
@@ -54,20 +67,20 @@
 
         .product-header-text h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 1.25em;
             font-weight: bold;
             display: flex;
             align-items: center;
         }
 
         .product-header-left .icon-wrapper {
-            margin-right: 10px;
+            margin-right: 0.625em;
         }
 
         .product-header-left .icon-wrapper i {
-            font-size: 24px;
+            font-size: 1.5em;
         }
-        
+
         .product-table th {
             background-color: #2780E3;
             color: #fff;
@@ -76,28 +89,29 @@
         }
 
         .empty-div {
-            width: 24px;
+            width: 1.5em;
         }
 
         .product-header a {
             color: #fff;
             text-decoration: none;
-            font-size: 20px;
+            font-size: 1.25em;
         }
 
         .table-container {
             background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-            padding: 15px;
+            border-radius: 0.3125em;
+            box-shadow: 0 0.125em 0.3125em rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.875em;
+            padding: 0.9375em;
         }
 
         .product-item {
             display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            padding: 0.9375em 0;
+            border-bottom: 0.0625em solid #e9ecef;
         }
 
         .product-item:last-child {
@@ -105,37 +119,39 @@
         }
 
         .product-image {
-            width: 80px;
-            height: 80px;
+            width: 5em;
+            height: 5em;
             border-radius: 50%;
             overflow: hidden;
-            margin-right: 15px;
+            margin-right: 0.9375em;
+            flex: 0 0 auto;
         }
 
         .product-image img {
-            max-width: 100%;
-            height: auto;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             cursor: pointer;
         }
 
         .product-info {
-            flex: 1;
-            margin-left: 15px;
+            flex: 1 1 auto;
+            margin-left: 0.9375em;
         }
 
         .product-info h2 {
-            font-size: 18px;
+            font-size: 1.125em;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 0.3125em;
         }
 
         .product-info p {
-            margin-bottom: 5px;
-            font-size: 14px;
+            margin-bottom: 0.3125em;
+            font-size: 0.875em;
         }
 
         .product-info .price {
-            font-size: 16px;
+            font-size: 1em;
             color: #6c757d;
         }
 
@@ -143,22 +159,57 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100px;
+            width: 100%;
         }
 
         .product-actions .btn {
-            width: 100%;
+            width: auto;
+            padding: 0.5em 1em;
         }
 
         .reg-date {
             font-size: 0.9em;
             color: #6c757d;
         }
-        
+
         .purchaseButton {
-        	position:relative;
-        	bottom: -38px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 0.3125em;
+            padding: 0.5em 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top:2em;
         }
+
+        .purchaseButton:hover {
+            background-color: #0056b3;
+        }
+        
+        .search-box {
+        margin-bottom: 1.875em;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .search-box form {
+        display: flex;
+        width: 100%;
+    }
+
+    .search-box .btn-group {
+        width: auto;
+    }
+
+    .search-box .form-control {
+        flex: 1;
+        margin: 0 0.625em;
+    }
+
+    .search-box .btn-primary {
+        white-space: nowrap;
+    }
     </style>
 </head>
 
@@ -179,35 +230,31 @@
                 </div>
 
                 <div class="search-box">
-                    <form th:action="@{/product/getProductList}" method="get" class="input-group">
-                        <div class="form-group">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span th:text="${search.searchCondition == 0 ? '상품명' : (search.searchCondition == 1 ? '가격' : '검색 조건')}"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" data-condition="0">상품명</a></li>
-                                    <li><a class="dropdown-item" href="#" data-condition="1">가격</a></li>
-                                </ul>
-                                <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
-                            </div>
-                        </div>
-                        <div class="form-group flex-grow-1">
-                            <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
-                        </div>
-                        <button type="submit" class="btn btn-primary">검색</button>
-                    </form>
-                </div>
+    <form th:action="@{/product/getProductList}" method="get">
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <span th:text="${search.searchCondition == 0 ? '상품명' : (search.searchCondition == 1 ? '가격' : '검색 조건')}"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-condition="0">상품명</a></li>
+                <li><a class="dropdown-item" href="#" data-condition="1">가격</a></li>
+            </ul>
+            <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+        </div>
+        <input type="text" class="form-control" id="searchKeyword" name="searchKeyword" placeholder="검색어 입력" th:value="${search.searchKeyword}">
+        <button type="submit" class="btn btn-primary">검색</button>
+    </form>
+</div>
             </div>
         </div>
         <div class="table-container">
             <table class="table table-hover product-table">
-                                    <thead>
-                            <tr>
-                                <th>상품정보</th>
-                                <th>구매</th>
-                            </tr>
-                        </thead>
+                <thead>
+                    <tr>
+                        <th>상품정보</th>
+                        <th>구매</th>
+                    </tr>
+                </thead>
                 <tbody class="product-list">
                     <!-- 상품 목록이 여기 추가됩니다 -->
                 </tbody>
@@ -244,180 +291,171 @@
     <div th:replace="common/footer::defaultFooter"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentPage = 1;
-        let loading = false;
-        let endOfData = false;
-        let isSearching = false;
+    let currentPage = 1;
+    let loading = false;
+    let endOfData = false;
 
-        $(window).scroll(function() {
-            if (!endOfData && !loading && !isSearching) {
-                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                    loading = true;
-                    currentPage++;
-                    loadMoreProducts();
-                }
+    $(window).scroll(function() {
+        if (!endOfData && !loading) {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                loading = true;
+                currentPage++;
+                loadMoreProducts();
+            }
+        }
+    });
+
+    function loadMoreProducts() {
+        const searchCondition = $('#searchCondition').val();
+        const searchKeyword = $('#searchKeyword').val();
+
+        $.ajax({
+            url: '/rest/products/getProductList',
+            method: 'GET',
+            data: {
+                currentPage: currentPage,
+                searchCondition: searchCondition,
+                searchKeyword: searchKeyword
+            },
+            success: function(response) {
+                appendProductsToList(response);
+                loading = false;
+                checkIfMoreContentNeeded(response.length);
+            },
+            error: function() {
+                console.log('Error occurred while loading more products.');
+                loading = false;
             }
         });
+    }
 
-        function loadMoreProducts() {
+    function appendProductsToList(products) {
+        let html = '';
+        products.forEach(function(product) {
+            html += createProductHtml(product);
+        });
+        $('.product-list').append(html);
+    }
+
+    function createProductHtml(product) {
+        return `
+            <tr>
+                <td>
+                    <div class="product-item">
+                        <div class="product-image">
+                            ${product.uuid && product.uuid.length > 0 ? 
+                                `<img src="/product/image/${product.uuid[0]}" alt="상품 이미지" data-product-no="${product.productNo}" data-image-urls="${product.uuid.map(u => '/product/image/' + u).join(',')}">`
+                                : ''}
+                        </div>
+                        <div class="product-info">
+                            <h2><a href="/product/getDetailProduct/${product.productNo}">${product.productTitle}</a></h2>
+                            <p class="price">${product.price}원</p>
+                            <p class="reg-date">${formatDate(product.productRegDate)}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="product-actions">
+                        <button class="purchaseButton" onclick="location.href='/purchase/addPurchaseView/${product.productNo}'">구매</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    function checkIfMoreContentNeeded(dataLength) {
+        if (dataLength === 0) {
+            endOfData = true;
+        }
+    }
+
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        const year = String(date.getFullYear()).slice(-4);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    $(document).on('click', '.product-image img', function() {
+        const productNo = $(this).data('product-no');
+        fetchProductImages(productNo);
+    });
+
+    function fetchProductImages(productNo) {
+        $.ajax({
+            url: '/rest/products/getDetailProduct/' + productNo,
+            method: 'GET',
+            success: function(response) {
+                const product = response;
+                if (product && product.uuid && product.uuid.length > 0) {
+                    const carouselInner = $('#imageCarousel .carousel-inner');
+                    carouselInner.empty();
+
+                    product.uuid.forEach((uuid, index) => {
+                        const activeClass = index === 0 ? 'active' : '';
+                        carouselInner.append(
+                            `<div class="carousel-item ${activeClass}">
+                                <img src="/rest/products/getProductImages/${uuid}" class="d-block w-100" alt="상품 이미지">
+                            </div>`
+                        );
+                    });
+
+                    $('#imageModal').modal('show');
+                }
+            },
+            error: function() {
+                console.log('Error occurred while fetching product images.');
+            }
+        });
+    }
+
+    function bindSearchForm() {
+        $('.search-box form').off('submit').on('submit', function(e) {
+            e.preventDefault();
+            currentPage = 1;
+            endOfData = false;
+            loading = true;
+            
+            const searchCondition = $('#searchCondition').val();
+            const searchKeyword = $('#searchKeyword').val();
+
             $.ajax({
                 url: '/rest/products/getProductList',
                 method: 'GET',
                 data: {
-                    currentPage: currentPage
+                    currentPage: currentPage,
+                    searchCondition: searchCondition,
+                    searchKeyword: searchKeyword
                 },
                 success: function(response) {
-                    let html = '';
-                    response.forEach(function(product) {
-                        html += '<tr>';
-                        html += '<td>';
-                        html += '<div class="product-item">';
-                        html += '<div class="product-image">';
-                        if (product.uuid && product.uuid.length > 0) {
-                            html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" data-product-no="' + product.productNo + '" data-image-urls="' + product.uuid.map(u => '/product/image/' + u).join(',') + '">';
-                        }
-                        html += '</div>';
-                        html += '<div class="product-info">';
-                        html += '<h2><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></h2>';
-                        html += '<p class="price">' + product.price + '원</p>';
-                        html += '<p class="reg-date">' + formatDate(product.productRegDate) + '</p>';
-                        html += '</div>';
-                        html += '<div class="product-actions">';
-                        html += '</td><td>'
-                        html += '<button class="btn btn-primary btn-sm purchaseButton" onclick="location.href=\'/purchase/addPurchaseView/' + product.productNo + '\'">구매</button>';
-                        html += '</div>';
-                        html += '</div>';
-                        html += '</td>';
-                        html += '</tr>';
-                    });
-                    $('.product-list').append(html);
+                    $('.product-list').empty();
+                    appendProductsToList(response);
                     loading = false;
                     checkIfMoreContentNeeded(response.length);
                 },
                 error: function() {
-                    console.log('Error occurred while loading more products.');
+                    console.log('검색 중 오류가 발생했습니다.');
                     loading = false;
                 }
             });
-        }
-
-        function checkIfMoreContentNeeded(dataLength) {
-            if (dataLength === 0) {
-                endOfData = true;
-            }
-        }
-
-        function formatDate(timestamp) {
-            const date = new Date(timestamp);
-            const year = String(date.getFullYear()).slice(-4);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        // 이미지 클릭 이벤트 처리
-        $(document).on('click', '.product-image img', function() {
-            const productNo = $(this).data('product-no');
-            fetchProductImages(productNo);
         });
+    }
 
-        function fetchProductImages(productNo) {
-            $.ajax({
-                url: '/rest/products/getDetailProduct/' + productNo,
-                method: 'GET',
-                success: function(response) {
-                    const product = response;
-                    if (product && product.uuid && product.uuid.length > 0) {
-                        const carouselInner = $('#imageCarousel .carousel-inner');
-                        carouselInner.empty();
-
-                        product.uuid.forEach((uuid, index) => {
-                            const activeClass = index === 0 ? 'active' : '';
-                            carouselInner.append(
-                                `<div class="carousel-item ${activeClass}">
-                                    <img src="/rest/products/getProductImages/${uuid}" class="d-block w-100" alt="상품 이미지">
-                                </div>`
-                            );
-                        });
-
-                        $('#imageModal').modal('show');
-                    }
-                },
-                error: function() {
-                    console.log('Error occurred while fetching product images.');
-                }
-            });
-        }
-
-        function bindSearchForm() {
-            $(document).on('submit', '.search-box form', function(e) {
-                e.preventDefault();
-                const searchCondition = $('#searchCondition').val();
-                const searchKeyword = $('#searchKeyword').val();
-                currentPage = 1;
-                endOfData = false;
-                loading = true;
-                isSearching = true;
-
-                $.ajax({
-                    url: '/rest/products/getProductList',
-                    method: 'GET',
-                    data: {
-                        currentPage: currentPage,
-                        searchCondition: searchCondition,
-                        searchKeyword: searchKeyword
-                    },
-                    success: function(response) {
-                        let html = '';
-                        response.forEach(function(product) {
-                            html += '<tr>';
-                            html += '<td>';
-                            html += '<div class="product-item">';
-                            html += '<div class="product-image">';
-                            if (product.uuid && product.uuid.length > 0) {
-                                html += '<img src="/product/image/' + product.uuid[0] + '" alt="상품 이미지" data-product-no="' + product.productNo + '" data-image-urls="' + product.uuid.map(u => '/product/image/' + u).join(',') + '">';
-                            }
-                            html += '</div>';
-                            html += '<div class="product-info">';
-                            html += '<h2><a href="/product/getDetailProduct/' + product.productNo + '">' + product.productTitle + '</a></h2>';
-                            html += '<p class="price">' + product.price + '원</p>';
-                            html += '<p class="reg-date">' + formatDate(product.productRegDate) + '</p>';
-                            html += '</div>';
-                            html += '<div class="product-actions">';
-                            html += '<button class="btn btn-primary btn-sm purchaseButton" onclick="location.href=\'/purchase/addPurchaseView/' + product.productNo + '\'">구매</button>';
-                            html += '</div>';
-                            html += '</div>';
-                            html += '</td>';
-                            html += '</tr>';
-                        });
-                        $('.product-list').html(html);
-                        loading = false;
-                        isSearching = false;
-                        checkIfMoreContentNeeded(response.length);
-                    },
-                    error: function() {
-                        console.log('검색 중 오류가 발생했습니다.');
-                        loading = false;
-                        isSearching = false;
-                    }
-                });
-            });
-        }
-
-        $(document).ready(function() {
-            loadMoreProducts();
-            bindDropdownEvents();
-            bindSearchForm();
+    function bindDropdownEvents() {
+        $('.dropdown-item').off('click').on('click', function(e) {
+            e.preventDefault();
+            var condition = $(this).data('condition');
+            $('#searchCondition').val(condition);
+            $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
         });
+    }
 
-        function bindDropdownEvents() {
-            $('.dropdown-item').click(function(e) {
-                e.preventDefault();
-                var condition = $(this).data('condition');
-                $('#searchCondition').val(condition);
-                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
-            });
-        }
+    $(document).ready(function() {
+        loadMoreProducts();
+        bindDropdownEvents();
+        bindSearchForm();
+    });
     </script>
 </body>
 
