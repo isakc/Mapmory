@@ -312,6 +312,9 @@ public class TimelineRestController {
 		System.out.println(categoryEmojiList);
 		System.out.println("============");
 		*/
+		
+		map.put("recordImageList", recordImageList);
+		map.put("categoryEmojiList", categoryEmojiList);
 		return ResponseEntity.ok(map);
 	}
 
