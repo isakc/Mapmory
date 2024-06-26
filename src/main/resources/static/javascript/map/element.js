@@ -12,7 +12,7 @@ const preloadImage = (src, callback) => {
 const recordListElement = (index) => {
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
-	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
 	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
 		'https://via.placeholder.com/150?text=No+Image';
@@ -82,7 +82,7 @@ const recordListElement = (index) => {
 };
 
 const simpleRecordElement = (index) => {
-	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
 	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
 		'https://via.placeholder.com/150?text=No+Image';
@@ -132,10 +132,6 @@ const simpleRecordElement = (index) => {
 	      				<p class="card-text text-muted border-bottom"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
 	      			</div>
 	          		
-	          		<div class="mt-3">
-	          			<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
-	          		</div>
-	          		
 	      			</div><!-- 본문 중간부분 col-9 -->
 	      
 	      		<div class="col-3">
@@ -144,6 +140,10 @@ const simpleRecordElement = (index) => {
 	      			</div>
 	      		</div><!-- 사진 부분 col-3 -->
 	     	</div><!--row-->
+	     	
+	    	<div class="mt-3">
+	    		<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
+	        </div>
 	    `;
 	    
 	    const htmlElement = $(htmlString);
@@ -172,7 +172,7 @@ const simpleRecordElement = (index) => {
 }
 
 const detailRecordElement = (index) => {
-	const categoryImgSrc = `/user/rest/emoji/${recordList[index].categoryImoji}`;
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
 	const htmlString = `

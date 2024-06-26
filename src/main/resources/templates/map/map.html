@@ -132,6 +132,7 @@
 	const searchRecord = () => {
 		clearMarkers();
 		clearPolylines();
+		clearStartEndMarkers();
 		deleteResult();
 		recordList= [];
 		placeList=[];
@@ -316,14 +317,16 @@
 		
 		if($(this).hasClass('pedestrianRouteButton')){
 			drawRoute(1);
-		}else if($(this).hassClass('carRouteButton')){
+		}else if($(this).hasClass('carRouteButton')){
 			drawRoute(2);
-		}else if($(this).hassClass('transitRouteButton')){
+		}else if($(this).hasClass('transitRouteButton')){
 			drawTransitRoute();
 		}
 	});
 	
 	$(document).on("click", ".simpleRecord .row", function(){
+		$(".infoItem").removeClass('on');
+		description.addClass('on');
 	    deleteDescription();
 	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로
