@@ -122,7 +122,7 @@ public class CommunityRestController {
 
 	//댓글 추가
 	@PostMapping("/rest/addReply")
-	public ResponseEntity<Reply> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
+	public ResponseEntity<?> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
 							@RequestParam("recordNo") int recordNo, HttpServletRequest request, @RequestParam("userId") String userId,
 							@RequestParam("replyText") String replyText, Search search) throws Exception {
 		userId = redisUtil.getSession(request).getUserId();
@@ -147,6 +147,7 @@ public class CommunityRestController {
 				reply.setReplyImageName(uuid);
 			} else {
 			System.out.println("유해 이미지 차단");
+			return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("유해한 이미지입니다.");
 			}
 		} else {
 			reply.setReplyImageName(""); 
