@@ -25,6 +25,7 @@ import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
+import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
 import com.mapmory.services.timeline.dto.SearchDto;
 import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
@@ -180,6 +181,16 @@ public class TimelineServiceImpl implements TimelineService {
 				.searchCondition(search.getSearchCondition())
 				.searchKeyword(stringDateTime)
 				.build());
+	}
+
+	@Override
+	public List<String> getSummaryDateList(String userId) throws Exception {
+		return timelineDao.selectSummaryDateList(userId);
+	}
+
+	@Override
+	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception {
+		return timelineDao.selectNotifyTimecapsule();
 	}
 
 	@Override
