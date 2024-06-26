@@ -31,8 +31,8 @@ public class TimelineScheduler {
 	@Qualifier("timelineUtil")
 	private TimelineUtil timelineUtil;
 	
-	@Value("${timecapsule.time}")
-	String timecapsuleTime;
+//	@Value("${timecapsule.time}")
+//	String timecapsuleTime;
 	
 	@Value("${timeline.coolsms.tophonenumber}")
 	private String toPhoneNumber;
@@ -52,15 +52,18 @@ public class TimelineScheduler {
 //			0 15 10 ? * 6L : 매월 마지막 금요일 오전 10:15에
 //			0 15 10 ? * 6#3 : 매월 3째주 금요일 오전 10:15에
 	//스케줄러
-//	@Scheduled(cron="0 20 20 * * *")
+	@Scheduled(cron="0 7 11 * * *")
 	public void Scheduler() throws Exception {
 		String text="";
 		
-		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule(LocalTime.parse(timecapsuleTime))) {
+//		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule(LocalTime.parse(timecapsuleTime))) {
+		System.out.println(timelineDao.selectNotifyTimecapsule());
+		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule()) {
 			text="";
-			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsulCount()+" 건의 타임캡슐 기록이 존재합니다. ";
+			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsuleCount()+" 건의 타임캡슐 기록이 존재합니다. Phone-Number :"+n.getUserPhoneNumber();
 			
-			timelineUtil.sendOne(n.getUserPhoneNumber(), text);
+			//timelineUtil.sendOne(n.getUserPhoneNumber(), text);
+			System.out.println("타임캡슐 기록 : "+text);
 		}
 		//cool sms api 문자보내기
 //		DefaultMessageService messageService=NurigoApp.INSTANCE.initialize(INSERT_API_KEY, INSERT_API_SECRET_KEY, COOL_SMS_URL);
