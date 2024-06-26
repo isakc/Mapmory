@@ -12,10 +12,10 @@ const preloadImage = (src, callback) => {
 const recordListElement = (index) => {
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
-	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=';
 	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
-		'https://via.placeholder.com/150?text=No+Image';
+		'https://via.placeholder.com/150?text=';
 	const htmlString = `
 		<div class="card border-0 border-bottom mb-3 container resultListItem">
 		
@@ -33,7 +33,7 @@ const recordListElement = (index) => {
 	            
 	      			<div>    
 	      				<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	      			</div><!-- 이모지 + 거리 -->
@@ -82,10 +82,10 @@ const recordListElement = (index) => {
 };
 
 const simpleRecordElement = (index) => {
-	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=';
 	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
 		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
-		'https://via.placeholder.com/150?text=No+Image';
+		'https://via.placeholder.com/150?text=';
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
 	const htmlString = `
@@ -117,7 +117,7 @@ const simpleRecordElement = (index) => {
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
-	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
@@ -172,9 +172,10 @@ const simpleRecordElement = (index) => {
 }
 
 const detailRecordElement = (index) => {
-	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=No+Image';
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : 'https://via.placeholder.com/150?text=';
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
+	const videoId = `my-video-${index}`; // 각 비디오 요소에 고유한 ID를 부여
 	const htmlString = `
 	        <div class="card border-0 border-bottom mb-3 detailRecord container" data-index=${index} >
 	        
@@ -188,7 +189,7 @@ const detailRecordElement = (index) => {
 					<div class="routeButtonGroup col-6">
 	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        			
-    					<div class="routeAdditionalButtons">
+    					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
@@ -199,12 +200,12 @@ const detailRecordElement = (index) => {
 				<div class="row g-0">
 	      			<div class="col-9 card-body p-1">
 	            		<div class="mb-4 border-bottom">
-	                		<h5 class="card-title fw-bold ellipsis fs-3"> ${recordList[index].recordTitle}</h5>
+	                		<h5 class="card-title fw-bold fs-3"> ${recordList[index].recordTitle}</h5>
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
-	    				class="recordEmoji mr-3" data-categoryNo ="${recordList[index].categoryNo}"/>
+	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
 	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
@@ -225,11 +226,11 @@ const detailRecordElement = (index) => {
 	          		
 	      			</div><!-- 본문 중간부분 col-9 -->
 	      		
-	      		<div class="media container mt-3">
-	      			<video width="100%" height="100%" controls>
-                		<source src="/timeline/rest/media/${recordList[index].mediaName}" type="video/mp4">
+	      		<div class="mt-3">
+	      			<video id="${videoId}" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="100%" data-setup="{}">
+                		<source src="/timeline/rest/media/${recordList[index].mediaName}" type="video/mp4" />
                 	</video>
-                </div>
+                </div><!-- video -->
                 
                 ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
                 `
@@ -290,8 +291,10 @@ const detailRecordElement = (index) => {
                 	el: '.swiper-scrollbar',
             	},
         	});
+        	
+        	videojs(videoId);
     	}, 0);
-  
+    	
   		return htmlElement;
 }
 
