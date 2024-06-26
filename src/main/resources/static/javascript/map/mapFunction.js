@@ -178,11 +178,7 @@ function showResultDivs(){
 	$(".mapButton").removeClass('on');
 	resultDivs.css('display', 'block');
 	
-	if( description.hasClass('on') ){
-		listBtn.addClass('on');
-	}else if( routeDescriptionList.hasClass('on') ){
-		descriptionBtn.addClass('on')
-	}
+	listBtn.addClass('on');
 }
 
 function showDescription(){

@@ -88,7 +88,7 @@ const drawTransitRoute = () => {
 	getCurrentLocation().done(function(location) {
 		bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 		
-		const requestData = {
+		requestData = {
 			startX: location.coords.longitude,
 			startY: location.coords.latitude,
 			endX: selectLongitude,
@@ -151,7 +151,7 @@ const drawTransitRoute = () => {
 					
 					deleteRouteDescriptionList();
 					routeDescriptionList.append(transitRouteListElement(paths) );
-					showPathDetails(0, requestData); // 0번째 경로로 그리기
+					showPathDetails(0); // 0번째 경로로 그리기
 				}//if
 				else {
 					alert("해당 경로찾기가 없습니다!!");
@@ -167,7 +167,7 @@ const drawTransitRoute = () => {
 	});
 }; // 대중교통 경로찾기
 
-function showPathDetails(index, requestData) {
+function showPathDetails(index) {
 	let drawInfoArr = []; // 선을 그릴 위도,경도 모음
 	clearPolylines();
 	clearStartEndMarkers();
@@ -175,7 +175,7 @@ function showPathDetails(index, requestData) {
 	setMarkers([
 		{ latitude: requestData.startY, longitude: requestData.startX,  markerType:5 },
 		{ latitude: requestData.endY, longitude: requestData.endX,  markerType:6 }
-		]);
+	]);
 	
 	for (let i = 0; i < paths[index].routes.length; i++) {
 		drawInfoArr = [];
