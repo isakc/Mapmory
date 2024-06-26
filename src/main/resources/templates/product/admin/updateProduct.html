@@ -20,7 +20,7 @@
             color: #2780e3;
         }
 
-        form {
+        .update-form {
             max-width: 600px;
             margin: 0 auto;
             background-color: #fff;
@@ -29,26 +29,26 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        form label {
+        .update-form label {
             font-weight: 600;
             margin-bottom: 10px;
             color: #333;
         }
 
-        form input[type="text"],
-        form input[type="number"] {
+        .update-form input[type="text"],
+        .update-form input[type="number"] {
             border-radius: 5px;
             border: 1px solid #ddd;
             transition: border-color 0.3s ease;
         }
 
-        form input[type="text"]:focus,
-        form input[type="number"]:focus {
+        .update-form input[type="text"]:focus,
+        .update-form input[type="number"]:focus {
             border-color: #2780e3;
             box-shadow: 0 0 0 0.2rem rgba(39, 128, 227, 0.25);
         }
 
-        form button[type="submit"] {
+        .update-form button[type="submit"] {
             background-color: #2780e3;
             color: #fff;
             border: none;
@@ -57,7 +57,7 @@
             transition: background-color 0.3s ease;
         }
 
-        form button[type="submit"]:hover {
+        .update-form button[type="submit"]:hover {
             background-color: #1c67c2;
         }
 
@@ -107,6 +107,18 @@
             background-color: #c9302c;
             border-color: #c9302c;
         }
+		
+		.input-file-button{
+		  padding: 6px 25px;
+		  background-color:#2780e3;
+		  border-radius: 4px;
+		  cursor: pointer;
+		}
+		
+		.update-form label {
+			font-weight: 600;
+			color: white;
+		}
     </style>
 </head>
 
@@ -116,7 +128,7 @@
         <h1>
             <i class="bi bi-pencil-square"></i> 상품 수정
         </h1>
-        <form id="updateForm" th:action="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}" th:object="${product}" method="post" enctype="multipart/form-data">
+        <form id="updateForm" class="update-form" th:action="@{/product/updateProduct/{productNo}(productNo=${product.productNo})}" th:object="${product}" method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{productNo}">
             <div class="form-group">
                 <label for="productTitle"><i class="bi bi-pencil"></i> 제목:</label> <input type="text" id="productTitle" th:field="*{productTitle}" class="form-control">
@@ -132,9 +144,8 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="uploadFile"><i class="bi bi-image"></i> 새로운 이미지
-					추가:</label> <input type="file" id="uploadFile" name="uploadFile" multiple
-					class="form-control-file">
+				<label class="input-file-button" for="input-file"> 업로드 </label>
+				<input type="file" id="input-file" name="uploadFile" multiple class="form-control-file" accept=".jpg, .jpeg, .png" style="display: none;">
 			</div>
 			<button type="button" class="update-link btn btn-primary"
 				data-toggle="modal" data-target="#confirmUpdateModal">
@@ -178,62 +189,50 @@
 			});
 		});
 		
-	        $(document).ready(
-	            function() {
-	                $(".delete-image").click(function() {
-	                    var uuid = $(this).data("uuid");
-	                    if (confirm("정말로 이미지를 삭제하시겠습니까?")) {
-	                        $(this).parent().remove();
-	                        // AJAX 요청을 통해 이미지 삭제 처리
-	                        $.ajax({
-	                            url: "/product/deleteImage/" + uuid,
-	                            type: "POST",
-	                            success: function(response) {
-	                                console.log("이미지 삭제 완료");
-	                            },
-	                            error: function(xhr, status, error) {
-	                                console.error("이미지 삭제 중 오류 발생: " + error);
-	                            }
-	                        });
-	                    }
-	                });
+		$(document).ready(function () {
+            var tempImageCounter = 0;
 
-	                $(document).ready(function() {
-	                    var imageContainers = $('.image-container');
+            function bindDeleteEvent() {
+                $(".delete-image").off("click").on("click", function () {
+                    var uuid = $(this).data("uuid");
+                    if (confirm("정말로 이미지를 삭제하시겠습니까?")) {
+                        if (uuid) {
+                            // 기존 이미지 삭제 처리
+                            $.ajax({
+                                url: "/product/deleteImage/" + uuid,
+                                type: "POST",
+                                success: function (response) {
+                                    console.log("이미지 삭제 완료");
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("이미지 삭제 중 오류 발생: " + error);
+                                }
+                            });
+                        }
+                        $(this).parent().remove();
+                    }
+                });
+            }
 
-	                    imageContainers.each(function(index, container) {
-	                        var tagInput = $(container).find('input[name="imageTags"]');
-	                        tagInput.val($('#product-image-tags').val().split(',')[index]);
-	                    });
+            bindDeleteEvent();
 
-	                    $("#uploadFile").change(
-	                        function() {
-	                            var files = $(this)[0].files;
-	                            for (var i = 0; i < files.length; i++) {
-	                                var file = files[i];
-	                                var reader = new FileReader();
-	                                reader.onload = function(e) {
-	                                    var img = $('<img>').attr('src',
-	                                        e.target.result).attr('width',
-	                                        '300').attr('height', '300');
-	                                    var tagInput = $('<input>').attr('type',
-	                                            'text').attr('name', 'newImageTags')
-	                                        .addClass('form-control').attr(
-	                                            'placeholder', '태그 입력');
-	                                    var deleteButton = $('<button>').attr(
-	                                        'type', 'button').addClass(
-	                                        'delete-image').text('X');
-	                                    var container = $('<div>').addClass(
-	                                            'image-container').append(img)
-	                                        .append(tagInput).append(
-	                                            deleteButton);
-	                                    $(".product-images").append(container);
-	                                }
-	                                reader.readAsDataURL(file);
-	                            }
-	                        });
-	                });
-	            });
+            $("#input-file").change(function () {
+                var files = $(this)[0].files;
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var img = $('<img>').attr('src', e.target.result).attr('width', '300').attr('height', '300');
+                        var tagInput = $('<input>').attr('type', 'text').attr('name', 'newImageTags').addClass('form-control').attr('placeholder', '태그 입력');
+                        var deleteButton = $('<button>').attr('type', 'button').addClass('delete-image').text('X').attr('data-uuid', 'temp-' + tempImageCounter++);
+                        var container = $('<div>').addClass('image-container').append(img).append(tagInput).append(deleteButton);
+                        $(".product-images").append(container);
+                        bindDeleteEvent();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
 	    
 	</script>
 </body>

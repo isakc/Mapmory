@@ -1,11 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8">
-	<title>에러페이지</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오류 페이지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
+    <style>
+        :root {
+            --primary-color: #2780E3;
+            --secondary-color: #00A7F5;
+            --tertiary-color: #00C6E1;
+            --error-color: #dc3545;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            color: var(--dark-gray);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #content-for-footer {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-container {
+            text-align: center;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 90%;
+            width: 350px;
+        }
+        .error-icon {
+            font-size: 80px;
+            color: var(--error-color);
+            margin-bottom: 20px;
+        }
+        .error-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--error-color);
+            margin-bottom: 10px;
+        }
+        .error-message {
+            font-size: 18px;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+        .btn-home {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .btn-home:hover, .btn-home:focus {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
-<h1 th:text="${errorMessage}"></h1>
- 에러 발생!!
-</body>	
+    <div id="content-for-footer">
+        <div class="error-container">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h1 class="error-code" th:text="${statusCode}"></h1>
+            <h2 class="error-message" th:text="${errorMessage}"></h2>
+            <a href="/map" class="btn btn-primary btn-home">
+                <i class="fas fa-home mr-2"></i> 홈으로 돌아가기
+            </a>
+        </div>
+    </div>
+    <div th:replace="common/footer::defaultFooter"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
