@@ -1,0 +1,41 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+.menu-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.menu-section-title {
+    font-size: 2em;
+    color: #6c757d;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: #e9ecef;
+}
+
+.menu-icon {
+    font-size: 3em !important;
+    margin-right: 10px;
+    color: #495057;
+}
+
+.menu-item p {
+    margin: 0;
+    font-size: 3em;
+    color: #212529;
+}
+
+.setRed {
+	color: red !important;
+}

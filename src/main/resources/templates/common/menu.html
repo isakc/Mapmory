@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<title>메뉴</title>
 	
 	<style>
@@ -19,7 +20,18 @@
 	</style>
 	
 	<script th:inline="javascript">
+	
+	const userId = /*[[${userId}]]*/ '[[${userId}]]';
 		$(function() {
+			
+			$('<link>')
+				.appendTo('head')
+				.attr({
+					type: 'text/css',
+					rel: 'stylesheet',
+					href: '/css/common/menu.css'
+				})
+			
 			$('#getPersonalSecurityMenu ').on('click', function() {
 				window.location.href="/user/getPersonalSecurityMenu";
 			});
@@ -64,12 +76,265 @@
 				console.log("logout");
 				$('form').attr('method', 'post').attr('action', '/user/logout').submit();
 			});
+			
+			//계정/보안
+			$('#getMyInfo').on('click', function() {
+				
+				console.log
+				window.location.href="/user/getUserInfo";
+				
+			});
+			
+			$('#updateSecondaryAuth').on('click', function() {
+				
+				// ajax
+				$.ajax({
+					
+					url: "/user/rest/checkSetSecondaryAuth",
+					type : "post",
+					contentType : "application/json",
+					data : JSON.stringify({
+						userId : userId
+					}),
+					success : function(response) {
+						
+						if(response == true || response == 'true') {
+							
+							const result = confirm("현재 2단계 인증이 설정되어 있습니다. 설정을 해제하시겠습니까?"); 
+							
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: "/user/rest/updateSecondaryAuth",
+									type : "post",
+									contentType : "application/json",
+									data : JSON.stringify({
+										userId : userId
+									}),
+									success : function(response) {
+										
+										alert('2단계 인증을 해제하였습니다.');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+							}
+							
+						} else {
+							
+							const result = confirm("현재 2단계 인증이 설정되어 있지 않습니다. 설정하시겠습니까?");
+							if(result == true) {
+								/*
+								$.ajax({
+									
+									url: "/user/rest/updateSecondaryAuth",
+									type : "post",
+									contentType : "application/json",
+									data : JSON.stringify({
+										userId : userId
+									}),
+									success : function(response) {
+										
+										alert('변경에 성공했습니다!');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								*/
+								
+								window.location.href="/user/getAddSecondaryAuthView";
+							}
+							
+						}
+						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert('오류 발생 : ' + jqXHR.responseText)
+					}
+					
+				});
+				
+			});
+						
+			$('#updatePassword').on('click', function() {
+				
+				window.location.href="/user/getUpdatePasswordView";
+				
+			});
+			
+			$('#updateHideProfile').on('click', function() {
+				
+				// window.location.href="/user/getUpdatePasswordView";
+				
+				$.ajax({
+					
+					url: `/user/rest/checkHideProfile/${userId}`,
+					type : "get",
+					// contentType : "application/json",
+					success : function(response) {
+						
+						if(response == true || response == 'true') {
+							
+							const result = confirm("현재 프로필 숨김 기능이 활성화되어 있습니다. 설정을 해제하시겠습니까?"); 
+							
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: `/user/rest/updateHideProfile/${userId}`,
+									type : "post",
+									success : function(response) {
+										
+										alert('프로필 숨김을 해제하였습니다.');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+							}
+							
+						} else {
+							
+							const result = confirm("현재 프로필 숨김이 해제되어 있습니다. 설정하시겠습니까?");
+							if(result == true) {
+								
+								$.ajax({
+									
+									url: `/user/rest/updateHideProfile/${userId}`,
+									type : "post",
+									success : function(response) {
+										
+										alert('프로필 숨김을 설정하였습니다.');
+										
+									},
+									error : function(jqXHR, textStatus, errorThrown) {
+										alert('오류 발생 : ' + jqXHR.responseText)
+									}
+								});
+								
+								// window.location.href="/user/getAddSecondaryAuthView";
+							}
+							
+						}
+						
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert('오류 발생 : ' + jqXHR.responseText)
+					}
+					
+				});
+			});
+			
+			$('#linkSocialLogin').on('click', function() {
+				
+				window.location.href="/user/getSocialLoginLinkedView";
+				
+			});
+			
+			$('#getBlockList').on('click', function() {
+				
+				window.location.href="/community/getBlockList/"+userId;
+				
+			});
+			
+			$('#leaveAccount').on('click', function() {
+				
+				const result = confirm("정말로 계정을 탈퇴하시겠습니까? (탈퇴 이후로 1개월 내로 계정 복구가 가능합니다.)");
+				
+				if(result) {
+					
+					$.ajax({
+						
+						url: `/user/rest/addLeaveAccount/${userId}`,
+						type : "post",
+						success : function(response) {
+							
+							if(response == true || response == 'true') {
+								
+								alert('계정 탈퇴에 성공하셨습니다. 안녕히 가십시오.');
+								$('form').attr('method', 'post').attr('action', '/user/logout').submit();
+								// window.location.href="/";
+								return;
+							} else {
+								
+								alert('서버 문제로 실패...');
+								return;
+							}
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert('오류 발생 : ' + jqXHR.responseText)
+						}
+					});
+				}
+			});
 		})
 	</script>
 	
 </head>
 <body>
-	<div id=content-for-footer>
+	<div id=content-for-footer>		
+		<div class="menu-container">
+			<div class="menu-section-title"	>개인/보안</div>
+			<div class="menu-item" id="getMyInfo">
+				<i class="material-icons menu-icon notranslate" >account_circle</i>
+				<p>내 정보 조회</p>
+			</div>
+			<div class="menu-item" id="updateSecondaryAuth">
+				<i class="material-icons menu-icon notranslate" >lock</i>
+				<p>2단계 인증 설정</p>
+			</div>
+			<div class="menu-item" id="updatepassword">
+				<i class="material-icons menu-icon notranslate" >password</i>
+				<p>비밀번호 변경</p>
+			</div>
+			<div class="menu-item" id="updateHideProfile">
+				<i class="material-icons menu-icon notranslate" >search_off</i>
+				<p>프로필 숨기기</p>
+			</div>
+			<div class="menu-item" id="linkSocialLogin">
+				<i class="material-icons menu-icon notranslate" >person_add</i>
+				<p>소셜 로그인 연동</p>
+			</div>
+			<div class="menu-item" id="getBlockList">
+				<i class="material-icons menu-icon notranslate" >block</i>
+				<p>차단 목록 조회</p>
+			</div>
+			<div class="menu-item setRed" id="leaveAccount">
+				<i class="material-icons menu-icon notranslate setRed" >admin_panel_settings</i>
+				<p class="setRed" style="text-decoration: underline; text-decoration-thickness:1px">계정 탈퇴</p>
+			</div>
+			
+			
+			<div class="menu-section-title"	>구매/결제</div>
+			<div class="menu-item">
+				<i class="material-icons menu-icon notranslate">verified</i>
+				<p>구독</p>
+			</div>
+			<div class="menu-item">
+				<i class="material-icons menu-icon notranslate">shopping_bag</i>
+				<p>상점</p>
+			</div>
+			<div class="menu-item">
+				<i class="material-icons menu-icon notranslate">shopping_bag</i>
+				<p>구매목록</p>
+			</div>
+		</div>
+		
+		
+		
+		
+		
+		
+		
+		
 		<table class="table table-hover">
 			<thead>
 				<tr>

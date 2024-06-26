@@ -117,10 +117,12 @@ html, body {
   -webkit-transform: translateY(100px);
           transform: translateY(100px);
 }
-.floating-container .float-element .material-icons {
+.floating-container .float-element .floating-material-icons {
   vertical-align: middle;
   font-size: 16px;
 }
+
+
 /* .floating-container .float-element:nth-child(2) {
   background: #42A5F5;
   box-shadow: 0 20px 20px -10px rgba(66, 165, 245, 0.5);
