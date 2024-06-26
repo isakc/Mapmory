@@ -83,6 +83,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		// 세션 연장 임시 조치
 		// 현재 여전히 타임아웃 시 cookie는 살아있고 세션은 죽는 문제 존재. cookie만 살아 있는 경우, cookie를 제거해주는 로직 필요
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
+		/*
 		System.out.println("=================INTERCEPTOR :: GET JSESSIONID COOKIE====================");
 		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
 		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
@@ -93,6 +94,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
 		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
 		System.out.println("=====================================");
+		*/
 		
 		if(cookie == null) {
 
