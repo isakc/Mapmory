@@ -1236,7 +1236,6 @@ public class UserServiceImpl implements UserService {
 	    	return "redirect:/map";
 	    	
 	    }
-				s
 		
 		return null;
 	}

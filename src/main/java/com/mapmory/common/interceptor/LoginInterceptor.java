@@ -1,8 +1,5 @@
 package com.mapmory.common.interceptor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.RedisUtil;
@@ -33,6 +29,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 	
 	@Autowired
 	private UserService userService;
+	
+	private static final Long SESSION_UPDATE_TIME = 54000L;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -85,6 +83,16 @@ public class LoginInterceptor implements HandlerInterceptor {
 		// 세션 연장 임시 조치
 		// 현재 여전히 타임아웃 시 cookie는 살아있고 세션은 죽는 문제 존재. cookie만 살아 있는 경우, cookie를 제거해주는 로직 필요
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
+		System.out.println("=================INTERCEPTOR :: GET JSESSIONID COOKIE====================");
+		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+		System.out.println("=====================================");
 		
 		if(cookie == null) {
 
@@ -159,8 +167,18 @@ public class LoginInterceptor implements HandlerInterceptor {
 				if(needToUpdate) {
 					
 					System.out.println("현재 login 상태입니다.");
-					result = redisUtil.updateSession(request, response);
-					System.out.println("is session update successfully? : " + result);
+
+					// 쿠키 만료 기한이 15분 이하로 남았을 때만 갱신
+					Long ttl = redisUtil.getTTL(cookie.getValue());
+					System.out.println("================================");
+					System.out.println("ttl : "+ ttl);
+					System.out.println("================================");
+					
+					if(ttl < SESSION_UPDATE_TIME) {
+						
+						result = redisUtil.updateSession(request, response);
+						System.out.println("is session update successfully? : " + result);
+					}
 				}
 				
 				return result;

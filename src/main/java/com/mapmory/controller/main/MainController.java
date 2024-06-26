@@ -52,8 +52,21 @@ public class MainController {
 		// String requestURI = request.getRequestURI();
 		
 		javax.servlet.http.Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
-	
+		
 		if(cookie != null) {
+			
+			/*
+			System.out.println("=================MAIN :: GET JSESSIONID COOKIE====================");
+			System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+			System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+			System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+			System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+			System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+			System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+			System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+			System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+			System.out.println("=====================================");
+			*/
 			
 			SessionData sessionData = redisUtil.getSession(request);
 			
@@ -98,6 +111,7 @@ public class MainController {
 			model.addAttribute("naver_redirect_uri", naverRedirectUri);
 			model.addAttribute("naver_state", naverState);
 			
+			/*
 			model.addAttribute("google_client_id", clientId);
 	        model.addAttribute("google_redirect_uri", redirectUri);
 	        model.addAttribute("google_response_type", "code");
@@ -105,7 +119,7 @@ public class MainController {
 	        model.addAttribute("google_access_type", "offline");
 	        model.addAttribute("google_prompt", "consent");
 	        model.addAttribute("google_state", state);
-			
+			*/
 		}
 	
 		
