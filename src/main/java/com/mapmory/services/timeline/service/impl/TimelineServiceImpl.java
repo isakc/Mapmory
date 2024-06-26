@@ -21,6 +21,7 @@ import com.mapmory.controller.timeline.TimelineRestController;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
@@ -191,6 +192,19 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception {
 		return timelineDao.selectNotifyTimecapsule();
+	}
+
+	@Override
+	public int addKeyword(KeywordData keywordData) throws Exception {
+		KeywordData updateData=timelineDao.selectKeyword(keywordData);
+		int i;
+		if(updateData==null) {
+			i=timelineDao.insertKeyword(keywordData);
+		}else {
+			updateData.setKeywordCount(updateData.getKeywordCount()+keywordData.getKeywordCount());
+			i=timelineDao.updateKeyword(updateData);
+		}
+		return i;
 	}
 
 	@Override

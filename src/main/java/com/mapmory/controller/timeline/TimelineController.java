@@ -33,6 +33,7 @@ import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -307,6 +308,10 @@ public class TimelineController {
 		}
 		
 		record=TimelineUtil.validateRecord(record);
+		
+		for(KeywordData k: TimelineUtil.calculateKeyword(timelineService.getDetailTimeline(record.getRecordNo()), record)) {
+			timelineService.addKeyword(k);
+		}
 		
 		timelineService.updateTimeline(record);
 		return getDetailTimeline(model,record.getRecordNo(),request);

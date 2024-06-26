@@ -468,6 +468,46 @@ LIMIT #{limit} OFFSET #{offset}
 	GROUP BY record_user_id
     </select>
     
+     <!-- Select All -->
+    <select id="selectKeywordList" parameterType="String" resultType="keywordData" >
+        SELECT keyword_no AS keywordNo,
+        	keyword_user_id AS keywordUserId,
+        	keyword,
+        	keyword_count AS keywordCount
+        FROM keyword_data
+        WHERE keyword_user_id=#{userId}
+        ORDER BY keyword_count DESC
+    </select>
+
+    <!-- Select by ID -->
+    <select id="selectKeyword" parameterType="keywordData" resultType="keywordData">
+        SELECT keyword_no AS keywordNo,
+        	keyword_user_id AS keywordUserId,
+        	keyword,
+        	keyword_count AS keywordCount
+        FROM keyword_data 
+        WHERE keyword_user_id = #{keywordUserId}
+        AND keyword = #{keyword}
+    </select>
+
+    <!-- Insert -->
+    <insert id="insertKeyword" parameterType="keywordData">
+        INSERT INTO keyword_data (KEYWORD_USER_ID, KEYWORD, KEYWORD_COUNT)
+        VALUES (#{keywordUserId}, #{keyword}, #{keywordCount})
+    </insert>
+
+    <!-- Update -->
+    <update id="updateKeyword" parameterType="keywordData">
+        UPDATE keyword_data
+        SET KEYWORD_USER_ID = #{keywordUserId}, KEYWORD = #{keyword}, KEYWORD_COUNT = #{keywordCount}
+        WHERE KEYWORD_NO = #{keywordNo}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteKeyword" parameterType="String">
+        DELETE FROM keyword_data WHERE KEYWORD_USER_ID = #{keywordUserId}
+    </delete>
+    
 <select id='selectDetailSharedRecord' resultMap='sharedRecordResultMap' parameterType='map'>
 	    SELECT 
 	       a1.record_no AS record_no,
