@@ -13,6 +13,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 	
+	<!-- 신고처리 화면 이동 -->
 	<script th:inline="javascript">
     $(document).ready(function() {
         $('.table-light').on('click', function () {
@@ -57,7 +58,6 @@
 			font-size : 16px;
 			font-weight : bold;
 		}
-	
 	</style>
 	
 </head>
@@ -81,7 +81,7 @@
             <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
         </form>		
 		
-		<table class="table table-hover">
+		<table id="reportTable" class="table table-hover">
 			<thead>
 				<tr class="table-active">
 					<th scope="col">신고제목</th>
@@ -109,9 +109,9 @@
 					<td th:text="${report.reportDate}"></td>
 				</tr>
 			</tbody>
-		</table>	
+		</table>
+		<button type="button" id="unConfirm" class="btn btn-outline-dark">미처리 신고</button>	
 	</div>
-
 	<div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/community/getAdminReportList')}"></div>	
 </body>	
 </html>
