@@ -60,7 +60,9 @@ public interface TimelineDao {
 	
 	public String selectSummaryDate(SearchDto searchDto) throws Exception;
 	
-	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule(LocalTime localtime) throws Exception;
+	public List<String> selectSummaryDateList(String userId) throws Exception;
+	
+	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule() throws Exception;
 	
 	public Map<String, Object> selectDetailSharedRecord(int recordNo, String userId) throws Exception;
 	

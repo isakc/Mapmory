@@ -46,15 +46,15 @@
 			</div>
 		</div>
 		
-		<th:block th:if="${#request.requestURI.contains('/map')}">
+		<th:block th:if="${#request.requestURI.contains('/map') || #request.requestURI.contains('/timeline')}">
 			<div class="mobile-bottom-nav__item" >
 				<div class="mobile-bottom-nav__item-content" name="체크포인트">
 					<i class="large material-icons notranslate">album</i>
-					Record
+					Checkpoint
 				</div>		
 			</div>
 		</th:block>
-		<th:block th:if="${!#request.requestURI.contains('/map')}">
+		<th:block th:if="${!(#request.requestURI.contains('/map') || #request.requestURI.contains('/timeline'))}">
 			<div class="mobile-bottom-nav__item" >
 				<div class="mobile-bottom-nav__item-content" name="맵">
 					<i class="large material-icons notranslate">map</i>

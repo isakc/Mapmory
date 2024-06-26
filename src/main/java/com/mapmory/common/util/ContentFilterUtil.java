@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Collection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +29,16 @@ public class ContentFilterUtil {
 	//기록 내용, 댓글, 닉네임 등 텍스트에 대한 비속어 필터링 메서드
 	public static boolean checkBadWord(String text) {
 		BadWordFiltering badWordFiltering = new BadWordFiltering();
+
+		String[] addBadWord = {"니엄마", "ㅆㅣ발","ㅆㅣ바","애미","@ㅐ미","느검마","느개비","느검"};
+		for (String word : addBadWord) {
+			badWordFiltering.add(word);
+		}
+		
+		String[] removeBadWord = {"똥"};
+		for (String word : removeBadWord) {
+			badWordFiltering.remove(word);
+		}
 		
 		String replaceText = badWordFiltering.change(text.replaceAll(" |\\* ", ""), 
 					new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-", "0", "1", "2", "3", "4" ,"5", "6", "7", "8", "9"});

@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
+	<link rel="stylesheet" href="/css/common/chatBot.css">
 
 	<!-- 신고 폼에 데이터 넣기 -->
     <script type="text/javascript">
@@ -124,53 +125,109 @@
 	</script>
 	<!-- 신고하기 -->
 
+	<script>
+    function autoResize(textarea) {
+        textarea.style.height = 'auto'; // Reset textarea height
+        textarea.style.height = textarea.scrollHeight + 'px'; // Set new height based on content
+    }
+	</script>
+
+
+	<style>
+		.bi-exclamation-circle {
+			font-style : normal;
+		}
+	
+		#header {
+			background-color : #ff3838;
+		}
+
+		.form {
+			border-left : 2px solid;
+			border-right : 2px solid;
+		}
+		
+		#text {
+			margin-bottom : 5px;
+			border-bottom : 2px solid;
+		}
+		
+		.card-text {
+			font-weight : bold;
+			font-size : 15px;
+		}
+		
+		#reportDate {
+			font-weight : bold;
+		}
+		
+		#backButton {
+			background-color : #D6BFE4;
+		}
+	
+	</style>
 </head>
 <body>
-	<form id="doRepot" th:action="@{/community/rest/addReply}" method="post">
-		<fieldset>
-  			<legend>신고하기</legend>
-  				<div class="row">
-    				<label for="reportTitle" class="col-sm-2 col-form-label">신고제목</label>
-					<div class="col-sm-10">
-					<input type="text" class="form-control-plaintext" id="reportTitle" name="reportTitle" placeholder ="신고제목을 입력해주세요">
+    <div id="content-for-footer">
+		<div class="container">
+			<ul class="nav nav-pills flex-column">
+				<li class="nav-item">
+					<a class="nav-link active" id="header">
+						<i class="bi bi-exclamation-circle"> 신고하기</i>
+					</a>
+				</li>
+			</ul>
+			<form id="doRepot" th:action="@{/community/rest/addReply}" method="post">
+				<fieldset>
+	  				<div class="form">
+	    				<label for="reportTitle" class="form-label mt-2">신고제목</label>
+						<input type="text" class="form-control" id="reportTitle" name="reportTitle" placeholder ="신고제목을 입력해주세요">
 					</div>
+					<div class="form">
+						<label for="reporter" class="form-label mt-2">신고자</label>
+						<input type="text" class="form-control" id="reporter" name="reporter" readonly>
+					</div>
+					<div class="form">
+						<label for="target" class="form-label mt-2">신고대상</label>
+						<input type="text" class="form-control" id="target" name="target" readonly>
+					</div>
+					<div id="recordTitleField" class="form">
+						<label for="recordTitle" class="form-label mt-2">기록제목</label>
+						<input type="text" class="form-control" id="recordTitle" name="recordTitle" readonly>
+						<input type="hidden" id="recordNo" name="recordNo" readonly>			
+					</div>
+					<div id="replyTextField" class="form">
+						<label for="replyText" class="form-label mt-2">댓글내용</label>
+						<input type="text" class="form-control" id="replyText" name="replyText" readonly><br/>
+						<input type="hidden" id="replyNo" name="replyNo" readonly><br/>
+					</div>				
+					<div id="text" class="form">
+						<label for="reportText">신고내용</label>
+						<textarea id="reportText" name="reportText" class="form-control" style ="height : 100px;" 
+							oninput="autoResize(this)" placeholder="신고내용을 입력해주세요."></textarea>				
+					</div> 
+					<div class="d-grid gap-2">
+						<button type ="submit" class="btn btn-primary" id = "doReport">신고하기</button>	
+					</div>
+				</fieldset>
+			</form>	
+				
+			<br/>
+			<div id="reportConfirm" class="card text-white bg-info" style="display:none;">
+				<div class="card-body">
+					<h4 class="card-title">신고완료</h4>
+					<p id="reportDate"></p>
+					<p class="card-text">위의 내용과 깉이 신고가 완료되었습니다.</p> 
+					<p class="card-text">관리자가 내용 검토 후 처리할 예정입니다.</p>
+					<p class="card-text">진행상황은 신고내용 진행상황에서 조회 가능합니다.</p>
 				</div>
-				<div>
-					<label for="reporter" class="form-label mt-4">신고자</label>
-					<input type="text" class="form-control" id="reporter" name="reporter" readonly>
-				</div>
-				<div>
-					<label for="target" class="form-label mt-4">신고대상</label>
-					<input type="text" class="form-control" id="target" name="target" readonly>
-				</div>
-				<div id="recordTitleField">
-					<label for="recordTitle">기록제목</label>
-					<input type="text" id="recordTitle" name="recordTitle" readonly>
-					<input type="hidden" id="recordNo" name="recordNo" readonly>			
-				</div>
-				<div id="replyTextField">
-					<label for="replyText">댓글내용</label>
-					<input type="text" id="replyText" name="replyText" readonly><br/>
-					<input type="hidden" id="replyNo" name="replyNo" readonly><br/>
-				</div>				
-				<div>
-					<label for="reportText">신고내용</label>
-					<textarea id="reportText" name="reportText" rows="4" cols="50" placeholder="신고내용을 입력해주세요."></textarea>				
-				</div> 
-				<div>
-					<button type ="submit" class="btn btn-primary" id = "doReport">신고하기</button>	
-				</div>
-		</fieldset>
-	</form>	
-		
-	<br/>
-	<div id="reportConfirm" style="display:none;">
-		<p id="reportDate"></p>
-		<p>위의 내용과 같이 신고가 완료되었습니다.</p>
-		<p>관리자가 내용 검토 후 처리할 예정입니다.</p>
-		<p>신고 진행 상황은 신고내용 진행상황에서 조회가능합니다.</p>
-		<button id="backButton" class="btn btn-success">돌아가기</button>
-	</div>
-	
+				<div class="d-grid gap-2">
+					<button id="backButton" class="btn btn-light">돌아가기</button>
+				</div>	
+			</div>
+		</div>
+    </div>
+    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+    <div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

@@ -185,7 +185,7 @@ public class ProductController {
         // 상품 정보 업데이트
         productService.updateProduct(product, uuidFileNames, originalFileNames,imageTags,newImageTags);
 
-        return "redirect:/product/getProductList";
+        return "redirect:/product/getAdminProductList";
     }
 
 
