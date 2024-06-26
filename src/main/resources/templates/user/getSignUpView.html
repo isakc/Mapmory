@@ -5,6 +5,8 @@
     <th:block th:replace="~{/common/dependencies}"></th:block>
 	<script src="/javascript/user/userValidation.js"></script>
 	<link href="/css/common/hyperlink-to-text.css" rel="stylesheet">
+	<link href="/css/common/mapmory-color.css" rel="stylesheet">
+	
 	<script>
 		$(function() {
 			
@@ -207,7 +209,7 @@
 
     <div class="mb-3">
       <label for="phoneNumber" class="form-label">휴대전화번호</label>
-      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
+      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 01012341234)" required/>
       <button type="button" id="sendAuthPhoneNum" class="btn btn-secondary mt-2">인증번호 발송</button>
       <input type="hidden" class="form-control mt-2" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
       <p id="phoneNumberMsg" style="display: none;"></p>

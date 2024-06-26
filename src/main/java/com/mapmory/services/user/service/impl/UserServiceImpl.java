@@ -1249,21 +1249,22 @@ public class UserServiceImpl implements UserService {
 	///////////////////////////////////////////////////////////////////////
 	
 	public int PhoneNumberCheck(String to) throws Exception {
-		// String smsProvider = "https://api.coolsms.co.kr";
-		// DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
+		
+		String smsProvider = "https://api.coolsms.co.kr";
+		DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(coolsmsApiKey, coolsmsSecret, smsProvider);
 
 		Random random = new Random();
 		int codeValue = random.nextInt(888888)+111111; 
 
-		/*
+		
 		Message message = new Message();
 		message.setFrom(phoneNum);    	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
 		message.setTo(to);    				// 수신전화번호 (ajax로 view 화면에서 받아온 값으로 넘김)
-		message.setText("인증번호는 : [" + numStr + "]");
+		message.setText("인증번호는 : [" + codeValue + "]");
 
 		SingleMessageSendingRequest request = new SingleMessageSendingRequest(message);
 		SingleMessageSentResponse response = messageService.sendOne(request); // 메시지 전송
-		*/
+		
 		
 		return codeValue;
 	}
