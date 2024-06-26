@@ -303,14 +303,11 @@
 			background-color : #E6F4F1;
 		}
 	
+
 		#top {
 			background-color : #9EB4EA;
 			color : black;
 			font-weight: bold;
-		}
-	
-		.bi-card-list {
-			font-size : 20px;
 		}
 	
 		#shared-record-list {
@@ -347,7 +344,7 @@
 		}		
 
 		#list {
-			border: 3px solid #00A7F5;
+			border: 3px solid;
 			padding: 10px;
 			margin-bottom: 15px;
 			border-radius: 5px;
@@ -417,14 +414,6 @@
                     <button type="submit" class="btn btn-primary">검색</button>
                 </form>
             	</div>
-				
-				<ul class="nav nav-pills flex-column">
-					<li class="nav-item">
-						<span class="nav-link active" id="top">
-				    		<i class="bi bi-card-list"> 공유된 기록</i> 
-				    	</span>
-					</li>
-				</ul>					
 				
 				<div id="shared-record-list">
 				<div th:each="sharedRecord, iterStat : ${sharedRecordlist}" class="sharedRecord" id="list" th:data-record-no="${sharedRecord.recordNo}">

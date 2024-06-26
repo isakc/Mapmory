@@ -18,7 +18,7 @@
             color: #2780e3;
         }
 
-        form {
+        .noticeForm {
             max-width: 600px;
             margin: 0 auto;
             background-color: #fff;
@@ -27,26 +27,26 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        form label {
+        .noticeForm label {
             font-weight: 600;
             margin-bottom: 10px;
             color: #333;
         }
 
-        form input[type="text"],
-        form textarea {
+        .noticeForm input[type="text"],
+        .noticeForm textarea {
             border-radius: 5px;
             border: 1px solid #ddd;
             transition: border-color 0.3s ease;
         }
 
-        form input[type="text"]:focus,
-        form textarea:focus {
+        .noticeForm input[type="text"]:focus,
+        .noticeForm textarea:focus {
             border-color: #2780e3;
             box-shadow: 0 0 0 0.2rem rgba(39, 128, 227, 0.25);
         }
 
-        form button[type="submit"] {
+        .noticeForm button[type="submit"] {
             background-color: #2780e3;
             color: #fff;
             border: none;
@@ -55,7 +55,7 @@
             transition: background-color 0.3s ease;
         }
 
-        form button[type="submit"]:hover {
+        .noticeForm button[type="submit"]:hover {
             background-color: #1c67c2;
         }
 
@@ -80,7 +80,7 @@
 <div th:replace="common/toolBar::defaultToolBar"></div>
     <div class="container">
         <h1><i class="bi bi-pencil-square"></i> 공지 수정</h1>
-        <form id="updateForm" th:action="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" th:object="${notice}" method="post" enctype="multipart/form-data">
+        <form id="updateForm" class="noticeForm" th:action="@{/notice/updateNoticeOrFaq/{noticeNo}(noticeNo=${notice.noticeNo})}" th:object="${notice}" method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{noticeNo}">
             <div class="form-group">
                 <label for="noticeTitle"><i class="bi bi-pencil"></i> 제목:</label>

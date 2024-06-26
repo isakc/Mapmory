@@ -185,7 +185,7 @@
 				console.log("7.현재행 : "+newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('.container').append(newRow);
+				$('#container').append(newRow);
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
@@ -667,7 +667,7 @@
 		}
 		
         .card-body {
-            border: 1px solid #00A7F5; 
+            border: 2px solid; 
             padding: 10px; 
             margin-bottom: 10px; 
         }			
@@ -676,23 +676,34 @@
         	border : 2px solid;
         }        
         
+		.replyText {
+			font-size : 18px;
+		} 
+        
 		.replyLike {
 			font-size : 25px;
 			color : blue;
+			float : right;
+			margin-left : 10px;
 		}			
 		
 		.replyDislike {
 			font-size : 25px;
 			color : red;
-			transform : scaleX(-1);
-			display : inline-block;			
-		}	    
+			transform : scaleX(-1);		
+			float : right;
+			margin-left : 10px;
+		}
+		
+		.form-label.mt-2 {
+			margin-left : 10px;
+		}			    
 	</style>
 	
 </head>
 <body>
 	<div id=content-for-footer>
-		<div class="container">
+		<div class="container" id="container">
 			<div class="card">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
@@ -705,7 +716,7 @@
 				</ul>				
 				<div th:each="reply, rowStat : ${replyList}" class="replyList">
 					<div class="card-body">
-						<div class="row">
+						<div>
 						<h6>
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 							<span class="replyNickname" th:text="${reply.nickname}" th:data-reply-userid="${reply.userId}"></span>
@@ -723,13 +734,13 @@
 						<h6>	
 							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
 				            <span>
-	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 10px;"></i>
-	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>  
+	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike"></i>
+	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike"></i>  
 	  						</span>		
-							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px; margin-left: 10px;"></span>
+							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px"></span>
 				            <span>
-					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike" style="float: right; margin-left: 10px;"></i>
-					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike" style="float: right; margin-left: 10px;"></i>
+					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike"></i>
+					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike"></i>
 				            </span>								
 							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
 							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
@@ -745,11 +756,11 @@
 			<div class="separator2"></div>							
 		</div>
 		
-		<div class="container-fluid">
+		<div class="container replyForm">
 			<div class= "form">
 				<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 					<fieldset id="replyField">
-						<div class="row">
+						<div>
 							<label for="replyText" class="form-label mt-2">댓글 내용</label>
 							<textarea id="replyText" name="replyText" class="form-control" style ="height : 40px;" 
 								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
@@ -760,7 +771,9 @@
 							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
-						<button type="submit" class="btn btn-success">댓글 작성</button>
+		    			<div class="d-grid gap-2">
+							<button type="submit" class="btn btn-success">댓글 작성</button>
+						</div>	
 		  			</fieldset>
 				</form>	
 			</div>	

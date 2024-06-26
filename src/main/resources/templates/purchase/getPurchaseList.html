@@ -1,29 +1,134 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
-	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
-	<title>구매 목록</title>
-	
-	<link rel="stylesheet" href="/css/5/cosmo/bootstrap.css"> <!-- Bootstrap watch min.css -->
-	<link rel="stylesheet" href="/css/common/footer.css">
-	
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-	<script>
-    	let currentPage = 1;
-   		let loading = false;
-    	let endOfData = false; 
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>구매 목록</title>
     
-		$(window).scroll(function() {
-        	if (!endOfData && !loading) {
-            	if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                	loading = true;
-                	currentPage++;
-                	loadMorePurchase();
-            	}
-        	}
-    	});
-		
-		function loadMorePurchase() {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/common/footer.css">
+    
+    <style>
+        :root {
+            --primary-color: #2780E3;
+            --secondary-color: #00A7F5;
+            --tertiary-color: #00C6E1;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        .card-text {
+            margin-bottom: 5px;
+        }
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--tertiary-color);
+        }
+        .payment-method {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+        .date {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+    </style>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <div id="content-for-footer">
+        <div class="container">
+            <h1 class="text-center mb-4" style="color: var(--primary-color);">결제 목록</h1>
+            <ul class="list-group" >
+                <li class="list-group-item justify-content-between align-items-center border-0" th:each="item : ${purchaseList}">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <i class="fas fa-check-circle"></i> 결제완료
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text date">
+                                <i class="far fa-calendar-alt"></i> <span th:text="${item.purchaseDateString} + ' 결제'"></span>
+                            </p>
+                            <h4 class="card-title" th:text="${item.productTitle}"></h4>
+                            <p class="card-text price" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|"></p>
+                            <p class="card-text payment-method" th:if="${item.paymentMethod} != 1">
+                                <i class="fas fa-money-bill-wave"></i> <span th:text="${item.paymentMethodString}"></span>
+                            </p>
+                            <p class="card-text payment-method" th:if="${item.paymentMethod} == 1">
+                                <i class="fas fa-credit-card"></i> <span th:text="${item.cardType} + ' ' + ${item.lastFourDigits}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+            </div>
+        </div>
+    </div>
+    <div th:include="~{ 'common/floatingButton.html' }"></div>
+    <div th:replace="common/footer::defaultFooter"></div>
+    
+    <script>
+        let currentPage = 1;
+        let loading = false;
+        let endOfData = false; 
+    
+        $(window).scroll(function() {
+            if (!endOfData && !loading) {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    loading = true;
+                    currentPage++;
+                    $('#loading').show();
+                    loadMorePurchase();
+                }
+            }
+        });
+        
+        function loadMorePurchase() {
             $.ajax({
                 url: '/purchase/rest/getPurchaseList',
                 method: 'GET',
@@ -32,67 +137,47 @@
                 },
                 success: function(response) {
                     response.forEach(function(item) {
-                    	var formattedPrice = new Intl.NumberFormat('ko-KR', { style: 'decimal' }).format(item.price) + '원';
-                        let html =
-                    	`
-                    	<li class="list-group-item justify-content-between align-items-center border-0">
-                            <div class="card mb-3">
-                                <div class="card-header fs-3">결제완료</div>
-                                <div class="card-body">
-                                    <p class="card-text text-body-tertiary">${item.purchaseDateString} 결제</p>
-                                    <h4 class="card-title fs-3 fw-bold">${item.productTitle}</h4>
-                                    <p class="card-text fs-3 fw-bold">${formattedPrice}</p>
-                            		${item.paymentMethod !== 1 ? `<span class="card-text fs-3 fw-bold">${item.paymentMethodString}</span>` : ''}
-                                    ${item.paymentMethod === 1 ? `<span class="card-text fs-3 fw-bold">${item.cardType} ${item.lastFourDigits}</span>` : ''}
+                        var formattedPrice = new Intl.NumberFormat('ko-KR', { style: 'decimal' }).format(item.price) + '원';
+                        let html = `
+                            <li class="list-group-item justify-content-between align-items-center border-0">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="fas fa-check-circle"></i> 결제완료
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="card-text date">
+                                            <i class="far fa-calendar-alt"></i> ${item.purchaseDateString} 결제
+                                        </p>
+                                        <h4 class="card-title">${item.productTitle}</h4>
+                                        <p class="card-text price">${formattedPrice}</p>
+                                        ${item.paymentMethod !== 1 
+                                            ? `<p class="card-text payment-method"><i class="fas fa-money-bill-wave"></i> ${item.paymentMethodString}</p>` 
+                                            : `<p class="card-text payment-method"><i class="fas fa-credit-card"></i> ${item.cardType} ${item.lastFourDigits}</p>`}
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-    					`;
-    					
+                            </li>
+                        `;
+                        
                         $('.list-group').append(html);
                         loading = false;
+                        $('#loading').hide();
                         checkIfMoreContentNeeded(response.length);
                     });
                 },
                 error: function() {
                     console.log('Error occurred while loading more products.');
                     loading = false;
+                    $('#loading').hide();
                 }
             });
-        } // loadMoreProducts
+        }
 
         function checkIfMoreContentNeeded(dataLength) {
             if (dataLength === 0) {
                 endOfData = true;
+                $('#loading').hide();
             }
-        } // checkIfMoreContentNeeded
-	</script>
-</head>
-<body>
-	
-	<div id=content-for-footer>
-	<div class="container mt-3">
-		<h1 class="fs-1 fw-bold text-center">결제 목록</h1>
-		<ul class="list-group" >
-			<li class="list-group-item justify-content-between align-items-center border-0" th:each="item : ${purchaseList}">
-				
-				<!-- 카드 -->
-				<div class="card mb-3">
-  					<div class="card-header fs-3">결제완료</div>
-  					<div class="card-body">
-    					<p class="card-text text-body-tertiary" th:text="${item.purchaseDateString} +'결제'"></p>
-    					<h4 class="card-title fs-3 fw-bold" th:text="${item.productTitle}"></h4>
-    					<p class="card-text fs-3 fw-bold" th:text="|${#numbers.formatInteger(item.price, 0, 'COMMA')}원|"></p>
-    					<span class="card-text fs-3 fw-bold" th:if="${item.paymentMethod} != 1" th:text="${item.paymentMethodString}"></span>
-    					<span class="card-text fs-3 fw-bold" th:if="${item.paymentMethod} == 1" th:text="${item.cardType} + ${item.lastFourDigits}"></span>
-  					</div><!-- card-body -->
-				</div><!-- card -->
-			</li>
-		</ul>
-
-	</div><!-- Container -->
-	</div>
-	
-	<div th:replace="common/footer::defaultFooter"></div>
-</body>	
+        }
+    </script>
+</body> 
 </html>
