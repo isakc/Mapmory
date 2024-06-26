@@ -54,7 +54,7 @@ html, body {
   position: fixed;
   width: 9vh;
 /*   height: 1vh; */
-	z-index:1;
+	z-index:1000;
   bottom: 10dvh;
   right: 1vh;
 /*   right: 0; */
