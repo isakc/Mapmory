@@ -289,7 +289,8 @@
 
 	<!--  사용자 신고 리스트 조회 -->
 	<select id="getUserReportList" parameterType="map" resultMap="reportSelectMap">
-		SELECT *,
+		SELECT user_id, report_title, report_text, report_status,
+		DATE_FORMAT(report_date, '%Y-%m-%d %H:%i') AS report_date,
 		(SELECT nickname FROM users u WHERE u.USER_ID = r.target_user_ID) AS nickname
 		FROM report r
 		WHERE user_id = #{userId}
@@ -301,9 +302,19 @@
 	<select id="getAdminReportList" parameterType="search" resultMap="reportSelectMap">
 		SELECT *
 		FROM report
-		ORDER BY report_date DESC
+		ORDER BY report_no DESC
  		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
+
+	<!-- 미처리 신고 리스트 조회 -->
+	<select id="getUnConfirmReportList" parameterType="search" resultMap="reportSelectMap">
+		SELECT *
+		FROM report
+		ORDER BY report_no DESC
+		WHERE reportStatus = 1
+ 		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
 
 	<!-- 사용자의 신고 Count -->
 	<select id="getUserReportTotalCount" parameterType="search" resultType="int">

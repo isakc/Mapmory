@@ -32,7 +32,7 @@ function setMarkers(contentList) {
         marker.setMap(map);
         marker.originalImage = markerImages[content.markerType]; // 마커에 원래 이미지를 저장
         marker.locationData = content;// 마커 객체에 location 정보 저장
-        
+		
         if(content.markerType === 5 || content.markerType === 6 || content.markerType === 8 || 
         content.markerType === 9 ||content.markerType === 10 || content.markerType === 11 || content.markerType === 12){
 			startEndMarkers.push(marker);
@@ -162,6 +162,9 @@ function hideResult() {
 } // hideResult
 
 function showResult() {
+	clearPolylines();
+	showMarkers();
+	clearStartEndMarkers();
 	$(".infoItem").removeClass('on');
 	result.addClass('on');
 	$(".mapButton").removeClass('on');
@@ -175,11 +178,7 @@ function showResultDivs(){
 	$(".mapButton").removeClass('on');
 	resultDivs.css('display', 'block');
 	
-	if( description.hasClass('on') ){
-		listBtn.addClass('on');
-	}else if( routeDescriptionList.hasClass('on') ){
-		descriptionBtn.addClass('on')
-	}
+	listBtn.addClass('on');
 }
 
 function showDescription(){

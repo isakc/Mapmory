@@ -43,9 +43,9 @@ public class TimelineDaoTest {
 		System.out.println("\n===================================");
 		String text="";
 		
-		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule(LocalTime.parse(timecapsuleTime))) {
+		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule()) {
 			text="";
-			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsulCount()+" 건의 타임캡슐 기록이 존재합니다. ";
+			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsuleCount()+" 건의 타임캡슐 기록이 존재합니다. ";
 			
 			timelineUtil.sendOne(n.getUserPhoneNumber(), text);
 		}

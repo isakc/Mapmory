@@ -10,11 +10,17 @@
     <link rel="stylesheet" href="/css/common/footer.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="/css/common/chatBot.css">
     
     <style>
         body {
             background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
         }
 
         .product-header {
@@ -25,20 +31,22 @@
             margin-bottom: 30px;
             border-radius: 5px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            position: relative;
         }
 
         .product-header h2 {
             margin: 0;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: bold;
             display: flex;
             align-items: center;
         }
 
         .product-header .icon-wrapper {
-            margin-right: 10px;
+            position: absolute;
+            left: 20px;
         }
 
         .product-header .icon-wrapper i {
@@ -56,6 +64,7 @@
             border-radius: 5px;
             padding: 30px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         .product-detail h2 {
@@ -77,6 +86,8 @@
 
         .product-image img {
             transition: transform 0.3s, box-shadow 0.3s;
+            max-width: 100%;
+            height: auto;
         }
 
         .product-image img:hover {
@@ -86,6 +97,8 @@
         
         .action-links {
             margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
         }
 
         .action-links a {
@@ -95,7 +108,6 @@
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
-            margin-left: 270px;
             transition: background-color 0.3s;
         }
 
@@ -131,21 +143,21 @@
         }
         
         .price {
-		    font-size: 24px;
-		    font-weight: bold;
-		    color: #6675D4;
-		}
+            font-size: 24px;
+            font-weight: bold;
+            color: #6675D4;
+        }
 
-		.won {
-		    font-size: 20px;
-		    font-weight: bold;
-		    color: #6675D4;
-		}
+        .won {
+            font-size: 20px;
+            font-weight: bold;
+            color: #6675D4;
+        }
     </style>
 </head>
 
 <body>
-    <div id=content-for-footer>
+    <div id="content-for-footer">
         <div class="container">
             <div class="product-header">
                 <div class="icon-wrapper">
@@ -153,8 +165,7 @@
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </div>
-                <h2><i class="bi bi-box-seam"></i> 상품 상세</h2>
-                <div></div>
+                <h2>상품 상세</h2>
             </div>
             <div class="product-detail">
                 <h2 th:text="${product.productTitle}">상품 제목</h2>
@@ -163,8 +174,8 @@
                     <img th:each="uuid, iterStat : ${product.uuid}" th:src="@{/product/image/{uuid} (uuid=${uuid})}" alt="상품 이미지" class="img-fluid rounded">
                 </div>
                 <div class="action-links">
-                <a class="purchase-link" data-toggle="modal" data-target="#confimPurchaseModal">구매</a>
-            </div>
+                    <a class="purchase-link" data-toggle="modal" data-target="#confimPurchaseModal">구매</a>
+                </div>
             </div>
         </div>
     </div>
@@ -185,7 +196,7 @@
             </div>
         </div>
     </div>
-    <div th:include="~{ 'common/chatbotModal.html' }"></div>
+    <div th:include="~{ 'common/floatingButton.html' }"></div>
     <div th:replace="common/footer::defaultFooter"></div>
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

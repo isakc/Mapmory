@@ -2,8 +2,8 @@
 
 #chat-container {
     font-family: 'Poppins', sans-serif;
-    width: 350px;
-    height: 600px;
+    width: 86%;
+    height: 80dvh;
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
@@ -12,7 +12,7 @@
     position: fixed;
     bottom: 13dvh;
     right: 20px;
-    z-index: 1000;
+    z-index: 10000;
     transition: all 0.3s ease-in-out;
 }
 

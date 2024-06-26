@@ -106,7 +106,36 @@
 		
 	});	
 	</script>
-	<!-- 신고 반려 종료 -->		
+	<!-- 신고 반려 종료 -->
+	
+	<style>
+		.container {
+			border : solid;
+		}
+	
+		.bi-check-circle {
+			margin-right : 5px;
+		}	
+		
+		.header {
+			font-size : 16px;
+			font-weight : bold;
+		}
+	
+		.title {
+			margin-top : 10px;
+		}
+	
+		.btn-group {
+			margin-top: 20px;
+		    display: flex;
+		    justify-content: space-between; /* 혹은 다른 공간 배분 방법 사용 */
+		}
+		.btn-success, .btn-danger {
+		    flex-basis: 50%; /* flexbox 아이템의 기본 너비 설정 */
+		}
+	</style>
+			
 </head>
 <body>
 	<div th:replace="common/toolBar::defaultToolBar"></div>
@@ -114,13 +143,14 @@
 		<ul class="nav nav-pills flex-column">
 			<li class="nav-item">
 				<div class="nav-link active">
-		    		<i class="bi bi-check-circle-fill"> 사용자 신고 처리</i> 
+		    		<i class="bi bi-check-circle"></i>
+		    		<span class="header">신고처리</span> 
 		    	</div>
 			</li>
 		</ul>
 		<form id="getConfirmReport">
 			<fieldset>
-			<div>
+			<div class="title">
 				<label for="reporTTitle">신고제목</label>
 				<input id="reportTitle" type="text" class="form-control" th:value="${report.reportTitle}" readonly>
 			</div>
@@ -139,18 +169,18 @@
 			</div>		
 			<div id="recordField" th:if="${report.recordNo!=null}">
 				<label for="recordNo">기록내용</label>
-				<div>
+				<div class="d-grid gap-2">
 			        <button type="button" class="btn btn-info" id="toRecord" th:attr="data-url=@{'/community/getDetailSharedRecord/' + ${report.recordNo}}">기록보기</button>
 				</div>
 			</div>
 			<div id="replyField" th:if="${report.replyNo!=null}">
 			
 				<label for="replyNo">댓글내용</label>
-				<div>
+				<div class="d-grid gap-2">
 					<button type="button" class="btn btn-info" id="toReply" th:attr="data-url=@{'/community/getReply/' + ${report.replyNo}}">댓글보기</button>
 				</div>			
 			</div>
-			<div>
+			<div class="btn-group" role="group">
 				<input type = "hidden" id="reportNo" th:value="${report.reportNo}">
 				<button type="button" class="btn btn-success" id="accept">승인</button>
 				<button type="button" class="btn btn-danger" id="reject">반려</button>

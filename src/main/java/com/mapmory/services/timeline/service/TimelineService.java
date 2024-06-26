@@ -10,6 +10,7 @@ import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.dto.ImageTagDto;
+import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
 import com.mapmory.services.timeline.dto.SearchDto;
 import com.mapmory.services.timeline.dto.SharedRecordDto;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
@@ -46,6 +47,10 @@ public interface TimelineService {
 	public List<SummaryRecordDto> getSummaryRecord(Search search) throws Exception;
 	
 	public String getSummaryDate(Search search) throws Exception;
+	
+	public List<String> getSummaryDateList(String userId) throws Exception;
+	
+	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception;
 	
 	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception;
 	

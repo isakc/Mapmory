@@ -32,3 +32,40 @@
 	
 	background : #FF3838
 }
+
+
+
+
+.text-secondary-custom {
+	
+	color : #00A7F5;
+}
+
+.text-success-custom {
+	
+	/* 글씨가 잘 안 보인다... */
+	color : #00DFB6;
+}
+
+.text-light-custom {
+	
+	color : #00C6E1;
+}
+
+
+.text-info-custom {
+	
+	color : #F9F871;
+}
+
+/*
+.text-warning-custom {
+	
+	color : #
+}
+*/
+
+.text-danger-custom {
+	
+	color : #FF3838;
+}
