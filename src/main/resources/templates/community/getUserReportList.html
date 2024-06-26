@@ -115,12 +115,14 @@
 		
 	<style>
 		.reportCount {
+			float : right;
 		    font-weight: bold;
 		}
 		
 		th {
-			font-size : 14px;
+			font-size : 16px;
             font-weight : bold;
+            text-align: center;
 		}
 		
         .report-details {
@@ -130,10 +132,16 @@
             border : 3px solid;
         }
        
-		.nav-link .bi-exclamation-circle-fill {
-		    font-style: normal;
-		    font-weight : bold;
-		}  
+		.bi-exclamation-circle {
+		    font-size : 18px;
+		    margin-right : 5px;
+		}
+		
+		.header {
+		    font-size : 16px;
+		    font-weight : bold;			
+		}		
+		  
         		
 	</style>
 </head>
@@ -145,8 +153,9 @@
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item">
                             <a class="nav-link active">
-                                <i class="bi bi-exclamation-circle-fill"> 신고목록조회</i>
-                                <span class="reportCount" th:text="'신고 : ' + ${totalCount}+ '건'" style="float: right;"></span>
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span class="header">신고목록조회</span>
+                                <span class="reportCount" th:text="'신고 : ' + ${totalCount}+ '건'"></span>
                             </a>
                         </li>
                     </ul>
@@ -156,7 +165,7 @@
                                 <tr class="table-active">
                                     <th scope="col">신고제목</th>
                                     <th scope="col">신고대상</th>
-                                    <th scope="col">신고진행상황</th>
+                                    <th scope="col">진행상황</th>
                                     <th scope="col">신고일시</th>
                                 </tr>
                             </thead>

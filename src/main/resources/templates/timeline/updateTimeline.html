@@ -7,6 +7,35 @@
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
 <style type="text/css">
+#map {
+    position: fixed; /* 상단에 고정 */
+    top: 0lvh; /* 화면의 맨 위에 배치 */
+    left: 0;
+    width: 100%;
+    height: 30dvh; /* 높이를 화면의 100%로 설정 */
+    z-index: 1; /* 다른 요소보다 뒤에 배치 */
+    overflow-y: hidden; /* 세로 스크롤 추가 */
+    transition: top 0.3s ease-in-out;
+}
+
+form {
+    position: fixed; /* fixed 위치로 변경 */
+    bottom: 0lvh; /* 하단에 고정 */
+    left: 0;
+    width: 100%;
+    height: 70dvh; /* 높이를 화면의 60%로 설정 */
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    z-index: 2; /* #map 요소보다 앞에 배치 */
+    background-color: #E3F0FF;
+    overflow-y: auto; /* 세로 스크롤 추가 */
+    overflow-x: hidden;
+    transition: height 0.3s ease-in-out; /* 애니메이션 */
+}
+fieldset{
+	margin : 5px;
+}
 </style>
 </head>
 <body>
@@ -24,114 +53,114 @@
 	<input type="hidden" th:field="*{updateCount}" />
 	<input type="hidden" th:field="*{mediaName}" />
 	<fieldset>
-    <div class="row">
-    	<div class="form-check form-switch d-flex justify-content-end">
-    		<div>
-				<span class="badge bg-primary" th:text="${updateCountText}"></span>
-				&nbsp &nbsp
-			</div> 
-			<div class="form-check form-switch">
-        		<input class="form-check-input" type="checkbox" id="sharedDateType" th:name="sharedDateType" th:value="1" th:checked="*{sharedDate!=null ? 'true' : 'false'}">
-        		<label class="badge bg-primary" for="sharedDateType" th:text="*{sharedDate!=null ? '공유됨' : '비공유'}"></label>
-      		</div>
-		</div>
-    </div>
-		
-    <div class="row">
-    	<label for="recordTitle" class="form-label mt-4" th:text="'제목'"></label>
-    	<input type="text" class="form-control"
-	       th:id="recordTitle"
-	       th:name="'recordTitle'"
-	       th:value="${record.updateCount != -1 ? record.recordTitle : ''}"
-	       th:placeholder="${record.updateCount == -1 ? record.recordTitle : '제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.'}">	
-		<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
-		<div id="recordTitleHelp3" class="d-none">
-			<small class="form-text text-muted" 
-			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
-    </div>
-		
-    <div class="row">
-		<label for="categoryNo" class="form-label mt-4" th:text="'카테고리'"></label>
-    	<select class="form-select" th:field="*{categoryNo}">
-			<option th:value="0" th:text="'없음'"/>
-			<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
-		</select>
-		<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'없음\' 로 분류됩니다.'"></small>
-    </div>
-    
-    <div class="row">
-      <label for="checkpointDate" class="form-label mt-4" th:text="'체크포인트 일시'"></label>
-      <input type="text" class="form-control" th:field="*{checkpointDate}" readonly="readonly" autocomplete="off">
-    </div>
-    
-    <div class="row">
-      <label for="checkpointAddress" class="form-label mt-4" th:text="'체크포인트 주소'"></label>
-      <input type="text" class="form-control" th:field="*{checkpointAddress}" readonly="readonly" autocomplete="off">
-    </div>
-    <br/>
-    <div id=mediaAppend></div>
-    <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
-		<video width="320" height="240" controls>
-        	<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
-    	</video>
-    	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" 
-    	th:data-medianame="${record.mediaName}" th:text="x"></button><br/>
-	<small id="mediaNameHelp" class="form-text text-muted" th:text="'영상 파일은 1개만 업로드 가능합니다. 수정 시 삭제해주세요.'"></small>
-    </div>
-    <div class="row" th:if="${record.mediaName==null || record.mediaName.equals('')}"><!--  id="uploadMediaDiv" style="display: none;" -->
-      <label for="mediaFile" class="form-label mt-4" th:text="'영상 파일'"></label>
-      <input type="file" class="form-control" id="mediaFile" th:name="mediaFile" autocomplete="off">
-	<small id="mediaFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.'"></small>
-    </div>
-    
-	<div th:each="image : *{imageName}">
-	<div th:name="${image.imageTagOrder}">
-		<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
-		<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
-		<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
-		th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>
-    </div>
-    </div>
-    <div class="row">
-		<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
-		<input type="file" multiple class="form-control" id="imageFile" th:name="imageFile" autocomplete="off">
-		<small id="imageFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.jpg, .jpeg, .png, .gif, .bmp], 최대 9장까지 업로드 됩니다.'"></small>
-    </div>
-    
-    <div class="row">
-		<label for="hashtagText" class="form-label mt-4" th:text="'해시태그'"></label>
-		<input type="text" class="form-control" th:id="hashtagText" th:name="hashtagText" th:value="${hashtagText}" 
-		placeholder="#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다." autocomplete="off">
-		<small id="hashtagTextHelp" class="form-text text-muted" 
-		th:text="'#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.'"></small>
-		<div id="hashtagTextHelp3" class="d-none">
-			<small class="form-text text-muted" 
-			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
-    </div>
-    
-    <div class="row">
-     	<label for="recordText" class="form-label mt-4" th:text="'텍스트'"></label>
-     	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
-		<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : \\안녕\\'"></small>
-		<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
-		<div id="recordTextHelp3" class="d-none">
-			<small class="form-text text-muted" 
-			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
-    </div>
+	    <div class="row">
+	    	<div class="form-check form-switch d-flex justify-content-end">
+	    		<div>
+					<span class="badge bg-primary" th:text="${updateCountText}"></span>
+				</div> 
+				<div class="form-check form-switch" style="margin-left: 8px;">
+	        		<input class="form-check-input" type="checkbox" id="sharedDateType" th:name="sharedDateType" th:value="1" th:checked="*{sharedDate!=null ? 'true' : 'false'}">
+	        		<label class="badge bg-primary" for="sharedDateType" th:text="*{sharedDate!=null ? '공유됨' : '비공유'}"></label>
+	      		</div>
+			</div>
+	    </div>
+			
+	    <div class="row">
+	    	<label for="recordTitle" class="form-label mt-4" th:text="'제목'"></label>
+	    	<input type="text" class="form-control"
+		       th:id="recordTitle"
+		       th:name="'recordTitle'"
+		       th:value="${record.updateCount != -1 ? record.recordTitle : ''}"
+		       th:placeholder="${record.updateCount == -1 ? record.recordTitle : '제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.'}">	
+			<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
+			<div id="recordTitleHelp3" class="d-none">
+				<small class="form-text text-muted" 
+				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+	    	</div>
+	    </div>
+			
+	    <div class="row">
+			<label for="categoryNo" class="form-label mt-4" th:text="'카테고리'"></label>
+	    	<select class="form-select" th:field="*{categoryNo}">
+				<option th:value="0" th:text="'없음'"/>
+				<option th:each="c : ${category}" th:value="${c.categoryNo}" th:text="${c.categoryName}" th:selected="${record.categoryNo == c.categoryNo}"/>
+			</select>
+			<small id="categoryHelp" class="form-text text-muted" th:text="'카테고리 미설정 시, \'없음\' 로 분류됩니다.'"></small>
+	    </div>
+	    
+	    <div class="row">
+	      <label for="checkpointDate" class="form-label mt-4" th:text="'체크포인트 일시'"></label>
+	      <input type="text" class="form-control" th:field="*{checkpointDate}" readonly="readonly" autocomplete="off">
+	    </div>
+	    
+	    <div class="row">
+	      <label for="checkpointAddress" class="form-label mt-4" th:text="'체크포인트 주소'"></label>
+	      <input type="text" class="form-control" th:field="*{checkpointAddress}" readonly="readonly" autocomplete="off">
+	    </div>
+	    <br/>
+	    <div id=mediaAppend></div>
+	    <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
+			<video width="320" height="240" controls>
+	        	<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
+	    	</video>
+	    	<button class="btn btn-primary btn-sm" type="button" th:name="mediaX" 
+	    	th:data-medianame="${record.mediaName}" th:text="x"></button><br/>
+		<small id="mediaNameHelp" class="form-text text-muted" th:text="'영상 파일은 1개만 업로드 가능합니다. 수정 시 삭제해주세요.'"></small>
+	    </div>
+	    <div class="row" th:if="${record.mediaName==null || record.mediaName.equals('')}"><!--  id="uploadMediaDiv" style="display: none;" -->
+	      <label for="mediaFile" class="form-label mt-4" th:text="'영상 파일'"></label>
+	      <input type="file" class="form-control" id="mediaFile" th:name="mediaFile" autocomplete="off">
+		<small id="mediaFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.'"></small>
+	    </div>
+	    
+		<div th:each="image : *{imageName}">
+		<div th:name="${image.imageTagOrder}">
+			<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
+			<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
+			<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
+			th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>
+	    </div>
+	    </div>
+	    <div class="row">
+			<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
+			<input type="file" multiple class="form-control" id="imageFile" th:name="imageFile" autocomplete="off">
+			<small id="imageFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.jpg, .jpeg, .png, .gif, .bmp], 사진 파일 당 10MB 이하, 최대 9장까지 업로드 됩니다.'"></small>
+	    </div>
+	    
+	    <div class="row">
+			<label for="hashtagText" class="form-label mt-4" th:text="'해시태그'"></label>
+			<input type="text" class="form-control" th:id="hashtagText" th:name="hashtagText" th:value="${hashtagText}" 
+			placeholder="#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다." autocomplete="off">
+			<small id="hashtagTextHelp" class="form-text text-muted" 
+			th:text="'#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.'"></small>
+			<div id="hashtagTextHelp3" class="d-none">
+				<small class="form-text text-muted" 
+				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+	    	</div>
+	    </div>
+	    
+	    <div class="row">
+	     	<label for="recordText" class="form-label mt-4" th:text="'텍스트'"></label>
+	     	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
+			<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : \\안녕\\'"></small>
+			<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
+			<div id="recordTextHelp3" class="d-none">
+				<small class="form-text text-muted" 
+				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
+	    	</div>
+	    </div>
     
 	</fieldset>
-	<button type="button" class="btn btn-primary btn-lg" th:name="updateTimeline" th:text="'다시작성'"></button>
-	<button type="button" class="btn btn-primary btn-lg" th:name="addVoiceToText" th:text="'녹음하기'"></button>
-	<button type="submit" class="btn btn-primary btn-lg" th:text="'작성완료'"></button>
+	<div class="container text-left">
+		<div class="row">
+		    <div class="col-12">
+				<button type="button" class="btn btn-primary" th:name="updateTimeline" th:text="'다시작성'"></button>
+				<button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button>
+				<button type="submit" class="btn btn-primary" th:text="'작성완료'"></button>
+			</div>
+		</div>
+	</div>
 	
-	<!-- <ul>
-	<li><a th:href="@{/timeline/updateTimeline(recordNo=1)}" th:text="'다시작성'"></a></li>
-	<li><a th:href="@{/timeline/addVoiceToText}" th:text="'녹음하기'"></a></li>
-	<li><button type="submit" th:text="'작성완료'"></button></li>
-	</ul> -->
 	</form>
 	
 	<div th:include="timeline/component/modal::defaultModal"></div>
@@ -278,11 +307,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('change', function(event) {
         if (event.target && event.target.matches('#imageFile')) {
             const files = event.target.files;
+            const maxSize = 10 * 1024 * 1024;
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
+                if (file && file.size > maxSize) {
+                	showModal('사진 파일 오류','한 개 이상의 파일 크기가 10MB를 초과합니다. 다른 파일을 선택해주세요.');
+                    //alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
+                    event.target.value = ''; // Clear the file input
+                    break;
+                }
                 if (!allowedExtensions.includes(fileExtension)) {
                 	showModal('사진 파일 오류',"허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.");
                     //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
