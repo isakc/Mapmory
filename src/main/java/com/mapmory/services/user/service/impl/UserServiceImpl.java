@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -581,7 +583,7 @@ public class UserServiceImpl implements UserService {
 				
 				System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
-				System.out.println("tac : " + temp);
+				// System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
@@ -1032,6 +1034,7 @@ public class UserServiceImpl implements UserService {
 		
 	}
 	
+	/*
 	@Override
 	public NaverProfile getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException {
 		
@@ -1060,8 +1063,57 @@ public class UserServiceImpl implements UserService {
 	    
 	    return result.getResponse();
 	}
+	*/
 	
-	
+	@Override
+	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
+		
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("grant_type","authorization_code");
+	    params.add("client_id", naverClientId);
+	    params.add("client_secret", naverClientSecret);
+	    params.add("code", code);
+	    params.add("state", state);
+	    
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer "+ accessToken);
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> naverProfileRequest = new HttpEntity<>(headers);
+	    
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> profileResponse = rt.exchange(
+		    profileRequestUrl,
+		    HttpMethod.POST,
+		    naverProfileRequest,
+		    String.class
+	    );
+	    
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    NaverProfileResponse result = objectMapper.readValue(profileResponse.getBody(), NaverProfileResponse.class);
+	    
+	    NaverProfile profileInfo =  result.getResponse();
+	    
+	    String birthYear =  profileInfo.getBirthyear(); 
+    	String birthOnlyDay = profileInfo.getBirthday();
+    	// LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    Date birthday = dateFormat.parse(birthYear + "-" + birthOnlyDay);
+    	
+    	String[] temp = profileInfo.getMobile().split("-");
+    	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
+		
+    	
+    	
+    	Map<String, Object> map = new HashMap<>();
+    	map.put("email", profileInfo.getEmail());
+        map.put("gender", profileInfo.getGender());
+        map.put("name", profileInfo.getName());
+        map.put("birthday", birthday);
+        map.put("phoneNumber", phoneNumber);
+        map.put("id", profileInfo.getId());
+	    
+	    return map;
+	}
 	
 	@Override
 	public String generateSecondAuthKey() {
@@ -1321,8 +1373,8 @@ public class UserServiceImpl implements UserService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
-            sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            // sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            //sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());
@@ -1363,7 +1415,7 @@ public class UserServiceImpl implements UserService {
     }
 	
 	@Override
-    public String getKakaoUserInfo (String accessToken) throws Exception {
+	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception {
 
         //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> kakaoInfo = new HashMap<String, Object>();
@@ -1395,15 +1447,42 @@ public class UserServiceImpl implements UserService {
 
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+            
+            String kakaoName = kakao_account.getAsJsonObject().get("name").getAsString();
+            String kakaoEmail = kakao_account.getAsJsonObject().get("email").getAsString();
+            String kakaoAfterPhone = kakao_account.getAsJsonObject().get("phone_number").getAsString();
+            String kakaoPhone = kakaoAfterPhone.replace("+82 ", "0").replace("-", "").replace(" ", "");
+            String kakaoGender = kakao_account.getAsJsonObject().get("gender").getAsString();
+            String kakaoDate = kakao_account.getAsJsonObject().get("birthday").getAsString();
+            String kakaoBirthYear = kakao_account.getAsJsonObject().get("birthyear").getAsString();
+            String kakaoBirthDay = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date kakaoDatE = dateFormat.parse(kakaoBirthDay);
 
+            
+            System.out.println("카카오 이름 : :: : : : ::" + kakaoName + "카카오 이메일 : : : : :: : : : " + kakaoEmail + ""
+            		+ "카카오 전화번호 : : : :: :  ::  " + kakaoPhone + "카카오 성별 : : : : : : : :"  + kakaoGender + ""
+            		+ "카카오 생일 : : :: : : :" + kakaoDate + "카카오 생년 : : :: : : :" + kakaoBirthYear + ""
+            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoDatE);
+            
             kakaoId = element.getAsJsonObject().get("id").getAsString();
             System.out.println("kakaoId : " + kakaoId);
 
+            
+            kakaoInfo.put("name", kakaoName);
+            kakaoInfo.put("email", kakaoEmail);
+            kakaoInfo.put("phoneNumber", kakaoPhone);
+            kakaoInfo.put("gender", kakaoGender);
+            kakaoInfo.put("birthDay", kakaoBirthDay);
+            kakaoInfo.put("id", kakaoId);
+            
+            System.out.println("서비스 에서 카카오인포 : : : : :: : " + kakaoInfo);
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return kakaoId; // 예외 발생 시 null 반환
+        return kakaoInfo; // 예외 발생 시 null 반환
     }
 
 	
