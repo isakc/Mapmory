@@ -43,7 +43,7 @@
 	<!-- 댓글 아이콘 클릭 댓글 목록 이동 -->
 	<script>
 	$(function () {
-		$('#shared-record-list').on("click", ".bi-chat-square-text-fill", function() {
+		$('#shared-record-list').on("click", ".bi-chat-square-text-fill, .reply-count", function() {
 			var $row = $(this).closest('div.sharedRecord');
 			console.log($row);  
 			var recordNo = $row.data('record-no');

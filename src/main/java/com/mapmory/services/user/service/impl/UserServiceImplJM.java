@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -111,7 +113,7 @@ public class UserServiceImplJM implements UserServiceJM {
     }
 	
 	@Override
-    public String getKakaoUserInfo (String access_Token) throws Exception {
+	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception {
 
         //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> kakaoInfo = new HashMap<String, Object>();
@@ -123,7 +125,7 @@ public class UserServiceImplJM implements UserServiceJM {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            conn.setRequestProperty("Authorization", "Bearer " + access_Token);
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
 
             int responseCode = conn.getResponseCode();
             System.out.println("responseCode : " + responseCode);
@@ -143,26 +145,43 @@ public class UserServiceImplJM implements UserServiceJM {
 
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-
-            String name = properties.getAsJsonObject().get("nickname").getAsString();
-            String email = kakao_account.getAsJsonObject().get("email").getAsString();
-            String kphone = kakao_account.getAsJsonObject().get("phone_number").getAsString();
-            String birthday = kakao_account.getAsJsonObject().get("phone_number").getAsString();
             
-            System.out.println(properties);
-            System.out.println(name);
-            System.out.println(email);
-            System.out.println(kphone);
+            String kakaoName = kakao_account.getAsJsonObject().get("name").getAsString();
+            String kakaoEmail = kakao_account.getAsJsonObject().get("email").getAsString();
+            String kakaoAfterPhone = kakao_account.getAsJsonObject().get("phone_number").getAsString();
+            String kakaoPhone = kakaoAfterPhone.replace("+82 ", "0").replace("-", "").replace(" ", "");
+            String kakaoGender = kakao_account.getAsJsonObject().get("gender").getAsString();
+            String kakaoDate = kakao_account.getAsJsonObject().get("birthday").getAsString();
+            String kakaoBirthYear = kakao_account.getAsJsonObject().get("birthyear").getAsString();
+            String kakaoBirthDay = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date kakaoDatE = dateFormat.parse(kakaoBirthDay);
 
+            
+            System.out.println("카카오 이름 : :: : : : ::" + kakaoName + "카카오 이메일 : : : : :: : : : " + kakaoEmail + ""
+            		+ "카카오 전화번호 : : : :: :  ::  " + kakaoPhone + "카카오 성별 : : : : : : : :"  + kakaoGender + ""
+            		+ "카카오 생일 : : :: : : :" + kakaoDate + "카카오 생년 : : :: : : :" + kakaoBirthYear + ""
+            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoDatE);
+            
             kakaoId = element.getAsJsonObject().get("id").getAsString();
             System.out.println("kakaoId : " + kakaoId);
 
+            
+            kakaoInfo.put("name", kakaoName);
+            kakaoInfo.put("email", kakaoEmail);
+            kakaoInfo.put("phoneNumber", kakaoPhone);
+            kakaoInfo.put("gender", kakaoGender);
+            kakaoInfo.put("birthDay", kakaoBirthDay);
+            kakaoInfo.put("id", kakaoId);
+            
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return kakaoId; // 예외 발생 시 null 반환
+        return kakaoInfo; // 예외 발생 시 null 반환
     }
+
 	
 	public String PhoneNumberCheck(String to) throws Exception {
 		String smsProvider = "https://api.coolsms.co.kr";

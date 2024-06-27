@@ -74,8 +74,8 @@ public class CommunityController {
 	public String getSharedRecordList(Search search, String userId, Model model, HttpServletRequest request) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
-		
-	    int currentPage = 1;
+			
+		int currentPage = 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
@@ -147,13 +147,15 @@ public class CommunityController {
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
 	    
-	    CommunityLogs communityLogs = CommunityLogs.builder()
-	    		.userId(userId)
-	    		.recordNo(recordNo)
-	    		.logsType(0)
-	    		.build();
+	    if (!"admin".equals(userId)) {
+	        CommunityLogs communityLogs = CommunityLogs.builder()
+	                .userId(userId)
+	                .recordNo(recordNo)
+	                .logsType(0)
+	                .build();
 	    		
-	    communityService.addCommunityLogs(communityLogs);	
+	        communityService.addCommunityLogs(communityLogs);	
+	    }
 	    
 	    System.out.println("model :"+model);
 	    

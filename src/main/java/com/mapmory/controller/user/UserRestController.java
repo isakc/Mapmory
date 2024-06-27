@@ -125,6 +125,16 @@ public class UserRestController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+
+	@Value("${object.profile.folderName}")
+	private String PROFILE_FOLDER_NAME;
+	
+	@Value("${object.timeline.image}")
+	private String TIMELINE_THUMBNAIL;
+	
+	@Value("${object.timeline.imoji}")
+	private String TIMELINE_EMOJI;
+	
 	/*
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
@@ -260,7 +270,6 @@ public class UserRestController {
 	
 	////////// 이미지 가져오기 용
 	// @Deprecated
-	/*
     @GetMapping("/{type}/{uuid}")
     public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
     	
@@ -282,7 +291,6 @@ public class UserRestController {
 
         return bytes;
     }
-    */
 	
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
