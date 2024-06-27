@@ -1,5 +1,6 @@
 package com.mapmory.services.purchase.service.impl;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,6 +23,7 @@ import com.mapmory.services.purchase.domain.Purchase;
 import com.mapmory.services.purchase.domain.Subscription;
 import com.mapmory.services.purchase.service.SubscriptionService;
 import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.AgainPaymentData;
 import com.siot.IamportRestClient.request.ScheduleData;
 import com.siot.IamportRestClient.request.ScheduleEntry;
@@ -51,13 +53,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	
 	@PostConstruct
     private void init() {
-        this.iamportClient = new IamportClient(portOneImpkey, portOneImpSecret, true);
+        this.iamportClient = new IamportClient(portOneImpkey, portOneImpSecret);
     }
 
 	///// Method /////
 	
     @Override
-    public boolean addSubscription(Purchase purchase) throws Exception{
+    public boolean addSubscription(Purchase purchase, Product product) throws Exception{
     	IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(purchase.getImpUid());
     	int paymentMethod = PurchaseUtil.paymentChangeToInt(returnPayment.getResponse().getPgProvider());
     	LocalDateTime paidAt = LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.systemDefault());
@@ -65,9 +67,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     	Subscription subscription = Subscription.builder()
     								.userId(purchase.getUserId())
     								.nextSubscriptionPaymentMethod(paymentMethod)
-    								.nextSubscriptionPaymentDate(paidAt.plusMonths(1))
+    								//.nextSubscriptionPaymentDate(paidAt.plusDays(product.getPeriod()))
+    								.nextSubscriptionPaymentDate(paidAt.plusMinutes(5))
     								.subscriptionStartDate(paidAt)
-    								.subscriptionEndDate(paidAt.plusMonths(1))
+    								//.subscriptionEndDate(paidAt.plusDays(1))
+    								.subscriptionEndDate(paidAt.plusMinutes(5))
     								.customerUid(returnPayment.getResponse().getCustomerUid())
     								.merchantUid(returnPayment.getResponse().getMerchantUid())
     								.build();
@@ -158,7 +162,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     }// requestSubscription: 첫 구독 시 결제 요청
 
-    public boolean schedulePay(Subscription subscription, Product product) {
+    public boolean schedulePay(Subscription subscription, Product product) throws IamportResponseException, IOException {
 		ScheduleData scheduleData = new ScheduleData(subscription.getCustomerUid());
 
 		ScheduleEntry scheduleEntry = new ScheduleEntry(subscription.getMerchantUid(),

@@ -144,7 +144,8 @@
 		FROM 
 			subscription
 		WHERE 
-			DATE(next_subscription_payment_date) = CURDATE(); <!-- 오늘 날짜까지 같은 경우--> 
+			<!-- DATE(next_subscription_payment_date) = CURDATE(); 오늘 날짜까지 같은 경우 --> 
+			next_subscription_payment_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 5 MINUTE)  <!-- 5분 간격 사이로 가져오기  -->
 	</select>
 	
 </mapper>

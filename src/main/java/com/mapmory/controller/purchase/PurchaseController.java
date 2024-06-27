@@ -138,7 +138,7 @@ public class PurchaseController {
 							.build();
 		
 		if(imp_success) {
-			if(purchaseFacadeService.addSubscription(purchase)) {
+			if(purchaseFacadeService.addSubscription(purchase, productService.getDetailProduct(purchase.getProductNo()))) {
 				Subscription addSubscription = subscriptionService.getDetailSubscription(userId);
 				
 				try {
