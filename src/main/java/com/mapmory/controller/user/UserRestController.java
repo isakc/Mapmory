@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -341,7 +342,7 @@ public class UserRestController {
 	
 	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
 	// @GetMapping("/getFollowList/{profileUserId}")  
-	public List<FollowMap> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 		
 		/*
 		if(currentPage == null)
@@ -357,12 +358,27 @@ public class UserRestController {
 		// List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
 		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
-		return followList;
+		List<String> profileImageList = new ArrayList<>();
+		for(FollowMap user : followList) {
+			
+			String profileImage = userService.getImage("profile", user.getProfileImageName());
+			profileImageList.add(profileImage);
+			// System.out.println("profileImage : " + profileImage);
+		}
+		
+		String badgeImage = userService.getImage("profile", "sub.png");
+		
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("followList", followList);
+		map.put("profileImageList", profileImageList);
+		map.put("badgeImage", badgeImage);
+		return ResponseEntity.ok(map);
 	}
 	
 	@PostMapping("/getFollowerList/{profileUserId}")
 	// @GetMapping("/getFollowerList/{profileUserId}")
-	public List<FollowMap> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 
 		/*
 		if(currentPage == null)
@@ -377,7 +393,22 @@ public class UserRestController {
 		
 		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
-		return followerList;
+		List<String> profileImageList = new ArrayList<>();
+		for(FollowMap user : followerList) {
+			
+			String profileImage = userService.getImage("profile", user.getProfileImageName());
+			profileImageList.add(profileImage);
+			// System.out.println("profileImage : " + profileImage);
+		}
+		
+		String badgeImage = userService.getImage("profile", "sub.png");
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("followerList", followerList);
+		map.put("profileImageList", profileImageList);
+		map.put("badgeImage", badgeImage);
+		
+		return ResponseEntity.ok(map);
 	}
 	
 	@GetMapping("/getSharedList")
