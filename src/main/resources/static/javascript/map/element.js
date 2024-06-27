@@ -27,7 +27,7 @@ const recordListElement = (index) => {
 
 	    	<div class="row g-0">
 	      		<div class="col-9 card-body p-1">
-	            	<div class="mb-4">
+	            	<div class="mb-2">
 	                	<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
 	            	</div><!-- 제목 -->
 	            
@@ -98,7 +98,7 @@ const simpleRecordElement = (index) => {
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6">
+					<div class="routeButtonGroup col-6 p-0">
 	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        			
     					<div class="routeAdditionalButtons bg-primary">
@@ -116,7 +116,8 @@ const simpleRecordElement = (index) => {
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
-	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				<!--<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"-->
+	      				<img src="${categoryImgSrc}" alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -186,7 +187,7 @@ const detailRecordElement = (index) => {
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6">
+					<div class="routeButtonGroup col-6 p-0">
 	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        			
     					<div class="routeAdditionalButtons bg-primary">
@@ -204,7 +205,8 @@ const detailRecordElement = (index) => {
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
-	      				<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				<!--<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"-->
+	      				<img src="${categoryImgSrc}" alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -225,12 +227,14 @@ const detailRecordElement = (index) => {
 	          		</div>
 	          		
 	      			</div><!-- 본문 중간부분 col-9 -->
-	      		
-	      		<div class="mt-3">
-	      			<video id="${videoId}" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="100%" data-setup="{}">
+
+				${recordList[index].mediaName != '' ?       		
+	      		`<div class="mt-3">
+	      			<video id="${videoId}" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="100%" data-setup="{}" playsinline>
                 		<source src="/timeline/rest/media/${recordList[index].mediaName}" type="video/mp4" />
                 	</video>
-                </div><!-- video -->
+                </div><!-- video -->`
+                : ''}
                 
                 ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
                 `

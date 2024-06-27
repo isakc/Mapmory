@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -281,7 +282,7 @@ public interface UserService {
 	
 	public String getKakaoAccessToken (String authorizeCode);
 	
-	public String getKakaoUserInfo (String accessToken) throws Exception;
+	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception;
 	
 	public int PhoneNumberCheck(String to) throws Exception;
 	

@@ -12,9 +12,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.services.notice.domain.Notice;
 import com.mapmory.services.notice.service.NoticeService;
 
-import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/notice/*")
@@ -134,14 +132,13 @@ public class NoticeController {
 
 
     @PostMapping("/addNoticeOrFaq")
-    public String addNoticeOrFaq(@ModelAttribute("Notice") Notice notice,
-                                 HttpSession session) throws Exception {
+    public String addNoticeOrFaq(@ModelAttribute("Notice") Notice notice) throws Exception {
         System.out.println("addNoticeOrFaq Start...... (POST)");
         noticeService.addNoticeOrFaq(notice);
         if (notice.getNoticeType() == 0) {
-            return "redirect:/notice/getNoticeList";
+            return "redirect:/notice/getAdminNoticeList";
         } else {
-            return "redirect:/notice/getFaqList";
+            return "redirect:/notice/getAdminFaqList";
         }
     }
 
