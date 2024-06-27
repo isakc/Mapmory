@@ -349,7 +349,17 @@ public class UserController {
 			
 		}
 				
-		System.out.println(profile);
+		// System.out.println(profile);
+		
+		String profileImage = userService.getImage("profile", profile.getUser().getProfileImageName());
+		model.addAttribute("profileImage", profileImage);
+		
+		String badgeImage = userService.getImage("profile", "sub.png");
+		model.addAttribute("badgeImage", badgeImage);
+		
+		System.out.println("profileImage : " + profileImage);
+		System.out.println("badgeImage : " + badgeImage);
+		
 		// model.addAttribute("userId", myUserId);
 		model.addAttribute("sessionId", myUserId);
 		model.addAttribute("profile", profile);

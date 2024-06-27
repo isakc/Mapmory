@@ -53,8 +53,8 @@ public class PurchaseFacadeServiceImpl implements PurchaseFacadeService {
 	///// Method /////
 	
 	@Override
-	public boolean addSubscription(Purchase purchase) throws Exception {
-		if(purchaseService.addPurchase(purchase) && subscriptionService.addSubscription(purchase)) {
+	public boolean addSubscription(Purchase purchase, Product product) throws Exception {
+		if(purchaseService.addPurchase(purchase) && subscriptionService.addSubscription(purchase, product)) {
 			
 			return true;
 		}else {

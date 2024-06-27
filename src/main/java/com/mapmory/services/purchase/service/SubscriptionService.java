@@ -10,7 +10,7 @@ import com.mapmory.services.purchase.domain.Subscription;
 public interface SubscriptionService {
 	
 	//insert
-	public boolean addSubscription(Purchase purchase) throws Exception;
+	public boolean addSubscription(Purchase purchase, Product product) throws Exception;
 
 	public boolean addSubscriptionFromScheduler(Subscription subscription) throws Exception;
 	

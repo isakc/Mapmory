@@ -101,32 +101,52 @@
 			    		
 			      	  bookMarkListCurrentPage++;
 			    	  
+
+    		    	  const recordImageList = response.recordImageList;
+    		    	  const categoryEmojiList = response.categoryEmojiList;
+    		    	  
+			      	  
 			    	  response.timelineList.forEach((timeline) => {
 
-			    		  let thumbnailName = null;
-			    		  // console.log(timeline);
-			    		  if(timeline.imageName.length > 0)
-			    		  	// thumbnailName = timeline.imageTagList[0].imageTagText;
-			    			thumbnailName = timeline.imageName[0].imageTagText;
+
+			    		  let thumbnail = null;
+    		    		  let categoryEmoji = null;
+			    		  
+						 if(timeline.imageName.length > 0) {
+    		    			  
+    		    			  // thumbnailName = timeline.imageName[0].imageTagText;
+    		    			  thumbnail = recordImageList[0];
+   		    				  recordImageList.shift();
+    		    		  }
+    		    		  
+    		    		  if(timeline.categoryImoji != undefined) {
+    		    			  
+    		    			  categoryEmoji = categoryEmojiList[0];
+    		    			  categoryEmojiList.shift();
+    		    		  }
+
 			    		  const title = timeline.recordTitle;
 			    		  const categoryName = timeline.categoryName;
-			    		  const categoryEmoji = timeline.categoryImoji;
 			    		  const regDate = timeline.recordAddDate;
 			    		  const recordNo = timeline.recordNo;
 
 			    		  
 			    		  let temp = '';
 			    		  temp += '<div id="'+recordNo+'" class="record">';
-				    		  if(thumbnailName != null)
-				    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
+				    		  if(thumbnail != null) {
+				    			  
+	  			    			// temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnail+'">';
+	  			    			  temp += `<img class="img-thumbnail" src='data:image/jpeg;base64,${thumbnail}'>`;
+	  			    		  }
 				    		  temp += '<p class="fw-bold">'+title+'</p>';
-			    		  if(categoryEmoji != undefined) {
-	    			    		temp += '<div class="category d-flex">'
-	  				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
-	  				    		  temp += '<p>'+categoryName+'</p>';
-	  			    		  temp += '</div>'
-	    			    		
-	    			    	}	 
+				    		  if( (categoryEmoji != null)  || (categoryEmoji != undefined) ) {
+		    			    		temp += '<div class="category d-flex">'
+		  				    		  // temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+		  				    		  temp += `<img class="emoji" src="data:image/jpeg;base64,${categoryEmoji}">`;
+		  				    		  temp += '<p>'+categoryName+'</p>';
+		  			    		  temp += '</div>'
+		    			    		
+		    			    	}	
 				    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 				    		  temp += '</div>';
 			    		  temp += '<hr/>';
