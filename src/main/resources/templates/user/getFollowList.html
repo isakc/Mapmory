@@ -208,11 +208,14 @@
 	    let windowHeight = $(window).height();
 	    let documentHeight = $(document).height();
 	
+	    /*
 	    console.log("==============================");
         console.log("documentHeight : ", documentHeight);
         console.log("windowHeight : ", windowHeight);
+        console.log("does it need to load more? ", (documentHeight <= windowHeight));
 	    console.log("==============================");
-	    if (documentHeight <= windowHeight + 200) {
+	    */
+	    if (documentHeight <= windowHeight) {
 	    	
 	    	// console.log('setup start');
 	    	loadMoreList().then((value)=> {
