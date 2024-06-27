@@ -60,6 +60,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -71,6 +72,7 @@ import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
@@ -115,6 +117,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder; 
+	
 	
 	
 	@Value("${coolsms.apikey}")
@@ -1323,7 +1326,7 @@ public class UserServiceImpl implements UserService {
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
             sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            // sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            //sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());
@@ -1364,10 +1367,10 @@ public class UserServiceImpl implements UserService {
     }
 	
 	@Override
-	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception {
+	public SocialUserInfo getKakaoUserInfo (String accessToken) throws Exception {
 
         //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
-        HashMap<String, Object> kakaoInfo = new HashMap<String, Object>();
+		SocialUserInfo socialUserInfo = new SocialUserInfo();
         String reqURL = "https://kapi.kakao.com/v2/user/me";
         String kakaoId = null;
         
@@ -1418,20 +1421,23 @@ public class UserServiceImpl implements UserService {
             System.out.println("kakaoId : " + kakaoId);
 
             
-            kakaoInfo.put("name", kakaoName);
-            kakaoInfo.put("email", kakaoEmail);
-            kakaoInfo.put("phoneNumber", kakaoPhone);
-            kakaoInfo.put("gender", kakaoGender);
-            kakaoInfo.put("birthDay", kakaoBirthDay);
-            kakaoInfo.put("id", kakaoId);
+            socialUserInfo.setName(kakaoName);
+            socialUserInfo.setEmail(kakaoEmail);
+            socialUserInfo.setPhoneNumber(kakaoPhone);
+            socialUserInfo.setGender(kakaoGender);
+            socialUserInfo.setBirthday(kakaoDatE);
+            socialUserInfo.setId(kakaoId);
             
+            
+            System.out.println("서비스 에서 카카오인포 : : : : :: : " + socialUserInfo);
             
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return kakaoInfo; // 예외 발생 시 null 반환
+        return socialUserInfo; // 예외 발생 시 null 반환
     }
+
 
 	
 	///////////////////////////////////////////////////////////////////////

@@ -54,6 +54,7 @@ import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.abs.TacConstants;
 import com.mapmory.services.user.domain.FollowMap;
 import com.mapmory.services.user.domain.Profile;
+import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
@@ -74,6 +75,10 @@ public class UserController {
 	
 	@Autowired
 	private UserServiceJM userServiceJm;
+	
+	@Autowired
+	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
+	
 	@Autowired
 	@Qualifier("userServiceImpl")
 	private UserService userService;
@@ -179,14 +184,25 @@ public class UserController {
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
 	@PostMapping("/getSignUpView")
-	public void getSignUpView(Model model, @RequestParam String[] checked) {
+	public void getSignUpView(Model model, @RequestParam String[] checked,
+			HttpServletRequest request) {
 		
 		// refactoring 필요... -> 무엇이 check되었는지를 파악해야 함
 		System.out.println("checked : "+ Arrays.asList(checked));
 		// model.addAttribute("user", User.builder().build());
+		
+		Cookie[] cookies = request.getCookies();
+		System.out.println("쿠키 : : : : : ::  : : :: " + Arrays.asList(cookies));
+		if(cookies != null) {	
+			SocialUserInfo socialUserInfo = getSocialInfo(request, null);
+			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
+			model.addAttribute("socialUserInfo", socialUserInfo);
+		}
+				
 		model.addAttribute("user", User.builder().build());
 		
 	}	
+
 	
 	@GetMapping("/getAgreeTermsAndConditionsList")
 	public void getAgreeTermsAndConditionsList(HttpServletRequest request, Model model) throws Exception {
@@ -695,7 +711,7 @@ public class UserController {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
-            HashMap<String, Object> kakaoUserInfo = userServiceJm.getKakaoUserInfo(accessToken);
+            SocialUserInfo socialUserInfo = userService.getKakaoUserInfo(accessToken);
             
             /*
             if (kakaoId == null) {
@@ -703,7 +719,7 @@ public class UserController {
             }
             */
             
-            String kakaoId = (String) kakaoUserInfo.get("kakaoId");
+            String kakaoId = (String) socialUserInfo.getId();
             String userId = userService.getUserIdBySocialId(kakaoId);
             
             // 소셜 로그인 연동 정보가 없는 경우
@@ -736,11 +752,11 @@ public class UserController {
     	    		// 신규 : 회원가입 페이지로 이동
                 	String uuid = UUID.randomUUID().toString();
                 	String keyName = "k-"+uuid;
-                    redisUtilString.insert(keyName, kakaoId, 10L); // 임시로 카카오 아이디 저장
+                	redisUtilSocialUserInfo.insert(keyName, socialUserInfo, 10L);
                     Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
                     response.addCookie(cookie);
                     
-                    model.addAttribute("socialUserInfo", kakaoUserInfo);
+                    model.addAttribute("socialUserInfo", socialUserInfo);
                     // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
                     return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
     	    	}	
@@ -945,4 +961,60 @@ public class UserController {
 	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
 	    return googleTokenRequest;
 	}
+    
+    private SocialUserInfo getSocialInfo(HttpServletRequest request, HttpServletResponse response) {
+		
+		SocialUserInfo socialUserInfo = null;
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				
+				// map.put("socialUserInfo", keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				cookie.setMaxAge(0);
+//				response.addCookie(cookie);
+				
+				System.out.println("쇼셜 유저 인포 : : : : : : : :" +  socialUserInfo);
+				
+				return socialUserInfo;
+			}
+			
+//			} else if(cookieName.equals("NAVERKEY")) {
+//			
+//			String keyName = cookie.getValue();
+//			String socialId = redisUtilString.select(keyName, String.class);
+//			cookie.setMaxAge(0);
+//			response.addCookie(cookie);
+//			
+//			map.put("socialId", socialId);
+//			map.put("type", "1");
+//			
+//			return map;
+//			
+//		} else if(cookieName.equals("GOOGLEKEY")) {
+//			
+//			String keyName = cookie.getValue();
+//			String socialId = redisUtilString.select(keyName, String.class);
+//			cookie.setMaxAge(0);
+//			response.addCookie(cookie);
+//			
+//			map.put("socialId", socialId);
+//			map.put("type", "0");
+//			
+//			return map;
+//			
+//		} else {
+//			System.out.println("social login 가입이 아님");
+//		}
+		}
+		return null;
+	}	
+
 }
