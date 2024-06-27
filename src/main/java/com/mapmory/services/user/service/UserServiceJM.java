@@ -1,5 +1,7 @@
 package com.mapmory.services.user.service;
 
+import java.util.HashMap;
+
 import com.mapmory.services.user.domain.SocialLoginInfo;
 import com.mapmory.services.user.domain.User;
 
@@ -7,7 +9,7 @@ public interface UserServiceJM {
 
 	public String getKakaoAccessToken(String authorize_code) throws Exception;
 	
-	public String getKakaoUserInfo(String access_Token) throws Exception;
+	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception;
 	
 	public String PhoneNumberCheck(String to) throws Exception;
 	
