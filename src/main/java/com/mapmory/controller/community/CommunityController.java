@@ -74,8 +74,8 @@ public class CommunityController {
 	public String getSharedRecordList(Search search, String userId, Model model, HttpServletRequest request) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
-		
-	    int currentPage = 1;
+			
+		int currentPage = 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setCurrentPage(currentPage);
 	    search.setLimit(pageSize);
