@@ -52,7 +52,7 @@ public class TimelineScheduler {
 //			0 15 10 ? * 6L : 매월 마지막 금요일 오전 10:15에
 //			0 15 10 ? * 6#3 : 매월 3째주 금요일 오전 10:15에
 	//스케줄러
-	@Scheduled(cron="0 7 11 * * *")
+	@Scheduled(cron="0 43 10 * * *")
 	public void Scheduler() throws Exception {
 		String text="";
 		
