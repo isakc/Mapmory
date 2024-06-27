@@ -157,6 +157,10 @@
 			font-size : 15px;
 		}
 		
+		#reportText {
+			height : 100px;
+		} 
+		
 		#reportDate {
 			font-weight : bold;
 		}
@@ -203,7 +207,7 @@
 					</div>				
 					<div id="text" class="form">
 						<label for="reportText">신고내용</label>
-						<textarea id="reportText" name="reportText" class="form-control" style ="height : 100px;" 
+						<textarea id="reportText" name="reportText" class="form-control" 
 							oninput="autoResize(this)" placeholder="신고내용을 입력해주세요."></textarea>				
 					</div> 
 					<div class="d-grid gap-2">
@@ -213,7 +217,7 @@
 			</form>	
 				
 			<br/>
-			<div id="reportConfirm" class="card text-white bg-info" style="display:none;">
+			<div id="reportConfirm" class="card text-white bg-info" style="display : none;">
 				<div class="card-body">
 					<h4 class="card-title">신고완료</h4>
 					<p id="reportDate"></p>

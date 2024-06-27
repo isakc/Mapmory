@@ -3,12 +3,9 @@ package com.mapmory.controller.community;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +24,6 @@ import com.mapmory.common.util.RedisUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
-import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 

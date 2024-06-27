@@ -622,6 +622,10 @@
 			border-top : 2px solid;
 			margin-top : 5px;
 			width : 100%
+		}
+		
+		.recordNo {
+			display : none;
 		}		
 
 		.nav-pills {
@@ -632,9 +636,15 @@
 			margin-bottom : 20px;
 		}			
 		
+		#nickname {
+			font-size : 20px;
+			font-weight : bold;
+			margin-right : -10px;
+		}
+		
 		.sub {
-			width : 50px;
-			height : 50px;
+			width : 40px;
+			height : 40px;
 		}
 		
 		.profileImage {
@@ -789,6 +799,28 @@
 	    	border-left: 2px solid;
 	    	border-right: 2px solid;
 	    }
+	    
+	    .replyNickname {
+	    	font-size : 20px;
+	    	font-weight : bold;
+	    	margin-right : -10px;
+	    }
+	    
+	    .replyDate {
+	    	font-size : 20px;
+	    }
+	    
+		#map {
+		    top: 0; /* 화면의 맨 위에 배치 */
+		    left: 0;
+		    width: 100%;
+		    height: 30dvh; /* 높이를 화면의 100%로 설정 */
+		    z-index: 1; /* 다른 요소보다 뒤에 배치 */
+		    overflow-y: hidden; /* 세로 스크롤 추가 */
+		    transition: top 0.3s ease-in-out;
+		}	  
+	  
+	    
 	</style>	
 	
 </head>
@@ -800,7 +832,7 @@
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
-						<span class="recordNo" style="display:none;" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
+						<span class="recordNo" th:text="${record.recordNo}" data-recordno="${record.recordNo}"></span>
 						<span th:if="${record.subscriptionEndDate == 1}">
 							<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}">
 						</span>
@@ -860,13 +892,13 @@
 						<img alt="" class="replyProfileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 						<span class="replyNickname" th:text="${reply.nickname}" th:data-replyuser-id="${reply.userId}"></span>
 						<span th:if="${reply.subscriptionEndDate == '1'}">
-							<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+							<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}">
 						</span>
 					</div>
 					<div class="card-body">
 						<p th:if="${iterStat.index < 5}" th:text="${reply.replyText}" th:data-recordno="${reply.recordNo}" th:data-replyno="${reply.replyNo}"></p>
 						<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
-						<span th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
+						<span class="replyDate" th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
 						<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}" class="replyDislikeCount" style="float: right; margin-left: 15px;"></span>
 			            <span>
 			          		<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike" style="float: right; margin-left: 15px;"></i>

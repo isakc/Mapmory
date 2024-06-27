@@ -61,10 +61,9 @@
 						console.log(reportList);
                         reportList.forEach(function(report) {						
                        		var reportRow = '<tr class="table-info">' +
-		                        '<td>' + report.reportTitle + '</td>' +
-		                        '<td>' + report.reportText + '</td>' +
+		                        '<td onclick="toggleReportText(this)">' + report.reportTitle + '</td>' +
 		                        '<td>' + report.nickname + '</td>' +
-		                        '<td style="text-align: center;">' +
+		                        '<td class="reportStatus">' +
 		                            '<span>' +
 		                                (report.reportStatus === 1 ? '신고완료' : (report.reportStatus === 2 ? '처리완료' : '')) +
 		                            '</span>' +
@@ -141,8 +140,6 @@
 		    font-size : 16px;
 		    font-weight : bold;			
 		}		
-		  
-        		
 	</style>
 </head>
 <body>

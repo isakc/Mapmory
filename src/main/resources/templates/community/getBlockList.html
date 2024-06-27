@@ -215,6 +215,10 @@
 		.more {
 			text-align : center;
 		}
+		
+		.targetId {
+			display : none;
+		}
 	
 	</style>
 
@@ -252,7 +256,7 @@
 							<span>
 								<i id="moreIcon" class="bi bi-three-dots"></i>
 							</span>
-							<span class="targetId" style="display:none" th:text="${block.targetId}" th:data-target-id="${block.targetId}"></span>
+							<span class="targetId" th:text="${block.targetId}" th:data-target-id="${block.targetId}"></span>
 						</td>
 					</tr>	
 					</tbody>

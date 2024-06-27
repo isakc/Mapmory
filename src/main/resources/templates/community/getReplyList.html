@@ -228,9 +228,9 @@
 		        '<i class="bi bi-hand-thumbs-down replyDislike"></i>' +
 		        '<span class="likeCount">' + likeCount + '</span>' +
 		        '<i class="bi bi-hand-thumbs-up replyLike"></i>' +
-		        '<span class="recordNo" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
-		        '<span class="replyNo" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
-		        '<span class="userId" data-userid="' + userId + '">' + userId + '</span>' +
+		        '<span class="recordNo" style="display:none;" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
+		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
+		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
 		        '</h4>' +
 		        '<h6>' +
 		        '<span>' + replyDate + '</span>' +
@@ -765,10 +765,8 @@
 		} 
 						
 		.replyImageName {
-		    max-width: 100%; 
-		    max-height: 100%;
-		    height: auto; 
-		    width: auto; 
+		    height: 50dvh;
+		    width: 100%; 
 		    margin-top : 10px;
 		}		
 		
@@ -825,12 +823,16 @@
 			margin-left : 10px;
 		}
 		
-		.recordNo .replyNo .userId {
-			display : none;
+		#imagePreview {
+			max-width: 50%;
 		}
-		
+				 
 		.form-label.mt-2 {
 			margin-left : 10px;
+		}
+		
+		#updateReplyText {
+			height: 40px;
 		}			    
 	</style>
 	
@@ -866,7 +868,7 @@
 							<i class="bi bi-three-dots"></i>
 						</h6>
 						<h4>
-							<span class="replyText" th:text="${reply.replyText}" ></span>
+							<span class="replyText" th:text="${reply.replyText}" ></span> <br/>
 							<span th:if="${reply.replyImageName != null && reply.replyImageName != 'null'}">
 							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}" th:data-reply-image-name="${reply.replyImageName}">
 							</span>
@@ -882,9 +884,9 @@
 					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike"></i>
 					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike"></i>
 				            </span>								
-							<span class="recordNo" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
-							<span class="replyNo" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
-							<span class="userId" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
+							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-recordno = "${reply.recordNo}"></span>	
+							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
+							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
 						</h6>
 						<h6>
 							<span class="replyDate" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
@@ -913,7 +915,7 @@
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
 						<div class="preview-container mt-2">
-							<img id="imagePreview" src="#" alt="Image Preview" style="max-width: 50%; display: none;">
+							<img id="imagePreview" src="#" alt="Image Preview" style="display:none;">
 						</div>		    			
 		    			<div class="d-grid gap-2">
 							<button type="submit" class="btn btn-success">댓글 작성</button>
@@ -957,7 +959,7 @@
 							<fieldset id="updateReplyField">
 								<div class="row">
 									<label for="updateReplyText" class="form-label mt-2">댓글 내용</label>
-									<textarea id="updateReplyText" name="updateReplyText" class="form-control" style="height: 40px;" 
+									<textarea id="updateReplyText" name="updateReplyText" class="form-control"
 												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
 								</div>
 								<div>
