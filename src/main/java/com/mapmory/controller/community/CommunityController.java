@@ -3,6 +3,8 @@ package com.mapmory.controller.community;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,6 +27,7 @@ import com.mapmory.common.util.RedisUtil;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
+import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.service.TimelineService;
 
@@ -241,27 +244,34 @@ public class CommunityController {
 	
 	//관리자 신고 조회
 	@GetMapping("/getAdminReportList")
-	public String getAdminReportList(Search search, Integer role, Model model) throws Exception {
-		
+	public String getAdminReportList(Search search, Model model, @RequestParam(required = false) Boolean unconfirmedOnly) throws Exception {
 		
         if (search.getCurrentPage() == 0) {
             search.setCurrentPage(1);
         }
         search.setPageSize(pageSize);
-
         
-		Map<String, Object> allReportList = communityService.getAdminReportList(search);
-		
-        Page resultPage = new Page(search.getCurrentPage(), ((Integer)allReportList.get("totalCount")).intValue(), pageUnit, pageSize);
-
-        System.out.println("122 "+search);
-        System.out.println("123 " +resultPage);
+        Map<String, Object> reportList;
         
+        if(unconfirmedOnly != null && unconfirmedOnly) {
+        	
+        	reportList = communityService.getUnConfirmReportList(search);
+        } else {
+        	reportList = communityService.getAdminReportList(search);
+        }
+        
+       boolean isUnconfirmedOnly = (unconfirmedOnly != null) ? unconfirmedOnly : false;
+        
+       int totalCount = isUnconfirmedOnly ? ((Integer)reportList.get("unConfirmCount")).intValue() : ((Integer)reportList.get("totalCount")).intValue();
+       
+        Page resultPage = new Page(search.getCurrentPage(), totalCount, pageUnit, pageSize);
+
         model.addAttribute("search", search);
         model.addAttribute("resultPage", resultPage);
-		model.addAttribute("allReportList", allReportList.get("list"));
-		model.addAttribute("totalCount", allReportList.get("totalCount"));
-		model.addAttribute("unConfirmCount", allReportList.get("unConfirmCount"));
+		model.addAttribute("allReportList", reportList.get("list"));
+		model.addAttribute("totalCount", reportList.get("totalCount"));
+		model.addAttribute("unConfirmCount", reportList.get("unConfirmCount"));
+		model.addAttribute("unconfirmedOnly", isUnconfirmedOnly);
 
 		return "community/admin/getAdminReportList";
 	}
