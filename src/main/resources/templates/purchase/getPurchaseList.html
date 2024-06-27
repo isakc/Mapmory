@@ -158,11 +158,11 @@
                             </li>
                         `;
                         
-                        $('.list-group').append(html);
-                        loading = false;
-                        $('#loading').hide();
-                        checkIfMoreContentNeeded(response.length);
+                        $('.list-group').append(html);                   
                     });
+                    loading = false;
+                    $('#loading').hide();
+                    checkIfMoreContentNeeded(response.length);
                 },
                 error: function() {
                     console.log('Error occurred while loading more products.');

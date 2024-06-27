@@ -19,11 +19,11 @@ const recordListElement = (index) => {
 	const htmlString = `
 		<div class="card border-0 border-bottom mb-3 container resultListItem">
 		
-			<div class="profileImageContainer">
+			<!--<div class="profileImageContainer">
 				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
 	        	<span class="fs-5 ">${recordList[index].nickName}</span>
 	        	${recordList[index].subscribed ? `<img src="https://via.placeholder.com/150?text=Loading..." class="rounded-image subImage"/>` : ''}
-			</div><!-- 프로필 상자 -->
+			</div> 프로필 상자 -->
 
 	    	<div class="row g-0">
 	      		<div class="col-9 card-body p-1">
@@ -409,7 +409,6 @@ const transitRouteListElement = (paths) => {
   					<h1>${(path.totalTime / 60) < 60 ? (path.totalTime / 60).toFixed(0) +'분' : 
   						( (path.totalTime / 60) / 60).toFixed(0) + '시간 ' +  ( (path.totalTime / 60) % 60).toFixed(0) +'분'
   					 }</h1>
-  					 ${path.type == 1 }
     				<span>도보 ${(path.totalWalkTime/60).toFixed(0) }분</span>
     				<span>환승 ${path.transferCount}회</span>
     				<span>요금 ${path.totalFare}원</span>

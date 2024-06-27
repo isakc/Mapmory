@@ -45,14 +45,12 @@
   padding: 0;
 }
 
-html, body {
-  background: #eaedf2;
-  font-family: 'Roboto', sans-serif;
-}
+
 
 .floating-container {
   position: fixed;
   width: 9vh;
+  height:0;
 /*   height: 1vh; */
 	z-index:1000;
   bottom: 10dvh;
@@ -96,7 +94,7 @@ html, body {
   line-height: 3rem;
   text-align: center;
   font-size: 23px;
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 10px 25px -5px rgba(44, 179, 240, 0.6);
   cursor: pointer;
   -webkit-transition: all 0.3s;
