@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -504,6 +506,8 @@ public class UserController {
 	    NaverAuthToken token = userService.getNaverToken(code, state);
 	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
 	    
+	    // System.out.println("naver profile:: " + profileInfo);
+	    
 	    String naverId = profileInfo.getId();
 	    String userId = userService.getUserIdBySocialId(naverId);
 	    
@@ -534,7 +538,22 @@ public class UserController {
 	    		System.out.println("신규 회원입니다. 회원가입 페이지로 이동합니다.");
 		    	String uuid = UUID.randomUUID().toString();
 	        	String keyName = "n-"+uuid;
-	            redisUtilString.insert(keyName, naverId, 10L); 
+	        	
+	        	String birthYear =  profileInfo.getBirthyear(); 
+	        	String birthOnlyDay = profileInfo.getBirthday();
+	        	LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
+	        	String[] temp = profileInfo.getMobile().split("-");
+	        	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
+	            // redisUtilString.insert(keyName, naverId, 10L);
+	        	Map<String, Object> map = new HashMap<>();
+	        	map.put("email", profileInfo.getEmail());
+	            map.put("gender", profileInfo.getGender());
+	            map.put("id", profileInfo.getId());
+	            map.put("name", profileInfo.getName());
+	            map.put("birthday", birthday);
+	            map.put("phoneNumber", phoneNumber);
+	        	redisUtilMap.insert(keyName, map, 10L);
+	        	
 	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
 	            response.addCookie(cookie);
 		    	

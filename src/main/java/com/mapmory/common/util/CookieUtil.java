@@ -38,4 +38,6 @@ public class CookieUtil {
 		
 		return cookie;
 	}
+    
+    // 로그인 로직을 cookie util를 써서 리팩토링 필요
 }
