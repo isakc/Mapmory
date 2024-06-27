@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
@@ -51,6 +52,8 @@ public interface TimelineService {
 	public List<String> getSummaryDateList(String userId) throws Exception;
 	
 	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception;
+	
+	public int addKeyword(KeywordData keywordData) throws Exception;
 	
 	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
