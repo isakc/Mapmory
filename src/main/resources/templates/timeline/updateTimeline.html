@@ -313,15 +313,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const file = files[i];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
-                if (file && file.size > maxSize) {
-                	showModal('사진 파일 오류','한 개 이상의 파일 크기가 10MB를 초과합니다. 다른 파일을 선택해주세요.');
-                    //alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
-                    event.target.value = ''; // Clear the file input
-                    break;
-                }
                 if (!allowedExtensions.includes(fileExtension)) {
                 	showModal('사진 파일 오류',"허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.");
                     //alert('허용되지 않는 파일 형식입니다. 다른 파일을 선택해주세요.');
+                    event.target.value = ''; // Clear the file input
+                    break;
+                }
+                if (file && file.size > maxSize) {
+                	showModal('사진 파일 오류','한 개 이상의 파일 크기가 10MB를 초과합니다. 다른 파일을 선택해주세요.');
+                    //alert('파일 크기가 200MB를 초과합니다. 다른 파일을 선택해주세요.');
                     event.target.value = ''; // Clear the file input
                     break;
                 }
