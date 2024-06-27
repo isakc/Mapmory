@@ -25,7 +25,6 @@ public class SubscriptionScheduler {
 		for (Subscription subscription : subscriptions) {
 			try {
 				Subscription updatedSubscription = updateSubscription(subscription);
-                subscriptionService.cancelSubscription(subscription.getUserId());
 				
                 subscriptionService.schedulePay(updatedSubscription, productService.getSubscription());
                 subscriptionService.addSubscriptionFromScheduler(updatedSubscription);

@@ -60,9 +60,8 @@
 			subscription
 		WHERE
 			user_id = #{userId}
-		ORDER BY
-			subscription_end_date DESC
-		LIMIT 1;
+		AND
+			NOW() BETWEEN subscription_start_date AND subscription_end_date
 	</select>
 	
 	<select id="getSubscriptionList" parameterType="search" resultMap="subscriptionSelectMap">
@@ -97,7 +96,7 @@
 		</set>
 		WHERE 
 			user_id = #{userId} 
-			AND NOW() BETWEEN subscription_start_date AND subscription_end_date;
+			AND subscription_end_date >= NOW();
 	</update>
 	
 	<update id="cancelSubscription" parameterType="string">
@@ -107,7 +106,7 @@
 			next_subscription_payment_date = null
 		WHERE 
 			user_id = #{userId} 
-			AND NOW() BETWEEN subscription_start_date AND subscription_end_date
+			AND subscription_end_date >= NOW();
 	</update>
 	
 	<update id="reSubscription" parameterType="subscription">
