@@ -13,6 +13,52 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 이미지 로딩 처리 -->
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        var replyListContainer = document.getElementById('replyListContainer');
+        var replyItems = replyListContainer.getElementsByClassName('replyList');
+        
+        function loadImages(index) {
+            if (index >= replyItems.length) return;
+
+            var replyItem = replyItems[index];
+            var images = replyItem.getElementsByTagName('img');
+            var loadedImages = 0;
+            var totalImages = images.length;
+
+            function imageLoaded() {
+                loadedImages++;
+                if (loadedImages === totalImages) {
+                    replyItem.style.opacity = '1';
+                    loadImages(index + 1);
+                }
+            }
+
+            if (totalImages > 0) {
+                for (var i = 0; i < images.length; i++) {
+                    if (images[i].complete) {
+                        imageLoaded();
+                    } else {
+                        images[i].addEventListener('load', imageLoaded);
+                        images[i].addEventListener('error', function() {
+                            console.error('이미지 로딩 실패:', this.src);
+                            imageLoaded();
+                        });
+                    }
+                }
+            } else {
+                replyItem.style.opacity = '1';
+                loadImages(index + 1);
+            }
+        }
+
+        loadImages(0);
+    });
+    /*]]>*/
+	</script>
+
 	<!-- 댓글 작성 유조 프로필로 이동 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -169,22 +215,22 @@
 		        if (subscriptionEndDate === '1') {
 		            newRow += 
 		                '<span>' +
-		                '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">' +
+		                '<img alt="" class="sub" src="/user/rest/profile/sub.png">' +
 		                '</span>';
 		        } 		        
 				newRow +=
-		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
+		        '<i class="bi bi-three-dots"></i>' +
 		        '</h6>' +
 		        '<h4>' +
 		        '<span class="replyText">' + replyText + '</span>' +
 		        '<img alt="" class="replyImageName" data-reply-image-name="' +replyImageName+ '" src="'+replyImageURL+'">'+
-		        '<span class="dislikeCount" style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>' +
-		        '<span class="likeCount" style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-up replyLike" style="float: right;"></i>' +
-		        '<span class="recordNo" style="display:none;" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
-		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
-		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
+		        '<span class="dislikeCount">' + dislikeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-down replyDislike"></i>' +
+		        '<span class="likeCount">' + likeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-up replyLike"></i>' +
+		        '<span class="recordNo" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
+		        '<span class="replyNo" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
+		        '<span class="userId" data-userid="' + userId + '">' + userId + '</span>' +
 		        '</h4>' +
 		        '<h6>' +
 		        '<span>' + replyDate + '</span>' +
@@ -286,6 +332,7 @@
 
 			$('#updateReplyForm').submit(function(event) {
 				event.preventDefault();
+				$('.btn-success').prop('disabled', true);
 	   
 	        	var formData = new FormData(this);
 				var updatedReplyText = $('#updateReplyText').val().trim();
@@ -298,6 +345,7 @@
 
 				if(updatedReplyText === '') {
 					alert('댓글 내용을 입력해주세요');
+					$('.btn-success').prop('disabled', false);
 					return;
 				}
 				formData.append("recordNo", recordNo);
@@ -332,10 +380,10 @@
 						processData : false,
 						data : formData, 
 						success : function(data) {
-							$('.btn-success').prop('disabled', false);
 							console.log('15.댓글 수정 완료 :', data);
 							currentRow.find('.replyText').text(data	.replyText);
-		                    
+							$('.btn-success').prop('disabled', false);
+							
 			                if(data.replyImageName) {
 			                    var replyImageURL = '/community/rest/replyImage/' + data.replyImageName;
 			                    currentRow.find('.replyImageName').attr('src', replyImageURL);
@@ -347,6 +395,7 @@
 						error : function(xhr, status, error) {
 							console.error('16.댓글 수정 오류', error);
 							alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.');
+							$('.btn-success').prop('disabled', false);
 						}
 					});
 				}
@@ -373,7 +422,7 @@
 						closeModal();
 						
 						console.log('currentRow:', currentRow);
-						currentRow.closest('.replyCard').remove();
+						currentRow.closest('.card-body').remove();
 					},
 					error : function(xhr, status, error) {
 						console.error('19.댓글 삭제 실패 : ', error);
@@ -601,21 +650,13 @@
 	    }
 	</script>
 
-	<script>
-//     function resetPreview() {
-//         var imagePreview = document.getElementById('imagePreview');
-//         var fileInput = document.getElementById('replyImageName');
-
-//         // 미리보기 이미지 초기화
-//         imagePreview.src = '#';
-//         imagePreview.style.display = 'none';
-
-//         // 파일 입력값 비우기
-//         fileInput.value = '';	
-//     }    
-	</script>
-	
 	<style>
+	
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}	
+			
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -685,37 +726,66 @@
 		  text-decoration: none;
 		  cursor: pointer;
 		}
+	
+		.header {
+		    font-size : 16px;
+		    font-weight : bold;			
+		}		
+		
+		.totalCount {
+			font-size : 20px;
+		    font-weight : bold;			
+		}			
 		
 		.profileImage {
 			border-radius: 50%;
 			width : 50px;
 			height : 50px;
+			margin-right : 3px;
 		}
 		
+		.replyNickname {
+			font-size :20px;
+			font-weight : bold;
+		}
+		
+		.sub {
+			width:40x; 
+			height:40px;
+			margin-left : -10px;
+		}
+					
 		.bi-three-dots {
 			font-size : 30px;
+			float: right;
 		}			
 		
-		.separator {
-			border-top : 2px solid;
-			margin-top : 10px;
-		}					
-		
-		#totalCount {
-			font-size : 18px;
-		}		
-			
-		#replyText {
-			width : 90%;
-			resize : vertical;
-			margin-left : 20px;
-		}
-		
+		.replyText {
+			font-size : 22px;
+		} 
+						
 		.replyImageName {
 		    max-width: 100%; 
 		    max-height: 100%;
 		    height: auto; 
 		    width: auto; 
+		    margin-top : 10px;
+		}		
+		
+		.replyDate {
+			font-size : 18px;
+		}		
+		
+		.separator {
+			border-top : 2px solid;
+			margin-top : 10px;
+		}					
+	
+		#replyText {
+			width : 90%;
+			resize : vertical;
+			margin-left : 20px;
+			height : 40px;
 		}
 		
         .card-body {
@@ -728,23 +798,35 @@
         	border : 2px solid;
         }        
         
-		.replyText {
-			font-size : 18px;
-		} 
-        
+		.dislikeCount {
+			font-size : 20px;
+			float: right; 
+			margin-left: 10px;
+		}
+		
+		.likeCount {
+			font-size : 20px;
+			float: right; 
+			margin-left: 10px;
+		}
+		
 		.replyLike {
-			font-size : 25px;
+			font-size : 30px;
 			color : blue;
 			float : right;
 			margin-left : 10px;
 		}			
 		
 		.replyDislike {
-			font-size : 25px;
+			font-size : 30px;
 			color : red;
 			transform : scaleX(-1);		
 			float : right;
 			margin-left : 10px;
+		}
+		
+		.recordNo .replyNo .userId {
+			display : none;
 		}
 		
 		.form-label.mt-2 {
@@ -754,18 +836,24 @@
 	
 </head>
 <body>
+<!-- 	<div id="loading" style="display:none; text-align : center; margin-top : 20px;"> -->
+<!-- 		<i class="bi bi-arrow-clockwise" style="font-size: 40px; animation: spin 1s linear infinite;"></i> -->
+<!-- 		<span>댓글 로딩중</span>	 -->
+<!-- 	</div> -->
 	<div id=content-for-footer>
 		<div class="container" id="container">
 			<div class="card">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
-							<i class="bi bi-journal-richtext">댓글 </i>
+							<i class="bi bi-journal-richtext"></i>
+							<span class="hearder">댓글</span>
 							<span th:utext="'&nbsp;'"></span>
 							<span th:text=${totalCount}></span>
 				    	</a>
 					</li>
 				</ul>				
+				<div id="replyListContainer">
 				<div th:each="reply, rowStat : ${replyList}" class="replyList">
 					<div class="card-body replyCard">
 						<div>
@@ -773,9 +861,9 @@
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 							<span class="replyNickname" th:text="${reply.nickname}" th:data-reply-userid="${reply.userId}"></span>
 							<span th:if="${reply.subscriptionEndDate =='1'}">
-								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}">
 							</span>
-							<i class="bi bi-three-dots" style="float: right;"></i>
+							<i class="bi bi-three-dots"></i>
 						</h6>
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span>
@@ -784,26 +872,27 @@
 							</span>
 						</h4>
 						<h6>	
-							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
+							<span class="dislikeCount" th:text="${reply.dislikeCount}"></span>			
 				            <span>
 	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike"></i>
 	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike"></i>  
 	  						</span>		
-							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px"></span>
+							<span class="likeCount" th:text="${reply.likeCount}"></span>
 				            <span>
 					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike"></i>
 					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike"></i>
 				            </span>								
-							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
-							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
-							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
+							<span class="recordNo" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
+							<span class="replyNo" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
+							<span class="userId" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
 						</h6>
 						<h6>
-							<span th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
+							<span class="replyDate" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
 						</h6>
 						</div>
 					</div>
-				</div>	
+				</div>
+			</div>		
 			</div>	
 			<div class="separator"></div>							
 		</div>
@@ -814,12 +903,12 @@
 					<fieldset id="replyField">
 						<div>
 							<label for="replyText" class="form-label mt-2">댓글 내용</label>
-							<textarea id="replyText" name="replyText" class="form-control" style ="height : 40px;" 
+							<textarea id="replyText" name="replyText" class="form-control" 
 								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
 						</div>
 						<div>
 							<label for="replyImageName" class="form-label mt-2"></label>
-							<input type="file" id="replyImageName" name="replyImageName" class="form-control" onchange="previewImage(this)">
+							<input type="file" id="replyImageName" name="replyImageName" class="form-control" onchange="previewImage(this)" accept="image/jpg, image/jpeg, image/png, image/gif">
 							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
@@ -873,7 +962,7 @@
 								</div>
 								<div>
 									<label for="updateReplyImageName" class="form-label mt-2"></label>
-									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
+									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control" accept="image/jpg, image/jpeg, image/png, image/gif">
 									<input type="hidden" id="currentReplyImageName" name="currentReplyImageName"> 
 									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 									<input type="hidden" id="userId" th:value="${userId}">
@@ -887,7 +976,6 @@
 				</div>
 			</div>
 		</div>
-		
 	</div>
 	<div th:replace="common/footer::defaultFooter"></div>	
 </body>			
