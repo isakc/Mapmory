@@ -208,6 +208,24 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
+	public Map<String, Object> getUnConfirmReportList(Search search) throws Exception {
+
+		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
+	    search.setOffset(offset);
+	    search.setLimit(search.getPageSize());			
+		
+	    List<Object> list = communityDao.getUnConfirmReportList(search);
+		int totalCount = communityDao.getAdminReportTotalCount(search);
+		int unConfirmCount = communityDao.getUnConfirmReportTotalCount(search);
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("list", list);
+		map.put("totalCount", Integer.valueOf(totalCount));
+		map.put("unConfirmCount", Integer.valueOf(unConfirmCount));
+		return map;
+	}
+	
+	@Override
 	public Report getReport(int reportNo) throws Exception {
 		return communityDao.getReport(reportNo);
 	}
@@ -266,6 +284,8 @@ public class CommunityServiceImpl implements CommunityService {
 	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception {
 		communityDao.deleteCommunityLogs(communityLogs);
 	}
+
+
 
 
 

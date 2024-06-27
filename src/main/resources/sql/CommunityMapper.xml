@@ -100,7 +100,7 @@
 	SELECT *,
 			(SELECT nickname FROM users u WHERE u.USER_ID = r.USER_ID) AS nickname,
 			(SELECT profile_image_name FROM users u WHERE u.USER_ID = r.USER_ID) AS profileImageName,
-			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.USER_ID) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
+			CASE WHEN (SELECT subscription_end_date FROM subscription s WHERE s.USER_ID = r.USER_ID ORDER BY subscription_end_date DESC LIMIT 1) > CURRENT_DATE THEN 1 ELSE 0 END AS subscriptionEndDate,
 			(SELECT user_id FROM users u WHERE u.user_id = r.user_id)
 		FROM reply r
 		WHERE reply_no = #{replyNo}
@@ -310,8 +310,8 @@
 	<select id="getUnConfirmReportList" parameterType="search" resultMap="reportSelectMap">
 		SELECT *
 		FROM report
+		WHERE report_status = 1
 		ORDER BY report_no DESC
-		WHERE reportStatus = 1
  		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 
