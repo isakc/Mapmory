@@ -205,10 +205,9 @@
     font-size: 20px;
 }
 
-#open-chat-button {
-		position: fixed;
-    /* bottom: 75px;
-    right: 20px; */
+ #open-chat-button {
+		position: relative;
+
     background-color: #0084ff;
     color: #fff;
     border: none;
@@ -223,12 +222,12 @@
     transition: all 0.3s ease;
     font-size: 1.7rem;
     z-index: 999;
-}
+} 
 
 #open-chat-button:hover {
     transform: scale(1.1);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
+}  
 
 .hidden {
     display: none;
