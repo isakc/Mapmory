@@ -328,7 +328,7 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimelineList(model, null, null,request);
+		return "redirect:timeline/getTimelineList";
 	}
 	
 	@GetMapping("getTimecapsuleList")
@@ -499,9 +499,17 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimecapsuleList(model, request);
+		return "redirect:/timeline/getTimecapsuleList";
 	}
 	
+	@GetMapping("getKeywordList")
+	public String getKeywordList(Model model,
+			HttpServletRequest request
+			) throws Exception,IOException {
+		String userId = redisUtil.getSession(request).getUserId();
+		timelineService.getKeywordList(userId);
+		return "timeline/getKeywordList";
+	}
 	@GetMapping("addVoiceToText")
 	public String addVoiceToText() throws Exception,IOException {
 		return "timeline/addVoiceToText";
