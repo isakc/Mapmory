@@ -66,11 +66,14 @@ import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
 import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
+import com.mapmory.services.user.service.UserServiceJM;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
 	
+	@Autowired
+	private UserServiceJM userServiceJm;
 	@Autowired
 	@Qualifier("userServiceImpl")
 	private UserService userService;
@@ -688,11 +691,11 @@ public class UserController {
 	///////////////////////////////////////////////////////////////////////
 	
 	@GetMapping("/kakaoCallback")
-    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response, HttpServletRequest request) throws Exception {
+    public String kakaoLogin(@RequestParam(value = "code", required = false) String code, HttpServletResponse response, HttpServletRequest request, Model model) throws Exception {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
-            String kakaoId = userService.getKakaoUserInfo(accessToken);
+            HashMap<String, Object> kakaoUserInfo = userServiceJm.getKakaoUserInfo(accessToken);
             
             /*
             if (kakaoId == null) {
@@ -700,7 +703,9 @@ public class UserController {
             }
             */
             
+            String kakaoId = (String) kakaoUserInfo.get("kakaoId");
             String userId = userService.getUserIdBySocialId(kakaoId);
+            
             // 소셜 로그인 연동 정보가 없는 경우
             if (userId == null) {
             	
@@ -735,6 +740,7 @@ public class UserController {
                     Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
                     response.addCookie(cookie);
                     
+                    model.addAttribute("socialUserInfo", kakaoUserInfo);
                     // response.sendRedirect("/user/getAgreeTermsAndConditionsList");
                     return "redirect:/user/getAgreeTermsAndConditionsList"; // 회원 가입 페이지로 리다이렉트
     	    	}	
