@@ -18,17 +18,17 @@ public class SubscriptionScheduler {
 	@Autowired
 	private ProductService productService;
 
-	@Scheduled(cron = "0 0 0 * * *") //매일 자정에 실행
+	@Scheduled(cron = "0 */5 * * * *") 
 	public void processSubscriptions() throws Exception {
 		List<Subscription> subscriptions = subscriptionService.getTodaySubscriptionList(); // 오늘 구독 결제일인 레코드 리스트
 		
 		for (Subscription subscription : subscriptions) {
 			try {
 				Subscription updatedSubscription = updateSubscription(subscription);
+                subscriptionService.cancelSubscription(subscription.getUserId());
 				
                 subscriptionService.schedulePay(updatedSubscription, productService.getSubscription());
                 subscriptionService.addSubscriptionFromScheduler(updatedSubscription);
-                
 			} catch (Exception e) {
 				e.printStackTrace(); //결제 실패 처리 로직
 			}//try~catch
@@ -36,12 +36,11 @@ public class SubscriptionScheduler {
 	}//processSubscriptions: 매일 자정 결제일인 실행
 	
 	private Subscription updateSubscription(Subscription subscription) {
-		LocalDateTime now = LocalDateTime.now();
 		
-        subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + now);
-        subscription.setSubscriptionStartDate(now);
-        subscription.setSubscriptionEndDate(now.plusMonths(1));
-        subscription.setNextSubscriptionPaymentDate(now.plusMonths(1));
+        subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
+        subscription.setSubscriptionStartDate(subscription.getSubscriptionEndDate());
+        subscription.setSubscriptionEndDate(subscription.getSubscriptionEndDate().plusMinutes(5));
+        subscription.setNextSubscriptionPaymentDate(subscription.getSubscriptionEndDate());
         
         return subscription;
     }//updateSubscription: merchantUid, 결제일, 구독 시작일, 구독 종료일 업데이트

@@ -53,7 +53,10 @@ function setMarkers(contentList) {
         hideResultDivs();
         
 		$(".mapButton").removeClass('on');
-		resultDivsBtn.addClass('on');
+		if(recordList.length!=0){
+			resultDivsBtn.addClass('on');	
+		}
+		
     });// 맵을 클릭한 경우 해제 시키기
 }
 	
