@@ -62,7 +62,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public boolean addSubscription(Purchase purchase, Product product) throws Exception{
     	IamportResponse<Payment> returnPayment = iamportClient.paymentByImpUid(purchase.getImpUid());
     	int paymentMethod = PurchaseUtil.paymentChangeToInt(returnPayment.getResponse().getPgProvider());
-    	LocalDateTime paidAt = LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.systemDefault());
+    	LocalDateTime paidAt = LocalDateTime.ofInstant(returnPayment.getResponse().getPaidAt().toInstant(), ZoneId.of("Asia/Seoul"));
     	
     	Subscription subscription = Subscription.builder()
     								.userId(purchase.getUserId())
