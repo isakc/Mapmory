@@ -30,7 +30,7 @@ public class Record {
 	private String checkpointAddress;
 	private String checkpointDate;
 	private String mediaName;
-	private List<Map<String,Object>> imageTagList;
+	//private List<ImageTag> imageTagList;
 	private List<ImageTag> imageName;
 	private List<ImageTag> hashtag;
 	private int categoryNo;
