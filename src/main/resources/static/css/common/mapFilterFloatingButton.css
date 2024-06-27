@@ -1,0 +1,296 @@
+@charset "UTF-8";
+
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+ @-webkit-keyframes map-come-in {
+  0% {
+    -webkit-transform: translateY(-5px);
+            transform: translateY(-5px);
+    opacity: 0; 
+  }
+  30% {
+    -webkit-transform: translateY(0px) ;
+            transform: translateY(0px) ;
+  }
+  70% {
+    -webkit-transform: translateY(5px);
+            transform: translateY(5px);
+  }
+  100% {
+    -webkit-transform: translateY(10px) ;
+            transform: translateY(10px) ;
+    opacity: 1;
+  }
+}  
+@keyframes ma-come-in {
+  0% {
+    -webkit-transform: translateY(-5px);
+            transform: translateY(-5px);
+    opacity: 0; 
+  }
+  30% {
+    -webkit-transform: translateY(0px) ;
+            transform: translateY(0px) ;
+  }
+  70% {
+    -webkit-transform: translateY(5px);
+            transform: translateY(5px);
+  }
+  100% {
+    -webkit-transform: translateY(10px) ;
+            transform: translateY(10px) ;
+    opacity: 1;
+  }
+}
+* {
+  margin: 0;
+}
+
+
+
+.map-floating-container {
+  position: fixed;
+  width: 9vh;
+  height:0;
+/*   height: 1vh; */
+	z-index:1000;
+  top: 150px;
+  right: 10vh;
+/*   right: 0; */
+  margin: 0;
+}
+.map-floating-container:hover { 
+  height: 250px; /* -값 주면 아래로 내려옴 */
+}
+.map-floating-container:hover .map-floating-button {
+  box-shadow: 0 10px 25px rgba(44, 179, 240, 0.6);
+  -webkit-transform: translatey(-5px);
+          transform: translatey(-5px);
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.map-floating-container:hover .map-element-container .map-float-element:nth-child(3) {
+  -webkit-animation: map-come-in 0.4s forwards 0.2s;
+          animation: map-come-in 0.4s forwards 0.2s;
+}
+.map-floating-container:hover .map-element-container .map-float-element:nth-child(2) {
+  -webkit-animation: map-come-in 0.4s forwards 0.4s;
+          animation: map-come-in 0.4s forwards 0.4s;
+}
+.map-floating-container:hover .map-element-container .map-float-element:nth-child(1) {
+  -webkit-animation: map-come-in 0.4s forwards 0.6s;
+          animation: map-come-in 0.4s forwards 0.6s;
+}
+
+.map-element-container {
+	display: none;
+}
+
+.map-floating-container:hover .map-element-container {
+	top: 0;
+	display: block;
+}
+
+.map-floating-container .map-floating-button {
+	font-family: "Font Awesome 5 Free";
+  font-weight: 600;
+  font-size: 18px;
+  position: absolute;
+  width: 100px;
+  height: 30px;
+  background: #2cb3f0;
+  top: 0;
+  border-radius: 10px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  color: white;
+  line-height: 30px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(44, 179, 240, 0.6);
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.map-floating-container .map-float-element {
+	top: -20px;
+  position: relative;
+  display: block;
+  border-radius: 10px;
+  width: 0;
+  height: 0;
+  margin-top: 40px;
+  
+  color: white;
+  font-weight: 500;
+  text-align: center;
+  line-height: 30px;
+  z-index: 0;
+  opacity: 0;
+  -webkit-transform: translateY(100px);
+          transform: translateY(100px);
+}
+.map-floating-container .map-float-element .map-floating-material-icons {
+  vertical-align: middle; 
+  font-size: 16px;
+}
+
+
+.map-floating-container .map-float-element:nth-child(1) {
+  /* background: #28A745; */
+  box-shadow: 0 20px 20px -10px #28A745;
+}  
+.map-floating-container .map-float-element:nth-child(2) {
+  background: #007BFF;
+  box-shadow: 0 20px 20px -10px #007BFF;
+}
+.map-floating-container .map-float-element:nth-child(3) {
+  background: #6F42C1;
+  box-shadow: 0 20px 20px -10px #6F42C1;
+} 
+/* ==================== */
+/*       체크박스 css      
+/* ==================== */
+
+/* .container {
+		body
+	  display: flex;
+    align-items: center;
+    justify-content: center;
+   
+    background: #FFEFBA;
+    fallback for old browsers
+    background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA);
+    Chrome 10-25, Safari 5.1-6
+    background: linear-gradient(to right, #FFFFFF, #FFEFBA);
+    W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+
+    
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+} */
+
+ul.ks-cboxtags {
+    list-style: none;
+    padding: 0;
+}
+ul.ks-cboxtags li{
+	list-style-type : none;
+  display: inline;
+}
+ul.ks-cboxtags li label{
+    display: inline-block;
+    background-color: rgba(255, 255, 255, .9);
+    border: 2px solid rgba(139, 139, 139, .3);
+    color: #adadad;
+    border-radius: 25px;
+    white-space: nowrap;
+    margin: 3px 0px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s;
+}
+
+ul.ks-cboxtags li label {
+    /* padding: 8px 12px; */
+    cursor: pointer;
+    width: 100px;
+}
+
+ul.ks-cboxtags li label::before {
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 12px;
+    padding: 2px 6px 2px 2px;
+    content: "\f067";
+    transition: transform 0.3s ease-in-out;
+}
+
+/* 1번 체크박스 (public) */
+ul.ks-cboxtags li input[type="checkbox"]:checked.pubCheck + label::before {
+    content: "\f00c";
+    transform: rotate(-360deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+ul.ks-cboxtags li input[type="checkbox"]:checked.pubCheck + label {
+    border: 2px solid #28A745;
+    background-color: #28A745;
+    color: #fff;
+    transition: all 0.2s;
+}
+
+ul.ks-cboxtags li input[type="checkbox"].pubCheck {
+  display: absolute;
+}
+ul.ks-cboxtags li input[type="checkbox"].pubCheck {
+  position: absolute;
+  opacity: 0;
+}
+
+.pubCheck {
+	display: none;
+}
+
+
+/* 2번 체크박스 (private) */
+ul.ks-cboxtags li input[type="checkbox"]:checked.priCheck + label::before  {
+    content: "\f00c";
+    transform: rotate(-360deg);
+    transition: transform .3s ease-in-out;
+}
+
+ul.ks-cboxtags li input[type="checkbox"]:checked.priCheck + label  {
+    border: 2px solid #007BFF;
+    background-color: #007BFF;
+    color: #fff;
+    transition: all .2s;
+}
+
+ul.ks-cboxtags li input[type="checkbox"].priCheck {
+  display: absolute;
+}
+ul.ks-cboxtags li input[type="checkbox"].priCheck {
+  position: absolute;
+  opacity: 0;
+}
+
+
+/* 3번 체크박스 (follow) */
+ul.ks-cboxtags li input[type="checkbox"]:checked.followCheck + label::before {
+    content: "\f00c";
+    transform: rotate(-360deg);
+    transition: transform .3s ease-in-out;
+}
+
+ul.ks-cboxtags li input[type="checkbox"]:checked.followCheck + label {
+    border: 2px solid #6F42C1;
+    background-color: #6F42C1;
+    color: #fff;
+    transition: all .2s;
+}
+
+ul.ks-cboxtags li input[type="checkbox"].followCheck {
+  display: absolute;
+}
+ul.ks-cboxtags li input[type="checkbox"].followCheck {
+  position: absolute;
+  opacity: 0;
+}
+
+
+ul.ks-cboxtags li input[type="checkbox"]:focus + label {
+  border: 2px solid #e9a1ff;
+}
+
+

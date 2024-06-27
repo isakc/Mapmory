@@ -20,7 +20,7 @@
         </div>
     </div>
 	<div class="floating-container">
-  <div class="floating-button">+</div>
+  <div class="floating-button" id="myDraggableBtn">+</div>
   <div class="element-container">
 
     <!-- <a href="google.com"> 
@@ -32,15 +32,18 @@
     	<div class="float-badge" id="unreadCount">0</div>
       <i class="material-icons floating-material-icons" id="chatList">chat</i>
     </span>
-    <span class="float-element">
     
-    <button id="open-chat-button">&#129302;</button>
+    <span class="float-element" id="open-chat-button">
+    	<button id="open-chat-button">&#129302;</button>
     </span>
   </div>
 </div>
 
 <script type="text/javascript">
 	$(function() {
+		
+
+		
 		$.getScript('https://cdn.socket.io/4.0.0/socket.io.min.js');
 		
 		
@@ -193,7 +196,7 @@
                 console.error("Error:", error);
             });
     });
-
+	
     function openChat() {
         document.getElementById("chat-container").style.display = "flex";
         document.getElementById("open-chat-button").style.display = "none";

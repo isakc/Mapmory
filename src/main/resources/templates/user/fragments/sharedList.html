@@ -70,11 +70,18 @@
         isLoading = true; // 로딩 시작
         // console.log("shared loading end : "+ isLoading);
         
+        const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#sharedRecordList').append(loadingView);
+	    
+	    
     	console.log("currentPage = " +sharedListCurrentPage);
         // console.log('is sharedList ended? ' +sharedListEndOfData);
     	if(sharedListEndOfData == true) {
 
   		  console.log('all finished');
+  		  $('#sharedRecordList #loading').remove();
   		  return;
   		  
   	  	} 
@@ -100,6 +107,7 @@
     		    	  if(response.timelineList.length == 0) {
     		      		  
     		      		  sharedListEndOfData = true;
+    		      		  $('#sharedRecordList #loading').remove();
     		      		  resolve("I think it's end");
     		      		  // return;
     		      		  
@@ -169,6 +177,8 @@
     			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
     			    		  temp += '</div>';
     		    		  temp += '<hr/>';
+    		    		  
+    		    		  $('#sharedRecordList #loading').remove();
     		    		  $('#sharedRecordList').append(temp);
 
     		    	  });		

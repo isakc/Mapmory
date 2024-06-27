@@ -26,9 +26,9 @@ public interface TimelineDao {
 	
 	public void insertImageTag(Map<String,Object> map) throws Exception;
 	//resultmap collection 사용 시 Map으로만 묶어짐
-	public Map<String, Object> selectDetailTimeline(int recordNo) throws Exception;
+	public Record selectDetailTimeline(int recordNo) throws Exception;
 	
-	public List<Map<String, Object>> selectTimelineList(Search search) throws Exception;
+	public List<Record> selectTimelineList(Search search) throws Exception;
 	
 	public int selectTimelineCount(Search search) throws Exception;
 	

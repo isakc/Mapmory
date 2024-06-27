@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -585,7 +586,7 @@ public class UserServiceImpl implements UserService {
 				
 				System.out.println("filePath : " + filePath);
 				TermsAndConditions temp = getDetailTermsAndConditions(filePath.toString());
-				System.out.println("tac : " + temp);
+				// System.out.println("tac : " + temp);
 				
 				if(temp == null)
 					throw new NullPointerException("TermsAndConditions 객체를 받지 못했습니다...");
@@ -1036,6 +1037,7 @@ public class UserServiceImpl implements UserService {
 		
 	}
 	
+	/*
 	@Override
 	public NaverProfile getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException {
 		
@@ -1064,8 +1066,57 @@ public class UserServiceImpl implements UserService {
 	    
 	    return result.getResponse();
 	}
+	*/
 	
-	
+	@Override
+	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
+		
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("grant_type","authorization_code");
+	    params.add("client_id", naverClientId);
+	    params.add("client_secret", naverClientSecret);
+	    params.add("code", code);
+	    params.add("state", state);
+	    
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.add("Authorization", "Bearer "+ accessToken);
+	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+	    HttpEntity<MultiValueMap<String, String>> naverProfileRequest = new HttpEntity<>(headers);
+	    
+	    RestTemplate rt = new RestTemplate();
+	    ResponseEntity<String> profileResponse = rt.exchange(
+		    profileRequestUrl,
+		    HttpMethod.POST,
+		    naverProfileRequest,
+		    String.class
+	    );
+	    
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    NaverProfileResponse result = objectMapper.readValue(profileResponse.getBody(), NaverProfileResponse.class);
+	    
+	    NaverProfile profileInfo =  result.getResponse();
+	    
+	    String birthYear =  profileInfo.getBirthyear(); 
+    	String birthOnlyDay = profileInfo.getBirthday();
+    	// LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	    Date birthday = dateFormat.parse(birthYear + "-" + birthOnlyDay);
+    	
+    	String[] temp = profileInfo.getMobile().split("-");
+    	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
+		
+    	
+    	
+    	Map<String, Object> map = new HashMap<>();
+    	map.put("email", profileInfo.getEmail());
+        map.put("gender", profileInfo.getGender());
+        map.put("name", profileInfo.getName());
+        map.put("birthday", birthday);
+        map.put("phoneNumber", phoneNumber);
+        map.put("id", profileInfo.getId());
+	    
+	    return map;
+	}
 	
 	@Override
 	public String generateSecondAuthKey() {
@@ -1325,8 +1376,10 @@ public class UserServiceImpl implements UserService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
+
             sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
             //sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());
@@ -1427,10 +1480,7 @@ public class UserServiceImpl implements UserService {
             socialUserInfo.setGender(kakaoGender);
             socialUserInfo.setBirthday(kakaoDatE);
             socialUserInfo.setId(kakaoId);
-            
-            
-            System.out.println("서비스 에서 카카오인포 : : : : :: : " + socialUserInfo);
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }

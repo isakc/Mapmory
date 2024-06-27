@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,7 +95,7 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
-	private RedisUtil<Map> redisUtilMap;
+	private RedisUtil<Map<String, Object>> redisUtilMap;
 	
 	@Autowired
 	private RedisUtil<String> redisUtilString;
@@ -521,9 +523,14 @@ public class UserController {
 		System.out.println("Flag");
 		
 	    NaverAuthToken token = userService.getNaverToken(code, state);
-	    NaverProfile profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
+	    Map<String, Object> profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
 	    
-	    String naverId = profileInfo.getId();
+	    // System.out.println("naver profile:: " + profileInfo);
+	    
+	    // String naverId = profileInfo.getId();
+
+	    String naverId = (String) profileInfo.get("id");
+	    
 	    String userId = userService.getUserIdBySocialId(naverId);
 	    
 	    System.out.println("naver 소셜 연동이 된 사용자? " + userId);
@@ -553,7 +560,10 @@ public class UserController {
 	    		System.out.println("신규 회원입니다. 회원가입 페이지로 이동합니다.");
 		    	String uuid = UUID.randomUUID().toString();
 	        	String keyName = "n-"+uuid;
-	            redisUtilString.insert(keyName, naverId, 10L); 
+	        	
+	        	redisUtilString.insert(keyName, naverId, 10L);
+	        	redisUtilMap.insert(keyName, profileInfo, 10L);
+	        	
 	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
 	            response.addCookie(cookie);
 		    	
@@ -711,7 +721,9 @@ public class UserController {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
+
             SocialUserInfo socialUserInfo = userService.getKakaoUserInfo(accessToken);
+
             
             /*
             if (kakaoId == null) {
@@ -752,7 +764,9 @@ public class UserController {
     	    		// 신규 : 회원가입 페이지로 이동
                 	String uuid = UUID.randomUUID().toString();
                 	String keyName = "k-"+uuid;
+
                 	redisUtilSocialUserInfo.insert(keyName, socialUserInfo, 10L);
+
                     Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
                     response.addCookie(cookie);
                     

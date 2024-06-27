@@ -9,11 +9,19 @@
 	<link rel="stylesheet" href="/css/common/mapmory-color.css"  >
 	<title>팔로워 목록</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	
 	<style>
 		a {
 			color: inherit;
 			text-decoration: none;
 		}
+		
+		.loading {
+            text-align: center;
+            padding: 20px;
+            /*display: none;*/
+        }
 	</style>
 
 
@@ -201,7 +209,7 @@
 	    let windowHeight = $(window).height();
 	    let documentHeight = $(document).height();
 
-	    if (documentHeight <= windowHeight + 200) {
+	    if (documentHeight <= windowHeight) {
 	    	
 	    	// console.log('setup start');
 	    	loadMoreList().then((value)=> {
@@ -224,13 +232,17 @@
 		
 		  
 	    isLoading = true; // 로딩 시작
-	    // console.log("shared loading end : "+ isLoading);
+	    const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#list-contents').append(loadingView);
 	    
 		console.log("currentPage = " + listCurrentPage);
 	    // console.log('is sharedList ended? ' +sharedListEndOfData);
 		if(listEndOfData == true) {
 
 		  console.log('all finished');
+		  $('#list-contents #loading').remove();
 		  return;
 		  
 	  	} 
@@ -247,9 +259,10 @@
 
 			    	  // console.log(response);
 
-			    	  if(response.length == 0) {
+			    	  if(response.followerList.length == 0) {
 			      		  
 			      		  listEndOfData = true;
+			      		$('#list-contents #loading').remove();
 			      		  resolve("I think it's end");
 			      		  // return;
 			      		  
@@ -300,7 +313,9 @@
 				    	            </div>
 				    	        </div>
 				    	        <hr/>
-			    	    			`;		    		  
+			    	    			`;		    	
+			    	    			
+	    	    			$('#list-contents #loading').remove();
 			    		  $('#list-contents').append(temp);
 	
 			    	  });		

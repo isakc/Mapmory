@@ -158,7 +158,7 @@
 			</tbody>
 		</table>
 		<button type="button" id="toggleReports" class="btn btn-outline-dark" onclick="toggleUnconfirmedReports()">
-			<span th:text="${unconfirmedOnly ? '모든 신고' : '미처리 신고'}"></span> 
+			<span th:text="${unconfirmedOnly ? '모든 신고 조회' : '미처리 신고 조회'}"></span> 
 		</button>	
 	</div>
 	<div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/community/getAdminReportList')}"></div>	

@@ -240,7 +240,9 @@ public class TimelineController {
 		record=timelineUtil.imageNameToByte(record);
 		record=timelineUtil.imojiNameToByte(record);
 		record=timelineUtil.mediaNameToByte(record);
-		record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
+			record.setRecordText(textToImage.processImageTags(record.getRecordText()));
+		}
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);

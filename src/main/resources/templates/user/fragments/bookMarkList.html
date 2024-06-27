@@ -75,9 +75,14 @@
 		console.log("currentPage = " + bookMarkListCurrentPage);
     	
     	isLoading = true; // 로딩 시작
+    	const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#bookMarkList').append(loadingView);
 		
     	if(bookMarkListEndOfData == true) {
 
+          $('#bookMarkList #loading').remove();
   		  console.log('no more');
   		  return;
   		  
@@ -94,6 +99,7 @@
 			    	  if(response.timelineList.length == 0) {
 			    		  
 			    		  bookMarkListEndOfData = true;
+			    		  $('#bookMarkList #loading').remove();
 			    		  resolve("I think it's end");
 			    		  // return;
 			    		  // resolve("contents ended");
@@ -150,6 +156,8 @@
 				    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 				    		  temp += '</div>';
 			    		  temp += '<hr/>';
+			    		  
+			    		  $('#bookMarkList #loading').remove();
 			    		  $('#bookMarkList').append(temp);
 			    	
 			    	  });

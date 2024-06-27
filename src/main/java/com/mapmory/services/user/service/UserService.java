@@ -3,6 +3,7 @@ package com.mapmory.services.user.service;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -253,7 +254,8 @@ public interface UserService {
 	
 	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
-	public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
+	// public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
+	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
 	
 	public String generateSecondAuthKey();
 	
