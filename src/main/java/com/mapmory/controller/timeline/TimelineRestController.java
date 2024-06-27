@@ -2,6 +2,7 @@ package com.mapmory.controller.timeline;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +25,11 @@ import com.mapmory.common.util.ClovaSpeechClient;
 import com.mapmory.common.util.ClovaSpeechClient.NestRequestEntity;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.service.TimelineService;
+import com.mapmory.services.user.service.UserService;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.TimelineUtil;
 
@@ -59,6 +62,10 @@ public class TimelineRestController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
+	
+	@Autowired
+	// @Qualifier("userService")
+	private UserService userService;
 	
 	@Autowired
 	private TimelineUtil timelineUtil;
@@ -240,7 +247,6 @@ public class TimelineRestController {
 	}
 	
 	// 대민 지원
-	// 개수도 주세요
 	/**
 	 * 
 	 * @param map
@@ -265,11 +271,50 @@ public class TimelineRestController {
 				.limit(pageSize)
 				.currentPage(currentPage)
 				.logsType(logsType).build();
-		map.put("timelineList", timelineService.getProfileTimelineList(search));
+		
+		List<Map<String, Object>> resultMap =  timelineService.getProfileTimelineList(search);
+		
+		map.put("timelineList", resultMap);
 		// map.put("count", timelineService.getProfileTimelineCount(search));
 		
-		// System.out.println(map);
+		List<String> recordImageList = new ArrayList<>();
+		List<String> categoryEmojiList = new ArrayList<>();
+		for(Map<String, Object> m : resultMap) {
+			
+			System.out.println("result : " + m);
+			System.out.println( ((List)m.get("imageName")) );
+			
+			// 어차피 이미지는 하나만 사용할 예정
+			// String imageName = ((ImageTag) ((List)m.get("imageName")).get(0)).getImageTagText();
+			List<ImageTag> imageNameTempList = ((List)m.get("imageName"));
+			String categoryEmojiName = (String) m.get("categoryImoji");
+			
+			if( !imageNameTempList.isEmpty()) {
+				
+				String imageName = imageNameTempList.get(0).getImageTagText();
+				String base64Image =  userService.getImage("thumbnail", imageName);
+				// System.out.println("변환한 기록 이미지 : " + base64Image);
+				recordImageList.add(base64Image);	
+			}
+			
+			if(categoryEmojiName != null) {
+				
+				String base64Image = userService.getImage("emoji", categoryEmojiName);
+				// System.out.println("변환한 카테고리 이미지 : " + base64Image);
+				categoryEmojiList.add(base64Image);
+			}
+				
+		}
 		
+		/*
+		System.out.println("============");
+		System.out.println(recordImageList);
+		System.out.println(categoryEmojiList);
+		System.out.println("============");
+		*/
+		
+		map.put("recordImageList", recordImageList);
+		map.put("categoryEmojiList", categoryEmojiList);
 		return ResponseEntity.ok(map);
 	}
 

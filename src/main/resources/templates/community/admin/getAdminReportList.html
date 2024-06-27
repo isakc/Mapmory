@@ -32,6 +32,49 @@
     });
 	</script>
 	
+	<script th:inline="javascript">
+	function toggleUnconfirmedReports() {
+	    var form = document.getElementById('reportForm');
+	    var unconfirmedOnlyInput = document.getElementById('unconfirmedOnly');
+	    var currentValue = unconfirmedOnlyInput.value === 'true';
+	    unconfirmedOnlyInput.value = !currentValue;
+	    form.submit();
+	}
+	
+	// 페이지 네비게이션 함수 수정 (기존 함수가 있다면)
+	function fncGetList(currentPage) {
+	    var form = document.getElementById('reportForm');
+	    document.getElementById("currentPage").value = currentPage;
+	    form.submit();
+	}
+	</script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var unconfirmedOnly = document.getElementById('unconfirmedOnly').value;
+
+        // 모든 페이지네이션 링크를 가져오기
+        var paginationLinks = document.querySelectorAll('.pagination a');
+
+        paginationLinks.forEach(function(link) {
+            // 현재 URL에서 href 값을 가져오기
+            var href = link.getAttribute('href');
+
+            // href 값에 unconfirmedOnly 파라미터 추가
+            if (href.indexOf('?') !== -1) {
+                href += '&unconfirmedOnly=' + unconfirmedOnly;
+            } else {
+                href += '?unconfirmedOnly=' + unconfirmedOnly;
+            }
+
+            // href 값을 수정된 URL로 설정
+            link.setAttribute('href', href);
+        });
+    });
+    </script>
+
+
+	
 	<style>
 		th, td {
 			text-align : center;
@@ -39,10 +82,13 @@
 		
 		.unConfirmCount {
 			font-weight: bold;
+			float : right;
+			margin-left: 10px;	
 		}
 	
 		.reportCount {
 			font-weight: bold;
+			float : right;
 		}	
 	
 		#navi {
@@ -70,15 +116,16 @@
 				<a class="nav-link active">
 		    		<i class="bi bi-card-list"></i>
 		    		<span class="header">사용자 신고 목록 조회</span> 
-	                <span class="unConfirmCount" th:text="'미처리된 신고 : '+${unConfirmCount}+'건'" style="float: right; margin-left: 10px;"></span>			    		
-    		        <span class="reportCount" th:text="'전체 신고 : '+${totalCount}+'건'" style="float: right;"></span>
+	                <span class="unConfirmCount" th:text="'미처리된 신고 : '+${unConfirmCount}+'건'"></span>			    		
+    		        <span class="reportCount" th:text="'전체 신고 : '+${totalCount}+'건'"></span>
 		    	</a>
 			</li>
 		</ul>		
 		</div>
 
-        <form id="reportForm" th:action="@{/community/admin/getAdminReportList}" method="post">
-            <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}" />
+        <form id="reportForm" th:action="@{/community/getAdminReportList}" method="get">
+            <input type="hidden" id="currentPage" name="currentPage" th:value="${resultPage.currentPage}">
+            <input type="hidden" id="unconfirmedOnly" name="unconfirmedOnly" th:value="${unconfirmedOnly != null ? unconfirmedOnly : false}">            
         </form>		
 		
 		<table id="reportTable" class="table table-hover">
@@ -110,7 +157,9 @@
 				</tr>
 			</tbody>
 		</table>
-		<button type="button" id="unConfirm" class="btn btn-outline-dark">미처리 신고</button>	
+		<button type="button" id="toggleReports" class="btn btn-outline-dark" onclick="toggleUnconfirmedReports()">
+			<span th:text="${unconfirmedOnly ? '모든 신고' : '미처리 신고'}"></span> 
+		</button>	
 	</div>
 	<div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/community/getAdminReportList')}"></div>	
 </body>	
