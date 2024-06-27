@@ -68,8 +68,8 @@
 				<div class="toggle-container">
   					<div class="toggle-switch" id="toggle-switch"></div>
 				</div><!-- 토글버튼 -->
-
-				<div class="checkbox-container" id="checkboxGroup">
+					
+				<!-- <div class="checkbox-container" id="checkboxGroup">
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" id="private" checked>
 					</div>
@@ -81,7 +81,7 @@
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" id="follow" checked>
 					</div>
-				</div>
+				</div> -->
 
 				<div class="justify-content-end d-flex">
 					<div class="btn btn-light rounded-circle" onclick="getCurrentLocation()"><i class="fas fa-crosshairs"></i></div>
@@ -95,6 +95,7 @@
 		
 		<div class="footer-map">
 			<div th:include="~{ 'common/floatingButton.html' }"></div>
+			<div th:include="~{ 'common/mapFilterFloatingButton.html' }"></div>
 			<div th:replace="common/footer::defaultFooter"></div>
 		</div>
 	</div>

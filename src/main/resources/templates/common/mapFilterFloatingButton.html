@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div class="map-floating-container">
+  <div class="map-floating-button" id="myDraggableBtn">Filter▼</div>
+  <div class="map-element-container">
+
+    <ul class="ks-cboxtags">
+    	<li>
+    		<span class="map-float-element">
+   				<input type="checkbox" class="pubCheck" id="public" checked>
+    			<label for="public">public</label>
+    		</span>
+ 			</li>
+   
+    	<li>
+    		<span class="map-float-element">
+   				<input type="checkbox" class="priCheck" id="private" checked>
+    			<label for="private">private</label>
+    		</span>
+ 			</li>
+  
+    	<li>
+    		<span class="map-float-element">
+   				<input type="checkbox" class="followCheck" id="follow" checked>
+    			<label for="follow">follow</label>
+    		</span>
+ 			</li>
+    </ul>
+   	
+    
+   
+    
+  </div>
+</div>
+
+<script type="text/javascript">
+ $(function() {
+	 $('<link>')
+			.appendTo('head')
+			.attr({
+				type: 'text/css',
+				rel: 'stylesheet',
+				href: '/css/common/mapFilterFloatingButton.css'
+	 });
+ })
+</script>
+
+</body>
+</html>
