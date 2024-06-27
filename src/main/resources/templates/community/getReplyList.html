@@ -13,6 +13,52 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<!-- 이미지 로딩 처리 -->
+	<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        var replyListContainer = document.getElementById('replyListContainer');
+        var replyItems = replyListContainer.getElementsByClassName('replyList');
+        
+        function loadImages(index) {
+            if (index >= replyItems.length) return;
+
+            var replyItem = replyItems[index];
+            var images = replyItem.getElementsByTagName('img');
+            var loadedImages = 0;
+            var totalImages = images.length;
+
+            function imageLoaded() {
+                loadedImages++;
+                if (loadedImages === totalImages) {
+                    replyItem.style.opacity = '1';
+                    loadImages(index + 1);
+                }
+            }
+
+            if (totalImages > 0) {
+                for (var i = 0; i < images.length; i++) {
+                    if (images[i].complete) {
+                        imageLoaded();
+                    } else {
+                        images[i].addEventListener('load', imageLoaded);
+                        images[i].addEventListener('error', function() {
+                            console.error('이미지 로딩 실패:', this.src);
+                            imageLoaded();
+                        });
+                    }
+                }
+            } else {
+                replyItem.style.opacity = '1';
+                loadImages(index + 1);
+            }
+        }
+
+        loadImages(0);
+    });
+    /*]]>*/
+	</script>
+
 	<!-- 댓글 작성 유조 프로필로 이동 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -93,14 +139,16 @@
 	$(document).ready(function() {
 		$('#replyForm').submit(function(event) {
 			event.preventDefault();
-			var userId = /*[[${search.userId}]]*/ 
+			$('.btn-success').prop('disabled', true);
 			
+			var userId = /*[[${search.userId}]]*/ 		
 			console.log("1.userId 확인 : "+userId);
 			var formData = new FormData(this);
 			var replyText = $('#replyText').val().trim();
 						
 			if(replyText === '') {
 				alert('댓글 내용을 입력해주세요');
+				$('.btn-success').prop('disabled', false);
 				return;
 			}
 
@@ -129,10 +177,12 @@
 				success : function(data) {
 					console.log('3.댓글 작성 완료 :', data);
 					updateReplyList(data);
+					$('.btn-success').prop('disabled', false);
 				},
 				error : function(xhr, status, error) {
 					alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.')
 					console.error('4.댓글 작성 실패 : ', error);
+					$('.btn-success').prop('disabled', false);
 				}
 			});
 			
@@ -161,20 +211,26 @@
 				'<div class="card-body">' +
 		        '<h6>' +
 		        '<img alt="" class="profileImage" src="/user/rest/profile/' + profileImageName + '">' +
-		        '<span class="replyNickname" data-reply-userid="' + userId + '">' + nickname + '</span>' + 
-		        '<span>' + subscriptionEndDate + '</span>' +
-		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
+		        '<span class="replyNickname" data-reply-userid="' + userId + '">' + nickname + '</span>'; 
+		        if (subscriptionEndDate === '1') {
+		            newRow += 
+		                '<span>' +
+		                '<img alt="" class="sub" src="/user/rest/profile/sub.png">' +
+		                '</span>';
+		        } 		        
+				newRow +=
+		        '<i class="bi bi-three-dots"></i>' +
 		        '</h6>' +
 		        '<h4>' +
 		        '<span class="replyText">' + replyText + '</span>' +
-		        '<img alt="" class="replyImageName" src="'+replyImageURL+'">'+
-		        '<span style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>' +
-		        '<span style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-up replyLike" style="float: right;"></i>' +
-		        '<span class="recordNo" style="display:none;" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
-		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
-		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
+		        '<img alt="" class="replyImageName" data-reply-image-name="' +replyImageName+ '" src="'+replyImageURL+'">'+
+		        '<span class="dislikeCount">' + dislikeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-down replyDislike"></i>' +
+		        '<span class="likeCount">' + likeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-up replyLike"></i>' +
+		        '<span class="recordNo" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
+		        '<span class="replyNo" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
+		        '<span class="userId" data-userid="' + userId + '">' + userId + '</span>' +
 		        '</h4>' +
 		        '<h6>' +
 		        '<span>' + replyDate + '</span>' +
@@ -189,7 +245,8 @@
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
-				$('#replyImageName').val('');	
+				$('#replyImageName').val('');
+				$('#imagePreview').attr('src', '#').css('display', 'none');
             }   
         });
     }); 
@@ -259,17 +316,27 @@
 			if(currentRow) {
 				var replyText = currentRow.find('.replyText').text();
 				$('#updateReplyText').val(replyText);
+				
+				var replyImageName = currentRow.find('.replyImageName').data('reply-image-name');
+				$('#currentReplyImageName').val(replyImageName);
+				
+				console.log("이미지 확인 : "+replyImageName);
+				
 				var replyNo = currentRow.find('.replyNo').text();
 				console.log("13.replyNo :", replyNo);
+				
+
 			}
 			closeModal();
 			openUpdateModal();
 
 			$('#updateReplyForm').submit(function(event) {
 				event.preventDefault();
+				$('.btn-success').prop('disabled', true);
 	   
 	        	var formData = new FormData(this);
 				var updatedReplyText = $('#updateReplyText').val().trim();
+				var currentReplyImageName = $('#currentReplyImageName').val();
 				var updateReplyImageName = $('#updateReplyImageName').val();
 				var recordNo = $('#recordNo').val();
 				
@@ -278,21 +345,28 @@
 
 				if(updatedReplyText === '') {
 					alert('댓글 내용을 입력해주세요');
+					$('.btn-success').prop('disabled', false);
 					return;
 				}
 				formData.append("recordNo", recordNo);
 				formData.append("userId", userId);
 
+		        if(updateReplyImageName) {
+		            formData.append("updateReplyImageName", updateReplyImageName);
+		        } else {
+		            formData.append("updateReplyImageName", currentReplyImageName);
+		        }
+				
 				var updateReply = {
 					recordNo : recordNo,
 					userId : userId,
 					replyText : updatedReplyText,
 					replyImageName : updateReplyImageName
 				};
-				console.log("!3 "+JSON.stringify(updateReply));
+				console.log("데이터 확인 : "+JSON.stringify(updateReply));
 				formData.append("updateReply", JSON.stringify(updateReply));
 	        	
-				console.log("15 "+formData);
+				console.log("폼 데이터 : "+formData.get("updateReply"));
 				
 				if(currentRow) {
 					var userId = userId
@@ -307,16 +381,21 @@
 						data : formData, 
 						success : function(data) {
 							console.log('15.댓글 수정 완료 :', data);
-							
 							currentRow.find('.replyText').text(data	.replyText);
-		                    var replyImageUUID = data.replyImageName; // 서버에서 반환한 UUID 값
-		                    var replyImageURL = '/community/rest/replyImage/' + replyImageUUID;
-		                    currentRow.find('.replyImageName').attr('src', replyImageURL);						
+							$('.btn-success').prop('disabled', false);
+							
+			                if(data.replyImageName) {
+			                    var replyImageURL = '/community/rest/replyImage/' + data.replyImageName;
+			                    currentRow.find('.replyImageName').attr('src', replyImageURL);
+			                } else {
+			                    currentRow.find('.replyImageName').attr('src', '');
+			                }
 							closeUpdateModal();
 						},
 						error : function(xhr, status, error) {
 							console.error('16.댓글 수정 오류', error);
 							alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.');
+							$('.btn-success').prop('disabled', false);
 						}
 					});
 				}
@@ -330,7 +409,7 @@
 			
 			if(currentRow) {
 				var userId = /*[[${search.userId}]]*/ 
-					console.log("111 :"+userId);
+				console.log("유저 ID 확인 :"+userId);
 				var replyNo = currentRow.find('.replyNo').text();
 			
 				console.log("17.댓글번호 :"+replyNo);
@@ -343,10 +422,7 @@
 						closeModal();
 						
 						console.log('currentRow:', currentRow);
-						var separator = currentRow.next('.separator');
-						console.log('separator:', separator);
-	                    separator.remove();
-						currentRow.remove();
+						currentRow.closest('.card-body').remove();
 					},
 					error : function(xhr, status, error) {
 						console.error('19.댓글 삭제 실패 : ', error);
@@ -388,7 +464,7 @@
 			closeModal();
 		});
 		
-		$('.btn-close').on("click", function() {
+		$('.btn-close.update').on("click", function() {
 			$('#replyText').val('');
 			$('#replyImageName').val('');
 			closeUpdateModal();
@@ -551,6 +627,7 @@
 	</script>
 	<!-- 댓글 싫어요 종료-->	
 
+	<!-- 댓글 작성칸 동적 처리 -->
 	<script>
     function autoResize(textarea) {
         textarea.style.height = 'auto'; // Reset textarea height
@@ -558,7 +635,28 @@
     }
 	</script>
 	
+	<script>
+	    function previewImage(input) {
+	        var file = input.files[0];
+	        var reader = new FileReader();
+	
+	        reader.onload = function(e) {
+	            var imagePreview = document.getElementById('imagePreview');
+	            imagePreview.src = e.target.result;
+	            imagePreview.style.display = 'block';
+	        };
+	
+	        reader.readAsDataURL(file);
+	    }
+	</script>
+
 	<style>
+	
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}	
+			
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -628,42 +726,66 @@
 		  text-decoration: none;
 		  cursor: pointer;
 		}
+	
+		.header {
+		    font-size : 16px;
+		    font-weight : bold;			
+		}		
+		
+		.totalCount {
+			font-size : 20px;
+		    font-weight : bold;			
+		}			
 		
 		.profileImage {
 			border-radius: 50%;
 			width : 50px;
 			height : 50px;
+			margin-right : 3px;
 		}
 		
+		.replyNickname {
+			font-size :20px;
+			font-weight : bold;
+		}
+		
+		.sub {
+			width:40x; 
+			height:40px;
+			margin-left : -10px;
+		}
+					
 		.bi-three-dots {
 			font-size : 30px;
+			float: right;
 		}			
 		
-		.separator {
-			border-top : 2px solid;
-			margin-top : 10px;
-		}	
-
-		.separator2 {
-			border-top : 2px solid;
-			margin-top : 10px;
-		}					
-		
-		#totalCount {
-			font-size : 18px;
-		}		
-			
-		#replyText {
-			width : 90%;
-			resize : vertical;
-			margin-left : 20px;
-		}
-		
+		.replyText {
+			font-size : 22px;
+		} 
+						
 		.replyImageName {
 		    max-width: 100%; 
 		    max-height: 100%;
 		    height: auto; 
 		    width: auto; 
+		    margin-top : 10px;
+		}		
+		
+		.replyDate {
+			font-size : 18px;
+		}		
+		
+		.separator {
+			border-top : 2px solid;
+			margin-top : 10px;
+		}					
+	
+		#replyText {
+			width : 90%;
+			resize : vertical;
+			margin-left : 20px;
+			height : 40px;
 		}
 		
         .card-body {
@@ -676,23 +798,35 @@
         	border : 2px solid;
         }        
         
-		.replyText {
-			font-size : 18px;
-		} 
-        
+		.dislikeCount {
+			font-size : 20px;
+			float: right; 
+			margin-left: 10px;
+		}
+		
+		.likeCount {
+			font-size : 20px;
+			float: right; 
+			margin-left: 10px;
+		}
+		
 		.replyLike {
-			font-size : 25px;
+			font-size : 30px;
 			color : blue;
 			float : right;
 			margin-left : 10px;
 		}			
 		
 		.replyDislike {
-			font-size : 25px;
+			font-size : 30px;
 			color : red;
 			transform : scaleX(-1);		
 			float : right;
 			margin-left : 10px;
+		}
+		
+		.recordNo .replyNo .userId {
+			display : none;
 		}
 		
 		.form-label.mt-2 {
@@ -702,58 +836,65 @@
 	
 </head>
 <body>
+<!-- 	<div id="loading" style="display:none; text-align : center; margin-top : 20px;"> -->
+<!-- 		<i class="bi bi-arrow-clockwise" style="font-size: 40px; animation: spin 1s linear infinite;"></i> -->
+<!-- 		<span>댓글 로딩중</span>	 -->
+<!-- 	</div> -->
 	<div id=content-for-footer>
 		<div class="container" id="container">
 			<div class="card">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
-							<i class="bi bi-journal-richtext">댓글 </i>
+							<i class="bi bi-journal-richtext"></i>
+							<span class="hearder">댓글</span>
 							<span th:utext="'&nbsp;'"></span>
 							<span th:text=${totalCount}></span>
 				    	</a>
 					</li>
 				</ul>				
+				<div id="replyListContainer">
 				<div th:each="reply, rowStat : ${replyList}" class="replyList">
-					<div class="card-body">
+					<div class="card-body replyCard">
 						<div>
 						<h6>
 							<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 							<span class="replyNickname" th:text="${reply.nickname}" th:data-reply-userid="${reply.userId}"></span>
 							<span th:if="${reply.subscriptionEndDate =='1'}">
-								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}" style="width:50px; height:50px;">
+								<img alt="" class="sub" th:src="@{/user/rest/profile/sub.png}">
 							</span>
-							<i class="bi bi-three-dots" style="float: right;"></i>
+							<i class="bi bi-three-dots"></i>
 						</h6>
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span>
 							<span th:if="${reply.replyImageName != null && reply.replyImageName != 'null'}">
-							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}" th:data-reply-image-name="${reply.replyImageName}">
 							</span>
 						</h4>
 						<h6>	
-							<span class="dislikeCount" th:text="${reply.dislikeCount}" style="float: right; margin-left: 10px;"></span>			
+							<span class="dislikeCount" th:text="${reply.dislikeCount}"></span>			
 				            <span>
 	            				<i th:if="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down-fill replyDislike"></i>
 	            				<i th:unless="${dislikedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-down replyDislike"></i>  
 	  						</span>		
-							<span class="likeCount" th:text="${reply.likeCount}" style="float: right; margin-left: 10px"></span>
+							<span class="likeCount" th:text="${reply.likeCount}"></span>
 				            <span>
 					            <i th:if="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up-fill replyLike"></i>
 					            <i th:unless="${likedReplies[reply.replyNo]}" class="bi bi-hand-thumbs-up replyLike"></i>
 				            </span>								
-							<span class="recordNo" style="display:none;" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
-							<span class="replyNo" style="display:none;" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
-							<span class="userId" style="display:none;" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
+							<span class="recordNo" th:text="${reply.recordNo}" data-replyno = "${reply.recordNo}"></span>
+							<span class="replyNo" th:text="${reply.replyNo}" data-replyno = "${reply.replyNo}"></span>
+							<span class="userId" th:text="${reply.userId}" data-userid = "${reply.userId}"></span>
 						</h6>
 						<h6>
-							<span th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
+							<span class="replyDate" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>  
 						</h6>
 						</div>
 					</div>
-				</div>	
+				</div>
+			</div>		
 			</div>	
-			<div class="separator2"></div>							
+			<div class="separator"></div>							
 		</div>
 		
 		<div class="container replyForm">
@@ -762,15 +903,18 @@
 					<fieldset id="replyField">
 						<div>
 							<label for="replyText" class="form-label mt-2">댓글 내용</label>
-							<textarea id="replyText" name="replyText" class="form-control" style ="height : 40px;" 
+							<textarea id="replyText" name="replyText" class="form-control" 
 								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
 						</div>
 						<div>
 							<label for="replyImageName" class="form-label mt-2"></label>
-							<input type="file" id="replyImageName" name="replyImageName" class="form-control">
+							<input type="file" id="replyImageName" name="replyImageName" class="form-control" onchange="previewImage(this)" accept="image/jpg, image/jpeg, image/png, image/gif">
 							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
+						<div class="preview-container mt-2">
+							<img id="imagePreview" src="#" alt="Image Preview" style="max-width: 50%; display: none;">
+						</div>		    			
 		    			<div class="d-grid gap-2">
 							<button type="submit" class="btn btn-success">댓글 작성</button>
 						</div>	
@@ -804,7 +948,7 @@
 				<div class="modal-content update">
 					<div class="modal-header">
 						<h5 class="modal-title">댓글수정</h5>
-						<button type="button" id="closeUpdateModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+						<button type="button" id="closeUpdateModal" class="btn-close update" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true"></span>
 						</button>
 					</div>
@@ -817,8 +961,9 @@
 												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
 								</div>
 								<div>
-									<label for="updateReplyImageName" class="form-label mt-2">사진 첨부</label>
-									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control">
+									<label for="updateReplyImageName" class="form-label mt-2"></label>
+									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control" accept="image/jpg, image/jpeg, image/png, image/gif">
+									<input type="hidden" id="currentReplyImageName" name="currentReplyImageName"> 
 									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 									<input type="hidden" id="userId" th:value="${userId}">
 				    			</div>
@@ -831,7 +976,6 @@
 				</div>
 			</div>
 		</div>
-		
 	</div>
 	<div th:replace="common/footer::defaultFooter"></div>	
 </body>			

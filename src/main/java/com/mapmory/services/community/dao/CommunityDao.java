@@ -85,6 +85,9 @@ public interface CommunityDao {
 	//전체 신고 목록 조회(관리자)
 	public List<Object> getAdminReportList(Search search) throws Exception;
 	
+	//미처리 신고 목록 조회(관리자)
+	public List<Object> getUnConfirmReportList(Search search) throws Exception;
+	
 	//신고 내용 상세 조회
 	public Report getReport(int reportNo) throws Exception;
 	

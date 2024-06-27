@@ -571,7 +571,7 @@
 	<!-- 댓글 목록으로 아동 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-		$(document).on("click", '#moreReply', function() {
+		$(document).on("click", '#moreReply, .reply-count, .bi.bi-chat-square-text-fill' , function() {
 			var recordNo = /*[[${record.recordNo}]]*/
 			window.location.href = "/community/getReplyList/"+recordNo;
 		});
@@ -891,7 +891,7 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title">더보기</h5>
+						<h5 class="modal-title"></h5>
 						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true"></span>
 						</button>

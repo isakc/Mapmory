@@ -100,7 +100,7 @@ public class MapRestController {
 		for(MapRecord record : mapRecordList) {
 			if(record.getRecordUserId().equals(search.getUserId())) { // 기록의 작성자가 사용자의 ID인 경우 private
 				record.setMarkerType(0);
-				record.setMarkerTypeString("비공유");
+				record.setMarkerTypeString("나의 기록");
 			}else if(search.getFollowType() == 1 && followUserId.contains(record.getRecordUserId()) ) {// 사용자의 ID의 팔로우 리스트 중 포함되어 있으면 follow
 				record.setMarkerType(2);
 				record.setMarkerTypeString("팔로우");

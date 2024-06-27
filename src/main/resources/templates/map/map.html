@@ -68,8 +68,8 @@
 				<div class="toggle-container">
   					<div class="toggle-switch" id="toggle-switch"></div>
 				</div><!-- 토글버튼 -->
-
-				<div class="checkbox-container" id="checkboxGroup">
+					
+				<!-- <div class="checkbox-container" id="checkboxGroup">
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" id="private" checked>
 					</div>
@@ -81,20 +81,21 @@
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" id="follow" checked>
 					</div>
-				</div>
+				</div> -->
 
 				<div class="justify-content-end d-flex">
 					<div class="btn btn-light rounded-circle" onclick="getCurrentLocation()"><i class="fas fa-crosshairs"></i></div>
 				</div><!-- 내위치 -->
 				
 				<div class="justify-content-end d-flex">
-					<div class="btn btn-light rounded-circle" onclick="searchRecord()"><i class="fas fa-sync"></i></div>
+					<div class="btn btn-light rounded-circle"><i class="fas fa-sync"></i></div>
 				</div><!-- 새로고침 -->
 			</div>
     	</form><!-- form -->
 		
 		<div class="footer-map">
 			<div th:include="~{ 'common/floatingButton.html' }"></div>
+			<div th:include="~{ 'common/mapFilterFloatingButton.html' }"></div>
 			<div th:replace="common/footer::defaultFooter"></div>
 		</div>
 	</div>
@@ -158,6 +159,8 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
+					console.log(response);
+					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
 					if(response.length != 0){
@@ -408,6 +411,10 @@
           searchRecord();
         }
     });// 토글 스위치
+    
+    refrestButtn.on('click', function(){
+    	location.reload();
+    })
 	</script>
 </body>
 

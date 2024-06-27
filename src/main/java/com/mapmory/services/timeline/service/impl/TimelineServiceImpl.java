@@ -21,6 +21,7 @@ import com.mapmory.controller.timeline.TimelineRestController;
 import com.mapmory.services.timeline.dao.TimelineDao;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
@@ -40,6 +41,9 @@ public class TimelineServiceImpl implements TimelineService {
 	@Qualifier("timelineDao")
 	private TimelineDao timelineDao;
 	
+	@Autowired
+	private TimelineUtil timelineUtil;
+	
 	@Value("${summary.record.time}")
 	private String checkpointTime;
 	
@@ -50,26 +54,27 @@ public class TimelineServiceImpl implements TimelineService {
 		Map<String, Object> map=new HashMap<String, Object>();
 		timelineDao.insertTimeline(record);
 		System.out.println(record);
-		map.put("recordNo",record.getRecordNo());
-		map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
-
-		
-//		timelineDao.insertImageTag(map);
+		if((record.getImageName()!=null && !record.getImageName().isEmpty())
+				||(record.getHashtag() != null && !record.getHashtag().isEmpty())) {
+			map.put("recordNo",record.getRecordNo());
+			map.put("imageTagList",TimelineUtil.imageTagToList(record.getImageName(),record.getHashtag()));
+			timelineDao.insertImageTag(map);
+		}
 		return record.getRecordNo();
 	}
 	
 	@Override
 	public Record getDetailTimeline(int recordNo) throws Exception{
-		return TimelineUtil.mapToRecord(timelineDao.selectDetailTimeline(recordNo));
+		return timelineDao.selectDetailTimeline(recordNo);
 	}
 	
 	@Override
 	public List<Record> getTimelineList(Search search) throws Exception{
-		List<Record> recordList=new ArrayList<Record>();
-		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
-			recordList.add(TimelineUtil.mapToRecord(map));
-		}
-		return recordList;
+//		List<Record> recordList=new ArrayList<Record>();
+//		for(Map<String,Object> map:timelineDao.selectTimelineList(search)) {
+//			recordList.add(TimelineUtil.mapToRecord(map));
+//		}
+		return timelineDao.selectTimelineList(search);
 	}
 
 	@Override
@@ -91,6 +96,19 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public void deleteTimeline(int recordNo) throws Exception {
+		Record record = timelineDao.selectDetailTimeline(recordNo);
+		if(record.getMediaName()!=null && !record.getMediaName().trim().equals("")) timelineUtil.deleteMediaFile(record.getMediaName());
+		if(record.getImageName()!=null && !record.getImageName().isEmpty()) {
+			for(ImageTag image:record.getImageName()) {
+				timelineUtil.deleteImageFile(image.getImageTagText());
+			}
+		}
+		
+		for(KeywordData k: TimelineUtil.calculateKeyword(record, 
+				Record.builder().recordUserId(record.getRecordUserId()).build())) {
+			addKeyword(k);
+		}
+		
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
@@ -191,6 +209,24 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception {
 		return timelineDao.selectNotifyTimecapsule();
+	}
+
+	@Override
+	public int addKeyword(KeywordData keywordData) throws Exception {
+		KeywordData updateData=timelineDao.selectKeyword(keywordData);
+		int i;
+		if(updateData==null) {
+			i=timelineDao.insertKeyword(keywordData);
+		}else {
+			int adjustedCount=updateData.getKeywordCount()+keywordData.getKeywordCount();
+			if(adjustedCount<=0) {
+				i=timelineDao.deleteKeyword(updateData.getKeywordNo());
+			}else {
+				updateData.setKeywordCount(adjustedCount);
+				i=timelineDao.updateKeyword(updateData);
+			}
+		}
+		return i;
 	}
 
 	@Override

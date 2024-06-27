@@ -36,12 +36,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		
-		/*
-		String requestURI = request.getRequestURI();
-		System.out.println("requestURI = " + requestURI);
-		if(requestURI.equals("/") || requestURI.equals("/user/rest/login"))
-			return true;
-		*/
 		
 		String requestURI = request.getRequestURI();
 		System.out.println("requestURI = " + requestURI);
@@ -54,47 +48,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 			return true;
 			
 		}
-		
-		// 이 메소드는 SECONDAUTH 쿠키가 만료되었을 때 로그인 페이지로 보내기 위해 필요함.
-		/* login 페이지에서 getSEcondary Auth로 넘어오는 찰나의 시점에는 cookie가 생성이 안됨.
-		if(requestURI.equals("/user/rest/generateKey")) {
-			
-			Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
-			if(cookie == null) {
-				
-				response.setContentType("application/json");
-	            response.setCharacterEncoding("UTF-8");
-	            
-	            Map<String, String> jsonResponse = new HashMap<>();
-	            jsonResponse.put("message", "no-cookie");
-	            
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            String json = objectMapper.writeValueAsString(jsonResponse);
-	            
-	            response.getWriter().write(json);
-				return false;
-				
-			} else {
-				return true;
-			}
-		}
-		*/
-		
+
 		// 세션 연장 임시 조치
 		// 현재 여전히 타임아웃 시 cookie는 살아있고 세션은 죽는 문제 존재. cookie만 살아 있는 경우, cookie를 제거해주는 로직 필요
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
-		/*
-		System.out.println("=================INTERCEPTOR :: GET JSESSIONID COOKIE====================");
-		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
-		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
-		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
-		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
-		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
-		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
-		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
-		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
-		System.out.println("=====================================");
-		*/
 		
 		if(cookie == null) {
 
@@ -102,6 +59,19 @@ public class LoginInterceptor implements HandlerInterceptor {
 			response.sendRedirect("/");
 			return false;
 		} else {
+			
+			
+			System.out.println("=================INTERCEPTOR :: GET JSESSIONID COOKIE====================");
+			System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+			System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+			System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+			System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+			System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+			System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+			System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+			System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+			System.out.println("=====================================");
+			
 			
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
@@ -173,10 +143,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 					// 쿠키 만료 기한이 15분 이하로 남았을 때만 갱신
 					Long ttl = redisUtil.getTTL(cookie.getValue());
 					System.out.println("================================");
-					System.out.println("ttl : "+ ttl);
+					System.out.println("session TTL : "+ ttl);
 					System.out.println("================================");
 					
 					if(ttl < SESSION_UPDATE_TIME) {
+						
+						System.out.println("세션을 갱신합니다...");
 						
 						result = redisUtil.updateSession(request, response);
 						System.out.println("is session update successfully? : " + result);

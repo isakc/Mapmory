@@ -269,11 +269,11 @@ public class CommunityRestController {
 			System.out.println("유해 이미지 차단");
 			}
 		} else {
-			reply.setReplyImageName(""); 
+	        String currentReplyImageName = request.getParameter("currentReplyImageName");
+	        reply.setReplyImageName(currentReplyImageName != null ? currentReplyImageName : ""); 
 		}
-	       communityService.updateReply(reply);
+	    communityService.updateReply(reply);
 		return ResponseEntity.ok(reply);
-
 	}       
 	
 	//댓글 삭제
@@ -282,6 +282,11 @@ public class CommunityRestController {
 		
 		int recordNo = 0;
 		userId = redisUtil.getSession(request).getUserId();
+		
+		String replyImageName = communityService.getReply(replyNo).getReplyImageName();
+		
+		objectStorageUtil.deleteFile(replyImageName, replyFolder);
+		
 		communityService.deleteCommunityLogs(communityLogs);		
 
 		communityService.deleteReply(userId, replyNo);

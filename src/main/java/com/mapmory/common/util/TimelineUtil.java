@@ -12,6 +12,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,11 +22,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
+import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
+import kr.co.shineware.nlp.komoran.core.Komoran;
+import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
@@ -70,33 +75,33 @@ public class TimelineUtil {
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	//map을 record로 묶어주는 기능
-		public static Record mapToRecord(Map<String, Object> map) {
-			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
-			System.out.println("(Date)map.get(\"d_DayDate\")==null ? null:((Date)map.get(\"d_DayDate\")).toString()"+((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString()));
-			Record record=Record.builder()
-					.recordNo((int)map.get("recordNo"))
-					.recordUserId((String)map.get("recordUserId"))
-					.recordTitle((String)map.get("recordTitle"))
-					.latitude((Double)map.get("latitude"))
-					.longitude((Double)map.get("longitude"))
-					.checkpointAddress((String)map.get("checkpointAddress"))
-					.checkpointDate((String)map.get("checkpointDate"))
-					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
-					.imageName(listToImage(imageTagList))
-					.hashtag(listToHashtag(imageTagList))
-					.categoryNo((Integer)map.get("categoryNo"))
-					.categoryName((String)map.get("categoryName"))
-					.categoryImoji((String)map.get("categoryImoji"))
-					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
-					.tempType((Integer)map.get("tempType"))
-					.recordAddDate((String)map.get("recordAddDate"))
-					.sharedDate((String)map.get("sharedDate"))
-					.updateCount((Integer)map.get("updateCount"))
-					.d_DayDate((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString())
-					.timecapsuleType((Integer)map.get("timecapsuleType"))
-					.build();
-			return record;
-		}
+//		public static Record mapToRecord(Map<String, Object> map) {
+//			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
+//			System.out.println("(Date)map.get(\"d_DayDate\")==null ? null:((Date)map.get(\"d_DayDate\")).toString()"+((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString()));
+//			Record record=Record.builder()
+//					.recordNo((int)map.get("recordNo"))
+//					.recordUserId((String)map.get("recordUserId"))
+//					.recordTitle((String)map.get("recordTitle"))
+//					.latitude((Double)map.get("latitude"))
+//					.longitude((Double)map.get("longitude"))
+//					.checkpointAddress((String)map.get("checkpointAddress"))
+//					.checkpointDate((String)map.get("checkpointDate"))
+//					.mediaName(map.get("mediaName") ==null ? "" : (String)map.get("mediaName"))
+//					.imageName(listToImage(imageTagList))
+//					.hashtag(listToHashtag(imageTagList))
+//					.categoryNo((Integer)map.get("categoryNo"))
+//					.categoryName((String)map.get("categoryName"))
+//					.categoryImoji((String)map.get("categoryImoji"))
+//					.recordText(map.get("recordText") ==null ? "" : (String)map.get("recordText"))
+//					.tempType((Integer)map.get("tempType"))
+//					.recordAddDate((String)map.get("recordAddDate"))
+//					.sharedDate((String)map.get("sharedDate"))
+//					.updateCount((Integer)map.get("updateCount"))
+//					.d_DayDate((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString())
+//					.timecapsuleType((Integer)map.get("timecapsuleType"))
+//					.build();
+//			return record;
+//		}
 		
 		public static SharedRecord mapToSharedRecord(Map<String, Object> map) {
 			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
@@ -231,11 +236,18 @@ public class TimelineUtil {
 		
 		public static String hashtagListToText(List<ImageTag> hashtag){
 			String hashtagText="";
-			for(ImageTag imageTag:hashtag) {
-				hashtagText+=imageTag.getImageTagText()+" ";
+			if(hashtag!=null&&!hashtag.isEmpty()) {
+				for(ImageTag imageTag:hashtag) {
+					hashtagText+=imageTag.getImageTagText()+" ";
+				}
 			}
 			return hashtagText.trim();
 		}
+		
+		// 다른방법
+//	    private static String hashtagListToText(List<String> hashtags) {
+//	        return String.join(" ", hashtags);
+//	    }
 		
 		public static List<ImageTag> hashtagTextToList(String hashtagText,int recordNo){
 			String[] hashtagArr=hashtagText.replace(" ", "").split("#");
@@ -304,6 +316,71 @@ public class TimelineUtil {
 			if(updateCount==0) text+="기록됨";
 			if(updateCount>0) text+=updateCount+"번째 수정됨";
 	    	return text;
+	    }
+	    
+	    private static Map<String, Integer> doKomoran(Record record) {
+	    	// KOMORAN 객체 생성
+	        Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
+
+	        // 분석할 텍스트
+	        String text = record.getRecordTitle()+" "+hashtagListToText(record.getHashtag()).replace("#", "")
+	        		+" "+record.getRecordText();
+
+	        // 텍스트 분석
+	        KomoranResult result = komoran.analyze(text);
+
+	        // 명사만 추출
+	        List<String> nouns = result.getNouns();
+//	        System.out.println("Nouns: " + nouns);
+	        
+	        // 명사 카운트 맵 생성
+	        Map<String, Integer> nounCountMap = new HashMap<>();
+
+	        // 명사 카운트
+	        for (String noun : nouns) {
+	        	if(noun.length()>1) {
+	        		nounCountMap.put(noun, nounCountMap.getOrDefault(noun, 0) + 1);
+	        	}
+	        }
+
+	        // 명사 카운트 결과 출력
+	        for (Map.Entry<String, Integer> entry : nounCountMap.entrySet()) {
+	            System.out.println("체크되는 키워드: "+entry.getKey() + ": " + entry.getValue());
+	        }
+            System.out.println("/==========================/");
+	    	return nounCountMap;
+	    }
+	    
+	    public static List<KeywordData> calculateKeyword(Record oldRecord, Record newRecord) {
+	        Map<String, Integer> oldMap = doKomoran(oldRecord);
+	        Map<String, Integer> newMap = doKomoran(newRecord);
+            int adjustedCount;
+	        // 새로운 맵을 순회하면서 oldMap과 비교
+	        for (Map.Entry<String, Integer> entry : oldMap.entrySet()) {
+	            String keyword = entry.getKey();
+	            int oldCount = entry.getValue();
+	            int newCount = newMap.getOrDefault(keyword, 0);
+
+	            // 새로운 맵에 키워드가 있으면 카운트를 조정
+	            if (newMap.containsKey(keyword)) {
+	                adjustedCount = newCount - oldCount;
+	                if (adjustedCount == 0) {
+	                    newMap.remove(keyword);
+	                } else {
+	                    newMap.put(keyword, adjustedCount);
+	                }
+	            }else {
+	            	newMap.put(keyword, -oldCount);
+	            }
+	        }
+	        for (Map.Entry<String, Integer> entry : newMap.entrySet()) {
+	            System.out.println("변경되는 키워드: "+entry.getKey() + ": " + entry.getValue());
+	        }
+
+	        // 새로운 키워드 데이터를 생성
+	        return newMap.entrySet().stream()
+	                .map(entry -> new KeywordData(0,newRecord.getRecordUserId(), entry.getKey(), entry.getValue()))
+	                .collect(Collectors.toList());
 	    }
 	    
 	    //rest로 파일을 부르면 오류남

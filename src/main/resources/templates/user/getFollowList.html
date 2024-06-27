@@ -10,6 +10,7 @@
 	<!-- footer javascript 필요 -->
 	<title>팔로우 목록</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	
 	<style>
 		a {
@@ -17,6 +18,11 @@
 			text-decoration: none;
 		}
 	
+		.loading {
+            text-align: center;
+            padding: 20px;
+            /*display: none;*/
+        }
 	</style>
 
 <script th:inline="javascript">
@@ -180,6 +186,8 @@
 	
 			// 끝이 나지 않았을 경우에만 다음 page 호출
 			// console.log("is sharedlist scroll ended? " + !(!sharedListEndOfData && !isLoading && (pageType.text() == "sharedList")));
+			console.log("is end of data ? " , listEndOfData);
+			console.log("is it loading? ", isLoading);
 	        if (!listEndOfData && !isLoading) {
 	        	console.log("is sharedlist scroll ended? " + (scrollTop + windowHeight >= documentHeight - 100));
 	            if ( scrollTop + windowHeight >= documentHeight - 100) {
@@ -208,11 +216,14 @@
 	    let windowHeight = $(window).height();
 	    let documentHeight = $(document).height();
 	
+	    /*
 	    console.log("==============================");
         console.log("documentHeight : ", documentHeight);
         console.log("windowHeight : ", windowHeight);
+        console.log("does it need to load more? ", (documentHeight <= windowHeight));
 	    console.log("==============================");
-	    if (documentHeight <= windowHeight + 200) {
+	    */
+	    if (documentHeight <= windowHeight) {
 	    	
 	    	// console.log('setup start');
 	    	loadMoreList().then((value)=> {
@@ -233,15 +244,20 @@
 	
 	function loadMoreList() {
 		
+		console.log("let's load");
 		  
 	    isLoading = true; // 로딩 시작
-	    // console.log("shared loading end : "+ isLoading);
+	    const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#list-contents').append(loadingView);
 	    
 		console.log("currentPage = " + listCurrentPage);
 	    // console.log('is sharedList ended? ' +sharedListEndOfData);
 		if(listEndOfData == true) {
 
 		  console.log('all finished');
+		  $('#list-contents #loading').remove();
 		  return;
 		  
 	  	} 
@@ -257,11 +273,12 @@
 			      // dataType: "application/json",
 			      success: function(response) {
 
-			    	  console.log(response);
+			    	  console.log("server gives me :: ", response);
 
-			    	  if(response.length == 0) {
+			    	  if(response.followList.length == 0) {
 			      		  
 			      		  listEndOfData = true;
+			      		$('#list-contents #loading').remove();
 			      		  resolve("I think it's end");
 			      		  // return;
 			      		  
@@ -269,29 +286,41 @@
 	
 			    	  listCurrentPage++;
 			    	  
-			    	  response.forEach((user) => {
+			    	  const profileImageList = response.profileImageList;
+			    	  // console.log(profileImageList);
+			    	  
+			    	  const badgeImage = response.badgeImage;
+			    	  
+			    	  console.log(response.followList);
+			    	  
+			    	  response.followList.forEach((user) => {
 
 			    		  const userId = user.userId;
 			    		  const userName = user.userName;
 			    		  const nickname = user.nickname;
-			    		  const profileImageName = user.profileImageName;
+			    		  // const profileImageName = user.profileImageName;
 			    		  const isSubscribed = user.isSubscribed;
 			    		  const isFollow = user.isFollow;  // session 사용자 기준
 			    		  // const hideProfile = user.hideProfile;
 			    		  
+			    		  const profileImage = profileImageList[0];
+			    		  profileImageList.shift();
+			    		  
+			    		  
 			    		  let temp = `
 			    		        <div id="${userId}" class="d-flex userBlock">
 				    	            <div class="profile-box-custom mx-2 userDiv">
-				    	                <img class="profile-custom" src="/user/rest/profile/${profileImageName}">
+				    	                <img class="profile-custom" src="data:image/jpeg;base64,${profileImage}">
 				    	            </div>
 				    	            <div>
 				    	                <div class="d-flex mt-2 userDiv">
 				    	                    <p class="me-2">${nickname}</p>
 		    	                    `;
 		    	                        // <p>${isSubscribed == 1 ? '☑️' : ''}</p>
+		    	                        // <img src="/user/rest/profile/sub.png" style="width:40px; height:40px; position: relative; top: -7px; left: -10px">
 		    	              if(isSubscribed == 1) {
 		    	            	  temp += 	`
-			    	                    <img src="/user/rest/profile/sub.png" style="width:40px; height:40px; position: relative; top: -7px; left: -10px">
+		    	            		  <img src="data:image/jpeg;base64,${badgeImage}" style="width:40px; height:40px; position: relative; top: -7px; left: -10px">
 	    	              			`;  
 		    	              }
 		    	              temp +=	`
@@ -309,7 +338,9 @@
 				    	            </div>
 				    	        </div>
 				    	        <hr/>
-			    	    			`;		    		  
+			    	    			`;		  
+			    	    			
+	    	    			$('#list-contents #loading').remove();
 			    		  $('#list-contents').append(temp);
 	
 			    	  });		

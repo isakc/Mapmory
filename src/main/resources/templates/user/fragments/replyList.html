@@ -75,11 +75,15 @@
 		
     	
 		isLoading = true; // 로딩 시작
-		// console.log("reply loading start : "+ isLoading);
+		const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#replyList').append(loadingView);
     	
     	if(replyListEndOfData == true) {
 
     		  console.log('no more');
+    		  $('#replyList #loading').remove();
     		  return;
     		  
     	  	} 
@@ -99,6 +103,7 @@
 			    	 if(response.list.length == 0) {
 			    		 
 			    		 replyListEndOfData = true;
+			    		 $('#replyList #loading').remove();
 			    		 resolve("I think it's end");
    		      		  	 // return;
 			    		 // resolve("contents ended");
@@ -124,6 +129,8 @@
 			    		 temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 			    		 temp += '</div>';
 			    		 temp += '<hr/>';
+			    		 
+			    		 $('#replyList #loading').remove();
 			    		 $('#replyList').append(temp);
 
 			    	 });

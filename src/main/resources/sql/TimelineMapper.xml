@@ -6,7 +6,7 @@
 <mapper namespace="com.mapmory.services.timeline.dao.TimelineDao">
     
     <!-- Result Map -->
-<resultMap id="recordResultMap" type="java.util.HashMap">
+<resultMap id="recordResultMap" type="record">
     <result property="recordNo" column="record_no" jdbcType="NUMERIC"/>
     <result property='recordUserId' column='record_user_id' jdbcType='VARCHAR'/>
     <result property="recordTitle" column="record_title" jdbcType="VARCHAR"/>
@@ -25,12 +25,13 @@
     <result property="updateCount" column="update_count" jdbcType="NUMERIC"/>
     <result property="d_DayDate" column="d_day_date" jdbcType="DATE"/>
     <result property="timecapsuleType" column="timecapsule_type" jdbcType="NUMERIC"/>
-    <!-- <collection property="imageName" ofType="String" javaType="ArrayList" select="selectImage" column="record_no"/>
-    <collection property="hashtag" ofType="String" javaType="ArrayList" select="selectHashtag" column="record_no"/> -->
-    <collection property="imageTagList" ofType="java.util.HashMap" javaType="java.util.ArrayList">
-    	<result property="imageTagOrder" column="image_tag_order" />
-    	<result property="imageTagType" column="image_tag_type" />
-    	<result property="imageTagText" column="image_tag_text" />
+    <collection property="imageName" ofType="imageTag" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="image_order" />
+    	<result property="imageTagText" column="image_text" />
+    </collection>
+    <collection property="hashtag" ofType="imageTag" javaType="java.util.ArrayList">
+    	<result property="imageTagOrder" column="hashtag_order" />
+    	<result property="imageTagText" column="hashtag_text" />
     </collection>
 </resultMap>
 
@@ -183,13 +184,15 @@ INSERT INTO image_tag (record_no, image_tag_type, image_tag_text)
        a1.update_count AS update_count,
        a1.d_day_date AS d_day_date,
        a1.timecapsule_type AS timecapsule_type,
-       a2.image_tag_order AS image_tag_order,
-       a2.image_tag_type AS image_tag_type,
-       a2.image_tag_text AS image_tag_text
+       a2.image_tag_order AS image_order,
+       a2.image_tag_text AS image_text,
+       a4.image_tag_order AS hashtag_order,
+       a4.image_tag_text AS hashtag_text
    FROM 
        record a1
-   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no
+   LEFT JOIN image_tag a2 ON a1.record_no = a2.record_no AND a2.image_tag_type=1
    LEFT JOIN category a3 ON a1.category_no = a3.category_no
+   LEFT JOIN image_tag a4 ON a1.record_no = a4.record_no AND a4.image_tag_type=0
    WHERE 
        a1.record_no = #{value}
 </select>
@@ -467,6 +470,51 @@ LIMIT #{limit} OFFSET #{offset}
 	AND timecapsule_type=1
 	GROUP BY record_user_id
     </select>
+    
+     <!-- Select All -->
+    <select id="selectKeywordList" parameterType="String" resultType="keywordData" >
+        SELECT keyword_no AS keywordNo,
+        	keyword_user_id AS keywordUserId,
+        	keyword,
+        	keyword_count AS keywordCount
+        FROM keyword_data
+        WHERE keyword_user_id=#{userId}
+        ORDER BY keyword_count DESC
+    </select>
+
+    <!-- Select by ID -->
+    <select id="selectKeyword" parameterType="keywordData" resultType="keywordData">
+        SELECT keyword_no AS keywordNo,
+        	keyword_user_id AS keywordUserId,
+        	keyword,
+        	keyword_count AS keywordCount
+        FROM keyword_data 
+        WHERE keyword_user_id = #{keywordUserId}
+        AND keyword = #{keyword}
+    </select>
+
+    <!-- Insert -->
+    <insert id="insertKeyword" parameterType="keywordData">
+        INSERT INTO keyword_data (KEYWORD_USER_ID, KEYWORD, KEYWORD_COUNT)
+        VALUES (#{keywordUserId}, #{keyword}, #{keywordCount})
+    </insert>
+
+    <!-- Update -->
+    <update id="updateKeyword" parameterType="keywordData">
+        UPDATE keyword_data
+        SET KEYWORD_USER_ID = #{keywordUserId}, KEYWORD = #{keyword}, KEYWORD_COUNT = #{keywordCount}
+        WHERE KEYWORD_NO = #{keywordNo}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deleteKeyword" parameterType="Integer">
+        DELETE FROM keyword_data WHERE KEYWORD_NO = #{keywordNo}
+    </delete>
+
+    <!-- Delete -->
+    <delete id="deleteKeywordToId" parameterType="String">
+        DELETE FROM keyword_data WHERE KEYWORD_USER_ID = #{keywordUserId}
+    </delete>
     
 <select id='selectDetailSharedRecord' resultMap='sharedRecordResultMap' parameterType='map'>
 	    SELECT 

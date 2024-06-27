@@ -40,7 +40,9 @@ public class ContentFilterUtil {
 			badWordFiltering.remove(word);
 		}
 		
-		String replaceText = badWordFiltering.change(text.replaceAll(" |\\* ", ""), 
+		String replaceText2 = text.toLowerCase();
+		
+		String replaceText = badWordFiltering.change(replaceText2.replaceAll(" |\\* ", ""), 
 					new String [] {"!", "@", "#", "$", "%", "^", "&", "_", "-", "0", "1", "2", "3", "4" ,"5", "6", "7", "8", "9"});
 		
 		if(replaceText.contains("*") == true) {

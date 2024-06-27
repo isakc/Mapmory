@@ -70,11 +70,18 @@
         isLoading = true; // 로딩 시작
         // console.log("shared loading end : "+ isLoading);
         
+        const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#sharedRecordList').append(loadingView);
+	    
+	    
     	console.log("currentPage = " +sharedListCurrentPage);
         // console.log('is sharedList ended? ' +sharedListEndOfData);
     	if(sharedListEndOfData == true) {
 
   		  console.log('all finished');
+  		  $('#sharedRecordList #loading').remove();
   		  return;
   		  
   	  	} 
@@ -89,6 +96,7 @@
     		      // dataType: "application/json",
     		      success: function(response) {
 
+    		    	  console.log(response);
     		    	  
     		    	  // console.log(response);
     		    	 // console.log(response.timelineList);
@@ -99,6 +107,7 @@
     		    	  if(response.timelineList.length == 0) {
     		      		  
     		      		  sharedListEndOfData = true;
+    		      		  $('#sharedRecordList #loading').remove();
     		      		  resolve("I think it's end");
     		      		  // return;
     		      		  
@@ -106,9 +115,13 @@
 
     		    	  sharedListCurrentPage++;
     		    	  
+    		    	  const recordImageList = response.recordImageList;
+    		    	  const categoryEmojiList = response.categoryEmojiList;
+    		    	  
     		    	  response.timelineList.forEach((timeline) => {
 
-    		    		  let thumbnailName = null;
+    		    		  let thumbnail = null;
+    		    		  let categoryEmoji = null;
     		    		  /*
     		    		  if(timeline.imageTagList.length > 0)
     		    		  	thumbnailName = timeline.imageTagList[0].imageTagText;
@@ -128,25 +141,35 @@
     		    		  
 						  if(timeline.imageName.length > 0) {
     		    			  
-    		    			  thumbnailName = timeline.imageName[0].imageTagText;
-    		    			  // console.log("썸네일 이름 : " + JSON.stringify(thumbnailName) );
-    		    			 // console.log("imageName = " + timeline.imageName[0].imageTagText)
+    		    			  // thumbnailName = timeline.imageName[0].imageTagText;
+    		    			  thumbnail = recordImageList[0];
+   		    				  recordImageList.shift();
+    		    		  }
+    		    		  
+    		    		  if(timeline.categoryImoji != undefined) {
+    		    			  
+    		    			  categoryEmoji = categoryEmojiList[0];
+    		    			  categoryEmojiList.shift();
     		    		  }
     		    		  
     		    		  const title = timeline.recordTitle;
     		    		  const categoryName = timeline.categoryName;
-    		    		  const categoryEmoji = timeline.categoryImoji;
+    		    		  // const categoryEmoji = timeline.categoryImoji;
     		    		  const regDate = timeline.recordAddDate;
     		    		  const recordNo = timeline.recordNo;
     		    		  
     		    		  let temp = '';
     		    		  temp += '<div id="'+recordNo+'" class="record">';
-    			    		  if(thumbnailName != null)
-    			    		  	temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnailName+'">';
+    			    		  if(thumbnail != null) {
+    			    			  
+    			    			// temp += '<img class="img-thumbnail" src="/user/rest/thumbnail/'+thumbnail+'">';
+    			    			  temp += `<img class="img-thumbnail" src='data:image/jpeg;base64,${thumbnail}'>`;
+    			    		  }
     			    		  temp += '<p class="fw-bold">'+title+'</p>';
-    			    	if(categoryEmoji != undefined) {
+    			    	if( (categoryEmoji != null)  || (categoryEmoji != undefined) ) {
     			    		temp += '<div class="category d-flex">'
-  				    		  temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+  				    		  // temp += '<img class="emoji" src="/user/rest/emoji/'+categoryEmoji+'">';
+  				    		  temp += `<img class="emoji" src="data:image/jpeg;base64,${categoryEmoji}">`;
   				    		  temp += '<p>'+categoryName+'</p>';
   			    		  temp += '</div>'
     			    		
@@ -154,6 +177,8 @@
     			    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
     			    		  temp += '</div>';
     		    		  temp += '<hr/>';
+    		    		  
+    		    		  $('#sharedRecordList #loading').remove();
     		    		  $('#sharedRecordList').append(temp);
 
     		    	  });		

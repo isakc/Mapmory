@@ -64,14 +64,14 @@ var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerS
 			});
 			
 			// 인포윈도우를 생성합니다
-			var infowindow = new kakao.maps.InfoWindow({
+			/* var infowindow = new kakao.maps.InfoWindow({
     		position : position.latlng, 
     		content : iwContent,
     		removable : iwRemoveable
-			});
+			}); */
 			
 			// 마커 위에 인포윈도우를 표시합니다. 두번째 파라미터인 marker를 넣어주지 않으면 지도 위에 표시됩니다
-			infowindow.open(map, marker); 
+			/* infowindow.open(map, marker);  */
         	
         	bounds.extend(position.latlng);
     });
