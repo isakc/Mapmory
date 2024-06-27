@@ -233,7 +233,8 @@ $(function() {
 $(function() {
 	
 	  let captchaKey;	
-
+	  let verify = false;
+	  
 	  function loadCaptcha() {
 	    $.get("/user/rest/nkey?code=0", function(response) {
 	      captchaKey = JSON.parse(response).key;
@@ -257,6 +258,7 @@ $(function() {
 	        if (result.result) {
 	          alert("캡차 확인 성공!");
 	          $('#captchaChecked').text('true');
+	          document.getElementById('verify-button').style.visibility = 'hidden';
 	        } else {
 	          alert("캡차를 다시 확인해주세요.");
 	          $('#captchaChecked').text('false');
