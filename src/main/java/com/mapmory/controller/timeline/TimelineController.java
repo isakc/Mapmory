@@ -247,6 +247,7 @@ public class TimelineController {
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
+		
 		return "timeline/getDetailTimeline";
 	}
 	
@@ -314,7 +315,9 @@ public class TimelineController {
 		}
 		
 		timelineService.updateTimeline(record);
-		return getDetailTimeline(model,record.getRecordNo(),request);
+		
+		String uri="?recordNo="+record.getRecordNo();
+		return "redirect:/timeline/getDetailTimeline"+uri;
 	}
 
 	@GetMapping("deleteTimeline")
@@ -433,9 +436,10 @@ public class TimelineController {
 		
 		timelineService.addTimeline(record);
 		if(record.getTempType()==1) {
-			return getDetailTimecapsule(model,record.getRecordNo(),request);
+			String uri="?recordNo="+record.getRecordNo();
+			return "redirect:/timeline/getDetailTimecapsule"+uri;
 		}else {
-			return getTempTimecapsuleList(model,request);
+			return "redirect:/timeline/getTempTimecapsuleList";
 		}
 	}
 	
@@ -480,9 +484,10 @@ public class TimelineController {
 		
 		timelineService.updateTimeline(record);
 		if(record.getTempType()==1) {
-			return getDetailTimecapsule(model,record.getRecordNo(),request);
+			String uri="?recordNo="+record.getRecordNo();
+			return "redirect:/timeline/getDetailTimecapsule"+uri;
 		}else {
-			return getTempTimecapsuleList(model,request);
+			return "redirect:/timeline/getTempTimecapsuleList";
 		}
 	}
 

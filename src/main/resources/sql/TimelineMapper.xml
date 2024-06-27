@@ -504,7 +504,12 @@ LIMIT #{limit} OFFSET #{offset}
     </update>
 
     <!-- Delete -->
-    <delete id="deleteKeyword" parameterType="String">
+    <delete id="deleteKeyword" parameterType="Integer">
+        DELETE FROM keyword_data WHERE KEYWORD_NO = #{keywordNo}
+    </delete>
+
+    <!-- Delete -->
+    <delete id="deleteKeywordToId" parameterType="String">
         DELETE FROM keyword_data WHERE KEYWORD_USER_ID = #{keywordUserId}
     </delete>
     

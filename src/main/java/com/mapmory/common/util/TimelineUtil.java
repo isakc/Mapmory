@@ -343,17 +343,16 @@ public class TimelineUtil {
 
 	        // 명사 카운트 결과 출력
 	        for (Map.Entry<String, Integer> entry : nounCountMap.entrySet()) {
-	            System.out.println(entry.getKey() + ": " + entry.getValue());
+	            System.out.println("체크되는 키워드: "+entry.getKey() + ": " + entry.getValue());
 	        }
+            System.out.println("/==========================/");
 	    	return nounCountMap;
 	    }
 	    
-
-
 	    public static List<KeywordData> calculateKeyword(Record oldRecord, Record newRecord) {
 	        Map<String, Integer> oldMap = doKomoran(oldRecord);
 	        Map<String, Integer> newMap = doKomoran(newRecord);
-
+            int adjustedCount;
 	        // 새로운 맵을 순회하면서 oldMap과 비교
 	        for (Map.Entry<String, Integer> entry : oldMap.entrySet()) {
 	            String keyword = entry.getKey();
@@ -362,13 +361,18 @@ public class TimelineUtil {
 
 	            // 새로운 맵에 키워드가 있으면 카운트를 조정
 	            if (newMap.containsKey(keyword)) {
-	                int adjustedCount = newCount - oldCount;
+	                adjustedCount = newCount - oldCount;
 	                if (adjustedCount == 0) {
 	                    newMap.remove(keyword);
 	                } else {
 	                    newMap.put(keyword, adjustedCount);
 	                }
+	            }else {
+	            	newMap.put(keyword, -oldCount);
 	            }
+	        }
+	        for (Map.Entry<String, Integer> entry : newMap.entrySet()) {
+	            System.out.println("변경되는 키워드: "+entry.getKey() + ": " + entry.getValue());
 	        }
 
 	        // 새로운 키워드 데이터를 생성

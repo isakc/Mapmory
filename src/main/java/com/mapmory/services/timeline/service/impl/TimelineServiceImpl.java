@@ -201,8 +201,13 @@ public class TimelineServiceImpl implements TimelineService {
 		if(updateData==null) {
 			i=timelineDao.insertKeyword(keywordData);
 		}else {
-			updateData.setKeywordCount(updateData.getKeywordCount()+keywordData.getKeywordCount());
-			i=timelineDao.updateKeyword(updateData);
+			int adjustedCount=updateData.getKeywordCount()+keywordData.getKeywordCount();
+			if(adjustedCount<=0) {
+				i=timelineDao.deleteKeyword(updateData.getKeywordNo());
+			}else {
+				updateData.setKeywordCount(adjustedCount);
+				i=timelineDao.updateKeyword(updateData);
+			}
 		}
 		return i;
 	}

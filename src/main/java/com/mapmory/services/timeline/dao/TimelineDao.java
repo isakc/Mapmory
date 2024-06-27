@@ -73,7 +73,9 @@ public interface TimelineDao {
 	
 	public int updateKeyword(KeywordData keywordData) throws Exception;
 	
-	public int deleteKeyword(String userId) throws Exception;
+	public int deleteKeyword(int keywordNo) throws Exception;
+	
+	public int deleteKeywordToId(String userId) throws Exception;
 	
 	public Map<String, Object> selectDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
