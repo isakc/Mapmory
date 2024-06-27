@@ -12,6 +12,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,11 +22,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.MapRecord;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
 
+import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
+import kr.co.shineware.nlp.komoran.core.Komoran;
+import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
@@ -237,6 +242,11 @@ public class TimelineUtil {
 			return hashtagText.trim();
 		}
 		
+		// 다른방법
+//	    private static String hashtagListToText(List<String> hashtags) {
+//	        return String.join(" ", hashtags);
+//	    }
+		
 		public static List<ImageTag> hashtagTextToList(String hashtagText,int recordNo){
 			String[] hashtagArr=hashtagText.replace(" ", "").split("#");
 			List<ImageTag> hashtagList=new ArrayList<ImageTag>();
@@ -304,6 +314,71 @@ public class TimelineUtil {
 			if(updateCount==0) text+="기록됨";
 			if(updateCount>0) text+=updateCount+"번째 수정됨";
 	    	return text;
+	    }
+	    
+	    private static Map<String, Integer> doKomoran(Record record) {
+	    	// KOMORAN 객체 생성
+	        Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
+
+	        // 분석할 텍스트
+	        String text = record.getRecordTitle()+" "+hashtagListToText(record.getHashtag()).replace("#", "")
+	        		+" "+record.getRecordText();
+
+	        // 텍스트 분석
+	        KomoranResult result = komoran.analyze(text);
+
+	        // 명사만 추출
+	        List<String> nouns = result.getNouns();
+//	        System.out.println("Nouns: " + nouns);
+	        
+	        // 명사 카운트 맵 생성
+	        Map<String, Integer> nounCountMap = new HashMap<>();
+
+	        // 명사 카운트
+	        for (String noun : nouns) {
+	        	if(noun.length()>1) {
+	        		nounCountMap.put(noun, nounCountMap.getOrDefault(noun, 0) + 1);
+	        	}
+	        }
+
+	        // 명사 카운트 결과 출력
+	        for (Map.Entry<String, Integer> entry : nounCountMap.entrySet()) {
+	            System.out.println("체크되는 키워드: "+entry.getKey() + ": " + entry.getValue());
+	        }
+            System.out.println("/==========================/");
+	    	return nounCountMap;
+	    }
+	    
+	    public static List<KeywordData> calculateKeyword(Record oldRecord, Record newRecord) {
+	        Map<String, Integer> oldMap = doKomoran(oldRecord);
+	        Map<String, Integer> newMap = doKomoran(newRecord);
+            int adjustedCount;
+	        // 새로운 맵을 순회하면서 oldMap과 비교
+	        for (Map.Entry<String, Integer> entry : oldMap.entrySet()) {
+	            String keyword = entry.getKey();
+	            int oldCount = entry.getValue();
+	            int newCount = newMap.getOrDefault(keyword, 0);
+
+	            // 새로운 맵에 키워드가 있으면 카운트를 조정
+	            if (newMap.containsKey(keyword)) {
+	                adjustedCount = newCount - oldCount;
+	                if (adjustedCount == 0) {
+	                    newMap.remove(keyword);
+	                } else {
+	                    newMap.put(keyword, adjustedCount);
+	                }
+	            }else {
+	            	newMap.put(keyword, -oldCount);
+	            }
+	        }
+	        for (Map.Entry<String, Integer> entry : newMap.entrySet()) {
+	            System.out.println("변경되는 키워드: "+entry.getKey() + ": " + entry.getValue());
+	        }
+
+	        // 새로운 키워드 데이터를 생성
+	        return newMap.entrySet().stream()
+	                .map(entry -> new KeywordData(0,newRecord.getRecordUserId(), entry.getKey(), entry.getValue()))
+	                .collect(Collectors.toList());
 	    }
 	    
 	    //rest로 파일을 부르면 오류남

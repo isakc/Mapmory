@@ -3,10 +3,13 @@ package com.mapmory.services.user.service;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -250,12 +253,22 @@ public interface UserService {
 	
 	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
-	public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
+	// public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
+	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
 	
 	public String generateSecondAuthKey();
 	
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException;
 	
+	
+	/**
+	 * 
+	 * @param type  :: profile, thumbnail, emoji
+	 * @param uuid
+	 * @return
+	 * @throws Exception
+	 */
+	public String getImage(String type, String imageName) throws Exception;
 	/*
 	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException;
 	
@@ -271,7 +284,7 @@ public interface UserService {
 	
 	public String getKakaoAccessToken (String authorizeCode);
 	
-	public String getKakaoUserInfo (String accessToken) throws Exception;
+	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception;
 	
 	public int PhoneNumberCheck(String to) throws Exception;
 	

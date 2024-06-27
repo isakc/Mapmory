@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.Model;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -123,6 +125,7 @@ public class UserRestController {
 	@Value("${page.Size}")
 	private int pageSize;
 	
+
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
 	
@@ -131,6 +134,17 @@ public class UserRestController {
 	
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
+	
+	/*
+	@Value("${object.profile.folderName}")
+	private String PROFILE_FOLDER_NAME;
+	
+	@Value("${object.timeline.image}")
+	private String TIMELINE_THUMBNAIL;
+	
+	@Value("${object.timeline.imoji}")
+	private String TIMELINE_EMOJI;
+	*/
 	
 	@Value("${kakao.client.Id}")
     private String kakaoClientId;
@@ -255,6 +269,7 @@ public class UserRestController {
 
 	
 	////////// 이미지 가져오기 용
+	// @Deprecated
     @GetMapping("/{type}/{uuid}")
     public byte[] getImage(@PathVariable String type, @PathVariable String uuid) throws Exception {
     	
@@ -276,7 +291,6 @@ public class UserRestController {
 
         return bytes;
     }
-	
 	
 	@PostMapping("/signUp")
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -336,7 +350,7 @@ public class UserRestController {
 	
 	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
 	// @GetMapping("/getFollowList/{profileUserId}")  
-	public List<FollowMap> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 		
 		/*
 		if(currentPage == null)
@@ -352,12 +366,27 @@ public class UserRestController {
 		// List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
 		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
-		return followList;
+		List<String> profileImageList = new ArrayList<>();
+		for(FollowMap user : followList) {
+			
+			String profileImage = userService.getImage("profile", user.getProfileImageName());
+			profileImageList.add(profileImage);
+			// System.out.println("profileImage : " + profileImage);
+		}
+		
+		String badgeImage = userService.getImage("profile", "sub.png");
+		
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("followList", followList);
+		map.put("profileImageList", profileImageList);
+		map.put("badgeImage", badgeImage);
+		return ResponseEntity.ok(map);
 	}
 	
 	@PostMapping("/getFollowerList/{profileUserId}")
 	// @GetMapping("/getFollowerList/{profileUserId}")
-	public List<FollowMap> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 
 		/*
 		if(currentPage == null)
@@ -372,7 +401,22 @@ public class UserRestController {
 		
 		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
-		return followerList;
+		List<String> profileImageList = new ArrayList<>();
+		for(FollowMap user : followerList) {
+			
+			String profileImage = userService.getImage("profile", user.getProfileImageName());
+			profileImageList.add(profileImage);
+			// System.out.println("profileImage : " + profileImage);
+		}
+		
+		String badgeImage = userService.getImage("profile", "sub.png");
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("followerList", followerList);
+		map.put("profileImageList", profileImageList);
+		map.put("badgeImage", badgeImage);
+		
+		return ResponseEntity.ok(map);
 	}
 	
 	@GetMapping("/getSharedList")
@@ -678,7 +722,6 @@ public class UserRestController {
 	}
 */	
 
-	//////////////////// 2단계 인증 key가 날라가는 문제를 확인. 왜 날라갔지? ////////////////////
 	@PostMapping("/checkSecondaryKey")
 	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.CountAddressDto;
 import com.mapmory.services.timeline.dto.ImageTagDto;
@@ -63,6 +64,18 @@ public interface TimelineDao {
 	public List<String> selectSummaryDateList(String userId) throws Exception;
 	
 	public List<NotifyTimecapsuleDto> selectNotifyTimecapsule() throws Exception;
+	
+	public List<KeywordData> selectKeywordList(String userId) throws Exception;
+	
+	public KeywordData selectKeyword(KeywordData keywordData) throws Exception;
+	
+	public int insertKeyword(KeywordData keywordData) throws Exception;
+	
+	public int updateKeyword(KeywordData keywordData) throws Exception;
+	
+	public int deleteKeyword(int keywordNo) throws Exception;
+	
+	public int deleteKeywordToId(String userId) throws Exception;
 	
 	public Map<String, Object> selectDetailSharedRecord(int recordNo, String userId) throws Exception;
 	

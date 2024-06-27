@@ -33,6 +33,7 @@ import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
 import com.mapmory.services.timeline.service.TimelineService;
@@ -246,6 +247,7 @@ public class TimelineController {
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
 		model.addAttribute("selectDay",record.getCheckpointDate().toString().substring(0, 10));
+		
 		return "timeline/getDetailTimeline";
 	}
 	
@@ -308,8 +310,14 @@ public class TimelineController {
 		
 		record=TimelineUtil.validateRecord(record);
 		
+		for(KeywordData k: TimelineUtil.calculateKeyword(timelineService.getDetailTimeline(record.getRecordNo()), record)) {
+			timelineService.addKeyword(k);
+		}
+		
 		timelineService.updateTimeline(record);
-		return getDetailTimeline(model,record.getRecordNo(),request);
+		
+		String uri="?recordNo="+record.getRecordNo();
+		return "redirect:/timeline/getDetailTimeline"+uri;
 	}
 
 	@GetMapping("deleteTimeline")
@@ -428,9 +436,10 @@ public class TimelineController {
 		
 		timelineService.addTimeline(record);
 		if(record.getTempType()==1) {
-			return getDetailTimecapsule(model,record.getRecordNo(),request);
+			String uri="?recordNo="+record.getRecordNo();
+			return "redirect:/timeline/getDetailTimecapsule"+uri;
 		}else {
-			return getTempTimecapsuleList(model,request);
+			return "redirect:/timeline/getTempTimecapsuleList";
 		}
 	}
 	
@@ -475,9 +484,10 @@ public class TimelineController {
 		
 		timelineService.updateTimeline(record);
 		if(record.getTempType()==1) {
-			return getDetailTimecapsule(model,record.getRecordNo(),request);
+			String uri="?recordNo="+record.getRecordNo();
+			return "redirect:/timeline/getDetailTimecapsule"+uri;
 		}else {
-			return getTempTimecapsuleList(model,request);
+			return "redirect:/timeline/getTempTimecapsuleList";
 		}
 	}
 

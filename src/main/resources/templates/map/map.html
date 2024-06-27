@@ -88,7 +88,7 @@
 				</div><!-- 내위치 -->
 				
 				<div class="justify-content-end d-flex">
-					<div class="btn btn-light rounded-circle" onclick="searchRecord()"><i class="fas fa-sync"></i></div>
+					<div class="btn btn-light rounded-circle"><i class="fas fa-sync"></i></div>
 				</div><!-- 새로고침 -->
 			</div>
     	</form><!-- form -->
@@ -159,6 +159,8 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
+					console.log(response);
+					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
 					if(response.length != 0){
@@ -409,6 +411,10 @@
           searchRecord();
         }
     });// 토글 스위치
+    
+    refrestButtn.on('click', function(){
+    	location.reload();
+    })
 	</script>
 </body>
 
