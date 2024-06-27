@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -256,6 +257,15 @@ public interface UserService {
 	
 	public boolean checkSecondAuthKey(GoogleUserOtpCheck googleUserOtpCheck) throws InvalidKeyException, NoSuchAlgorithmException;
 	
+	
+	/**
+	 * 
+	 * @param type  :: profile, thumbnail, emoji
+	 * @param uuid
+	 * @return
+	 * @throws Exception
+	 */
+	public String getImage(String type, String imageName) throws Exception;
 	/*
 	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException;
 	
