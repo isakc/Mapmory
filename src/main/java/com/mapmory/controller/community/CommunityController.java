@@ -147,13 +147,15 @@ public class CommunityController {
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
 	    
-	    CommunityLogs communityLogs = CommunityLogs.builder()
-	    		.userId(userId)
-	    		.recordNo(recordNo)
-	    		.logsType(0)
-	    		.build();
+	    if (!"admin".equals(userId)) {
+	        CommunityLogs communityLogs = CommunityLogs.builder()
+	                .userId(userId)
+	                .recordNo(recordNo)
+	                .logsType(0)
+	                .build();
 	    		
-	    communityService.addCommunityLogs(communityLogs);	
+	        communityService.addCommunityLogs(communityLogs);	
+	    }
 	    
 	    System.out.println("model :"+model);
 	    

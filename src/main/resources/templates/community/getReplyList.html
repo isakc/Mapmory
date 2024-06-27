@@ -102,6 +102,7 @@
 						
 			if(replyText === '') {
 				alert('댓글 내용을 입력해주세요');
+				$('.btn-success').prop('disabled', false);
 				return;
 			}
 
@@ -135,6 +136,7 @@
 				error : function(xhr, status, error) {
 					alert('비속어가 포함된 댓글이나 선정성이 높은 이미지는 등록할 수 없습니다.')
 					console.error('4.댓글 작성 실패 : ', error);
+					$('.btn-success').prop('disabled', false);
 				}
 			});
 			
