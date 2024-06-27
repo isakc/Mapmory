@@ -77,11 +77,16 @@
 	function loadMoreReactRecordList() {
 		
 		isLoading = true; // 로딩 시작
-		console.log("loading...");
+		const loadingView = `<div id="loading" class="loading">
+	        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+	    </div>`;
+	    $('#reactRecordList').append(loadingView);
+		
 		console.log('current page : ' + reactRecordListCurrentPage);
 		
 		if(reactRecordListEndOfData == true) {
 
+			$('#reactRecordList #loading').remove();
   		  console.log('no more');
   		  return;
   		  
@@ -103,6 +108,7 @@
 			    	  if(response.timelineList.length == 0) {
 				    		 
 			    		  reactRecordListEndOfData = true;
+			    		  $('#reactRecordList #loading').remove();
 				    		 resolve("I think it's end");
 	   		      		  	 // return;
 				    		 // resolve("contents ended");
@@ -155,6 +161,8 @@
 				    		  temp += '<p class="text-body-tertiary">'+regDate+'</p>';
 				    		  temp += '</div>';
 			    		  temp += '<hr/>';
+			    		  
+			    		  $('#reactRecordList #loading').remove();
 			    		  $('#reactRecordList').append(temp);
 
 			    	  });
@@ -162,7 +170,6 @@
 		    		  
 		    		  if(reactRecordListSetup)
 		    			  checkIfNeedToLoadMoreReactRecord();
-		    		  
 		    		  
 		    		  resolve("content loaded");
 			      },

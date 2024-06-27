@@ -60,7 +60,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 			return false;
 		} else {
 			
-			/*
+			
 			System.out.println("=================INTERCEPTOR :: GET JSESSIONID COOKIE====================");
 			System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
 			System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
@@ -71,7 +71,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 			System.out.println("쿠키에 저장된 value : " + cookie.getValue());
 			System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
 			System.out.println("=====================================");
-			*/
+			
 			
 			String sessionKeyName = cookie.getValue(); 
 			SessionData sessionData = redisUtil.select(sessionKeyName, SessionData.class);
@@ -142,11 +142,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 					// 쿠키 만료 기한이 15분 이하로 남았을 때만 갱신
 					Long ttl = redisUtil.getTTL(cookie.getValue());
-					/*
 					System.out.println("================================");
-					System.out.println("ttl : "+ ttl);
+					System.out.println("session TTL : "+ ttl);
 					System.out.println("================================");
-					*/
 					
 					if(ttl < SESSION_UPDATE_TIME) {
 						
