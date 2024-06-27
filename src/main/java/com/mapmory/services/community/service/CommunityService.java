@@ -63,6 +63,9 @@ public interface CommunityService {
 	//전체 신고 목록 조회(관리자)
 	public Map<String, Object> getAdminReportList(Search search) throws Exception;
 	
+	//미처리된 신고 목록 조회(관리자)
+	public Map<String, Object> getUnConfirmReportList(Search search) throws Exception;
+	
 	//신고 내용 상세 조회
 	public Report getReport(int reportNo) throws Exception;
 	
