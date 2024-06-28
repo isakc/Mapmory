@@ -1300,8 +1300,8 @@ public class UserServiceImpl implements UserService {
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
 
-            sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            //sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            //sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
 
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
@@ -1383,15 +1383,28 @@ public class UserServiceImpl implements UserService {
             String kakaoGender = kakao_account.getAsJsonObject().get("gender").getAsString();
             String kakaoDate = kakao_account.getAsJsonObject().get("birthday").getAsString();
             String kakaoBirthYear = kakao_account.getAsJsonObject().get("birthyear").getAsString();
-            String kakaoBirthDay = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
+            String kakaoBirthDays = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date kakaoDatE = dateFormat.parse(kakaoBirthDay);
+            Date kakaoBirthDay = dateFormat.parse(kakaoBirthDays);
+            
+            String genderFormat;
+            if (kakaoGender != null) {
+                if (kakaoGender.equals("male")) {
+                	genderFormat = "M";
+                } else if (kakaoGender.equals("female")) {
+                	genderFormat = "F";
+                } else {
+                	genderFormat = "U";
+                }
+            } else {
+            	genderFormat = "U";
+            }
 
             
             System.out.println("카카오 이름 : :: : : : ::" + kakaoName + "카카오 이메일 : : : : :: : : : " + kakaoEmail + ""
             		+ "카카오 전화번호 : : : :: :  ::  " + kakaoPhone + "카카오 성별 : : : : : : : :"  + kakaoGender + ""
             		+ "카카오 생일 : : :: : : :" + kakaoDate + "카카오 생년 : : :: : : :" + kakaoBirthYear + ""
-            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoDatE);
+            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoBirthDay);
             
             kakaoId = element.getAsJsonObject().get("id").getAsString();
             System.out.println("kakaoId : " + kakaoId);
@@ -1400,8 +1413,8 @@ public class UserServiceImpl implements UserService {
             socialUserInfo.setName(kakaoName);
             socialUserInfo.setEmail(kakaoEmail);
             socialUserInfo.setPhoneNumber(kakaoPhone);
-            socialUserInfo.setGender(kakaoGender);
-            // socialUserInfo.setBirthday(kakaoDatE);
+            socialUserInfo.setGender(genderFormat);
+            socialUserInfo.setBirthday(kakaoBirthDay);
             socialUserInfo.setId(kakaoId);
 
         } catch (IOException e) {
