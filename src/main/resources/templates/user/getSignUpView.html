@@ -8,6 +8,17 @@
 	<link href="/css/common/mapmory-color.css" rel="stylesheet">
 	
 	<script>
+		
+		document.addEventListener("keydown", function (e) {
+		    // F5 키 및 Ctrl+R 키 조합을 차단
+		    if ((e.which || e.keyCode) === 116 || ((e.ctrlKey || e.metaKey) && (e.which || e.keyCode) === 82)) {
+		        e.preventDefault();
+		        e.stopPropagation();
+		        alert("새로고침이 차단되었습니다.");
+		    }
+		});
+
+	
 		$(document).ready(function() {
 			
 			const today = new Date().toISOString().split('T')[0];
@@ -226,9 +237,9 @@
      <div class="mb-3">
       <label for="sex" class="form-label">성별</label>
       <select id="sex" name="sex" class="form-select" required>
-        <option value="0" th:if="${socialUserInfo.gender=='U'} ? select">비공개</option>
-        <option value="1" th:if="${socialUserInfo.gender=='M'} ? select">남성</option>
-        <option value="2" th:if="${socialUserInfo.gender=='F'} ? select">여성</option>
+        <option value="0" th:if="${socialUserInfo.gender=='U'} ? select : ''">비공개</option>
+        <option value="1" th:if="${socialUserInfo.gender=='M'} ? select : ''">남성</option>
+        <option value="2" th:if="${socialUserInfo.gender=='F'} ? select : ''">여성</option>
       </select>
     </div>
 

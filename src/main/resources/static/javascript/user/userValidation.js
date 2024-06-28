@@ -127,11 +127,11 @@ $(function() {
 	$('#nickname').on('input', function() {
 		
 		const nickname = document.getElementById('nickname').value;
-	    const nicknameRegex = /^[A-Za-z가-힣\d][A-Za-z가-힣\d\s]{0,9}$/;
+	    const nicknameRegex = /^[A-Za-z가-힣\d][A-Za-z가-힣\d]{0,9}$/;
 	    if (!nicknameRegex.test(nickname)) {
 			
 			$('#nickname').removeClass('is-valid').addClass('is-invalid');
-	        $('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('닉네임은 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.');
+	        $('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('닉네임은 최소 1자 최대 10자의 한글, 영어, 숫자만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.');
 	        $('#nicknameChecked').text('false');
 	        event.preventDefault();
 	        return;
@@ -366,7 +366,7 @@ $(function() {
 		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
 		console.log(email);
 		
-		email_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+		email_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
 		
 		if( !email_regex.test(email) ) {
 			
