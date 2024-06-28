@@ -24,6 +24,34 @@
 			});
 			*/
 			
+			const name = `[[${socialUserInfo.name}]]`;
+			const email = `[[${socialUserInfo.email}]]`;
+			const phoneNumber = `[[${socialUserInfo.phoneNumber}]]`;
+			
+			console.log(name, email, phoneNumber);
+			
+			if(name != '') {
+				$('#userNameChecked').text('true');
+				$('#userName').attr('readonly', true);
+			}
+			
+			if(email != '') {
+				
+				$('#emailChecked').text("true");
+				$('#sendAuthEmail').attr('disabled', true);
+				$('#email').attr('readonly', true);
+				$('#emailAuthCode').attr('type', 'hidden');
+				
+			}
+			
+			if(phoneNumber != '') {
+				
+				$('#phoneNumber').attr('readonly', true);
+	            $('#sendAuthPhoneNum').attr('disabled', true);
+	            $('#phoneAuthCode').attr('type', 'hidden');
+				$('#phoneNumberChecked').text('true');
+			}
+			
 			$('#submitForm').on('click', function() {
 				
 				if ($('#userIdChecked').text() === 'false') {
@@ -148,8 +176,6 @@
 </head>
 <body class="container mt-3">
 
-	[[${socialUserInfo}]]
-
   <div class="row mb-4">
     <p class="fs-1 col-9">회원가입</p>
     <div class="col-1"></div>
@@ -173,7 +199,7 @@
 
     <div class="mb-3">
       <label for="userName" class="form-label">이름</label>
-      <input type="text" id="userName" th:field="*{userName}" class="form-control" placeholder="이름" required/>
+      <input type="text" id="userName" name="userName" class="form-control" placeholder="이름" required th:value="${socialUserInfo.name != null ? socialUserInfo.name : '' }"/>
       <p id="userNameMsg" style="display: none;"></p>
       <p id="userNameChecked" style="display: none;">false</p>
     </div>
@@ -187,22 +213,22 @@
 
     <div class="mb-3">
       <label for="birthday" class="form-label">생년월일</label>
-      <input type="date" id="birthday" th:field="*{birthday}" class="form-control" placeholder="생년월일 (YYYY-MM-DD)" required/>
+      <input type="date" id="birthday" name="birthday" class="form-control" placeholder="생년월일 (YYYY-MM-DD)" required th:value="${socialUserInfo.birthday != null ?  #dates.format(socialUserInfo.birthday, 'yyyy-MM-dd') : ''}"/>
       <p id="birthdayMsg" style="display: none;"></p>
     </div>
 
     <div class="mb-3">
       <label for="sex" class="form-label">성별</label>
-      <select id="sex" th:field="*{sex}" class="form-select" required>
-        <option value="0">비공개</option>
-        <option value="1">남성</option>
-        <option value="2">여성</option>
+      <select id="sex" name="sex" class="form-select" required>
+        <option value="0" th:if="${socialUserInfo.gender=='U'} ? select">비공개</option>
+        <option value="1" th:if="${socialUserInfo.gender=='M'} ? select">남성</option>
+        <option value="2" th:if="${socialUserInfo.gender=='F'} ? select">여성</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label for="email" class="form-label">이메일</label>
-      <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="이메일 (예: test@test.com)" required/>
+      <input type="email" id="email" name="email" class="form-control" placeholder="이메일 (예: test@test.com)" required th:value="${socialUserInfo.email != null ? socialUserInfo.email : ''}"/>
       <button type="button" id="sendAuthEmail" class="btn btn-secondary mt-2">인증번호 발송</button>
       <input type="hidden" class="form-control mt-2" id="emailAuthCode" name="emailAuthCode" placeholder="인증코드 6자리 입력">
       <p id="emailMsg" style="display: none;"></p>
@@ -211,7 +237,7 @@
 
     <div class="mb-3">
       <label for="phoneNumber" class="form-label">휴대전화번호</label>
-      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 01012341234)" required/>
+      <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="휴대전화번호 (예: 01012341234)" required th:value="${socialUserInfo.phoneNumber != null ? socialUserInfo.phoneNumber : ''}"/>
       <button type="button" id="sendAuthPhoneNum" class="btn btn-secondary mt-2">인증번호 발송</button>
       <input type="hidden" class="form-control mt-2" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
       <p id="phoneNumberMsg" style="display: none;"></p>
