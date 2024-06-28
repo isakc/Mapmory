@@ -221,7 +221,7 @@ function drawLine(arrPoint, mode) {
 		strokeWeight: 7, // 선의 두께
 		strokeColor: mode === 0 ? 'black' : 'blue', // 0 = 걸을 때, 1 = 그 외 선 색깔
 		strokeOpacity: 1, // 선의 불투명도, 1에서 0 사이의 값이며 0에 가까울수록 투명
-		strokeStyle: mode === 0 ? 'dash' : 'solid' // 0 = 걸을 때 점선, 1 = solide 선의 스타일
+		strokeStyle: mode === 0 ? 'shortdot' : 'solid' // 0 = 걸을 때 점선, 1 = solide 선의 스타일
 	});
 
 	polyline.setMap(map);

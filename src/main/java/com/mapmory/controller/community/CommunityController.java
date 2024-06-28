@@ -3,12 +3,9 @@ package com.mapmory.controller.community;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +21,12 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
+import com.mapmory.common.util.TextToImage;
 import com.mapmory.controller.timeline.TimelineController;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
-import com.mapmory.services.community.domain.Report;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.timeline.domain.SharedRecord;
 import com.mapmory.services.timeline.service.TimelineService;
 
 @Controller
@@ -42,12 +40,12 @@ public class CommunityController {
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
-	
-    @Autowired
-    private ObjectStorageUtil objectStorageUtil;	
-    
+	    
     @Autowired
     private RedisUtil<SessionData> redisUtil;
+    
+    @Autowired
+    private TextToImage textToImage;
 	
 	@Value("${page.Unit}")
 	private int pageUnit;
@@ -95,7 +93,19 @@ public class CommunityController {
 		userId = redisUtil.getSession(request).getUserId();
 		search.setUserId(userId);
 		
-		model.addAttribute("record", timelineService.getDetailSharedRecord(recordNo, userId));
+		SharedRecord sharedRecord = timelineService.getDetailSharedRecord(recordNo, userId);
+		
+		String text = sharedRecord.getRecordText();
+		
+		String processText = textToImage.processImageTags(text);
+		
+		System.err.println("최종 출력 : "+processText);
+		
+		sharedRecord.setRecordText(processText);
+		
+		model.addAttribute("record", sharedRecord);
+		
+		System.out.println("공유기록 : "+sharedRecord);
 		
 		List<CommunityLogs> userLogs = communityService.getUsersLogs(userId, recordNo);
 		model.addAttribute("userLogs", userLogs);
@@ -121,7 +131,6 @@ public class CommunityController {
 		
 		System.out.println("페이지 값1 : " +search);
 
-	    
 	    Map<String, Object> replyData = communityService.getReplyList(search, recordNo);
 	    
 	    //댓글에 대한 플래그
