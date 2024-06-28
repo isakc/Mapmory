@@ -20,6 +20,7 @@
 	z-index: 9999;
 }
 
+
 .mobile-bottom-nav {
 	z-index: 1000;
 	/* will-change: transform;
@@ -51,15 +52,23 @@
 }
 
 
-.footer-material-icons{
-	font-size: 5vh !important;  
-}
-
-.checkPoint-button-footer {
-	font-size: 7vh !important;
-}
+ .footer-material-icons{
+		font-size: 5vh !important;  
+	}
+	
+	.checkPoint-button-footer {
+	  font-size: 7vh !important;
+	}
+	
 
 div#content-for-footer {
 	min-height: 93dvh;
 }
+
+	
+	body {
+		height: 100dvh;
+	}
+	
+	
 	
