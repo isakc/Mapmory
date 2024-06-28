@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,11 @@ public class SubscriptionScheduler {
 	@Autowired
 	private ProductService productService;
 
-	@Autowired
-    private RedisLockUtil redisLockUtil;
+	@Value("${scheduler.enabled}")
+	private boolean schedulerEnabled;
+
+//	@Autowired
+//    private RedisLockUtil redisLockUtil;
 
 //    private static final String LOCK_KEY = "subscriptionSchedulerLock";
 //    private static final long LOCK_EXPIRE_TIME = 300000; // 5 minutes in milliseconds
@@ -31,6 +35,7 @@ public class SubscriptionScheduler {
 	public void processSubscriptions() throws Exception {
 //		if (redisLockUtil.acquireLock(LOCK_KEY, LOCK_EXPIRE_TIME)) {
 //            try {
+		if(schedulerEnabled) {
                 List<Subscription> subscriptions = subscriptionService.getTodaySubscriptionList(); // 오늘 구독 결제일인 레코드 리스트
                 
                 for (Subscription subscription : subscriptions) {
@@ -43,6 +48,7 @@ public class SubscriptionScheduler {
                         e.printStackTrace(); //결제 실패 처리 로직
                     }//try~catch
                 }//for end
+		}
 //            } finally {
 //                redisLockUtil.releaseLock(LOCK_KEY);
 //            }
