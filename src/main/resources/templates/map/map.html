@@ -26,17 +26,24 @@
     <script src="/javascript/map/drawRoute.js"></script>
 </head>
 <body>
-	
+	<div id="loading" class="loading-overlay">
+        <div class="loading-spinner">
+        	<svg xmlns="http://www.w3.org/2000/svg" style="margin: auto; background: none; display: block;" width="100px" height="100px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                <circle cx="50" cy="50" r="32" stroke-width="8" stroke="#3498db" stroke-dasharray="50.26548245743669 50.26548245743669" fill="none" stroke-linecap="round">
+                    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" keyTimes="0;1" values="0 50 50;360 50 50"></animateTransform>
+                </circle>
+            </svg>
+        </div>
+    </div>
+    	
 	<div id=content-for-footer>
 		<div id="map">
 			<div id="bottomBox">
-        		<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
         		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
-        		<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
         		
         		<div id="resultDivs">
 					<div id="result" class="infoItem"></div><!-- 결과창  -->
-					<div id="description" class="infoItem pt-0"></div><!-- 기록 보기  -->
+					<div id="description" class="infoItem"></div><!-- 기록 보기  -->
 					<div id="routeDescriptionList" class="infoItem list-group p-0"></div><!-- 경로 안내 창  -->
 				</div>
 
@@ -69,20 +76,6 @@
 				<div class="toggle-container">
   					<div class="toggle-switch" id="toggle-switch"></div>
 				</div><!-- 토글버튼 -->
-					
-				<!-- <div class="checkbox-container" id="checkboxGroup">
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="private" checked>
-					</div>
-
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="public" checked>
-					</div>
-
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="follow" checked>
-					</div>
-				</div> -->
 
 				<div class="justify-content-end d-flex">
 					<div class="btn btn-light rounded-circle" onclick="getCurrentLocation()"><i class="fas fa-crosshairs"></i></div>
@@ -123,8 +116,7 @@
 	let result = $("#result");
 	let routeDescriptionList = $("#routeDescriptionList");
 	let resultDivsBtn = $("#resultDivsBtn");
-	let listBtn = $("#listBtn");
-	let descriptionBtn = $("#descriptionBtn");
+	let badgeImage;
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -141,7 +133,9 @@
 		deleteResult();
 		recordList= [];
 		placeList=[];
-		
+
+        $('#loading').show();
+        
 		getCurrentLocation().done(function(location) {
 
 			const requestData = { latitude: location.coords.latitude, 
@@ -160,11 +154,13 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
+					badgeImage = response.badgeImage;
+					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
-					if(response.length != 0){
+					if(response.mapRecordList.length != 0){
 						$(".mapButton").removeClass('on');
-						const coordinates = response.map( (record,index) => {
+						const coordinates = response.mapRecordList.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬
@@ -184,7 +180,10 @@
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
-				} // error
+				}, // error
+				complete: function() {
+	                $('#loading').hide();
+	            }
 			}); //기록 검색 ajax
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
@@ -198,6 +197,8 @@
 		deleteResult();
 		recordList= [];
 		placeList= [];
+
+        $('#loading').show();
 		
 		getCurrentLocation().done(function(location) {
 
@@ -240,7 +241,10 @@
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
-				} // error
+				}, // error
+				complete: function() {
+	                $('#loading').hide();
+	            }
 			}); //기록 검색 ajax
 
 		}).fail(function(error) {
@@ -333,17 +337,26 @@
 		}
 	});
 	
-	/* $(document).on("click", ".simpleRecord .row", function(){
+	$(document).on("click", ".simpleRecordBackButton", function(){
+		showResult();
+	});
+	
+	$(document).on("click", ".simpleRecord .row", function(){
 		$(".infoItem").removeClass('on');
 		description.addClass('on');
 	    deleteDescription();
 	    description.append(detailRecordElement($(this).parent().data('index')) );
 	}); // 간단 보기 눌렀을 때 상세 보기로 
 	
+	$(document).on("click", ".detailRecordBackButton", function(event){
+		deleteDescription();
+		description.append(simpleRecordElement($(this).data('index')) );
+	}); // 상세 보기 눌렀을 때 간단 보기로
+	
 	$(document).on("click", ".detailRecord", function(event){
 		deleteDescription();
 		description.append(simpleRecordElement($(this).data('index')) );
-	}); // 상세 보기 눌렀을 때 간단 보기로*/
+	}); // 상세 보기 눌렀을 때 간단 보기로
 	
 	$(document).on("click", ".resultListItem", function(event){
 		clickMarkerFromCard($(this).index('.resultListItem'), recordList);
@@ -428,40 +441,6 @@
     		location.reload();	
     	}
     });// 재검색 버튼 클릭시
-    
-    function handleTouchMove(e, elementClass, upAction, downAction) {
-        var touch = e.originalEvent.touches[0];
-        var scrollTop = $(this).scrollTop();
-
-        if (elementClass === 'simpleRecord' && startY - touch.clientY >= 100) {
-            upAction.call(this);
-        } else if (elementClass === 'detailRecord' && startY - touch.clientY < -100) {
-            downAction.call(this);
-        }
-    }//터치이벤트
-
-    // 터치 이벤트 설정
-    description.on('touchstart', '.simpleRecord, .detailRecord', function(e) {
-        startY = e.originalEvent.touches[0].clientY;
-    });
-
-    description.on('touchmove', '.simpleRecord, .detailRecord', function(e) {
-    	e.preventDefault(); // 기본 터치 동작 방지
-
-        var elementClass = $(this).attr('class').split(' ').filter(c => c === 'simpleRecord' || c === 'detailRecord')[0];
-
-        handleTouchMove.call(this, e, elementClass, function() {
-            // simpleRecord에서 위로 스크롤할 때 동작
-            $(".infoItem").removeClass('on');
-            description.addClass('on');
-            deleteDescription();
-            description.append(detailRecordElement($(this).data('index')));
-        }, function() {
-            // detailRecord에서 아래로 스크롤할 때 동작
-            deleteDescription();
-            description.append(simpleRecordElement($(this).data('index')));
-        });
-    });
 
 	</script>
 </body>
