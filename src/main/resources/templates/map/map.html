@@ -433,9 +433,9 @@
         var touch = e.originalEvent.touches[0];
         var scrollTop = $(this).scrollTop();
 
-        if (elementClass === 'simpleRecord' && startY - touch.clientY >= 150) {
+        if (elementClass === 'simpleRecord' && startY - touch.clientY >= 100) {
             upAction.call(this);
-        } else if (elementClass === 'detailRecord' && startY - touch.clientY < -150) {
+        } else if (elementClass === 'detailRecord' && startY - touch.clientY < -100) {
             downAction.call(this);
         }
     }//터치이벤트
@@ -446,6 +446,8 @@
     });
 
     description.on('touchmove', '.simpleRecord, .detailRecord', function(e) {
+    	e.preventDefault(); // 기본 터치 동작 방지
+
         var elementClass = $(this).attr('class').split(' ').filter(c => c === 'simpleRecord' || c === 'detailRecord')[0];
 
         handleTouchMove.call(this, e, elementClass, function() {
