@@ -120,8 +120,12 @@
                     	} else {
                     	
                     		// $('form').attr('method', 'post').attr('action', '/user/login').submit();
+                    		console.log(response, typeof response);
                     		
-                    		alert("현재 정지 상태입니다. 정지 해제 일시 : " + response);
+                    		const tempStr = response.split("T");
+                    		
+                    		// alert("현재 정지 상태입니다. 정지 해제 일시 : " + response);
+                    		alert("현재 정지 상태입니다. 정지 해제 일시 : " + `${tempStr[0]} ${tempStr[1]}`);
                     		return;
                     		
                     	}

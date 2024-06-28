@@ -208,7 +208,7 @@ public class UserServiceImpl implements UserService {
 		}
 		*/
 		
-		
+		/*
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -242,8 +242,13 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-		
+		*/
 	
+		String userId="user_152";
+		String userPassword="password!30";
+		updatePassword(userId, userPassword);
+
+		
 		/*
 		for (int i = 124; i <= 152; i++) {
 		    String userId = "user_" + i;
@@ -978,7 +983,8 @@ public class UserServiceImpl implements UserService {
 					lastSuspensionDate = lastSuspensionDate.plusDays(14);
 					break;
 				case 4:
-					lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
+					// lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
+					lastSuspensionDate = lastSuspensionDate.plusYears(1000L);
 					break;
 				default :
 					throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
