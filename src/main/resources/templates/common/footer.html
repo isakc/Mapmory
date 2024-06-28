@@ -46,7 +46,7 @@
 			</div>
 		</div>
 		
-		<th:block th:if="${#request.requestURI.contains('/map') || #request.requestURI.contains('/timeline')}">
+		<th:block th:if="${#request.requestURI.contains('/map')}">
 			<div class="mobile-bottom-nav__item" >
 				<div class="mobile-bottom-nav__item-content" name="체크포인트">
 					<i class="material-icons footer-material-icons  notranslate">album</i>
@@ -55,7 +55,7 @@
 			</div>
 		</th:block>
 
-		<th:block th:if="${!(#request.requestURI.contains('/map') || #request.requestURI.contains('/timeline'))}">
+		<th:block th:if="!${#request.requestURI.contains('/map')}">
 			<div class="mobile-bottom-nav__item" >
 				<div class="mobile-bottom-nav__item-content"  name="맵">
 					<i class="material-icons footer-material-icons notranslate">map</i>
