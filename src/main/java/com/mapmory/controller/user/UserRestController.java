@@ -293,15 +293,10 @@ public class UserRestController {
         return bytes;
     }
 	
-	@PostMapping("/signUp")  // @RequestBody User user,
-	public ResponseEntity<Boolean> signUp(@RequestBody String birthday, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@PostMapping("/signUp")  // 
+	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		// System.out.println("생년월일 :: " + user.getBirthday());
 		
-		System.out.println("생년월일 :: " + birthday);
-		
-
-		/*
 		String userId = user.getUserId();
 		// Map<String, String> map = userService.getSocialKey(request, response);
 		SocialUserInfo userInfo = userService.getSocialInfo(request);
@@ -330,9 +325,7 @@ public class UserRestController {
 			
 			return ResponseEntity.ok(true);
 		}
-		*/
-        
-        return null;
+		
 	}
 	
 	@PostMapping("/addFollow")
