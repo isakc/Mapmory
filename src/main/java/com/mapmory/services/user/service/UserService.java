@@ -21,6 +21,7 @@ import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
@@ -284,7 +285,7 @@ public interface UserService {
 	
 	public String getKakaoAccessToken (String authorizeCode);
 	
-	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception;
+	public SocialUserInfo getKakaoUserInfo (String accessToken) throws Exception;
 	
 	public int PhoneNumberCheck(String to) throws Exception;
 	
