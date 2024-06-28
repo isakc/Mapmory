@@ -1,6 +1,7 @@
 package com.mapmory.services.user.service.impl;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mapmory.common.domain.SessionData;
+import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.service.LoginService;
@@ -26,7 +28,7 @@ public class LoginServiceImpl implements LoginService {
 	
 	private static final long KEEP_LOGIN_DAY = 60 * 24 * 90;
 	
-	
+	@Override
 	public boolean login(Login loginData, String savedPassword) throws Exception{
 		
 		if( loginData.getUserId().isEmpty() || loginData.getUserPassword().isEmpty()) {
@@ -37,6 +39,25 @@ public class LoginServiceImpl implements LoginService {
 		}
 	}
 	
+	@Override
+	public void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
+
+		String sessionId = UUID.randomUUID().toString();
+		if ( !setSession(userId, role, sessionId, keep))
+			throw new Exception("redis에 값이 저장되지 않음.");
+		
+		// Cookie cookie = createLoginCookie(sessionId, keep);
+		Cookie cookie;
+		if(keep)
+			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 60 * 24 * 90, "/");
+		else
+			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60, "/");
+		response.addCookie(cookie);
+		
+		// userService.addLoginLog(userId);
+	}
+	
+	@Override
 	public boolean setSession(String userId, byte role, String sessionId, boolean keepLogin) {
 		
 		int isKeepLogin = (keepLogin ? 1 : 0);
@@ -54,6 +75,7 @@ public class LoginServiceImpl implements LoginService {
 			return redisUtil.insert(sessionId, sessionData, KEEP_LOGIN_DAY);
 	}
 	
+	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
 		Cookie[] cookies = request.getCookies();

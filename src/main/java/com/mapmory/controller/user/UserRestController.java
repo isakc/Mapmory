@@ -62,6 +62,7 @@ import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
@@ -292,16 +293,18 @@ public class UserRestController {
         return bytes;
     }
 	
-	@PostMapping("/signUp")
+	@PostMapping("/signUp")  // 
 	public ResponseEntity<Boolean> signUp(@RequestBody User user, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
+		
 		String userId = user.getUserId();
-		Map<String, String> map = getSocialKey(request, response);
+		// Map<String, String> map = userService.getSocialKey(request, response);
+		SocialUserInfo userInfo = userService.getSocialInfo(request);
 		
 		String socialId = null;
-		if(map != null) {
+		if(userInfo != null) {
 			
-			socialId = map.get("socialId");
+			socialId = userInfo.getId();
 		}
 		
 		String simplePhoneNumber = user.getPhoneNumber();
@@ -310,7 +313,6 @@ public class UserRestController {
         String part3 = simplePhoneNumber.substring(7);
 
         String phoneNubmer = String.format("%s-%s-%s", part1, part2, part3);
-		
 		
 		boolean isDone = userService.addUser(user.getUserId(), user.getUserPassword(), user.getUserName(), user.getNickname(), user.getBirthday(), user.getSex(), user.getEmail(), phoneNubmer, socialId);
 		
@@ -570,6 +572,8 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
+	
+	
 	@PostMapping("/recoverAccount/{userId}")
 	public ResponseEntity<String> recoverAccount(@PathVariable String userId, @RequestParam String email) {
 		
@@ -600,8 +604,8 @@ public class UserRestController {
 	}
 	
 	// id email match 유효성 검사
-	@PostMapping("/checkIsMatched/{userId}")
-	public ResponseEntity<Boolean> checkIsMatched(@PathVariable String userId, @RequestParam String email) {
+	@PostMapping("/checkFindPassword/{userId}")
+	public ResponseEntity<Boolean> checkFindPassword(@PathVariable String userId, @RequestParam String email) {
 		
 		User user = userService.getDetailUser(userId);
 		
@@ -612,6 +616,8 @@ public class UserRestController {
 			System.out.println("일치하지 않는 이메일");
 			return ResponseEntity.ok(false);
 		} else {
+			
+			
 			return ResponseEntity.ok(true);
 		}
 	}
@@ -669,59 +675,6 @@ public class UserRestController {
 		return ResponseEntity.ok(!contentFilterUtil.checkBadWord(s));
 	}
 
-	/*
-	@PostMapping("/generateKey")
-	public ResponseEntity<GoogleAuthenticatorKey> generateKey(HttpServletRequest request, HttpServletResponse response) { 
-		
-		Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
-		Map<String, String> tempMap = redisUtilMap.select(cookie.getValue(), Map.class);
-		// String userId = map.get("userId");
-		// String userName = map.get("userName");
-		String userId = tempMap.get("userId");
-		String role = tempMap.get("role");
-		String keepLogin = tempMap.get("keepLogin");
-		
-		
-		
-		// String keyName = cookie.getValue();
-		
-		// String secondAuthKeyName = "SECONDAUTH-"+userId;
-		// String secondAuthKeyName = "SECONDAUTH-"+keyName;
-		String secondAuthKeyName = "SECONDAUTH-"+ userId;  // key name도 userId 기반 단방향 암호화 로직이 들어가야 한다.
-		String encodedKey = redisUtilString.select(secondAuthKeyName, String.class);
-		System.out.println("keyName : " + secondAuthKeyName);
-		System.out.println("encodedKey : " + encodedKey);
-
-		GoogleAuthenticatorKey returnKey = new GoogleAuthenticatorKey();
-		
-		// 기존 키가 없으면 새로 발급
-		if(encodedKey == null) {
-			
-			System.out.println("new");
-			
-			encodedKey = new String(userService.generateSecondAuthKey());
-			// client에 저장하기 보다는 redis에 저장해서 client가 오동작해도 키가 증발하지 않게 한다. (localStorage에 저장했다가 삭제하는 것이 베스트)
-			
-			
-			returnKey.setEncodedKey(encodedKey);
-			returnKey.setUserName(userId);
-			returnKey.setHostName(hostName);
-			
-			// 나중에 RDBMS에서 저장해두는 것이 좋을 것 같다는 생각.
-			redisUtilString.insert(secondAuthKeyName, encodedKey, 60*24*90L);
-
-			return ResponseEntity.ok(returnKey);
-			
-			// return ResponseEntity.ok(encodedKey);
-			
-		} else {
-
-			return ResponseEntity.ok(null); 
-		}
-
-	}
-*/	
-
 	@PostMapping("/checkSecondaryKey")
 	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -753,7 +706,8 @@ public class UserRestController {
 			
 			// String keyName = "SECONDAUTH-"+userId;
 			// redisUtilString.insert(keyName, encodedKey, 60*24*90L);
-			acceptLogin(userId, role, response, keep);
+			loginService.acceptLogin(userId, role, response, keep);
+			userService.addLoginLog(userId);
 
 			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/user"));
 			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
@@ -1015,103 +969,12 @@ public class UserRestController {
 	///////////////////////////////////////////////////////////////////////
    
     
-    private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
-
-		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.setSession(userId, role, sessionId, keep))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createLoginCookie(sessionId, keep);
-		response.addCookie(cookie);
-		
-		System.out.println("==================ACCEPT LOGIN===================");
-		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
-		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
-		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
-		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
-		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
-		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
-		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
-		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
-		System.out.println("=====================================");
-		
-		userService.addLoginLog(userId);
-	}
-    
-    private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
-		
-		Cookie cookie = new Cookie("JSESSIONID", sessionId);
-		cookie.setPath("/");
-		// cookie.setDomain("mapmory.life");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(true);
-		
-		if(keepLogin)
-			cookie.setMaxAge(60 * 60 * 24 * 90 );
-		else
-			cookie.setMaxAge(30 * 60);
-			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
-		
-		return cookie;
-	}
-    
-    private Map<String, String> getSocialKey(HttpServletRequest request, HttpServletResponse response) {
-		
-		Map<String, String> map = new HashMap<>();
-		
-		Cookie[] cookies = request.getCookies();
-		
-		for(Cookie cookie : cookies) {
-			
-			String cookieName = cookie.getName();
-			
-			if(cookieName.equals("KAKAOKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilString.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "2");
-				
-				return map;
-				
-			} else if(cookieName.equals("NAVERKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilString.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "1");
-				
-				return map;
-				
-			} else if(cookieName.equals("GOOGLEKEY")) {
-				
-				String keyName = cookie.getValue();
-				String socialId = redisUtilString.select(keyName, String.class);
-				cookie.setMaxAge(0);
-				response.addCookie(cookie);
-				
-				map.put("socialId", socialId);
-				map.put("type", "0");
-				
-				return map;
-				
-			} else {
-				System.out.println("social login 가입이 아님");
-			}
-		}
-		
-		return null;
-	}
     
     private ResponseEntity<String> doLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean needToChangePassword) throws Exception {
     	
-    	acceptLogin(userId, role, response, keep);
+    	loginService.acceptLogin(userId, role, response, keep);
+    	
+    	userService.addLoginLog(userId);
 		
 		
 		if(!needToChangePassword) {

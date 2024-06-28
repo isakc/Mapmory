@@ -61,9 +61,21 @@ body{
 /*반경 부분 end */
 
 /* 검색어 부분 start */
-#searchKeywordBox, input[name="searchKeyword"]{
-	width: 100%;
+#searchKeywordBox{
+	position: relative;
 }
+
+input[name="searchKeyword"]{
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.searchKeywordBox .fa-search {
+       position: absolute;
+       right: 10px; /* 아이콘의 위치 조정 */
+       color: #999;
+       font-size: 23px;
+    }
         
 #suggestions {
 	border: 1px solid #ccc;
@@ -178,29 +190,15 @@ body{
 }
 
 #result {
-    background-color: rgba(255, 255, 255); /* 흰색 배경, 약간 투명하게 조정 가능 */
-    width: 100%;
     max-height: 190px; /* 최대 높이 설정 */
-    overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
-    scrollbar-width: none; /* 스크롤바 숨기기 */
-    padding: 10px;
 }
 
 #description {
-	background-color: rgba(255, 255, 255); /* 흰색 바탕화면 */
-	width: 100%;
     max-height: 600px; /* 최대 높이 설정 */
-	overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
-	scrollbar-width: none;
-    padding: 10px;
 }
 
 #routeDescriptionList {
-	background-color: rgba(255, 255, 255); /* 흰색 바탕화면 */
-	width: 100%;
     max-height: 350px; /* 최대 높이 설정 */
-	overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
-	scrollbar-width: none;
 }
 
 .recordEmoji{
@@ -261,6 +259,12 @@ body{
 }
 
 .infoItem {
+	background-color: rgba(255, 255, 255); /* 흰색 배경, 약간 투명하게 조정 가능 */
+    width: 100%;
+    max-height: 190px; /* 최대 높이 설정 */
+    overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+    scrollbar-width: none; /* 스크롤바 숨기기 */
+    padding: 10px;
 	display: none;
 }
 
@@ -287,4 +291,8 @@ body{
 .video-js {
     width: 100%;
     height: 300px;
+}
+
+.fa-chevron-up, .fa-chevron-down{
+	color: #C7C7CC;
 }

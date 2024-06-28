@@ -127,17 +127,12 @@
 <body>
    	<div  id="content-for-footer">
     	<div class="container mt-5">
-			<div class="d-flex">
-				<a class="col-1 text-start fs-1" href="javascript:history.back()">⇦</a>
-				<div class="col-4"></div>
+			<div class="d-flex" style="justify-content: space-between;">
+				<a class="fs-1" href="javascript:history.back()">⇦</a>
 				<p class="h2 mt-3">소셜 로그인 연동</p>
 			</div>
     	
 	        <div id="social-login-btn" class="mt-5 my-3 row text-center img-fluid">
-	        	<div class="my-3">
-			        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(client_id=${google_client_id}, redirect_uri=${google_redirect_uri}, response_type=${google_response_type}, scope=${google_scope}, access_type=${google_access_type}, prompt=${google_prompt}, state=${google_state})}"></a>
-			        <img src="https://accounts.google.com/static/images/gsignin/v2/common/signin_button.svg" alt="Google 로그인" >
-		        </div>
 				<div id="naverIdLogin" class="my-3">
 					<!-- backend에서 navigation 처리하여 id를 숨길 것. -->
 					<a id="naverIdLogin_loginButton" href="/user/getNaverLoginView" role="button">

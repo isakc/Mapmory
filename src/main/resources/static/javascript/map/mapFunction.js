@@ -53,7 +53,7 @@ function setMarkers(contentList) {
         hideResultDivs();
         
 		$(".mapButton").removeClass('on');
-		if(recordList.length!=0){
+		if(recordList.length!=0 || placeList.length != 0){
 			resultDivsBtn.addClass('on');	
 		}
 		
@@ -181,7 +181,9 @@ function showResultDivs(){
 	$(".mapButton").removeClass('on');
 	resultDivs.css('display', 'block');
 	
-	listBtn.addClass('on');
+	if(!result.hasClass('on')){
+		listBtn.addClass('on');	
+	}
 }
 
 function showDescription(){
