@@ -180,7 +180,7 @@ public interface UserService {
 	public boolean updateSecondaryAuth(String userId, int type);
 	
 	/**
-	 * 1: column 변경 성공, 0: column 변경 실패, 2: 정책 상 변경 불가. 4: 현재 탈퇴 상태가 아님
+	 * 0: column 변경 실패, 1: column 변경 성공, 2: 정책 상 변경 불가, 3: 현재 탈퇴 상태가 아님
 	 * 1개월 조건 때문에 따로 분리
 	 * @param userId
 	 * @return
