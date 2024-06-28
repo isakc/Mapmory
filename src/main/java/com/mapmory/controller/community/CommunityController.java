@@ -23,6 +23,7 @@ import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
 import com.mapmory.common.util.TextToImage;
 import com.mapmory.controller.timeline.TimelineController;
+import com.mapmory.services.community.dao.CommunityDao;
 import com.mapmory.services.community.domain.CommunityLogs;
 import com.mapmory.services.community.domain.Reply;
 import com.mapmory.services.community.service.CommunityService;
@@ -37,6 +38,9 @@ public class CommunityController {
 	@Qualifier("communityServiceImpl")
 	private CommunityService communityService;
 
+	@Autowired
+	private CommunityDao communityDao;
+	
 	@Autowired
 	@Qualifier("timelineService")
 	private TimelineService timelineService;
@@ -93,7 +97,20 @@ public class CommunityController {
 		userId = redisUtil.getSession(request).getUserId();
 		search.setUserId(userId);
 		
+	    if (!"admin".equals(userId)) {
+	        CommunityLogs communityLogs = CommunityLogs.builder()
+	                .userId(userId)
+	                .recordNo(recordNo)
+	                .logsType(0)
+	                .build();
+	    		
+	        communityService.addCommunityLogs(communityLogs);	
+	    }		
+		int logsCount = communityDao.getSharedRecordViewCount(search, recordNo);				
+	    
 		SharedRecord sharedRecord = timelineService.getDetailSharedRecord(recordNo, userId);
+		
+		sharedRecord.setLogsCount(logsCount);
 		
 		String text = sharedRecord.getRecordText();
 		
@@ -155,16 +172,6 @@ public class CommunityController {
 	    model.addAttribute("apiKey", apiKey);	    
 	    model.addAttribute("replyList", replyData.get("list"));
 	    model.addAttribute("totalCount", replyData.get("totalCount"));
-	    
-	    if (!"admin".equals(userId)) {
-	        CommunityLogs communityLogs = CommunityLogs.builder()
-	                .userId(userId)
-	                .recordNo(recordNo)
-	                .logsType(0)
-	                .build();
-	    		
-	        communityService.addCommunityLogs(communityLogs);	
-	    }
 	    
 	    System.out.println("model :"+model);
 	    
