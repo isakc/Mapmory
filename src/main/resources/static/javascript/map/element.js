@@ -89,6 +89,10 @@ const simpleRecordElement = (index) => {
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
 	const subImgSrc = `/user/rest/profile/sub.png`;
 	const htmlString = `
+			<div class="d-flex justify-content-center align-items-center">
+				<i class="fas fa-chevron-up fs-3"></i>
+	        </div>
+	        
 	        <div class="card border-0 border-bottom mb-3 simpleRecord container" data-index=${index} >
 	        
 	        	<div class="row">
@@ -178,8 +182,12 @@ const detailRecordElement = (index) => {
 	const subImgSrc = `/user/rest/profile/sub.png`;
 	const videoId = `my-video-${index}`; // 각 비디오 요소에 고유한 ID를 부여
 	const htmlString = `
-	        <div class="card border-0 border-bottom mb-3 detailRecord container" data-index=${index} >
+			<div class="d-flex justify-content-center align-items-center">
+				<i class="fas fa-chevron-down fs-3"></i>
+	        </div>
 	        
+	        <div class="card border-0 border-bottom mb-3 detailRecord container" data-index=${index} >
+
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
 						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
@@ -280,6 +288,7 @@ const detailRecordElement = (index) => {
     		profileImgElement.attr('src', err ? profileImgSrc : src);
   		});
   		
+  		recordList[index].mediaName != '' ?
   		setTimeout(() => {
         	new Swiper(htmlElement.find('.mySwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
@@ -297,7 +306,8 @@ const detailRecordElement = (index) => {
         	});
         	
         	videojs(videoId);
-    	}, 0);
+    	}, 0)
+    	: '';
     	
   		return htmlElement;
 }
@@ -314,6 +324,21 @@ const recommendListElement = (index) => {
 const detailPlaceElement = (index) => {
 	return `
 	        <div class="card border-0 border-bottom mb-3 detailPlace" data-index=${index}>
+	        <div class="row">
+	        		<div class="col-6">
+					</div>
+					
+					<div class="routeButtonGroup col-6 p-0">
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+	        			
+    					<div class="routeAdditionalButtons bg-primary">
+      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+	        			</div>
+	        		</div>
+	        	</div><!-- row -->
+	        		
 	            <div class="g-0">
 	                    <div class="card-body">
 	                        <h5 class="card-title fw-bold fs-3">${placeList[index].placeName}</h5>
@@ -324,15 +349,6 @@ const detailPlaceElement = (index) => {
 	                        
 	                </div>
 	            </div>
-	        </div>
-	            		
-    		<div class="routeButtonGroup">
-	        	<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-    			<div class="routeAdditionalButtons">
-      				<button class="btn btn-primary" onclick="drawRoute('1')"><i class="fas fa-walking"></i></button>
-	        		<button class="btn btn-primary" onclick="drawRoute('2')"><i class="fas fa-car"></i></button>
-	        		<button class="btn btn-primary" onclick="drawTransitRoute()"><i class="fas fa-bus"></i></button>
- 				</div>
 	        </div>
 	    `;
 }
@@ -361,7 +377,7 @@ const routeListElement = (response) => {
 	        	</div>
 	        	
 	        	<div class="ml-auto">
- 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left fs-4"></i></button>
+ 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-times fs-4"></i></button>
  				</div>
 	        </div>
 		</div>
