@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -259,7 +261,7 @@ public interface UserService {
 	
 	public boolean setSocialKey(String keyName, SocialUserInfo userInfo);
 	
-	public SocialUserInfo getSocialUserInfo (String keyName);
+	public SocialUserInfo getSocialInfo(HttpServletRequest request);
 	
 	public String generateSecondAuthKey();
 	

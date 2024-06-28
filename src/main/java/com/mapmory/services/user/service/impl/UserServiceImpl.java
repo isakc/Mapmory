@@ -32,6 +32,8 @@ import java.util.stream.Stream;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1104,7 +1106,8 @@ public class UserServiceImpl implements UserService {
     	// LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    Date birthday = dateFormat.parse(birthYear + "-" + birthOnlyDay);
-    	
+
+    	// String birthday = birthYear + "-" + birthOnlyDay;
     	String[] temp = profileInfo.getMobile().split("-");
     	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
 		
@@ -1136,11 +1139,47 @@ public class UserServiceImpl implements UserService {
 		return redisUtilSocialUserInfo.insert(keyName, userInfo, 10L);
 	}
 	
-	@Override
-	public SocialUserInfo getSocialUserInfo (String keyName) {
+	public SocialUserInfo getSocialInfo(HttpServletRequest request) {
 		
-		return redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
-	}
+		SocialUserInfo socialUserInfo = null;
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				
+				// map.put("socialUserInfo", keyName);
+				// socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				System.out.println("쇼셜 유저 인포 : : : : : : : :" +  socialUserInfo);
+				
+				return socialUserInfo;
+				
+			} else if(cookieName.equals("NAVERKEY")) {
+			
+				String keyName = cookie.getValue();
+				// String socialId = redisUtilString.select(keyName, String.class);
+				
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				return socialUserInfo;
+				
+			} else {
+				System.out.println("social login 가입이 아님");
+			}
+
+		}
+
+		return null;
+    }
 	
 	
 	@Override
@@ -1362,7 +1401,7 @@ public class UserServiceImpl implements UserService {
             socialUserInfo.setEmail(kakaoEmail);
             socialUserInfo.setPhoneNumber(kakaoPhone);
             socialUserInfo.setGender(kakaoGender);
-            socialUserInfo.setBirthday(kakaoDatE);
+            // socialUserInfo.setBirthday(kakaoDatE);
             socialUserInfo.setId(kakaoId);
 
         } catch (IOException e) {

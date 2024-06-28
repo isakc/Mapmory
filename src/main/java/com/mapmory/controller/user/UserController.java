@@ -198,7 +198,7 @@ public class UserController {
 		Cookie[] cookies = request.getCookies();
 		System.out.println("쿠키 : : : : : ::  : : :: " + Arrays.asList(cookies));
 		if(cookies != null) {	
-			SocialUserInfo socialUserInfo = getSocialInfo(request, null);
+			SocialUserInfo socialUserInfo = userService.getSocialInfo(request);
 			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
 			model.addAttribute("socialUserInfo", socialUserInfo);
 		}
@@ -981,61 +981,4 @@ public class UserController {
 	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
 	    return googleTokenRequest;
 	}
-    
-    private SocialUserInfo getSocialInfo(HttpServletRequest request, HttpServletResponse response) {
-		
-		SocialUserInfo socialUserInfo = null;
-		
-		Cookie[] cookies = request.getCookies();
-		
-		for(Cookie cookie : cookies) {
-			
-			String cookieName = cookie.getName();
-			
-			if(cookieName.equals("KAKAOKEY")) {
-				
-				String keyName = cookie.getValue();
-				
-				// map.put("socialUserInfo", keyName);
-				// socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
-				socialUserInfo = userService.getSocialUserInfo(keyName);
-				cookie.setMaxAge(0);
-//				response.addCookie(cookie);
-				
-				System.out.println("쇼셜 유저 인포 : : : : : : : :" +  socialUserInfo);
-				
-				return socialUserInfo;
-			}
-			
-//			} else if(cookieName.equals("NAVERKEY")) {
-//			
-//			String keyName = cookie.getValue();
-//			String socialId = redisUtilString.select(keyName, String.class);
-//			cookie.setMaxAge(0);
-//			response.addCookie(cookie);
-//			
-//			map.put("socialId", socialId);
-//			map.put("type", "1");
-//			
-//			return map;
-//			
-//		} else if(cookieName.equals("GOOGLEKEY")) {
-//			
-//			String keyName = cookie.getValue();
-//			String socialId = redisUtilString.select(keyName, String.class);
-//			cookie.setMaxAge(0);
-//			response.addCookie(cookie);
-//			
-//			map.put("socialId", socialId);
-//			map.put("type", "0");
-//			
-//			return map;
-//			
-//		} else {
-//			System.out.println("social login 가입이 아님");
-//		}
-		}
-		return null;
-	}	
-
 }
