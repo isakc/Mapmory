@@ -7,6 +7,12 @@
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
 <style type="text/css">
+body {
+	position:flex;
+    margin: 0;
+    padding: 0;
+    overflow-y:auto; 
+}
 #content-for-footer {
 	margin-left: 20px;
 	margin-right: 20px;
@@ -20,7 +26,7 @@
 </style>
 </head>
 <body>
-<div id=content-for-footer>
+<div id="content-for-footer">
 	<button id="addTimecapsule" type="button" class="btn btn-primary btn-lg" th:name="addTimecapsule" th:text="'기록하기'"></button>
 		<div class="d-flex justify-content-end">
    			<label for="getTimecapsuleListSwitch" class="badge bg-primary" th:text="'임시저장 목록'"></label>
