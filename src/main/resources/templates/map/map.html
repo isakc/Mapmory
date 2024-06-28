@@ -36,8 +36,8 @@
         		
         		<div id="resultDivs">
 					<div id="result" class="infoItem"></div><!-- 결과창  -->
-					<div id="description" class="infoItem"></div><!-- 기록 보기  -->
-					<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창  -->
+					<div id="description" class="infoItem pt-0"></div><!-- 기록 보기  -->
+					<div id="routeDescriptionList" class="infoItem list-group p-0"></div><!-- 경로 안내 창  -->
 				</div>
 
 			</div>
@@ -58,7 +58,8 @@
 				</div><!-- 반경 박스 -->
         		
         		<div class="searchKeywordBox">
-    				<input type="text" name="searchKeyword" placeholder="search" th:value="${searchKeyword}"/>
+    				<i class="fas fa-search"></i>
+    				<input type="text" name="searchKeyword" placeholder="검색어를 입력해주세요" th:value="${searchKeyword}"/>
     			</div><!-- 검색어 박스 -->
     			
 				<div id="suggestions"></div><!-- 추천 검색어 -->
@@ -159,11 +160,10 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
-					console.log(response);
-					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
 					if(response.length != 0){
+						$(".mapButton").removeClass('on');
 						const coordinates = response.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
@@ -176,6 +176,7 @@
 						
 						$(".infoItem").removeClass("on");
 						result.addClass("on");
+						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
 					}
@@ -275,6 +276,10 @@
 	    return deferred.promise();
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
+	$(".fa-search").on('click', function(){
+		searchRecord();
+	});
+	
 	$(document).on('click', '.hashTag', function(){
 		event.stopPropagation();
 		$('input[name="searchKeyword"]').val($(this).text());
@@ -328,17 +333,17 @@
 		}
 	});
 	
-	$(document).on("click", ".simpleRecord .row", function(){
+	/* $(document).on("click", ".simpleRecord .row", function(){
 		$(".infoItem").removeClass('on');
 		description.addClass('on');
 	    deleteDescription();
 	    description.append(detailRecordElement($(this).parent().data('index')) );
-	}); // 간단 보기 눌렀을 때 상세 보기로
+	}); // 간단 보기 눌렀을 때 상세 보기로 
 	
 	$(document).on("click", ".detailRecord", function(event){
 		deleteDescription();
 		description.append(simpleRecordElement($(this).data('index')) );
-	}); // 상세 보기 눌렀을 때 간단 보기로
+	}); // 상세 보기 눌렀을 때 간단 보기로*/
 	
 	$(document).on("click", ".resultListItem", function(event){
 		clickMarkerFromCard($(this).index('.resultListItem'), recordList);
@@ -355,6 +360,12 @@
 	$('input[name="searchKeyword"]').on('focus', function(){
         getSuggestions();
     }); // 검색창에 누르면 추천 검색어 나오게 설정
+    
+    $(document).on('click', function(event) {
+        if (!$(event.target).closest('.searchKeywordBox').length) {
+        	$('input[name="searchKeyword"]').blur();
+        }
+    });// input 요소 이외의 영역을 클릭하면 포커스를 해제
 	
     $(document).on('click', function(event) {
         if (!$(event.target).closest('#searchKeyword').length) {
@@ -401,20 +412,55 @@
           $(this).attr('title', '추천');
           checkboxGroup.css('display', 'none');
           searchBoxGroup.css('display', 'none');
-          refrestButtn.attr('onClick', 'getRecommendPlace()');
           getRecommendPlace();
         } else {
           $(this).attr('title', '기록');
           checkboxGroup.css('display', 'inline-block');
           searchBoxGroup.css('display', 'block');
-          refrestButtn.attr('onClick', 'searchRecord()');
           searchRecord();
         }
     });// 토글 스위치
     
     refrestButtn.on('click', function(){
-    	location.reload();
-    })
+    	if(searchBoxGroup.css('display') === 'none' ){
+            getRecommendPlace();
+    	}else{
+    		location.reload();	
+    	}
+    });// 재검색 버튼 클릭시
+    
+    function handleTouchMove(e, elementClass, upAction, downAction) {
+        var touch = e.originalEvent.touches[0];
+        var scrollTop = $(this).scrollTop();
+
+        if (elementClass === 'simpleRecord' && startY - touch.clientY >= 150) {
+            upAction.call(this);
+        } else if (elementClass === 'detailRecord' && startY - touch.clientY < -150) {
+            downAction.call(this);
+        }
+    }//터치이벤트
+
+    // 터치 이벤트 설정
+    description.on('touchstart', '.simpleRecord, .detailRecord', function(e) {
+        startY = e.originalEvent.touches[0].clientY;
+    });
+
+    description.on('touchmove', '.simpleRecord, .detailRecord', function(e) {
+        var elementClass = $(this).attr('class').split(' ').filter(c => c === 'simpleRecord' || c === 'detailRecord')[0];
+
+        handleTouchMove.call(this, e, elementClass, function() {
+            // simpleRecord에서 위로 스크롤할 때 동작
+            $(".infoItem").removeClass('on');
+            description.addClass('on');
+            deleteDescription();
+            description.append(detailRecordElement($(this).data('index')));
+        }, function() {
+            // detailRecord에서 아래로 스크롤할 때 동작
+            deleteDescription();
+            description.append(simpleRecordElement($(this).data('index')));
+        });
+    });
+
 	</script>
 </body>
 
