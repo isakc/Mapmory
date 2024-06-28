@@ -2,12 +2,44 @@
  * 
  */
 
-const recordListElement = (index) => {
-	return `
-		<div class="card border-0 border-bottom mb-3 container resultListItem">
+const recordListSwipe = (index) => {
+	var swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        on: {
+			slideChange: function () {
+				let index = this.activeIndex;
+				
+				selectLatitude = recordList[index].latitude;
+    			selectLongitude = recordList[index].longitude;
+    			map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
+    
+    			if (clickedMarker) {
+        			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+        			clickedMarker.setZIndex(3);
+    			}
+    
+    			beforeMarkerType = recordList[index].markerType;
+    			markers[index].setZIndex(5);
+    			markers[index].setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
+    			clickedMarker = markers[index]; // 현재 클릭된 마커를 업데이트
+			}
+		}
+    });
+    
+	const slideHtml = `
+		<div class="swiper-slide card border-0 border-bottom mb-3 container resultListItem">
 		
 			<!--<div class="profileImageContainer">
-				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}" />
+				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
 	        	<span class="fs-5 ">${recordList[index].nickName}</span>
 	        	${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
 			</div> 프로필 상자 -->
@@ -20,7 +52,63 @@ const recordListElement = (index) => {
 	            
 	      			<div>
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].profileImageName}" alt="Category Imoji"
+	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
+	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+	    		
+	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	      			</div><!-- 이모지 + 거리 -->
+	      			
+	          		<p class="card-text">
+        				${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
+         				<a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
+    				</p><!-- 해시태그 -->
+	      	
+	          		<p class="card-text text-muted mt-3"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
+	          		
+	      		</div><!-- 본문 중간부분 col-9 -->
+	      
+	      	<div class="col-3">
+	      		<div class="recordImageContainer">
+	      		
+	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
+	      			`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid" alt="기록 사진"/>`:
+					'<img src="https://via.placeholder.com/150?text=" class="img-fluid"'}
+	      		</div>
+	      	</div><!-- 사진 부분 col-3 -->
+	     </div><!--row-->
+	  </div><!-- card -->
+	`;
+	
+	swiper.appendSlide(slideHtml);
+};
+
+
+
+
+
+
+
+
+
+const recordListElement = (index) => {
+	return `
+		<div class="card border-0 border-bottom mb-3 container resultListItem">
+		
+			<!--<div class="profileImageContainer">
+				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
+	        	<span class="fs-5 ">${recordList[index].nickName}</span>
+	        	${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
+			</div> 프로필 상자 -->
+
+	    	<div class="row g-0">
+	      		<div class="col-9 card-body p-1">
+	            	<div class="mb-2">
+	                	<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	            	</div><!-- 제목 -->
+	            
+	      			<div>
+	      				${recordList[index].categoryImoji != null ? 
+	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -64,14 +152,14 @@ const simpleRecordElement = (index) => {
 	        			${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6 p-0">
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-	        			
+					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
     					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
 	        			</div>
+	        			
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        		</div>
 	        	</div><!-- row -->
 	        		
@@ -83,7 +171,7 @@ const simpleRecordElement = (index) => {
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].profileImageName}" alt="Category Imoji"
+	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -133,14 +221,14 @@ const detailRecordElement = (index) => {
 	        			${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6 p-0">
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-	        			
+					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
     					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
 	        			</div>
+	        			
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        		</div>
 	        	</div><!-- row -->
 	        		
@@ -152,7 +240,7 @@ const detailRecordElement = (index) => {
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].profileImageName}" alt="Category Imoji"
+	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -229,7 +317,7 @@ const detailRecordElement = (index) => {
 }
 
 const recommendListElement = (index) => {
-	return `<div class="card border-0 border-bottom mb-3 place" onClick='clickMarkerFromCard( ${JSON.stringify(index)}, placeList )'>
+	return `<div class="card border-0 border-bottom mb-3 place placeListItem">
     			<h2 class="card-title fw-bold ellipsis fs-3">${index+1}. ${placeList[index].placeName} </h2>
     			<p class="card-text">${placeList[index].categoryName} </p>
     			<p class="card-text fs-5">${placeList[index].addressName} </p>
@@ -239,19 +327,25 @@ const recommendListElement = (index) => {
 
 const detailPlaceElement = (index) => {
 	return `
-	        <div class="card border-0 border-bottom mb-3 detailPlace" data-index=${index}>
+			<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
+    			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
+    			<i class="fas fa-minus fs-3"></i>
+			</div>
+	
+	        <div class="card border-0 border-bottom mb-3 container" data-index=${index}>
 	        <div class="row">
 	        		<div class="col-6">
 					</div>
 					
-					<div class="routeButtonGroup col-6 p-0">
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
 	        			
     					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
 	        			</div>
+	        			
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        		</div>
 	        	</div><!-- row -->
 	        		
@@ -268,7 +362,6 @@ const detailPlaceElement = (index) => {
 	        </div>
 	    `;
 }
-	
 	
 const routeListElement = (response) => {
 	console.log(response);
