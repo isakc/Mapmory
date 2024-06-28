@@ -3,95 +3,78 @@ $(function() {
 	console.log('onLoad');
 	
 	$('#userId').on('input', function() {
+	  const userId = document.getElementById('userId').value;
+	  const userIdRegex = /^[a-z0-9_-]{5,20}$/;
 	
-		const userId = document.getElementById('userId').value;
-	    const userIdRegex = /^[a-z0-9_-]{5,20}$/;
-
-	    if ((userId.length < 5) || !userIdRegex.test(userId)) {
-
-	        // $('#userIdMsg').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.').css('color', 'red').show();
-	        $('#userIdMsg').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.').removeClass('text-success').addClass('text-danger').show();
-	        $('#userIdChecked').text('false');
-	        event.preventDefault();
+	  if ((userId.length < 5) || !userIdRegex.test(userId)) {
+	    $('#userId').removeClass('is-valid').addClass('is-invalid');
+	    $('#userIdMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('아이디는 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능합니다.');
+	    $('#userIdChecked').text('false');
+	    event.preventDefault();
+	    return;
+	  } else {
+	    let result;
+	    $.ajax({
+	      url : "/user/rest/checkBadWord",
+	      method : "post",
+	      dataType : "json",
+	      headers : {
+	        "accept" : "application/json",
+	        "content-type" : "application/json"
+	      },
+	      data : JSON.stringify({
+	        value : $('#userId').val()
+	      }),
+	      async : false,
+	      success : function(responseBody, httpStatus) {
+	        result = responseBody;
+	      },
+	      error : function(jqXHR, textStatus, errorThrown) {
+	        alert('오류 발생 : ' + jqXHR.responseText);
 	        return;
-	        
-		} else {
-			let result;
-		 	$.ajax({
-					
-				url : "/user/rest/checkBadWord",
-				method : "post",
-				dataType : "json",
-				headers : {
-					"accept" : "application/json",
-					"content-type" : "application/json"
-				},
-				data : JSON.stringify({
-					value : $('#userId').val()
-				}),
-				async : false,
-				success : function(responseBody, httpStatus) {
-					
-					result = responseBody;
-
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					
-					alert('오류 발생 : ' + jqXHR.responseText);
-					return;
-				}
-			});
-			
-			console.log("비속어 통과?:" + result);
-			if(!result) {
-				
-				// $('#userIdMsg').text('욕설은 사용할 수 없습니다.').css('color', 'red').show();
-				$('#userIdMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success-custom').addClass('text-danger-custom').show();
-				return;
-			}
-				
-			
-			$.ajax({
-					
-				url : "/user/rest/checkDuplication",
-				method : "post",
-				dataType : "json",
-				headers : {
-					"accept" : "application/json",
-					"content-type" : "application/json"
-				},
-				data : JSON.stringify({
-					type : 0,
-					value : $('#userId').val()
-				}),
-				async : false,
-				success : function(responseBody, httpStatus) {
-
-					result = responseBody;
-					
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					
-					alert('오류 발생 : ' + jqXHR.responseText);
-				}
-			});
-			
-			console.log("중복 통과?:" + result);
-			if (result === true) {
-
-				// $('#userIdMsg').text('사용 가능한 아이디입니다.').css('color', 'green').show();
-				$('#userIdMsg').text('사용 가능한 아이디입니다.').removeClass('text-danger').addClass('text-success').show();
-				$('#userIdChecked').text('true');
-				
-			} else {
-
-				// $('#userIdMsg').text('중복되는 아이디입니다.').css('color', 'red').show();
-				$('#userIdMsg').text('중복되는 아이디입니다.').removeClass('text-success').addClass('text-danger').show();
-			}
-			
-			return;
-				
-		}
+	      }
+	    });
+	
+	    console.log("비속어 통과?:" + result);
+	    if(!result) {
+	      $('#userId').removeClass('is-valid').addClass('is-invalid');
+	      $('#userIdMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('욕설은 사용할 수 없습니다.');
+	      return;
+	    }
+	
+	    $.ajax({
+	      url : "/user/rest/checkDuplication",
+	      method : "post",
+	      dataType : "json",
+	      headers : {
+	        "accept" : "application/json",
+	        "content-type" : "application/json"
+	      },
+	      data : JSON.stringify({
+	        type : 0,
+	        value : $('#userId').val()
+	      }),
+	      async : false,
+	      success : function(responseBody, httpStatus) {
+	        result = responseBody;
+	      },
+	      error : function(jqXHR, textStatus, errorThrown) {
+	        alert('오류 발생 : ' + jqXHR.responseText);
+	      }
+	    });
+	
+	    console.log("중복 통과?:" + result);
+	    if (result === true) {
+	      $('#userId').removeClass('is-invalid').addClass('is-valid');
+	      $('#userIdMsg').removeClass('invalid-feedback').addClass('valid-feedback').text('사용 가능한 아이디입니다.');
+	      $('#userIdChecked').text('true');
+	    } else {
+	      $('#userId').removeClass('is-valid').addClass('is-invalid');
+	      $('#userIdMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('중복되는 아이디입니다.');
+	      $('#userIdChecked').text('false');
+	    }
+	    return;
+	  }
 	});
 	
 	
@@ -105,13 +88,14 @@ $(function() {
 	    if (!passwordRegex.test(password)) {
 			
 	        // $('#passwordMsg').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.').css('color', 'red').show();
-	        $('#passwordMsg').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.').removeClass('text-success').addClass('text-danger').show();
+	        $('#userPassword').removeClass('is-valid').addClass('is-invalid');
+	        $('#passwordMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('비밀번호는 8~16자의 영문 대/소문자, 숫자, 특수문자(!@#$%^&*_+-=)만 사용 가능합니다.');
 	        $('passwordChecked').text('false');
 	        event.preventDefault();
 	        return;
 	    } else {
-			
-			$('#passwordMsg').text('사용 가능한 비밀번호입니다.').removeClass('text-danger').addClass('text-success').show();
+			$('#userPassword').removeClass('is-invalid').addClass('is-valid');
+			$('#passwordMsg').removeClass('invalid-feedback').addClass('valid-feedback').text('사용 가능한 비밀번호입니다.');
 			$('#passwordChecked').text('true');
 	        event.preventDefault();
 	        return;
@@ -126,13 +110,14 @@ $(function() {
 	    
 	    if ( !nameRegex.test(name)) {
 
-	        $('#userNameMsg').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.').removeClass('text-success').addClass('text-danger').show();
+			$('#userName').removeClass('is-valid').addClass('is-invalid');
+	        $('#userNameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.');
 	        $('#userNameChecked').text('false');
 	        event.preventDefault();
 	        return;
 	    } else {
-			
-			$('#userNameMsg').text('사용 가능한 이름입니다.').removeClass('text-danger').addClass('text-success').show();
+			$('#userName').removeClass('is-invalid').addClass('is-valid');
+			$('#userNameMsg').removeClass('invalid-feedback').addClass('valid-feedback').text('사용 가능한 이름입니다.');
 			$('#userNameChecked').text('true');
 	        event.preventDefault();
 	        return;
@@ -142,10 +127,11 @@ $(function() {
 	$('#nickname').on('input', function() {
 		
 		const nickname = document.getElementById('nickname').value;
-	    const nicknameRegex = /^[A-Za-z가-힣\d][A-Za-z가-힣\d\s]{0,9}$/;
+	    const nicknameRegex = /^[A-Za-z가-힣\d][A-Za-z가-힣\d]{0,9}$/;
 	    if (!nicknameRegex.test(nickname)) {
 			
-	        $('#nicknameMsg').text('닉네임은 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.').removeClass('text-success').addClass('text-danger').show();
+			$('#nickname').removeClass('is-valid').addClass('is-invalid');
+	        $('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('닉네임은 최소 1자 최대 10자의 한글, 영어, 숫자만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.');
 	        $('#nicknameChecked').text('false');
 	        event.preventDefault();
 	        return;
@@ -179,8 +165,9 @@ $(function() {
 			});
 			
 			if (result === false) {
-
-				$('#nicknameMsg').text('욕설은 사용할 수 없습니다.').removeClass('text-success').addClass('text-danger').show();
+				
+				$('#nickname').removeClass('is-valid').addClass('is-invalid');
+	      		$('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('욕설은 사용할 수 없습니다.');
 				return;
 			}
 			
@@ -210,13 +197,16 @@ $(function() {
 			
 							
 			if (result === true) {
-
-				$('#nicknameMsg').text('사용 가능한 닉네임입니다.').removeClass('text-danger').addClass('text-success').show();
+				
+	      		$('#nickname').removeClass('is-invalid').addClass('is-valid');
+				$('#nicknameMsg').removeClass('invalid-feedback').addClass('valid-feedback').text('사용 가능한 닉네임입니다.');
 				$('#nicknameChecked').text('true');
 				
 			} else {
-
-				$('#nicknameMsg').text('중복되는 닉네임입니다.').removeClass('text-success').addClass('text-danger').show();
+				
+				$('#userId').removeClass('is-valid').addClass('is-invalid');
+				$('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('중복되는 닉네임입니다.');
+				$('#nicknameChecked').text('false');
 			}
 		}
 		
@@ -376,7 +366,7 @@ $(function() {
 		const email = $("#email").val(); //사용자가 입력한 이메일 값 얻어오기
 		console.log(email);
 		
-		email_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+		email_regex = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
 		
 		if( !email_regex.test(email) ) {
 			
@@ -463,4 +453,3 @@ function getCookie(codeKeyName) {
 const userId = getCookie('userId');
 console.log(userId); // 예: "kim1234"
 */
-

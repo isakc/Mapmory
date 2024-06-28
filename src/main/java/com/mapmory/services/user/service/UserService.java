@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -178,7 +180,7 @@ public interface UserService {
 	public boolean updateSecondaryAuth(String userId, int type);
 	
 	/**
-	 * 1: column 변경 성공, 0: column 변경 실패, 2: 정책 상 변경 불가. 4: 현재 탈퇴 상태가 아님
+	 * 0: column 변경 실패, 1: column 변경 성공, 2: 정책 상 변경 불가, 3: 현재 탈퇴 상태가 아님
 	 * 1개월 조건 때문에 따로 분리
 	 * @param userId
 	 * @return
@@ -255,7 +257,11 @@ public interface UserService {
 	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
 	// public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
-	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	public SocialUserInfo getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	
+	public boolean setSocialKey(String keyName, SocialUserInfo userInfo);
+	
+	public SocialUserInfo getSocialInfo(HttpServletRequest request);
 	
 	public String generateSecondAuthKey();
 	
