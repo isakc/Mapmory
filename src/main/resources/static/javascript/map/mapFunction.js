@@ -91,6 +91,8 @@ function clickContentMarker(marker, index, contentList) {
     marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
     clickedMarker = marker; // 현재 클릭된 마커를 업데이트
 
+	swiper.slideTo(index);
+	
     $(".infoItem").removeClass("on");
 	description.addClass("on");
 	deleteDescription();

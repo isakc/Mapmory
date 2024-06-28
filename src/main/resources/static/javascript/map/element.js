@@ -3,20 +3,18 @@
  */
 
 const recordListSwipe = (index) => {
-	var swiper = new Swiper('.swiper-container', {
+	swiper = new Swiper('.swiper-container', {
         slidesPerView: 1,
         spaceBetween: 10,
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
         pagination: {
             el: '.swiper-pagination',
             clickable: true,
         },
+        watchOverflow: true,
         on: {
 			slideChange: function () {
 				let index = this.activeIndex;
+				console.log(index);
 				
 				selectLatitude = recordList[index].latitude;
     			selectLongitude = recordList[index].longitude;
@@ -36,7 +34,7 @@ const recordListSwipe = (index) => {
     });
     
 	const slideHtml = `
-		<div class="swiper-slide card border-0 border-bottom mb-3 container resultListItem">
+		<div class="swiper-slide card border-0 container resultListItem">
 		
 			<!--<div class="profileImageContainer">
 				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
@@ -193,7 +191,7 @@ const simpleRecordElement = (index) => {
 	      			<div class="recordImageContainer">
 	      				${recordList[index].imageName && recordList[index].imageName.length > 0 ?
 	      				`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid rounded-start" alt="기록 사진"/>`:
-						''}}
+						''}
 	      			</div>
 	      		</div><!-- 사진 부분 col-3 -->
 	     	</div><!--row-->

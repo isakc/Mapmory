@@ -62,7 +62,7 @@
   					<input type="radio" id="radius1" name="radius" value=3>
   					<label for="radius1">3km</label>
   
-  					<input type="radio" id="radius3" name="radius" value=5 checked>
+  					<input type="radio" id="radius3" name="radius" value=200 checked>
   					<label for="radius3">5km</label>
   
   					<input type="radio" id="radius5" name="radius" value=10>
@@ -123,6 +123,7 @@
 	let routeDescriptionList = $("#routeDescriptionList");
 	let resultDivsBtn = $("#resultDivsBtn");
 	let badgeImage;
+	let swiper;
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -184,14 +185,16 @@
 
 							return record;
 						});
-						
 						$(".infoItem").removeClass("on");
 						//result.addClass("on");
 						$(".swiper-container").addClass("on");
 						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
+					}else{
+						console.log("없음");
 					}
+					console.log(recordList);
 					
 				}, // success
 				error: function(error) {
