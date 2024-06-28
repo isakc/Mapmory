@@ -176,10 +176,9 @@
 </head>
 <body class="container mt-3">
 
-  <div class="row mb-4">
-    <p class="fs-1 col-9">회원가입</p>
-    <div class="col-1"></div>
-    <a class="fs-1 col-1 text-end" href="javascript:history.back()">⇦</a>
+  <div class="d-flex mb-4" style="justify-content: space-between;">
+    <p class="fs-1">회원가입</p>
+    <a class="fs-1" href="javascript:history.back()">⇦</a>
   </div>
 
   <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
