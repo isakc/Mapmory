@@ -196,7 +196,7 @@ public class UserController {
 		// model.addAttribute("user", User.builder().build());
 		
 		Cookie[] cookies = request.getCookies();
-		// System.out.println("쿠키 : : : : : ::  : : :: " + Arrays.asList(cookies));
+		
 		if(cookies != null) {	
 			SocialUserInfo socialUserInfo = userService.getSocialInfo(request);
 			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
