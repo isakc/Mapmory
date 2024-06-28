@@ -6,75 +6,118 @@
    <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
-   <link rel="stylesheet" href="https://www.riamore.net/HTML5demo/chart/rMateChartH5/Assets/Css/rMateChartH5.css"/>
 <style>
-body {
-	position:flex;
-    font-family: Arial, sans-serif;
+body, html {
     margin: 0;
     padding: 0;
-    overflow-y:auto; 
-}
-#chartHolder {
-	position:flex;
     width: 100%;
-    height: 85dvh;
-    bottom: 10lvh;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+}
+
+#keywords {
+    width: 100%;
+    text-align: center;
+}
+
+h3 {
+    position: fixed;
+    top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    text-align: center;
+}
+
+#my_dataviz {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    overflow-y: hidden;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 </style>
 </head>
 <body>
 <div id="content-for-footer">
-	<div class="container text-center">
-		<div class="row">
-		    <div class="col-12">
-				<h3 th:text="'키워드 빈도'"></h3>
-			</div>
-		</div>
+	<div id="keywords">
+		<h3 th:text="'키워드 빈도'"></h3>
+		<br/>
+		<div id="my_dataviz"></div>
 	</div>
-    <div id="chartHolder"></div>
+    <!-- Create a div where the graph will take place -->
 </div>
 <div class="footer-map">
 <div th:replace="common/footer::defaultFooter"></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-<script src="https://www.riamore.net/HTML5demo/chart/LicenseKey/rMateChartH5License.js"></script>
-<script src="https://www.riamore.net/HTML5demo/chart/rMateChartH5/JS/rMateChartH5.js"></script>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<!-- Load d3-cloud -->
+<script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3.layout.cloud.js"></script>
+
 <script th:inline="javascript">
-    $(document).ready(function() {
-        rMateChartH5.create("chart1", "chartHolder", "", "100%", "100%");
+let keywordList=JSON.parse([[${keywordList}]]);
+console.log(keywordList);
+var colors = ["#69b3a2","#52bb9d", "#727b84", "#ed527c", "#f6a33d", "#ed527a", "#90d5c2"];
+//List of words
+var myWords = keywordList;
 
-        let keywordList=JSON.parse([[${keywordList}]]);
-        console.log(keywordList);
-        var layoutStr = 
-            '<rMateChart backgroundColor="#FFFFFF" borderStyle="none">'
-                + '<Options></Options>'
-                + '<WordCloudChart showDataTips="true">'
-                    + '<series>'
-                        + '<WordCloudSeries textField="text" weightField="value">'
-                            + '<showDataEffect>'
-                                + '<SeriesInterpolate duration="1000"/>'
-                            + '</showDataEffect>'
-                            + '<fills>'
-                                + '<SolidColor color="#52bb9d"/>'
-                                + '<SolidColor color="#727b84"/>'
-                                + '<SolidColor color="#ed527c"/>'
-                                + '<SolidColor color="#f6a33d"/>'
-                                + '<SolidColor color="#ed527a"/>'
-                                + '<SolidColor color="#90d5c2"/>'
-                            + '</fills>'
-                        + '</WordCloudSeries>'
-                    + '</series>'
-                + '</WordCloudChart>'
-            + '</rMateChart>';
+//set the dimensions and margins of the graph
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+ width = 350 - margin.left - margin.right,
+ height = 600 - margin.top - margin.bottom;
 
-            var chartData = keywordList;
+//append the svg object to the body of the page
+var svg = d3.select("#my_dataviz").append("svg")
+ .attr("width", width + margin.left + margin.right)
+ .attr("height", height + margin.top + margin.bottom)
+.append("g")
+ .attr("transform",
+       "translate(" + margin.left + "," + margin.top + ")");
 
-        rMateChartH5.calls("chart1", {
-            "setLayout": layoutStr,
-            "setData": chartData
-        });
-    });
+//Constructs a new cloud layout instance. It run an algorithm to find the position of words that suits your requirements
+//Wordcloud features that are different from one word to the other must be here
+var layout = d3.layout.cloud()
+.size([width, height])
+.words(myWords.map(function(d) { return {text: d.word, size:d.size}; }))
+.padding(5)        //space between words
+.rotate(function() { return ~~(Math.random() * 2) * 90; })
+.fontSize(function(d) { return d.size; })      // font size of words
+.on("end", draw);
+layout.start();
+
+//This function takes the output of 'layout' above and draw the words
+//Wordcloud features that are THE SAME from one word to the other can be here
+function draw(words) {
+svg
+ .append("g")
+   .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+   .selectAll("text")
+     .data(words)
+   .enter().append("text")
+     .style("font-size", function(d) { return d.size; })
+     .style("fill", function(d, i) { return colors[i % colors.length]; })
+     .attr("text-anchor", "middle")
+     .style("font-family", "Impact")
+     /* .style("position", "flex")
+     .style("width", "80%")
+     .style("height", "85dvh")
+     .style("bottom", "10lvh") */
+     .attr("transform", function(d) {
+       return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+     })
+     .text(function(d) { return d.text; });
+}
 </script>
 </body>
 </html>
