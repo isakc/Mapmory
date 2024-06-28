@@ -67,11 +67,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     	Subscription subscription = Subscription.builder()
     								.userId(purchase.getUserId())
     								.nextSubscriptionPaymentMethod(paymentMethod)
-    								//.nextSubscriptionPaymentDate(paidAt.plusDays(product.getPeriod()))
-    								.nextSubscriptionPaymentDate(paidAt.plusMinutes(5))
+    								.nextSubscriptionPaymentDate(paidAt.plusDays(product.getPeriod()))
     								.subscriptionStartDate(paidAt)
-    								//.subscriptionEndDate(paidAt.plusDays(1))
-    								.subscriptionEndDate(paidAt.plusMinutes(5))
+    								.subscriptionEndDate(paidAt.plusDays(product.getPeriod()))
     								.customerUid(returnPayment.getResponse().getCustomerUid())
     								.merchantUid(returnPayment.getResponse().getMerchantUid())
     								.build();
