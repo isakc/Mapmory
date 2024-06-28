@@ -507,7 +507,7 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		String userId = redisUtil.getSession(request).getUserId();
-		timelineService.getKeywordList(userId);
+		model.addAttribute("keywordList",timelineService.getKeywordList(userId));
 		return "timeline/getKeywordList";
 	}
 	@GetMapping("addVoiceToText")
