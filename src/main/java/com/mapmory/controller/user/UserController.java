@@ -202,10 +202,10 @@ public class UserController {
 			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
 			model.addAttribute("socialUserInfo", socialUserInfo);
 		} else {
-			SocialUserInfo socialUserInfo = new SocialUserInfo();
-			socialUserInfo.setGender("U");
-			model.addAttribute("socialUserInfo",socialUserInfo);
-		}
+	         SocialUserInfo socialUserInfo = new SocialUserInfo();
+	         socialUserInfo.setGender("U");
+	         model.addAttribute("socialUserInfo",socialUserInfo);
+	      }
 				
 		model.addAttribute("user", User.builder().build());
 		
@@ -261,7 +261,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/getPasswordView")
-	public String postPasswordView(@RequestParam Map<String, String> map) {
+	public String postPasswordView(@RequestParam Map<String, String> map, HttpServletResponse response) {
 		
 		String userId = map.get("userId");
 		String email = map.get("email");
@@ -269,7 +269,8 @@ public class UserController {
 		boolean result = userService.checkUserExist(userId, email);
 		
 		// 시간 되면 uuid로 변환할 것
-		createCookie("UPDATEPW", userId, 60*5, "/user");
+		Cookie cookie = CookieUtil.createCookie("UPDATEPW", userId, 60*5, "/user");
+		response.addCookie(cookie);
 		
 		if(result == true)
 			return "redirect:/user/getUpdatePasswordView";
@@ -434,6 +435,10 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
+		String[] temp = user.getPhoneNumber().split("-");
+		String phoneNumber = temp[0] + temp[1] + temp[2];
+		user.setPhoneNumber(phoneNumber);
+		
 		model.addAttribute("user", user);
 		
 	}
@@ -573,7 +578,7 @@ public class UserController {
 	        	*/
 	        	userService.setSocialKey(keyName, profileInfo);
 	        	
-	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
+	            Cookie cookie = CookieUtil.createCookie("NAVERKEY", keyName, 60 * 10, "/user");
 	            response.addCookie(cookie);
 		    	
 		    	// model.addAttribute("naverId", naverId);
@@ -585,12 +590,13 @@ public class UserController {
 	    	User user = userService.getDetailUser(userId);
         	byte role=user.getRole();
         	
-	    	acceptLogin(userId, role, response, false);
+	    	return doSocialLogin(userId, role, response);
+	    	/*
 	    	if(role == 1)
 	    		return "redirect:/map";
 	    	else
 	    		return "redirect:/user/admin/getAdminMain";
-	    	
+	    	*/
 	    }
 	}
 	
@@ -777,7 +783,7 @@ public class UserController {
                 	// redisUtilSocialUserInfo.insert(keyName, socialUserInfo, 10L);
                 	userService.setSocialKey(keyName, socialUserInfo);
 
-                    Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
+                    Cookie cookie = CookieUtil.createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
                     response.addCookie(cookie);
                     
                     model.addAttribute("socialUserInfo", socialUserInfo);
@@ -797,11 +803,15 @@ public class UserController {
             	response.addCookie(cookie);
             	*/
             	
-            	acceptLogin(userId, role, response, false);
+            	/*
+            	loginService.acceptLogin(userId, role, response, false);
+            	
             	
                 return "redirect:/map"; // 메인 페이지로 리다이렉트
             	// return ResponseEntity.ok("map");
+            	*/
             	
+            	return doSocialLogin(userId, role, response);
             }
             
         } catch (Exception e) {
@@ -821,92 +831,12 @@ public class UserController {
 		
 	}
 
-	/*
-	// redis에 맞게 session 방식 변경 필요
- 	@GetMapping(value = "/kakaoLogin")
-     public String kakaoLogin(@RequestParam(value = "code", required = false) String code) {
- 		
-         try {
-             String accessToken = userService.getKakaoAccessToken(code);
-             String kakaoId = userService.getKakaoUserInfo(accessToken);
-
-             if (kakaoId == null) {
-                 return "error"; // 카카오 사용자 정보가 없으면 에러 처리
-             }
-             
-             SocialLoginInfo socialLoginInfo = SocialLoginInfo.builder()
-                     .socialId(kakaoId)
-                     .build();
-             
-             String tempSocialId = userService.getSocialId(socialLoginInfo);
-
- 
-             if (tempSocialId == null) {
-            	 
-                 // 카카오 사용자 정보가 없으면 회원가입 페이지로 리다이렉트
-                 session.setAttribute("kakaoId", kakaoId);
-                 redirectAttributes.addAttribute("kakaoId", kakaoId);
-                 return "redirect:/user/addUser";
-             }
-
-
-             // 로그인 성공 처리
-             session.setAttribute("tempSocialId", tempSocialId);
-             return "index";
-         } catch (Exception e) {
-             e.printStackTrace();
-             return "error";
-         }
-     }
-     */
-	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	//// util ////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
-	
-	private Cookie findCookie(String cookieKeyName, HttpServletRequest request) {
-    	
-    	System.out.println(request.getPathInfo());
-    	System.out.println(request.getServletPath());
-    	Cookie[] cookies = request.getCookies();
-    	
-    	for(Cookie cookie : cookies) {
-    		
-    		if(cookie.getName().equals(cookieKeyName)) {
-    			
-    			return cookie;
-    			
-    		}	
-    	}
-    	
-    	return null;
-    }
-	
-    private Cookie createCookie(String codeKeyName, String codeKey, int maxAge, String path) {
-		
-		Cookie cookie = new Cookie(codeKeyName, codeKey);
-		cookie.setPath(path);
-		// cookie.setDomain("mapmory.co.kr");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(false);
-		cookie.setMaxAge(maxAge);
-		
-		return cookie;
-	}
-	
-	private Cookie createTempCookie(String cookieId, String sessionId) {
-		
-		Cookie cookie = new Cookie(cookieId, sessionId);
-		cookie.setPath("/");
-		// cookie.setDomain("mapmory.co.kr");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(true);
-		cookie.setMaxAge(60 * 10);
-		
-		return cookie;
-	}
+
 	
 	private Profile setProfileViewData(String userId) throws Exception {
 		
@@ -949,35 +879,22 @@ public class UserController {
 		return profile;
 	}
 	
-	private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
+	private String doSocialLogin(String userId, byte role, HttpServletResponse response) throws Exception {
+    	
+		// 소셜 로그인 회원은 보안 상 로그인 유지 설정 불가하게 만듦. 어차피 로그인하기 편해서 불편하지는 않을 것으로 생각됨.
+    	loginService.acceptLogin(userId, role, response, false);
+    	userService.addLoginLog(userId);
 
-		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.setSession(userId, role, sessionId, keep))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createLoginCookie(sessionId, keep);
-		response.addCookie(cookie);
-		
-		userService.addLoginLog(userId);
-	}
-    
-    private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
-		
-		Cookie cookie = new Cookie("JSESSIONID", sessionId);
-		cookie.setPath("/");
-		// cookie.setDomain("mapmory.life");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(true);
-		
-		if(keepLogin)
-			cookie.setMaxAge(60 * 60 * 24 * 90 );
+
+    	// 소셜 로그인 사용자는 비밀번호가 없기 때문에 비밀번호 변경 권장 메세지를 보낼 필요가 없음.
+		System.out.println("role : " + role);
+		if(role == 1)
+			return "redirect:/map";
 		else
-			cookie.setMaxAge(30 * 60);
-			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
+			return "redirect:/user/admin/getAdminMain";
 		
-		return cookie;
-	}
-    
+    }
+	
     private HttpEntity<MultiValueMap<String, String>> makeTokenRequest(MultiValueMap<String, String> params) {
 		
 	    HttpHeaders headers = new HttpHeaders();
