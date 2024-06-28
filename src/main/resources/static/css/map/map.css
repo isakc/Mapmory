@@ -13,11 +13,11 @@ body{
 }
 
 .rounded-image {
-    	width: 30px; /* 원하는 너비 */
-    	height: 30px; /* 원하는 높이 */
-    	border-radius: 50%; /* 원형으로 만들기 */
-    	object-fit: cover; /* 이미지의 비율을 유지하면서 잘라내기 */
-	}
+	width: 30px !important; /* 원하는 너비 */
+    height: 30px !important; /* 원하는 높이 */
+    border-radius: 50% !important;/* 원형으로 만들기 */
+    object-fit: cover !important; /* 이미지의 비율을 유지하면서 잘라내기 */
+}
 
 #searchBoxGroup{
 	width: 100%;
@@ -240,7 +240,8 @@ input[name="searchKeyword"]{
 }
 
 .routeAdditionalButtons {
-     display: none;
+     /* display: none; */
+     visibility: hidden;
 }
 
 .transitRoute .on{
@@ -272,16 +273,12 @@ input[name="searchKeyword"]{
 	display: block;
 }
 
-.mapButton{
+#resultDivsBtn{
 	display: none;
 }
 
-.mapButton.on{
+#resultDivsBtn.on{
 	display: block;
-}
-
-.fas{
-	font-size: 3.89vw;
 }
 
 .btn-secondary-custom{
@@ -313,4 +310,15 @@ input[name="searchKeyword"]{
 .loading-spinner {
     width: 100px;
     height: 100px;
+}
+
+.swiper-container {
+	width: 100%;
+	height: 100%;
+}
+        
+.swiper-slide {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
