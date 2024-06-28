@@ -196,11 +196,15 @@ public class UserController {
 		// model.addAttribute("user", User.builder().build());
 		
 		Cookie[] cookies = request.getCookies();
-		System.out.println("쿠키 : : : : : ::  : : :: " + Arrays.asList(cookies));
+		
 		if(cookies != null) {	
 			SocialUserInfo socialUserInfo = userService.getSocialInfo(request);
 			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
 			model.addAttribute("socialUserInfo", socialUserInfo);
+		} else {
+			SocialUserInfo socialUserInfo = new SocialUserInfo();
+			socialUserInfo.setGender("U");
+			model.addAttribute("socialUserInfo",socialUserInfo);
 		}
 				
 		model.addAttribute("user", User.builder().build());
