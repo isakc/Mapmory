@@ -616,6 +616,8 @@ public class UserRestController {
 			System.out.println("일치하지 않는 이메일");
 			return ResponseEntity.ok(false);
 		} else {
+			
+			
 			return ResponseEntity.ok(true);
 		}
 	}
