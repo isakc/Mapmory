@@ -8,7 +8,18 @@
 	<link href="/css/common/mapmory-color.css" rel="stylesheet">
 	
 	<script>
-		$(function() {
+		
+		document.addEventListener("keydown", function (e) {
+		    // F5 키 및 Ctrl+R 키 조합을 차단
+		    if ((e.which || e.keyCode) === 116 || ((e.ctrlKey || e.metaKey) && (e.which || e.keyCode) === 82)) {
+		        e.preventDefault();
+		        e.stopPropagation();
+		        alert("새로고침이 차단되었습니다.");
+		    }
+		});
+
+	
+		$(document).ready(function() {
 			
 			const today = new Date().toISOString().split('T')[0];
 			$('#birthday').attr('max', today);
@@ -27,35 +38,42 @@
 			const name = `[[${socialUserInfo.name}]]`;
 			const email = `[[${socialUserInfo.email}]]`;
 			const phoneNumber = `[[${socialUserInfo.phoneNumber}]]`;
+			const password = `[[${socialUserInfo.name}]]`;
 			
 			console.log(name, email, phoneNumber);
 			
 			if(name != '') {
 				$('#userNameChecked').text('true');
-				$('#userName').attr('readonly', true);
+				$('#userName').attr('disabled', true);
 			}
 			
 			if(email != '') {
 				
 				$('#emailChecked').text("true");
 				$('#sendAuthEmail').attr('disabled', true);
-				$('#email').attr('readonly', true);
+				$('#email').attr('disabled', true);
 				$('#emailAuthCode').attr('type', 'hidden');
 				
 			}
 			
 			if(phoneNumber != '') {
 				
-				$('#phoneNumber').attr('readonly', true);
+				$('#phoneNumber').attr('disabled', true);
 	            $('#sendAuthPhoneNum').attr('disabled', true);
 	            $('#phoneAuthCode').attr('type', 'hidden');
 				$('#phoneNumberChecked').text('true');
 			}
 			
+			if(password != ''){
+				$('#passwordChecked').text('true');
+				$('#userPassword').attr('disabled', true);
+				$('#userPassword').removeAttr('required');
+			}
+			
 			$('#submitForm').on('click', function() {
 				
 				if ($('#userIdChecked').text() === 'false') {
-		            $('#userIdMsg').text('아이디를 다시 확인해주세요.').css('color', 'red').show();
+		            $('#userIdMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('아이디를 다시 확인해주세요.').show();
 		            event.preventDefault();
 		            return;
 		        } else {
@@ -176,39 +194,38 @@
 </head>
 <body class="container mt-3">
 
-  <div class="row mb-4">
-    <p class="fs-1 col-9">회원가입</p>
-    <div class="col-1"></div>
-    <a class="fs-1 col-1 text-end" href="javascript:history.back()">⇦</a>
+  <div class="d-flex mb-4" style="justify-content: space-between;">
+    <p class="fs-1">회원가입</p>
+    <a class="fs-1" href="javascript:history.back()">⇦</a>
   </div>
 
   <form th:action="@{/user/signUp}" th:object="${user}" method="post" id="signupForm">
-    <div class="mb-3">
-      <label for="userId" class="form-label">아이디</label>
-      <input type="text" id="userId" th:field="*{userId}" class="form-control" placeholder="아이디" required/>
-      <p id="userIdMsg" style="display: none;"></p>
-      <p id="userIdChecked" style="display: none;">false</p>
-    </div>
+  	<div class="mb-3">
+  		<label for="userId" class="form-label">아이디</label>
+  		<input type="text" id="userId" th:field="*{userId}" class="form-control" placeholder="아이디" required/>
+  		<div id = "userIdMsg" class = "feedback"></div>
+  		<p id="userIdChecked" style="display: none;">false</p> 
+	</div>
 
     <div class="mb-3">
       <label for="userPassword" class="form-label">비밀번호</label>
-      <input type="password" id="userPassword" th:field="*{userPassword}" class="form-control" placeholder="비밀번호" required/>
-      <p id="passwordMsg" style="display: none;"></p>
+      <input type="password" id="userPassword" name="userPassword" class="form-control" th:value="${socialUserInfo.name != null ? '' : '' }" placeholder="비밀번호" required/>
+      <div id = "passwordMsg" class = "feedback"></div>
       <p id="passwordChecked" style="display: none;">false</p>
     </div>
 
     <div class="mb-3">
       <label for="userName" class="form-label">이름</label>
       <input type="text" id="userName" name="userName" class="form-control" placeholder="이름" required th:value="${socialUserInfo.name != null ? socialUserInfo.name : '' }"/>
-      <p id="userNameMsg" style="display: none;"></p>
+      <div id = "userNameMsg" class = "feedback"></div>
       <p id="userNameChecked" style="display: none;">false</p>
     </div>
 
     <div class="mb-3">
       <label for="nickname" class="form-label">닉네임</label>
       <input type="text" id="nickname" th:field="*{nickname}" class="form-control" placeholder="닉네임" required/>
-      <p id="nicknameMsg" style="display: none;"></p>
-      <p id="nicknameChecked" style="display: none;">false</p>
+      <div id = "nicknameMsg" class = "feedback"></div>
+      <p id = "nicknameChecked" style =  "display : none;"></p>
     </div>
 
     <div class="mb-3">
@@ -217,12 +234,12 @@
       <p id="birthdayMsg" style="display: none;"></p>
     </div>
 
-    <div class="mb-3">
+     <div class="mb-3">
       <label for="sex" class="form-label">성별</label>
       <select id="sex" name="sex" class="form-select" required>
-        <option value="0" th:if="${socialUserInfo.gender=='U'} ? select">비공개</option>
-        <option value="1" th:if="${socialUserInfo.gender=='M'} ? select">남성</option>
-        <option value="2" th:if="${socialUserInfo.gender=='F'} ? select">여성</option>
+        <option value="0" th:if="${socialUserInfo.gender=='U'} ? select : ''">비공개</option>
+        <option value="1" th:if="${socialUserInfo.gender=='M'} ? select : ''">남성</option>
+        <option value="2" th:if="${socialUserInfo.gender=='F'} ? select : ''">여성</option>
       </select>
     </div>
 

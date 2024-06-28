@@ -41,10 +41,10 @@ public class WebConfig implements WebMvcConfigurer{
 				.order(1)
 				.addPathPatterns("/**")
 				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**")
-				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", 
+				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", "/user/rest/checkFindPassword/*", 
 						"/user/rest/checkAuthNum", "/user/rest/sendEmailAuthNum", "/user/rest/sendPhoneNumberAuthNum",
 						"/user/rest/verify", "/user/rest/image", "/user/rest/nkey", "/user/rest/checkDuplication",
-						"/user/rest/checkBadWord", "/user/rest/getId", "/user/getUpdatePasswordView", "/user/rest/updatePassword",
+						"/user/rest/checkBadWord", "/user/rest/getId", "/user/getUpdatePasswordView", "/user/rest/updatePassword", 
 						"/user/google/auth/callback", "/user/getNaverLoginView", "/user/getGoogleLoginView",
 						"/user/kakaoCallback", "/user/getKakaoLoginView", "/user/naver/auth/callback",
 						"/user/getRecoverAccountView", "/user/getAgreeTermsAndConditionsList", "/user/getUserDetailTermsAndConditions",

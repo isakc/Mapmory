@@ -12,7 +12,6 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
-	<link rel="stylesheet" href="/css/common/chatBot.css">	
 
 	<!-- 무한스크롤 -->
 	<script th:inline="javascript">
@@ -134,6 +133,14 @@
 	</script>
 
 	<style>
+		.container {
+			margin-top : 20px;
+		}	
+	
+		#navHeader {
+			background-color : #7FB4E2;
+			color : #333333;			
+		}
 		.moreIcon-cell {
 			vertical-align: middle;
 			text-align : center;
@@ -191,14 +198,14 @@
 		}		
 				
 		.header {
-		    font-size : 16px;
+		    font-size : 18px;
 		    font-weight : bold;			
 		}
 		
 		.blockCount {
 			float : right;
 		    font-weight: bold;
-		    font-size : 16px;		
+		    font-size : 18px;		
 		}		 
 		
 		.bi.bi-ban.custom-icon {
@@ -215,18 +222,23 @@
 		.more {
 			text-align : center;
 		}
+		
+		.targetId {
+			display : none;
+		}
 	
 	</style>
 
 </head>
 <body>
+	<div th:include="~{ 'common/floatingButton.html' }"></div>
 	<div id=content-for-footer>
 		<div class="container">
             <div class="block-header">
                 <div class="icon-wrapper">		
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
-						<div class="nav-link active">
+						<div id="navHeader"class="nav-link active">
 							<i class="bi bi-ban custom-icon"></i>
 							<span class="header">차단목록조회</span>
 							<span class="blockCount" th:text="'차단한 유저 : '+${totalCount}+'명'"></span>
@@ -252,7 +264,7 @@
 							<span>
 								<i id="moreIcon" class="bi bi-three-dots"></i>
 							</span>
-							<span class="targetId" style="display:none" th:text="${block.targetId}" th:data-target-id="${block.targetId}"></span>
+							<span class="targetId" th:text="${block.targetId}" th:data-target-id="${block.targetId}"></span>
 						</td>
 					</tr>	
 					</tbody>
@@ -277,8 +289,7 @@
 				</div>
 			</div>
 		</div>  		
-	</div>
-	<div th:include="~{ 'common/chatbotModal.html' }"></div>		
+	</div>	
 	<div th:replace="common/footer::defaultFooter"></div>
 </body>	
 </html>

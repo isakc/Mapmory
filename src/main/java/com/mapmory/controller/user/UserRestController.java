@@ -572,6 +572,8 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
+	
+	
 	@PostMapping("/recoverAccount/{userId}")
 	public ResponseEntity<String> recoverAccount(@PathVariable String userId, @RequestParam String email) {
 		
@@ -602,8 +604,8 @@ public class UserRestController {
 	}
 	
 	// id email match 유효성 검사
-	@PostMapping("/checkIsMatched/{userId}")
-	public ResponseEntity<Boolean> checkIsMatched(@PathVariable String userId, @RequestParam String email) {
+	@PostMapping("/checkFindPassword/{userId}")
+	public ResponseEntity<Boolean> checkFindPassword(@PathVariable String userId, @RequestParam String email) {
 		
 		User user = userService.getDetailUser(userId);
 		
@@ -614,6 +616,8 @@ public class UserRestController {
 			System.out.println("일치하지 않는 이메일");
 			return ResponseEntity.ok(false);
 		} else {
+			
+			
 			return ResponseEntity.ok(true);
 		}
 	}
@@ -702,7 +706,8 @@ public class UserRestController {
 			
 			// String keyName = "SECONDAUTH-"+userId;
 			// redisUtilString.insert(keyName, encodedKey, 60*24*90L);
-			acceptLogin(userId, role, response, keep);
+			loginService.acceptLogin(userId, role, response, keep);
+			userService.addLoginLog(userId);
 
 			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/user"));
 			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
@@ -964,50 +969,12 @@ public class UserRestController {
 	///////////////////////////////////////////////////////////////////////
    
     
-    private void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
-
-		String sessionId = UUID.randomUUID().toString();
-		if ( !loginService.setSession(userId, role, sessionId, keep))
-			throw new Exception("redis에 값이 저장되지 않음.");
-		
-		Cookie cookie = createLoginCookie(sessionId, keep);
-		response.addCookie(cookie);
-		
-		System.out.println("==================ACCEPT LOGIN===================");
-		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
-		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
-		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
-		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
-		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
-		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
-		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
-		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
-		System.out.println("=====================================");
-		
-		userService.addLoginLog(userId);
-	}
-    
-    private Cookie createLoginCookie(String sessionId, boolean keepLogin) {
-		
-		Cookie cookie = new Cookie("JSESSIONID", sessionId);
-		cookie.setPath("/");
-		// cookie.setDomain("mapmory.life");
-		// cookie.setSecure(true);
-		cookie.setHttpOnly(true);
-		
-		if(keepLogin)
-			cookie.setMaxAge(60 * 60 * 24 * 90 );
-		else
-			cookie.setMaxAge(30 * 60);
-			// cookie.setMaxAge(-1);  redis쪽에서도 설정 필요
-		
-		return cookie;
-	}
-    
     
     private ResponseEntity<String> doLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean needToChangePassword) throws Exception {
     	
-    	acceptLogin(userId, role, response, keep);
+    	loginService.acceptLogin(userId, role, response, keep);
+    	
+    	userService.addLoginLog(userId);
 		
 		
 		if(!needToChangePassword) {
