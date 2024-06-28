@@ -10,7 +10,7 @@
 .footer-container {
 	border-top: 2px solid #2780e3;
 	width : 100%;
-	height : 100%;
+	height : 9vh;
 	margin: 0;
 	position: sticky;
 	bottom: 0;
@@ -19,6 +19,7 @@
 	background-color: white;
 	z-index: 9999;
 }
+
 
 .mobile-bottom-nav {
 	z-index: 1000;
@@ -51,15 +52,23 @@
 }
 
 
-.footer-material-icons{
-	font-size: 5vh !important;  
-}
-
-.checkPoint-button-footer {
-	font-size: 7vh !important;
-}
+ .footer-material-icons{
+		font-size: 5vh !important;  
+	}
+	
+	.checkPoint-button-footer {
+	  font-size: 7vh !important;
+	}
+	
 
 div#content-for-footer {
 	min-height: 93dvh;
 }
+
+	
+	body {
+		height: 100dvh;
+	}
+	
+	
 	

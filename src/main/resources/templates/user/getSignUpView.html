@@ -154,6 +154,36 @@
 			   
 			   console.log('ok');
 			    
+			   
+			   if(name != '') {
+					$('#userNameChecked').text('true');
+					$('#userName').attr('disabled', false);
+				}
+				
+				if(email != '') {
+					
+					$('#emailChecked').text("true");
+					$('#sendAuthEmail').attr('disabled', false);
+					$('#email').attr('disabled', false);
+					$('#emailAuthCode').attr('type', 'hidden');
+					
+				}
+				
+				if(phoneNumber != '') {
+					
+					$('#phoneNumber').attr('disabled', false);
+		            $('#sendAuthPhoneNum').attr('disabled', false);
+		            $('#phoneAuthCode').attr('type', 'hidden');
+					$('#phoneNumberChecked').text('true');
+				}
+				
+				if(password != ''){
+					$('#passwordChecked').text('true');
+					$('#userPassword').attr('disabled', false);
+					$('#userPassword').removeAttr('required');
+				}
+			   
+				
 			   const form = new FormData($('form').get(0));
 			   const formJson = {};
 			   
