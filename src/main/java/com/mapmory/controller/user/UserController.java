@@ -79,9 +79,6 @@ public class UserController {
 	private UserServiceJM userServiceJm;
 	
 	@Autowired
-	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
-	
-	@Autowired
 	@Qualifier("userServiceImpl")
 	private UserService userService;
 	
@@ -99,6 +96,11 @@ public class UserController {
 	
 	@Autowired
 	private RedisUtil<String> redisUtilString;
+
+	/*
+	@Autowired
+	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
+	*/
 	
 	@Autowired
 	private SubscriptionService subscriptionService;
@@ -523,13 +525,13 @@ public class UserController {
 		System.out.println("Flag");
 		
 	    NaverAuthToken token = userService.getNaverToken(code, state);
-	    Map<String, Object> profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
-	    
+	    // Map<String, Object> profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
+	    SocialUserInfo profileInfo = userService.getNaverProfile(code, state, token.getAccess_token());
 	    // System.out.println("naver profile:: " + profileInfo);
 	    
 	    // String naverId = profileInfo.getId();
 
-	    String naverId = (String) profileInfo.get("id");
+	    String naverId = profileInfo.getId();
 	    
 	    String userId = userService.getUserIdBySocialId(naverId);
 	    
@@ -561,8 +563,11 @@ public class UserController {
 		    	String uuid = UUID.randomUUID().toString();
 	        	String keyName = "n-"+uuid;
 	        	
+	        	/*
 	        	redisUtilString.insert(keyName, naverId, 10L);
 	        	redisUtilMap.insert(keyName, profileInfo, 10L);
+	        	*/
+	        	userService.setSocialKey(keyName, profileInfo);
 	        	
 	            Cookie cookie = createCookie("NAVERKEY", keyName, 60 * 10, "/user");
 	            response.addCookie(cookie);
@@ -765,7 +770,8 @@ public class UserController {
                 	String uuid = UUID.randomUUID().toString();
                 	String keyName = "k-"+uuid;
 
-                	redisUtilSocialUserInfo.insert(keyName, socialUserInfo, 10L);
+                	// redisUtilSocialUserInfo.insert(keyName, socialUserInfo, 10L);
+                	userService.setSocialKey(keyName, socialUserInfo);
 
                     Cookie cookie = createCookie("KAKAOKEY", keyName, 60 * 10, "/user");
                     response.addCookie(cookie);
@@ -991,7 +997,8 @@ public class UserController {
 				String keyName = cookie.getValue();
 				
 				// map.put("socialUserInfo", keyName);
-				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				// socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				socialUserInfo = userService.getSocialUserInfo(keyName);
 				cookie.setMaxAge(0);
 //				response.addCookie(cookie);
 				

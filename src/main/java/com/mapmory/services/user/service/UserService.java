@@ -255,7 +255,11 @@ public interface UserService {
 	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
 	// public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
-	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	public SocialUserInfo getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	
+	public boolean setSocialKey(String keyName, SocialUserInfo userInfo);
+	
+	public SocialUserInfo getSocialUserInfo (String keyName);
 	
 	public String generateSecondAuthKey();
 	
