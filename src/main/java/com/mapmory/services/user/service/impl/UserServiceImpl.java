@@ -32,6 +32,8 @@ import java.util.stream.Stream;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +173,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
+	
+	@Autowired
+	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -1069,7 +1074,7 @@ public class UserServiceImpl implements UserService {
 	*/
 	
 	@Override
-	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
+	public SocialUserInfo getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
 		
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type","authorization_code");
@@ -1101,12 +1106,13 @@ public class UserServiceImpl implements UserService {
     	// LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    Date birthday = dateFormat.parse(birthYear + "-" + birthOnlyDay);
-    	
+
+    	// String birthday = birthYear + "-" + birthOnlyDay;
     	String[] temp = profileInfo.getMobile().split("-");
     	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
 		
     	
-    	
+    	/*
     	Map<String, Object> map = new HashMap<>();
     	map.put("email", profileInfo.getEmail());
         map.put("gender", profileInfo.getGender());
@@ -1114,9 +1120,67 @@ public class UserServiceImpl implements UserService {
         map.put("birthday", birthday);
         map.put("phoneNumber", phoneNumber);
         map.put("id", profileInfo.getId());
-	    
-	    return map;
+	    */
+    	
+    	SocialUserInfo info = new SocialUserInfo();
+    	info.setEmail(profileInfo.getEmail());
+    	info.setGender(profileInfo.getGender());
+    	info.setName(profileInfo.getName());
+    	info.setBirthday(birthday);
+    	info.setPhoneNumber(phoneNumber);
+    	info.setId(profileInfo.getId());
+    	
+	    return info;
 	}
+	
+	@Override
+	public boolean setSocialKey(String keyName, SocialUserInfo userInfo) {
+		
+		return redisUtilSocialUserInfo.insert(keyName, userInfo, 10L);
+	}
+	
+	public SocialUserInfo getSocialInfo(HttpServletRequest request) {
+		
+		SocialUserInfo socialUserInfo = null;
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				
+				// map.put("socialUserInfo", keyName);
+				// socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				System.out.println("쇼셜 유저 인포 : : : : : : : :" +  socialUserInfo);
+				
+				return socialUserInfo;
+				
+			} else if(cookieName.equals("NAVERKEY")) {
+			
+				String keyName = cookie.getValue();
+				// String socialId = redisUtilString.select(keyName, String.class);
+				
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				return socialUserInfo;
+				
+			} else {
+				System.out.println("social login 가입이 아님");
+			}
+
+		}
+
+		return null;
+    }
+	
 	
 	@Override
 	public String generateSecondAuthKey() {
@@ -1186,147 +1250,6 @@ public class UserServiceImpl implements UserService {
     	return Base64Utils.encodeToString(bytes);
     }
 	
-	/*
-	@Override
-	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException {
-				
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-	    params.add("grant_type","authorization_code");
-	    params.add("client_id", clientId);
-	    params.add("client_secret", clientSecret);
-	    params.add("code", code);
-	    params.add("redirect_uri", redirectUri);
-
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
-
-	    RestTemplate rt = new RestTemplate();
-	    ResponseEntity<String> tokenResponse;
-	    
-	    try {
-
-	    	// 문제 위치
-	    	tokenResponse = rt.exchange(
-		            googleTokenRequestUrl,
-		            HttpMethod.POST,
-		            googleTokenRequest,
-		            String.class
-		    );
-
-	    } catch(Exception e) {
-	    	
-	    	e.printStackTrace();
-	        throw new RuntimeException("Failed to get token from Google", e);
-	    }
-
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    GoogleToken token = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
-	    System.out.println(token);
- 		return token;
-	    
-	}
-	
-	@Override
-	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
-		
-		String[] chunks = idToken.split("\\.");
- 	    
- 	    Base64.Decoder decoder = Base64.getUrlDecoder();
- 	    
- 	    // 한글 깨짐 문제 해결
- 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
- 	    
- 	    ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
-		
-	}
-	*/
-	
-	/*
-	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
-
-		
-		// Parameter로 전달할 속성들 추가
-	    Map<String, String> params = new HashMap<>();
-	    params.put("grant_type","authorization_code");
-	    params.put("client_id", clientId);
-	    params.put("client_secret", clientSecret);
-	    params.put("code", code);
-	    params.put("redirect_uri", redirectUri);
-	    
-	    
-	    URL url = new URL(googleTokenRequestUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-        conn.setDoOutput(true);
-
-        // 파라미터 문자열 생성
-        StringBuilder postData = new StringBuilder();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            if (postData.length() != 0) postData.append('&');
-            postData.append(param.getKey());
-            postData.append('=');
-            postData.append(param.getValue());
-        }
-
-        // 파라미터 전송
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = postData.toString().getBytes("UTF-8");
-            os.write(input, 0, input.length);
-        }
-
-        // 응답 읽기
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuilder res = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            res.append(inputLine);
-        }
-        in.close();
-	    
-	    System.out.println(res);
- 		
-		
-		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
-		
-		
-		GoogleToken token = userService.getGoogleToken(code);
-		System.out.println(token);
-		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
-
-		
-		
-		
-		String googleId = payload.getSub();
-		String userId = userService.getUserIdBySocialId(googleId);
-		
-		if(userId == null) {
-			
-			String uuid = UUID.randomUUID().toString();
-        	String keyName = "g-"+uuid;
-            redisUtilString.insert(keyName, googleId, 10L); 
-            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
-            response.addCookie(cookie);
-	    	
-	    	// model.addAttribute("googleId", googleId);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
-		} else {
-	    	
-	    	User user = userService.getDetailUser(userId);
-        	byte role=user.getRole();
-        	
-	    	acceptLogin(userId, role, response, false);
-	    	return "redirect:/map";
-	    	
-	    }
-		
-		return null;
-	}
-	*/
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -1478,7 +1401,7 @@ public class UserServiceImpl implements UserService {
             socialUserInfo.setEmail(kakaoEmail);
             socialUserInfo.setPhoneNumber(kakaoPhone);
             socialUserInfo.setGender(kakaoGender);
-            socialUserInfo.setBirthday(kakaoDatE);
+            // socialUserInfo.setBirthday(kakaoDatE);
             socialUserInfo.setId(kakaoId);
 
         } catch (IOException e) {

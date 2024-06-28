@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -255,7 +257,11 @@ public interface UserService {
 	public NaverAuthToken getNaverToken(String code, String state) throws JsonMappingException, JsonProcessingException;
 	
 	// public NaverProfile getNaverProfile(String code, String state, String accessToken)  throws JsonMappingException, JsonProcessingException;
-	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	public SocialUserInfo getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException;
+	
+	public boolean setSocialKey(String keyName, SocialUserInfo userInfo);
+	
+	public SocialUserInfo getSocialInfo(HttpServletRequest request);
 	
 	public String generateSecondAuthKey();
 	
