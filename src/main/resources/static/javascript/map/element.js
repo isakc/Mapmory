@@ -24,7 +24,7 @@ const recordListSwipe = (index) => {
     
     			if (clickedMarker) {
         			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
-        			clickedMarker.setZIndex(3);
+        			clickedMarker.setZIndex(4);
     			}
     
     			beforeMarkerType = recordList[index].markerType;
@@ -72,7 +72,7 @@ const recordListSwipe = (index) => {
 	      		
 	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
 	      			`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid" alt="기록 사진"/>`:
-					'<img src="https://via.placeholder.com/150?text=" class="img-fluid"'}
+					''}
 	      		</div>
 	      	</div><!-- 사진 부분 col-3 -->
 	     </div><!--row-->
@@ -128,7 +128,7 @@ const recordListElement = (index) => {
 	      		
 	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
 	      			`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid" alt="기록 사진"/>`:
-					'<img src="https://via.placeholder.com/150?text=" class="img-fluid"'}
+					''}
 	      		</div>
 	      	</div><!-- 사진 부분 col-3 -->
 	     </div><!--row-->
@@ -193,7 +193,7 @@ const simpleRecordElement = (index) => {
 	      			<div class="recordImageContainer">
 	      				${recordList[index].imageName && recordList[index].imageName.length > 0 ?
 	      				`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid rounded-start" alt="기록 사진"/>`:
-						'<img src="https://via.placeholder.com/150?text=" class="img-fluid"'}}
+						''}}
 	      			</div>
 	      		</div><!-- 사진 부분 col-3 -->
 	     	</div><!--row-->
