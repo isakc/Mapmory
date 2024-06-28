@@ -212,6 +212,11 @@ public class TimelineServiceImpl implements TimelineService {
 	}
 
 	@Override
+	public List<KeywordData> getKeywordList(String userId) throws Exception {
+		return timelineDao.selectKeywordList(userId);
+	}
+
+	@Override
 	public int addKeyword(KeywordData keywordData) throws Exception {
 		KeywordData updateData=timelineDao.selectKeyword(keywordData);
 		int i;

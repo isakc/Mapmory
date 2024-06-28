@@ -9,13 +9,63 @@
 <link rel="stylesheet" href="/css/common/footer.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
 <style type="text/css">
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+#map {
+    position: fixed; /* 상단에 고정 */
+    top: 5lvh; /* 화면의 맨 위에 배치 */
+    left: 0;
+    width: 100%;
+    height: 30dvh; /* 높이를 화면의 100%로 설정 */
+    z-index: 1; /* 다른 요소보다 뒤에 배치 */
+    overflow-y: hidden; /* 세로 스크롤 추가 */
+    transition: top 0.3s ease-in-out;
+}
+#timeline-header{
+    position: fixed; /* fixed 위치로 변경 */ 
+    top:0;
+    z-index: 3;
+}
 h1.timeline-heading {
 	font-size: 2.0em;
 	font-weight: bold;
-	text-align: center;
-	margin-top: 10px;
+	text-align: left;
 	color: #1F85DE;
 	text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+	padding:5px;
+}
+ /* 추가 스타일 */
+#timeline-container {
+    padding: 0;
+    margin: 0;
+    position: fixed; /* fixed 위치로 변경 */
+    bottom: 7lvh; /* 하단에 고정 */
+    left: 0;
+    width: 100%;
+    height: 60dvh; /* 높이를 화면의 60%로 설정 */
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    z-index: 2; /* #map 요소보다 앞에 배치 */
+    overflow-y: auto; /* 세로 스크롤 추가 */
+    transition: height 0.3s ease-in-out; /* 애니메이션 */
+}
+#timeline-card-body{
+	padding: 0 16px;
+}
+#datepicker{
+	width: 150px;
+}
+#noRecord{
+	position: fixed;
+    width: 100%;
+   	top: 55lvh; 
+   	display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* 전체 컨테이너 스타일 */
@@ -93,8 +143,6 @@ input[type="hidden"] {
     display: none;
 }
 
-
-body{margin-top:10px;}
 .timeline {
     border-left: 3px solid #727cf5;
     border-bottom-right-radius: 4px;
@@ -210,33 +258,25 @@ body{margin-top:10px;}
     left: 0;
     right: -55.8px;
 }
-#timeline-container {
-	padding: 0;
-}
-#timeline-card-body{
-	padding: 0 16px;
-}
-#datepicker{
-	width: 150px;
-}
 </style>
 </head>
 <body>
 <div id=content-for-footer>
-	<div class="container">
+	<div id="timeline-header" class="container">
 		<div class="row">
-			<div class="col-6">
+			<div class="col-6 p-0" >
 				<h1 class="timeline-heading" th:text="${'타임라인'}"></h1>
 			</div>
-			<div class="col-6">
+			<div class="col-6 p-0">
 				<div class="btn-group d-flex justify-content-end" role="group" aria-label="Button group with nested dropdown">
 			          	<div class="btn-group" role="group">
 			          		<button id="btnGroupDrop1" type="button" class="btn btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			              		<svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#ffffff"><path d="M120-240v-66.67h720V-240H120Zm0-206.67v-66.66h720v66.66H120Zm0-206.66V-720h720v66.67H120Z"/></svg>
+			              		<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#ffffff"><path d="M120-240v-66.67h720V-240H120Zm0-206.67v-66.66h720v66.66H120Zm0-206.66V-720h720v66.67H120Z"/></svg>
 			          		</button>
 			          		<div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
 							<a class="dropdown-item text-primary" href="#" th:name="getTimecapsuleList" th:text="'타임캡슐 목록'"></a>
 		          			<a class="dropdown-item text-primary" href="#" th:name="getSummaryRecord" th:text="'요약된 기록 목록'"></a>
+		          			<a class="dropdown-item text-primary" href="#" th:name="getKeywordList" th:text="'내가 사용한 키워드'"></a>
 		      			</div>
 		          	</div>
 		      	</div>
@@ -244,56 +284,54 @@ body{margin-top:10px;}
 	  	</div>
   	</div>
 	<div th:replace="timeline/component/tMap::tMap"></div>
-<div id="timeline-container" class="container">
-<div class="row">
-<div class="col-lg-12 col-md-12 col-sm-12 col-xl-12 col-xxl-12">
-<div class="card">
-<div id="timeline-card-body" class="card-body">
-    <div th:id="moveDate" class="container">
-        <div class="row">
-            <div class="col-1">
-                <span class="material-symbols-outlined arrow" th:name="getTimelineListLeft" th:text="'chevron_left'"></span>
-            </div>
-            <div class="col-10 datepicker-wrapper">
-                <input class="text-center datepicker-input" id="datepicker" type="text" th:name="getTimelineListSelect" th:value="${selectDay}" readonly="readonly" />
-                <span class="material-symbols-outlined datepicker-icon" th:text="'arrow_drop_down'"></span>
-                <input type="hidden" th:name="selectDay" th:value="${selectDay}" />
-            </div>
-            <div class="col-1">
-                <span class="material-symbols-outlined arrow" th:name="getTimelineListRight" th:text="'chevron_right'"></span>
-            </div>
-        </div>
-    </div>
-<h3 class="card-title" style="text-align:center;"></h3>
-<div id="content" th:if="${!( timelineList==null || timelineList.isEmpty() )}">
-	<ul class="timeline" th:each="record : ${timelineList}">
-		<li class="event" ><!-- th:data-date="${record.checkpointDate}" -->
-			<h3 th:text="${record.checkpointDate}"></h3>
-			<p><span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span>
-				<span>&nbsp &nbsp</span>
-				<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}"></label>
-				<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'"></label>
-			</p>
-			<p>
-			<span class="recordNo">
-				<a class="text-primary" th:id="getSimpleTimeline" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
-			</span>
-			</p>
-		</li>
-	</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
+	<div id="timeline-container" class="container">
+	<div class="row">
+	<!-- <div class="col-lg-12 col-md-12 col-sm-12 col-xl-12 col-xxl-12"> -->
+	<div class="col-12">
+	<div class="card">
+	<div id="timeline-card-body" class="card-body">
+	    <div th:id="moveDate" class="container">
+	        <div class="row">
+	            <div class="col-1">
+	                <span class="material-symbols-outlined arrow" th:name="getTimelineListLeft" th:text="'chevron_left'"></span>
+	            </div>
+	            <div class="col-10 datepicker-wrapper">
+	                <input class="text-center datepicker-input" id="datepicker" type="text" th:name="getTimelineListSelect" th:value="${selectDay}" readonly="readonly" />
+	                <span class="material-symbols-outlined datepicker-icon" th:text="'arrow_drop_down'"></span>
+	                <input type="hidden" th:name="selectDay" th:value="${selectDay}" />
+	            </div>
+	            <div class="col-1">
+	                <span class="material-symbols-outlined arrow" th:name="getTimelineListRight" th:text="'chevron_right'"></span>
+	            </div>
+	        </div>
+	    </div>
+	<h3 class="card-title" style="text-align:center;"></h3>
+	<div id="content" th:if="${!( timelineList==null || timelineList.isEmpty() )}">
+		<ul class="timeline" th:each="record : ${timelineList}">
+			<li class="event" ><!-- th:data-date="${record.checkpointDate}" -->
+				<h3 th:text="${record.checkpointDate}"></h3>
+				<p>
+					<span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span>
+					<span th:text="'&nbsp &nbsp'"></span>
+					<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}"></label>
+					<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'"></label>
+				</p>
+				<p>
+					<span class="recordNo">
+						<a class="text-primary" th:id="getSimpleTimeline" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
+					</span>
+				</p>
+			</li>
+		</ul>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
 </div>
 
-<div class="container" th:if="${ timelineList==null || timelineList.isEmpty() }">
-	<div class="row">
-		<div class="col-12 text-center">
-			<h3 th:text="'기록이 없습니다.'"></h3>
-		</div>
-	</div>
+<div id="noRecord"  th:if="${ timelineList==null || timelineList.isEmpty() }">
+	<h3 th:text="'기록이 없습니다.'"></h3>
 </div>
 
 </div>
@@ -331,6 +369,10 @@ $(function() {
 	$("a[name='getSummaryRecord']").click(function() {
 		uri="?searchCondition="+0;
 		self.location="/timeline/getSummaryRecord"+uri;
+	})
+	
+	$("a[name='getKeywordList']").click(function() {
+		self.location="/timeline/getKeywordList";
 	})
 	
 	$("a[name='getSimpleTimeline']").click(function() {
