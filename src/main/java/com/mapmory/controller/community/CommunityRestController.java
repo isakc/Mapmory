@@ -148,7 +148,7 @@ public class CommunityRestController {
 			return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("유해한 이미지입니다.");
 			}
 		} else {
-			reply.setReplyImageName(""); 
+			reply.setReplyImageName(null); 
 		}
 
 		communityService.addReply(reply);

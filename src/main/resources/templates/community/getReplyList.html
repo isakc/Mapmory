@@ -177,6 +177,7 @@
 				success : function(data) {
 					console.log('3.댓글 작성 완료 :', data);
 					updateReplyList(data);
+					updateReplyCount(1);
 					$('.btn-success').prop('disabled', false);
 				},
 				error : function(xhr, status, error) {
@@ -208,33 +209,43 @@
 				// 새로운 댓글을 추가할 행을 생성
 				var replyImageURL = '/community/rest/replyImage/'+replyImageName;
 				var newRow = 
-				'<div class="card-body">' +
+				'<div class="card-body replyCard">' +
 		        '<h6>' +
 		        '<img alt="" class="profileImage" src="/user/rest/profile/' + profileImageName + '">' +
 		        '<span class="replyNickname" data-reply-userid="' + userId + '">' + nickname + '</span>'; 
 		        if (subscriptionEndDate === '1') {
 		            newRow += 
 		                '<span>' +
-		                '<img alt="" class="sub" src="/user/rest/profile/sub.png">' +
+		                '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">' +
 		                '</span>';
-		        } 		        
+		        }		        
 				newRow +=
-		        '<i class="bi bi-three-dots"></i>' +
-		        '</h6>' +
+		        '<i class="bi bi-three-dots" style="float: right;"></i>' +
+				'</h6>'+
 		        '<h4>' +
-		        '<span class="replyText">' + replyText + '</span>' +
-		        '<img alt="" class="replyImageName" data-reply-image-name="' +replyImageName+ '" src="'+replyImageURL+'">'+
-		        '<span class="dislikeCount">' + dislikeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-down replyDislike"></i>' +
-		        '<span class="likeCount">' + likeCount + '</span>' +
-		        '<i class="bi bi-hand-thumbs-up replyLike"></i>' +
+		        '<span class="replyText">' + replyText + '</span><br/>' +
+
+		        '<div class="imagePart">';	
+		        if (replyImageName != null && replyImageName != 'null') {
+		            newRow +=
+		                '<span>' +
+		                '<img alt="" class="replyImageName" data-reply-image-name="' + replyImageName + '" src="' + replyImageURL + '">' +
+		                '</span>';
+		        }
+		        newRow +=
+		        '</h4>'+
+		        '<h6>'+
+		        '<span class="dislikeCount" style="float: right; margin-left: 10px;">' + dislikeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-down replyDislike" style="float: right; margin-left: 10px;"></i>' +
+		        '<span class="likeCount" style="float: right; margin-left: 10px;">' + likeCount + '</span>' +
+		        '<i class="bi bi-hand-thumbs-up replyLike" style="float: right;"></i>' +
 		        '<span class="recordNo" style="display:none;" data-recordno="' + recordNo + '">' + recordNo + '</span>' +
 		        '<span class="replyNo" style="display:none;" data-replyno="' + replyNo + '">' + replyNo + '</span>' +
 		        '<span class="userId" style="display:none;" data-userid="' + userId + '">' + userId + '</span>' +
-		        '</h4>' +
-		        '<h6>' +
-		        '<span>' + replyDate + '</span>' +
 		        '</h6>' +
+		        '<div>' +
+		        '<span>' + replyDate + '</span>' +
+		        '</div>' +
 		        '</div>' +
 		        '</div>';
 					
@@ -247,7 +258,8 @@
 				$('#replyText').val('');
 				$('#replyImageName').val('');
 				$('#imagePreview').attr('src', '#').css('display', 'none');
-            }   
+            }
+			
         });
     }); 
 	</script>
@@ -419,6 +431,7 @@
 					url: '/community/rest/deleteReply/'+userId+'/'+replyNo,
 					success : function(data) {
 						console.log('18.댓글 삭제 완료 :', data);
+						updateReplyCount(-1);
 						closeModal();
 						
 						console.log('currentRow:', currentRow);
@@ -650,6 +663,15 @@
 	    }
 	</script>
 
+	<script>
+	function updateReplyCount(change) {
+	    const replyCountElement = document.getElementById('replyCount');
+	    let currentCount = parseInt(replyCountElement.textContent);
+	    currentCount += change;
+	    replyCountElement.textContent = currentCount;
+	}	
+	</script>
+
 	<style>
 	
 		@keyframes spin {
@@ -728,7 +750,7 @@
 		}
 	
 		.header {
-		    font-size : 16px;
+		    font-size : 18px;
 		    font-weight : bold;			
 		}		
 		
@@ -765,7 +787,7 @@
 		} 
 						
 		.replyImageName {
-		    height: 50dvh;
+		    height: 50dvh; 
 		    width: 100%; 
 		    margin-top : 10px;
 		}		
@@ -849,9 +871,9 @@
 					<li class="nav-item">
 						<a class="nav-link active">
 							<i class="bi bi-journal-richtext"></i>
-							<span class="hearder">댓글</span>
+							<span class="header">댓글</span>
 							<span th:utext="'&nbsp;'"></span>
-							<span th:text=${totalCount}></span>
+							<span id="replyCount" class="totalCount" th:text=${totalCount}></span>
 				    	</a>
 					</li>
 				</ul>				
@@ -869,7 +891,7 @@
 						</h6>
 						<h4>
 							<span class="replyText" th:text="${reply.replyText}" ></span> <br/>
-							<span th:if="${reply.replyImageName != null && reply.replyImageName != 'null'}">
+							<span th:if="${reply.replyImageName != null and reply.replyImageName != '' and reply.replyImageName != 'null'}">
 							<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}" th:data-reply-image-name="${reply.replyImageName}">
 							</span>
 						</h4>
