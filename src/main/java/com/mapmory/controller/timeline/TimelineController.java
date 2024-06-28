@@ -515,8 +515,8 @@ public class TimelineController {
 		List<Map<String,Object>> keywordList= new ArrayList<Map<String,Object>>();
 		for(KeywordData k :timelineService.getKeywordList(userId)) {
 			Map<String,Object> map=new HashMap<String, Object>();
-			map.put("text", k.getKeyword());
-			map.put("value", k.getKeywordCount());
+			map.put("word", k.getKeyword());
+			map.put("size", k.getKeywordCount()*12+10);
 			keywordList.add(map);
 		}
 		ObjectMapper objectMapper = new ObjectMapper();

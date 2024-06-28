@@ -206,7 +206,7 @@
 	<select id="getSharedRecordViewCount" parameterType="search" resultType="int">
 		SELECT COUNT(*)
 		FROM community_logs
-		WHERE record_no = #{recordNo} AND logsType = 0
+		WHERE record_no = #{recordNo} AND logs_type = 0
 	</select>
 	
 	<!--  커뮤니티 활동 수정 -->

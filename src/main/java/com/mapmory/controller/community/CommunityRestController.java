@@ -363,6 +363,13 @@ public class CommunityRestController {
 		return "redirect: community/getDetailSharedRecord/"+recordNo;
 	}
 	
+	//조회수
+	@PostMapping("/rest/getSharedRecordViewCount/{recordNo}")
+	public ResponseEntity<Integer> getSharedRecordViewCount(Search search, @PathVariable int recordNo) throws Exception {
+		int viewCount = communityDao.getSharedRecordViewCount(search, recordNo);
+		return ResponseEntity.ok(viewCount);
+	}
+	
 	//좋아요 개수
 	@PostMapping("/rest/getReactionLikeTotalCount")
 	public ResponseEntity<Integer> getReactionLikeTotalCount(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {

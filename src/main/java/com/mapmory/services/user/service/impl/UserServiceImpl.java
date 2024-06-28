@@ -1306,8 +1306,8 @@ public class UserServiceImpl implements UserService {
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
 
-            //sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            //sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
 
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
