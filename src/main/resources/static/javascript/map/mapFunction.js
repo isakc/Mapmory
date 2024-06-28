@@ -52,8 +52,8 @@ function setMarkers(contentList) {
     kakao.maps.event.addListener(map, 'click', function() {
         hideResultDivs();
         
-		$(".mapButton").removeClass('on');
-		if(recordList.length!=0){
+		resultDivsBtn.removeClass('on');
+		if(recordList.length!=0 || placeList.length != 0){
 			resultDivsBtn.addClass('on');	
 		}
 		
@@ -94,10 +94,6 @@ function clickContentMarker(marker, index, contentList) {
     $(".infoItem").removeClass("on");
 	description.addClass("on");
 	deleteDescription();
-	
-	if( !(resultDivsBtn.hasClass('on')) ){
-		listBtn.addClass('on');
-	}
 	
 	if(contentList[0].markerType === 3){
 		description.append(detailPlaceElement(index) );
@@ -152,6 +148,10 @@ function deleteResult() {
 	result.html('');
 } // deleteResult
 
+function deleteSwiperWrapper() {
+	swiperWrapper.html('');
+} // deleteSwiperWrapper
+
 function deleteDescription() {
 	description.html('');
 } // deleteDescription
@@ -160,38 +160,25 @@ function deleteRouteDescriptionList() {
 	routeDescriptionList.html('');
 } // deleteDescription
 
-function hideResult() {
-	resultDivs.removeClass('on');
-} // hideResult
-
 function showResult() {
-	clearPolylines();
-	showMarkers();
-	clearStartEndMarkers();
 	$(".infoItem").removeClass('on');
-	result.addClass('on');
-	$(".mapButton").removeClass('on');
-}// showResult
+	/*result.addClass('on');*/
+	$(".swiper-container").addClass('on');
+}// showResult: 결과 목록 보여줄때=> simpleRecord에서 뒤로갈때
 
 function hideResultDivs(){
 	resultDivs.css('display', 'none');
-}
+}//맵에서 땅 누를때
 
 function showResultDivs(){
-	$(".mapButton").removeClass('on');
 	resultDivs.css('display', 'block');
-	
-	listBtn.addClass('on');
-}
+	resultDivsBtn.removeClass('on');
+}// 위로 버튼 누를때
 
 function showDescription(){
 	clearPolylines();
 	clearStartEndMarkers();
 	$(".infoItem").removeClass('on');
 	description.addClass('on');
-	
-	$(".mapButton").removeClass('on');
-	listBtn.addClass('on');
-	
 	showMarkers();
-}
+}// 경로찾기에서 X 버튼 눌렀을때

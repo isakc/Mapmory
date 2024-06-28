@@ -26,18 +26,30 @@
     <script src="/javascript/map/drawRoute.js"></script>
 </head>
 <body>
-	
+	<div id="loading" class="loading-overlay">
+        <div class="loading-spinner">
+        	<svg xmlns="http://www.w3.org/2000/svg" style="margin: auto; background: none; display: block;" width="100px" height="100px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                <circle cx="50" cy="50" r="32" stroke-width="8" stroke="#3498db" stroke-dasharray="50.26548245743669 50.26548245743669" fill="none" stroke-linecap="round">
+                    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" keyTimes="0;1" values="0 50 50;360 50 50"></animateTransform>
+                </circle>
+            </svg>
+        </div>
+    </div>
+    	
 	<div id=content-for-footer>
 		<div id="map">
 			<div id="bottomBox">
-        		<button class="btn btn-primary mapButton" onClick="showResult()" id="listBtn"><i class="fas fa-list"></i></button>
-        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
-        		<button class="btn btn-primary mapButton" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left"></i></button>
+        		<button class="btn btn-primary" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
         		
         		<div id="resultDivs">
-					<div id="result" class="infoItem"></div><!-- 결과창  -->
+					<div id="result" class="infoItem"></div>
+					
+					<div class="swiper-container infoItem" >
+    					<div class="swiper-wrapper" id="swiper-wrapper"></div>
+					</div>
+					
 					<div id="description" class="infoItem"></div><!-- 기록 보기  -->
-					<div id="routeDescriptionList" class="infoItem list-group"></div><!-- 경로 안내 창  -->
+					<div id="routeDescriptionList" class="infoItem list-group p-0"></div><!-- 경로 안내 창  -->
 				</div>
 
 			</div>
@@ -58,7 +70,8 @@
 				</div><!-- 반경 박스 -->
         		
         		<div class="searchKeywordBox">
-    				<input type="text" name="searchKeyword" placeholder="search" th:value="${searchKeyword}"/>
+    				<i class="fas fa-search"></i>
+    				<input type="text" name="searchKeyword" placeholder="검색어를 입력해주세요" th:value="${searchKeyword}"/>
     			</div><!-- 검색어 박스 -->
     			
 				<div id="suggestions"></div><!-- 추천 검색어 -->
@@ -68,20 +81,6 @@
 				<div class="toggle-container">
   					<div class="toggle-switch" id="toggle-switch"></div>
 				</div><!-- 토글버튼 -->
-					
-				<!-- <div class="checkbox-container" id="checkboxGroup">
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="private" checked>
-					</div>
-
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="public" checked>
-					</div>
-
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="follow" checked>
-					</div>
-				</div> -->
 
 				<div class="justify-content-end d-flex">
 					<div class="btn btn-light rounded-circle" onclick="getCurrentLocation()"><i class="fas fa-crosshairs"></i></div>
@@ -118,12 +117,12 @@
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
 	let placeList=[]; // 추천 장소 리스트 모아놓기
 	let resultDivs = $("#resultDivs");
+	let swiperWrapper = $("#swiper-wrapper");
 	let description = $("#description");
 	let result = $("#result");
 	let routeDescriptionList = $("#routeDescriptionList");
 	let resultDivsBtn = $("#resultDivsBtn");
-	let listBtn = $("#listBtn");
-	let descriptionBtn = $("#descriptionBtn");
+	let badgeImage;
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -140,7 +139,9 @@
 		deleteResult();
 		recordList= [];
 		placeList=[];
-		
+
+        $('#loading').show();
+        
 		getCurrentLocation().done(function(location) {
 
 			const requestData = { latitude: location.coords.latitude, 
@@ -159,23 +160,35 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
-					console.log(response);
+					deleteSwiperWrapper();
+					
+					badgeImage = response.badgeImage;
 					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
-					if(response.length != 0){
-						const coordinates = response.map( (record,index) => {
+					if(response.mapRecordList.length != 0){
+						resultDivsBtn.removeClass('on');
+						const coordinates = response.mapRecordList.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬
 							
-							result.append(recordListElement(index)); // html을 result에 붙이기
+							//result.append(recordListElement(index)); // html을 result에 붙이기
+							
+							
+							
+							recordListSwipe(index); // html을 result에 붙이기
+							
+							
+							
 
 							return record;
 						});
 						
 						$(".infoItem").removeClass("on");
-						result.addClass("on");
+						//result.addClass("on");
+						$(".swiper-container").addClass("on");
+						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
 					}
@@ -183,7 +196,10 @@
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
-				} // error
+				}, // error
+				complete: function() {
+	                $('#loading').hide();
+	            }
 			}); //기록 검색 ajax
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
@@ -194,9 +210,12 @@
 	const getRecommendPlace = () => {
 		clearMarkers();
 		clearPolylines();
+		clearStartEndMarkers();
 		deleteResult();
 		recordList= [];
 		placeList= [];
+
+        $('#loading').show();
 		
 		getCurrentLocation().done(function(location) {
 
@@ -239,7 +258,10 @@
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
-				} // error
+				}, // error
+				complete: function() {
+	                $('#loading').hide();
+	            }
 			}); //기록 검색 ajax
 
 		}).fail(function(error) {
@@ -274,6 +296,10 @@
 
 	    return deferred.promise();
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
+	
+	$(".fa-search").on('click', function(){
+		searchRecord();
+	});
 	
 	$(document).on('click', '.hashTag', function(){
 		event.stopPropagation();
@@ -313,7 +339,10 @@
 	
 	$(document).on("click", "#routeButton", function(event){
 		event.stopPropagation();
-		 $(".routeAdditionalButtons").toggle();
+		
+		$('.routeAdditionalButtons').css('visibility', function(i, visibility) {
+			return (visibility === 'visible') ? 'hidden' : 'visible';
+		});
 	}); // 경로클릭
 	
 	$(document).on("click", ".routeButton", function(event){
@@ -328,12 +357,21 @@
 		}
 	});
 	
+	$(document).on("click", ".simpleRecordBackButton", function(){
+		showResult();
+	});
+	
 	$(document).on("click", ".simpleRecord .row", function(){
 		$(".infoItem").removeClass('on');
 		description.addClass('on');
 	    deleteDescription();
 	    description.append(detailRecordElement($(this).parent().data('index')) );
-	}); // 간단 보기 눌렀을 때 상세 보기로
+	}); // 간단 보기 눌렀을 때 상세 보기로 
+	
+	$(document).on("click", ".detailRecordBackButton", function(event){
+		deleteDescription();
+		description.append(simpleRecordElement($(this).data('index')) );
+	}); // 상세 보기 눌렀을 때 간단 보기로
 	
 	$(document).on("click", ".detailRecord", function(event){
 		deleteDescription();
@@ -342,6 +380,10 @@
 	
 	$(document).on("click", ".resultListItem", function(event){
 		clickMarkerFromCard($(this).index('.resultListItem'), recordList);
+	});
+	
+	$(document).on("click", ".placeListItem", function(event){
+		clickMarkerFromCard($(this).index('.placeListItem'), placeList);
 	})
 	
 	$(document).on('click', '.mySwiper', function(event) {
@@ -355,6 +397,12 @@
 	$('input[name="searchKeyword"]').on('focus', function(){
         getSuggestions();
     }); // 검색창에 누르면 추천 검색어 나오게 설정
+    
+    $(document).on('click', function(event) {
+        if (!$(event.target).closest('.searchKeywordBox').length) {
+        	$('input[name="searchKeyword"]').blur();
+        }
+    });// input 요소 이외의 영역을 클릭하면 포커스를 해제
 	
     $(document).on('click', function(event) {
         if (!$(event.target).closest('#searchKeyword').length) {
@@ -401,20 +449,39 @@
           $(this).attr('title', '추천');
           checkboxGroup.css('display', 'none');
           searchBoxGroup.css('display', 'none');
-          refrestButtn.attr('onClick', 'getRecommendPlace()');
           getRecommendPlace();
         } else {
           $(this).attr('title', '기록');
           checkboxGroup.css('display', 'inline-block');
           searchBoxGroup.css('display', 'block');
-          refrestButtn.attr('onClick', 'searchRecord()');
           searchRecord();
         }
     });// 토글 스위치
     
     refrestButtn.on('click', function(){
-    	location.reload();
-    })
+    	if(searchBoxGroup.css('display') === 'none' ){
+            getRecommendPlace();
+    	}else{
+    		location.reload();	
+    	}
+    });// 재검색 버튼 클릭시
+
+    function lazyLoad() {
+        var windowBottom = $(window).scrollTop() + $(window).height();
+        $('img.lazy-load').each(function() {
+            var $this = $(this);
+            var imageTop = $this.offset().top;
+            if (imageTop < windowBottom) {
+                var dataSrc = $this.attr('data-src');
+                $this.attr('src', dataSrc);
+                $this.removeClass('lazy-load');
+            }
+        });
+    }
+
+    $(window).on('scroll', lazyLoad);
+    $(window).on('resize', lazyLoad);
+    lazyLoad(); // Initial check
 	</script>
 </body>
 

@@ -14,12 +14,18 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 	<style>
-	
 		.profileImage {
 			width : 50px;
 			height : 50px;
 			border-radius: 50%;
 		}
+		
+		.bi.bi-three-dots {
+			float: right;
+			font-size : 20px;
+			font-weight : bold;	
+		}
+
 		.replyLike {
 			font-size : 25px;
 			color : blue;
@@ -50,7 +56,7 @@
 				<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${reply.profileImageName})}">
 				<a class="nickname" th:href="@{/user/getProfile(userId=${reply.userId})}" th:text="${reply.nickname}"></a>
 				<span th:text="${reply.subscriptionEndDate}"></span>
-				<i class="bi bi-three-dots" style="float: right;"></i>
+				<i class="bi bi-three-dots"></i>
 			</h6>
 			<h4>
 				<span class="replyText" th:text="${reply.replyText}" ></span>

@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
 import com.mapmory.common.util.ContentFilterUtil;
@@ -40,7 +39,6 @@ import com.mapmory.services.timeline.service.TimelineService;
 import com.mapmory.services.user.domain.FollowBlock;
 import com.mapmory.services.user.service.UserService;
 
-import retrofit2.http.Path;
 
 @RestController
 @RequestMapping("/community/*")
@@ -150,7 +148,7 @@ public class CommunityRestController {
 			return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("유해한 이미지입니다.");
 			}
 		} else {
-			reply.setReplyImageName(""); 
+			reply.setReplyImageName(null); 
 		}
 
 		communityService.addReply(reply);
@@ -363,6 +361,13 @@ public class CommunityRestController {
 		userId = redisUtil.getSession(request).getUserId();
 		
 		return "redirect: community/getDetailSharedRecord/"+recordNo;
+	}
+	
+	//조회수
+	@PostMapping("/rest/getSharedRecordViewCount/{recordNo}")
+	public ResponseEntity<Integer> getSharedRecordViewCount(Search search, @PathVariable int recordNo) throws Exception {
+		int viewCount = communityDao.getSharedRecordViewCount(search, recordNo);
+		return ResponseEntity.ok(viewCount);
 	}
 	
 	//좋아요 개수

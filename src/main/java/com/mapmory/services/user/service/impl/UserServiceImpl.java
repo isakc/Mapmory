@@ -32,6 +32,8 @@ import java.util.stream.Stream;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,7 @@ import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.ImageFileUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.RedisUtil;
 import com.mapmory.exception.user.MaxCapacityExceededException;
 import com.mapmory.services.user.dao.UserDao;
 import com.mapmory.services.user.domain.FollowBlock;
@@ -72,6 +75,7 @@ import com.mapmory.services.user.domain.LoginLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
 import com.mapmory.services.user.domain.SocialLoginInfo;
+import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.SuspensionDetail;
 import com.mapmory.services.user.domain.SuspensionLog;
 import com.mapmory.services.user.domain.SuspensionLogList;
@@ -116,6 +120,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder; 
+	
 	
 	
 	@Value("${coolsms.apikey}")
@@ -169,6 +174,9 @@ public class UserServiceImpl implements UserService {
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
 	
+	@Autowired
+	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
+	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -200,7 +208,7 @@ public class UserServiceImpl implements UserService {
 		}
 		*/
 		
-		
+		/*
 		String userId="user1";
 		String userPassword="password1";
 		updatePassword(userId, userPassword);
@@ -234,8 +242,13 @@ public class UserServiceImpl implements UserService {
 		userId="admin";
 		userPassword="admin";
 		updatePassword(userId, userPassword);
-		
+		*/
 	
+		String userId="user_152";
+		String userPassword="password!30";
+		updatePassword(userId, userPassword);
+
+		
 		/*
 		for (int i = 124; i <= 152; i++) {
 		    String userId = "user_" + i;
@@ -970,7 +983,8 @@ public class UserServiceImpl implements UserService {
 					lastSuspensionDate = lastSuspensionDate.plusDays(14);
 					break;
 				case 4:
-					lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
+					// lastSuspensionDate = lastSuspensionDate.plusYears(9999L);
+					lastSuspensionDate = lastSuspensionDate.plusYears(1000L);
 					break;
 				default :
 					throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
@@ -1066,7 +1080,7 @@ public class UserServiceImpl implements UserService {
 	*/
 	
 	@Override
-	public Map<String, Object> getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
+	public SocialUserInfo getNaverProfile(String code, String state, String accessToken) throws JsonMappingException, JsonProcessingException, ParseException {
 		
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type","authorization_code");
@@ -1098,12 +1112,13 @@ public class UserServiceImpl implements UserService {
     	// LocalDate birthday = LocalDate.parse(birthYear + "-" + birthOnlyDay);
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	    Date birthday = dateFormat.parse(birthYear + "-" + birthOnlyDay);
-    	
+
+    	// String birthday = birthYear + "-" + birthOnlyDay;
     	String[] temp = profileInfo.getMobile().split("-");
     	String phoneNumber = (temp[0] + temp[1] + temp[2]); 
 		
     	
-    	
+    	/*
     	Map<String, Object> map = new HashMap<>();
     	map.put("email", profileInfo.getEmail());
         map.put("gender", profileInfo.getGender());
@@ -1111,9 +1126,67 @@ public class UserServiceImpl implements UserService {
         map.put("birthday", birthday);
         map.put("phoneNumber", phoneNumber);
         map.put("id", profileInfo.getId());
-	    
-	    return map;
+	    */
+    	
+    	SocialUserInfo info = new SocialUserInfo();
+    	info.setEmail(profileInfo.getEmail());
+    	info.setGender(profileInfo.getGender());
+    	info.setName(profileInfo.getName());
+    	info.setBirthday(birthday);
+    	info.setPhoneNumber(phoneNumber);
+    	info.setId(profileInfo.getId());
+    	
+	    return info;
 	}
+	
+	@Override
+	public boolean setSocialKey(String keyName, SocialUserInfo userInfo) {
+		
+		return redisUtilSocialUserInfo.insert(keyName, userInfo, 10L);
+	}
+	
+	public SocialUserInfo getSocialInfo(HttpServletRequest request) {
+		
+		SocialUserInfo socialUserInfo = null;
+		
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			
+			String cookieName = cookie.getName();
+			
+			if(cookieName.equals("KAKAOKEY")) {
+				
+				String keyName = cookie.getValue();
+				
+				// map.put("socialUserInfo", keyName);
+				// socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				System.out.println("쇼셜 유저 인포 : : : : : : : :" +  socialUserInfo);
+				
+				return socialUserInfo;
+				
+			} else if(cookieName.equals("NAVERKEY")) {
+			
+				String keyName = cookie.getValue();
+				// String socialId = redisUtilString.select(keyName, String.class);
+				
+				// socialUserInfo = userService.getSocialUserInfo(keyName);
+				socialUserInfo = redisUtilSocialUserInfo.select(keyName, SocialUserInfo.class);
+				
+				return socialUserInfo;
+				
+			} else {
+				System.out.println("social login 가입이 아님");
+			}
+
+		}
+
+		return null;
+    }
+	
 	
 	@Override
 	public String generateSecondAuthKey() {
@@ -1183,147 +1256,6 @@ public class UserServiceImpl implements UserService {
     	return Base64Utils.encodeToString(bytes);
     }
 	
-	/*
-	@Override
-	public GoogleToken getGoogleToken(String code) throws JsonMappingException, JsonProcessingException {
-				
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-	    params.add("grant_type","authorization_code");
-	    params.add("client_id", clientId);
-	    params.add("client_secret", clientSecret);
-	    params.add("code", code);
-	    params.add("redirect_uri", redirectUri);
-
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-	    HttpEntity<MultiValueMap<String, String>> googleTokenRequest = new HttpEntity<>(params, headers);
-
-	    RestTemplate rt = new RestTemplate();
-	    ResponseEntity<String> tokenResponse;
-	    
-	    try {
-
-	    	// 문제 위치
-	    	tokenResponse = rt.exchange(
-		            googleTokenRequestUrl,
-		            HttpMethod.POST,
-		            googleTokenRequest,
-		            String.class
-		    );
-
-	    } catch(Exception e) {
-	    	
-	    	e.printStackTrace();
-	        throw new RuntimeException("Failed to get token from Google", e);
-	    }
-
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    GoogleToken token = objectMapper.readValue(tokenResponse.getBody(), GoogleToken.class);
-	    System.out.println(token);
- 		return token;
-	    
-	}
-	
-	@Override
-	public GoogleJwtPayload getGoogleProfile(String idToken) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
-		
-		String[] chunks = idToken.split("\\.");
- 	    
- 	    Base64.Decoder decoder = Base64.getUrlDecoder();
- 	    
- 	    // 한글 깨짐 문제 해결
- 	    String payloadStr = new String(decoder.decode(chunks[1]), "utf-8");
- 	    
- 	    ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(payloadStr, GoogleJwtPayload.class);
-		
-	}
-	*/
-	
-	/*
-	public GoogleJwtPayload getGoogleProfie(String code) throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
-
-		
-		// Parameter로 전달할 속성들 추가
-	    Map<String, String> params = new HashMap<>();
-	    params.put("grant_type","authorization_code");
-	    params.put("client_id", clientId);
-	    params.put("client_secret", clientSecret);
-	    params.put("code", code);
-	    params.put("redirect_uri", redirectUri);
-	    
-	    
-	    URL url = new URL(googleTokenRequestUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-        conn.setDoOutput(true);
-
-        // 파라미터 문자열 생성
-        StringBuilder postData = new StringBuilder();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            if (postData.length() != 0) postData.append('&');
-            postData.append(param.getKey());
-            postData.append('=');
-            postData.append(param.getValue());
-        }
-
-        // 파라미터 전송
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = postData.toString().getBytes("UTF-8");
-            os.write(input, 0, input.length);
-        }
-
-        // 응답 읽기
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuilder res = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            res.append(inputLine);
-        }
-        in.close();
-	    
-	    System.out.println(res);
- 		
-		
-		// GoogleJwtPayload payload = userService.getGoogleProfie(code);
-		
-		
-		GoogleToken token = userService.getGoogleToken(code);
-		System.out.println(token);
-		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
-
-		
-		
-		
-		String googleId = payload.getSub();
-		String userId = userService.getUserIdBySocialId(googleId);
-		
-		if(userId == null) {
-			
-			String uuid = UUID.randomUUID().toString();
-        	String keyName = "g-"+uuid;
-            redisUtilString.insert(keyName, googleId, 10L); 
-            Cookie cookie = createCookie("GOOGLEKEY", keyName, 60 * 10, "/user");
-            response.addCookie(cookie);
-	    	
-	    	// model.addAttribute("googleId", googleId);
-	    	return "redirect:/user/getAgreeTermsAndConditionsList";
-	    	
-		} else {
-	    	
-	    	User user = userService.getDetailUser(userId);
-        	byte role=user.getRole();
-        	
-	    	acceptLogin(userId, role, response, false);
-	    	return "redirect:/map";
-	    	
-	    }
-		
-		return null;
-	}
-	*/
 	
 	///////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////
@@ -1373,8 +1305,10 @@ public class UserServiceImpl implements UserService {
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
-            //sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+
+            sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            //sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
             bw.write(sb.toString());
@@ -1415,10 +1349,10 @@ public class UserServiceImpl implements UserService {
     }
 	
 	@Override
-	public HashMap<String, Object> getKakaoUserInfo (String accessToken) throws Exception {
+	public SocialUserInfo getKakaoUserInfo (String accessToken) throws Exception {
 
         //    요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
-        HashMap<String, Object> kakaoInfo = new HashMap<String, Object>();
+		SocialUserInfo socialUserInfo = new SocialUserInfo();
         String reqURL = "https://kapi.kakao.com/v2/user/me";
         String kakaoId = null;
         
@@ -1455,35 +1389,47 @@ public class UserServiceImpl implements UserService {
             String kakaoGender = kakao_account.getAsJsonObject().get("gender").getAsString();
             String kakaoDate = kakao_account.getAsJsonObject().get("birthday").getAsString();
             String kakaoBirthYear = kakao_account.getAsJsonObject().get("birthyear").getAsString();
-            String kakaoBirthDay = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
+            String kakaoBirthDays = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date kakaoDatE = dateFormat.parse(kakaoBirthDay);
+            Date kakaoBirthDay = dateFormat.parse(kakaoBirthDays);
+            
+            String genderFormat;
+            if (kakaoGender != null) {
+                if (kakaoGender.equals("male")) {
+                	genderFormat = "M";
+                } else if (kakaoGender.equals("female")) {
+                	genderFormat = "F";
+                } else {
+                	genderFormat = "U";
+                }
+            } else {
+            	genderFormat = "U";
+            }
 
             
             System.out.println("카카오 이름 : :: : : : ::" + kakaoName + "카카오 이메일 : : : : :: : : : " + kakaoEmail + ""
             		+ "카카오 전화번호 : : : :: :  ::  " + kakaoPhone + "카카오 성별 : : : : : : : :"  + kakaoGender + ""
             		+ "카카오 생일 : : :: : : :" + kakaoDate + "카카오 생년 : : :: : : :" + kakaoBirthYear + ""
-            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoDatE);
+            		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoBirthDay);
             
             kakaoId = element.getAsJsonObject().get("id").getAsString();
             System.out.println("kakaoId : " + kakaoId);
 
             
-            kakaoInfo.put("name", kakaoName);
-            kakaoInfo.put("email", kakaoEmail);
-            kakaoInfo.put("phoneNumber", kakaoPhone);
-            kakaoInfo.put("gender", kakaoGender);
-            kakaoInfo.put("birthDay", kakaoBirthDay);
-            kakaoInfo.put("id", kakaoId);
-            
-            System.out.println("서비스 에서 카카오인포 : : : : :: : " + kakaoInfo);
-            
+            socialUserInfo.setName(kakaoName);
+            socialUserInfo.setEmail(kakaoEmail);
+            socialUserInfo.setPhoneNumber(kakaoPhone);
+            socialUserInfo.setGender(genderFormat);
+            socialUserInfo.setBirthday(kakaoBirthDay);
+            socialUserInfo.setId(kakaoId);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return kakaoInfo; // 예외 발생 시 null 반환
+        return socialUserInfo; // 예외 발생 시 null 반환
     }
+
 
 	
 	///////////////////////////////////////////////////////////////////////

@@ -115,60 +115,64 @@ public class TimelineController {
 		
 		List<Record> timelineList=timelineService.getTimelineList(search);
 		if(!(timelineList==null || timelineList.isEmpty())) {
-		List<Map<String,Object>> mapList=new ArrayList<Map<String,Object>>();
-		for(Record r: timelineList) {
-			Map<String,Object> map=new HashMap<String, Object>();
-			map.put("title", r.getCheckpointAddress()+"<br/>"
-			+r.getCheckpointDate().toString().substring(11));
-			map.put("latitude", r.getLatitude());
-			map.put("longitude", r.getLongitude());
-			mapList.add(map);
+			List<Map<String,Object>> mapList=new ArrayList<Map<String,Object>>();
+			for(Record r: timelineList) {
+				Map<String,Object> map=new HashMap<String, Object>();
+				map.put("title", r.getCheckpointAddress()+"<br/>"
+				+r.getCheckpointDate().toString().substring(11)+"<br/>");
+				map.put("latitude", r.getLatitude());
+				map.put("longitude", r.getLongitude());
+				mapList.add(map);
+			}
+			ObjectMapper objectMapper = new ObjectMapper();
+	        String jsonPostions = objectMapper.writeValueAsString(mapList);
+	        
+	        if(timelineList.size()>1){
+				Map<String,Object> map=new HashMap<String, Object>();
+				mapList=new ArrayList<Map<String,Object>>();
+				map.put("startName", "출발지");
+				map.put("startX", timelineList.get(0).getLongitude().toString());
+				map.put("startY", timelineList.get(0).getLatitude().toString());
+				map.put("startTime", timelineList.get(0).getCheckpointDate()
+						.replace("-", "")
+						.replace(" ", "")
+						.replace(":", "")
+						.substring(0, 12));
+				map.put("endName", "도착지");
+				map.put("endX", timelineList.get(timelineList.size()-1).getLongitude().toString());
+				map.put("endY", timelineList.get(timelineList.size()-1).getLatitude().toString());
+				map.put("reqCoordType", "WGS84GEO");
+		//		map.put("resCoordType", "EPSG3857");
+				map.put("resCoordType", "WGS84GEO");
+				map.put("searchOption", searchOption);
+		        for(int i=1;i<(timelineList.size()-1);i++) {
+		    		Map<String,Object> map3=new HashMap<String, Object>();
+		        	map3.put("viaPointId", timelineList.get(i).getRecordUserId()+"_"+i);
+		        	map3.put("viaPointName", timelineList.get(i).getCheckpointDate());
+		        	map3.put("viaX", timelineList.get(i).getLongitude().toString());
+		        	map3.put("viaY", timelineList.get(i).getLatitude().toString());
+		        	mapList.add(map3);
+		        }
+		        //경유지가 없으면 오류뜬다. 그래서 도착지에 경유지를 추가한다 
+		        if(mapList==null || mapList.isEmpty()) {
+		    		Map<String,Object> map3=new HashMap<String, Object>();
+		        	map3.put("viaPointId", "stopover");
+		        	map3.put("viaPointName", "경유지");
+		        	map3.put("viaX", timelineList.get(timelineList.size()-1).getLongitude().toString());
+		        	map3.put("viaY", timelineList.get(timelineList.size()-1).getLatitude().toString());
+		        	mapList.add(map3);
+		        }
+		    	map.put("viaPoints", mapList);
+		        String jsonParam=objectMapper.writeValueAsString(map);
+	
+				model.addAttribute("positionParam",jsonParam);
+			}
+			model.addAttribute("positions",jsonPostions);
 		}
-		ObjectMapper objectMapper = new ObjectMapper();
-        String jsonPostions = objectMapper.writeValueAsString(mapList);
-
-		Map<String,Object> map=new HashMap<String, Object>();
-		mapList=new ArrayList<Map<String,Object>>();
-		map.put("startName", "출발지");
-		map.put("startX", timelineList.get(0).getLongitude().toString());
-		map.put("startY", timelineList.get(0).getLatitude().toString());
-		map.put("startTime", timelineList.get(0).getCheckpointDate()
-				.replace("-", "")
-				.replace(" ", "")
-				.replace(":", "")
-				.substring(0, 12));
-		map.put("endName", "도착지");
-		map.put("endX", timelineList.get(timelineList.size()-1).getLongitude().toString());
-		map.put("endY", timelineList.get(timelineList.size()-1).getLatitude().toString());
-		map.put("reqCoordType", "WGS84GEO");
-//		map.put("resCoordType", "EPSG3857");
-		map.put("resCoordType", "WGS84GEO");
-		map.put("searchOption", searchOption);
-        for(int i=1;i<(timelineList.size()-1);i++) {
-    		Map<String,Object> map3=new HashMap<String, Object>();
-        	map3.put("viaPointId", timelineList.get(i).getRecordUserId()+"_"+i);
-        	map3.put("viaPointName", timelineList.get(i).getCheckpointDate());
-        	map3.put("viaX", timelineList.get(i).getLongitude().toString());
-        	map3.put("viaY", timelineList.get(i).getLatitude().toString());
-        	mapList.add(map3);
-        }
-        //경유지가 없으면 오류뜬다. 그래서 도착지에 경유지를 추가한다 
-        if(mapList==null || mapList.isEmpty()) {
-    		Map<String,Object> map3=new HashMap<String, Object>();
-        	map3.put("viaPointId", "stopover");
-        	map3.put("viaPointName", "경유지");
-        	map3.put("viaX", timelineList.get(timelineList.size()-1).getLongitude().toString());
-        	map3.put("viaY", timelineList.get(timelineList.size()-1).getLatitude().toString());
-        	mapList.add(map3);
-        }
-    	map.put("viaPoints", mapList);
-        String jsonParam=objectMapper.writeValueAsString(map);
-        
-		model.addAttribute("positions",jsonPostions);
-		model.addAttribute("positionParam",jsonParam);
-		}
+		model.addAttribute("timelineCount",timelineList.size());
+		
 		model.addAttribute("apiKey", kakaoMapApiKey);
-//		model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
@@ -328,7 +332,7 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimelineList(model, null, null,request);
+		return "redirect:timeline/getTimelineList";
 	}
 	
 	@GetMapping("getTimecapsuleList")
@@ -499,9 +503,29 @@ public class TimelineController {
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return getTimecapsuleList(model, request);
+		return "redirect:/timeline/getTimecapsuleList";
 	}
 	
+	@GetMapping("getKeywordList")
+	public String getKeywordList(Model model,
+			HttpServletRequest request
+			) throws Exception,IOException {
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		List<Map<String,Object>> keywordList= new ArrayList<Map<String,Object>>();
+		for(KeywordData k :timelineService.getKeywordList(userId)) {
+			Map<String,Object> map=new HashMap<String, Object>();
+			map.put("word", k.getKeyword());
+			map.put("size", k.getKeywordCount()*12+10);
+			keywordList.add(map);
+		}
+		ObjectMapper objectMapper = new ObjectMapper();
+		String keywordJSONString=objectMapper.writeValueAsString(keywordList);
+		
+		System.out.println("keywordList : "+keywordJSONString);
+		model.addAttribute("keywordList",keywordJSONString);
+		return "timeline/getKeywordList";
+	}
 	@GetMapping("addVoiceToText")
 	public String addVoiceToText() throws Exception,IOException {
 		return "timeline/addVoiceToText";

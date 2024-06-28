@@ -21,6 +21,8 @@ public interface LoginService {
 	 */
 	public boolean login(Login loginData, String savedPassword) throws Exception;
 	
+	public void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception;
+	
 	/**
 	 * 
 	 * @param loginData

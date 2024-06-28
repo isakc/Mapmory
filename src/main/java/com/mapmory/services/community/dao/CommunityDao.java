@@ -122,7 +122,7 @@ public interface CommunityDao {
 	public int getReactionDisLikeTotalCount(@RequestBody CommunityLogs communityLogs) throws Exception;
 		
 	//기록 조회 개수
-	public int getSharedRecordViewCount(Search search, int recordNo, int logsType) throws Exception;
+	public int getSharedRecordViewCount(Search search, int recordNo) throws Exception;
 	
 	//사용자 신고 총 개수
 	public int getUserReportTotalCount(Search search, String userId) throws Exception;
