@@ -293,6 +293,24 @@ input[name="searchKeyword"]{
     height: 300px;
 }
 
-.fa-chevron-up, .fa-chevron-down{
+.fa-minus, .fa-arrow-left{
 	color: #C7C7CC;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+}
+
+.loading-spinner {
+    width: 100px;
+    height: 100px;
 }
