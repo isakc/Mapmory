@@ -1,6 +1,5 @@
 package com.mapmory.services.purchase.service;
 
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,10 +40,10 @@ public class SubscriptionScheduler {
 		}
 	}// processSubscriptions: 매일 자정 결제일인 실행
 
-	private Subscription updateSubscription(Subscription subscription) throws UnknownHostException {
+	private Subscription updateSubscription(Subscription subscription) throws Exception {
 		subscription.setMerchantUid("subscription_" + subscription.getUserId() + "_" + LocalDateTime.now());
 		subscription.setSubscriptionStartDate(subscription.getSubscriptionEndDate());
-		subscription.setSubscriptionEndDate(subscription.getSubscriptionEndDate().plusMinutes(5));
+		subscription.setSubscriptionEndDate(subscription.getSubscriptionEndDate().plusDays(productService.getSubscription().getPeriod()));
 		subscription.setNextSubscriptionPaymentDate(subscription.getSubscriptionEndDate());
 
 		return subscription;
