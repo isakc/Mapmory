@@ -148,6 +148,10 @@ function deleteResult() {
 	result.html('');
 } // deleteResult
 
+function deleteSwiperWrapper() {
+	swiperWrapper.html('');
+} // deleteSwiperWrapper
+
 function deleteDescription() {
 	description.html('');
 } // deleteDescription
