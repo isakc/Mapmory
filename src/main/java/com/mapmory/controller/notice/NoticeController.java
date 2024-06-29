@@ -103,8 +103,7 @@ public class NoticeController {
     }
     
     @GetMapping("/getAdminNoticeList")
-    public String getAdminNoticeList(@ModelAttribute("search") Search search, Model model) {
-        try {
+    public String getAdminNoticeList(@ModelAttribute("search") Search search, Model model) throws Exception {
 
             if (search.getCurrentPage() == 0) {
                 search.setCurrentPage(1);
@@ -124,10 +123,6 @@ public class NoticeController {
             model.addAttribute("resultPage", resultPage);
 
             return "notice/admin/getAdminNoticeList";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
     }
 
 

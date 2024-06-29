@@ -116,6 +116,7 @@
                                 <li><a class="dropdown-item userDropDown" href="#" data-condition="1">닉네임</a></li>
                             </ul>
                             <input type="hidden" id="searchCondition" name="searchCondition" th:value="${search.searchCondition}">
+
                         </div>
                     </div>
                     <div class="form-group flex-grow-1">
@@ -158,16 +159,16 @@
             <div class="pagination" th:replace="~{common/pageNavigator :: nav(${resultPage}, '/user/admin/getAdminUserList')}"></div>
         </div>
 
-		 
+		 </div>
         <script th:inline="javascript">
-            $(document).ready(function() {
-                $('.userDropDown').click(function(e) {
-                    e.preventDefault();
-                    var condition = $(this).data('condition');
-                    $('#searchCondition').val(condition);
-                    $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
-                });
-            });
+	        $(document).ready(function() {
+	            $('.userDropDown').click(function(e) {
+	                e.preventDefault();
+	                var condition = $(this).data('condition');
+	                $('#searchCondition').val(condition);
+	                $('.btn-group .btn').html($(this).text() + ' <span class="caret"></span>');
+	            });
+	        });
         </script>
          
 </body>
