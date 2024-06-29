@@ -223,154 +223,111 @@
 
 	<!-- 기록 좋아요 싫어요 시작-->
 	<script th:inline="javascript">
-	//기록 좋아요
 	$(document).ready(function() {
-		$(document).on("click", '#recordLike', function() {
-			event.preventDefault();
-			var userId = /*[[${userId}]]*/
-			console.log("1.사용자 ID :"+userId);
-			var recordNo = /*[[${record.recordNo}]]*/
-	        console.log("2.기록번호 : "+recordNo);
+	    // 좋아요 클릭 이벤트
+	    $(document).on("click", '#recordLike', function() {
+	        event.preventDefault();
+	        var userId = /*[[${userId}]]*/
+	        var recordNo = /*[[${record.recordNo}]]*/
 	        var replyNo = "";
-			var logsType = 2;
+	        var logsType = 2;
 
-			var data = {
-					userId : userId,
-					recordNo : recordNo,
-					replyNo : replyNo,
-					logsType : logsType
-			};
-			
-			var dislikeIcon = $('#recordDislike');
-			if(dislikeIcon.hasClass('bi-hand-thumbs-down-fill')) {
-				return;
-			}
-			
-			$.ajax({
-				type : 'POST',
-				url  : '/community/rest/checkLogs',
-				contentType : 'application/json',
-				data : JSON.stringify({
-					userId : userId,
-					recordNo : recordNo,
-					logsType : 2 
-				}),
-				success : function(response) {
-					console.log('좋아요 추가 혹은 취소 성공');
-					updateLikes(recordNo, replyNo, logsType);
-					
-				    var likeIcon = $('#recordLike');
-				    
-				    if (likeIcon.hasClass('bi-hand-thumbs-up')) {
-				        likeIcon.removeClass('bi-hand-thumbs-up');
-				        likeIcon.addClass('bi-hand-thumbs-up-fill');
-				        dislikeIcon.prop('disabled', true);
-				    } else {
-				        likeIcon.removeClass('bi-hand-thumbs-up-fill');
-				        likeIcon.addClass('bi-hand-thumbs-up');
-				        dislikeIcon.prop('disabled', false);
-				    }
-				},
-				error : function(xhr, status, error) {
-					console.error('좋아요 실패');
-				}
-			});
-		});
-		
-		//기록 싫어요
-		$(document).on("click", '#recordDislike', function() {
-			var userId = /*[[${userId}]]*/
-			console.log("1.사용자 ID : "+userId);
-			var recordNo = /*[[${record.recordNo}]]*/
-		    console.log("2.기록번호 : "+recordNo);
-			var replyNo = "";
-			var logsType = 3;
-			var data = {
-					userId : userId,
-					recordNo : recordNo,
-					replyNo : replyNo,
-					logsType : logsType
-			};
-			
-			var likeIcon = $('#recordLike');
-			if(likeIcon.hasClass('bi-hand-thumbs-up-fill')) {
-				return;
-			}			
-			
-			$.ajax({
-				type : 'POST',
-				url  : '/community/rest/checkLogs',
-				contentType : 'application/json',
-				data : JSON.stringify({
-					userId : userId,
-					recordNo : recordNo,
-					logsType : 3 
-				}),
-				success : function(response) {
-					console.log('싫어요 추가 혹은 취소 성공');
-					updateDislikes(recordNo, replyNo, logsType);
-				    var dislikeIcon = $('#recordDislike');
-				    
-				    if (dislikeIcon.hasClass('bi-hand-thumbs-down')) {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down');
-				        dislikeIcon.addClass('bi-hand-thumbs-down-fill');
-				        likeIcon.prop('disabled', true);
-				    } else {
-				        dislikeIcon.removeClass('bi-hand-thumbs-down-fill');
-				        dislikeIcon.addClass('bi-hand-thumbs-down');
-				        likeIcon.prop('disabled', false);
-				    }
-				},
-				error : function(xhr, status, error) {
-					console.error('싫어요 실패');
-				}
-			});
-		});		
+	        var likeIcon = $('#recordLike');
+	        var dislikeIcon = $('#recordDislike');
+
+	        if (dislikeIcon.hasClass('bi-hand-thumbs-down-fill')) {
+	            // 싫어요가 활성화된 상태라면 싫어요를 취소하고 좋아요를 활성화
+	            updateReaction(userId, recordNo, 3, false);
+	            updateReaction(userId, recordNo, 2, true);
+	        } else if (likeIcon.hasClass('bi-hand-thumbs-up-fill')) {
+	            // 좋아요가 이미 활성화된 상태라면 좋아요만 취소
+	            updateReaction(userId, recordNo, 2, false);
+	        } else {
+	            // 아무것도 활성화되지 않은 상태라면 좋아요만 활성화
+	            updateReaction(userId, recordNo, 2, true);
+	        }
+	    });
+
+	    // 싫어요 클릭 이벤트
+	    $(document).on("click", '#recordDislike', function() {
+	        var userId = /*[[${userId}]]*/
+	        var recordNo = /*[[${record.recordNo}]]*/
+	        var replyNo = "";
+	        var logsType = 3;
+
+	        var likeIcon = $('#recordLike');
+	        var dislikeIcon = $('#recordDislike');
+
+	        if (likeIcon.hasClass('bi-hand-thumbs-up-fill')) {
+	            // 좋아요가 활성화된 상태라면 좋아요를 취소하고 싫어요를 활성화
+	            updateReaction(userId, recordNo, 2, false);
+	            updateReaction(userId, recordNo, 3, true);
+	        } else if (dislikeIcon.hasClass('bi-hand-thumbs-down-fill')) {
+	            // 싫어요가 이미 활성화된 상태라면 싫어요만 취소
+	            updateReaction(userId, recordNo, 3, false);
+	        } else {
+	            // 아무것도 활성화되지 않은 상태라면 싫어요만 활성화
+	            updateReaction(userId, recordNo, 3, true);
+	        }
+	    });
 	});
-	
-	//기록 좋아요 Count Update
-	function updateLikes(recordNo, replyNo, logsType) {
-		var data = {
-			recordNo : recordNo,
-			replyNo : replyNo,
-			logsType : logsType
-		};
-		$.ajax({
-			type : 'POST',
-			url : '/community/rest/getReactionLikeTotalCount',
-			contentType: 'application/json',
-			data : JSON.stringify(data),
-			success : function(likeCount) {
-	            var likeCountElement = $('.likeCount'); 
-	            likeCountElement.text(likeCount); 
-			},
-			error : function(xhr, status, error) {
-				console.log("데이터 가져오기 실패");
-			}
-		});	
+
+	function updateReaction(userId, recordNo, logsType, isAdd) {
+	    $.ajax({
+	        type: 'POST',
+	        url: '/community/rest/checkLogs',
+	        contentType: 'application/json',
+	        data: JSON.stringify({
+	            userId: userId,
+	            recordNo: recordNo,
+	            logsType: logsType
+	        }),
+	        success: function(response) {
+	            console.log((isAdd ? '추가' : '취소') + ' 성공');
+	            updateReactionCount(recordNo, "", logsType);
+	            updateIcon(logsType, isAdd);
+	        },
+	        error: function(xhr, status, error) {
+	            console.error((isAdd ? '추가' : '취소') + ' 실패');
+	        }
+	    });
 	}
 
-	//기록 싫어요 Update	
-	function updateDislikes(recordNo, replyNo, logsType) {
-		var data = {
-			recordNo : recordNo,
-			replyNo : replyNo,
-			logsType : logsType
-		}; 
-		$.ajax({
-			type : 'POST',
-			url : '/community/rest/getReactionDisLikeTotalCount',
-			contentType: 'application/json',
-			data : JSON.stringify(data),			
-			success : function(dislikeCount) {
-	            var dislikeCountElement = $('.dislikeCount'); 
-	            dislikeCountElement.text(dislikeCount); 
-	            $('.dislike').html('<i class="bi bi-hand-thumbs-down"></i>');
-			},
-			error : function(xhr, status, error) {
-				console.log("데이터 가져오기 실패");
-			}
-		});			
+	function updateReactionCount(recordNo, replyNo, logsType) {
+	    var url = logsType === 2 ? '/community/rest/getReactionLikeTotalCount' : '/community/rest/getReactionDisLikeTotalCount';
+	    var countElement = logsType === 2 ? $('.likeCount') : $('.dislikeCount');
+
+	    $.ajax({
+	        type: 'POST',
+	        url: url,
+	        contentType: 'application/json',
+	        data: JSON.stringify({
+	            recordNo: recordNo,
+	            replyNo: replyNo,
+	            logsType: logsType
+	        }),
+	        success: function(count) {
+	            countElement.text(count);
+	        },
+	        error: function(xhr, status, error) {
+	            console.log("데이터 가져오기 실패");
+	        }
+	    });
+	}
+
+	function updateIcon(logsType, isAdd) {
+	    var icon = logsType === 2 ? $('#recordLike') : $('#recordDislike');
+	    var oppositeIcon = logsType === 2 ? $('#recordDislike') : $('#recordLike');
+	    var filledClass = logsType === 2 ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill';
+	    var emptyClass = logsType === 2 ? 'bi-hand-thumbs-up' : 'bi-hand-thumbs-down';
+
+	    if (isAdd) {
+	        icon.removeClass(emptyClass).addClass(filledClass);
+	        oppositeIcon.removeClass(oppositeIcon.hasClass('bi-hand-thumbs-up-fill') ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill')
+	                    .addClass(oppositeIcon.hasClass('bi-hand-thumbs-up-fill') ? 'bi-hand-thumbs-up' : 'bi-hand-thumbs-down');
+	    } else {
+	        icon.removeClass(filledClass).addClass(emptyClass);
+	    }
 	}
 	</script>
 	<!-- 기록 좋아요 싫어요 종료 -->
@@ -426,145 +383,102 @@
 	<!-- 댓글 좋아요 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-	    // 클릭 이벤트는 document에서 한 번만 처리
+	    // 댓글 좋아요 클릭 이벤트
 	    $(document).on("click", '.replyLike', function() {
-	        var userId = /*[[${userId}]]*/'';
-	        var button = $(this);
-	        var row = button.closest('.rowReply');
-	        var recordNo = row.find('[data-recordno]').data('recordno');
-	        var replyNo = row.find('[data-replyno]').data('replyno');
-	        var logsType = 2;
+	        handleReplyReaction($(this), 2);
+	    });
 
-	        var data = {
-	            userId : userId,
-	            recordNo : recordNo,
-	            replyNo : replyNo,
-	            logsType : logsType
-	        };
-	        
-	        var replyDislikeBtn = row.find('.replyDislike');
-	        if (replyDislikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
-	        	return ;
-	        }
-
-	        $.ajax({
-	            type : 'POST',
-	            url  : '/community/rest/checkLogs',
-	            contentType : 'application/json',
-	            data : JSON.stringify(data),
-	            success : function(response) {
-	                console.log('좋아요 성공');
-	                updateReplyLikes(row, recordNo, replyNo, logsType);
-
-	                
-				    if (button.hasClass('bi-hand-thumbs-up')) {
-				        button.removeClass('bi-hand-thumbs-up');
-				        button.addClass('bi-hand-thumbs-up-fill');
-				        replyDislikeBtn.prop('disabled', true);
-				    } else {
-				    	button.removeClass('bi-hand-thumbs-up-fill');
-				    	button.addClass('bi-hand-thumbs-up');
-				    	replyDislikeBtn.prop('disabled', false);				    	
-				    }
-	            },
-	            error : function(xhr, status, error) {
-	                console.error('좋아요 실패');
-	            }
-	        });
+	    // 댓글 싫어요 클릭 이벤트
+	    $(document).on("click", '.replyDislike', function() {
+	        handleReplyReaction($(this), 3);
 	    });
 	});
 
-	function updateReplyLikes(row, recordNo, replyNo, logsType) {
-	    var data = {
-	        recordNo : recordNo,
-	        replyNo : replyNo,
-	        logsType : logsType
-	    };
+	function handleReplyReaction(button, logsType) {
+	    var userId = /*[[${userId}]]*/'';
+	    var row = button.closest('.rowReply');
+	    var recordNo = row.find('[data-recordno]').data('recordno');
+	    var replyNo = row.find('[data-replyno]').data('replyno');
+
+	    var likeButton = row.find('.replyLike');
+	    var dislikeButton = row.find('.replyDislike');
+
+	    var isLike = logsType === 2;
+	    var currentButton = isLike ? likeButton : dislikeButton;
+	    var oppositeButton = isLike ? dislikeButton : likeButton;
+
+	    if (oppositeButton.hasClass(isLike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-up-fill')) {
+	        // 반대 반응이 활성화된 상태라면 반대 반응을 취소하고 현재 반응을 활성화
+	        updateReplyReaction(userId, recordNo, replyNo, isLike ? 3 : 2, false, row);
+	        updateReplyReaction(userId, recordNo, replyNo, logsType, true, row);
+	    } else if (currentButton.hasClass(isLike ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill')) {
+	        // 현재 반응이 이미 활성화된 상태라면 현재 반응만 취소
+	        updateReplyReaction(userId, recordNo, replyNo, logsType, false, row);
+	    } else {
+	        // 아무 반응도 활성화되지 않은 상태라면 현재 반응만 활성화
+	        updateReplyReaction(userId, recordNo, replyNo, logsType, true, row);
+	    }
+	}
+
+	function updateReplyReaction(userId, recordNo, replyNo, logsType, isAdd, row) {
+	    $.ajax({
+	        type: 'POST',
+	        url: '/community/rest/checkLogs',
+	        contentType: 'application/json',
+	        data: JSON.stringify({
+	            userId: userId,
+	            recordNo: recordNo,
+	            replyNo: replyNo,
+	            logsType: logsType
+	        }),
+	        success: function(response) {
+	            console.log((isAdd ? '추가' : '취소') + ' 성공');
+	            updateReplyReactionCount(row, recordNo, replyNo, logsType);
+	            updateReplyIcon(row, logsType, isAdd);
+	        },
+	        error: function(xhr, status, error) {
+	            console.error((isAdd ? '추가' : '취소') + ' 실패');
+	        }
+	    });
+	}
+
+	function updateReplyReactionCount(row, recordNo, replyNo, logsType) {
+	    var url = logsType === 2 ? '/community/rest/getReactionLikeTotalCount' : '/community/rest/getReactionDisLikeTotalCount';
+	    var countElement = logsType === 2 ? row.find('.replyLikeCount') : row.find('.replyDislikeCount');
 
 	    $.ajax({
-	        type : 'POST',
-	        url : '/community/rest/getReactionLikeTotalCount',
+	        type: 'POST',
+	        url: url,
 	        contentType: 'application/json',
-	        data : JSON.stringify(data),
-	        success : function(likeCount) {
-	            var likeCountElement = row.find('.replyLikeCount');
-	            likeCountElement.text(likeCount);
+	        data: JSON.stringify({
+	            recordNo: recordNo,
+	            replyNo: replyNo,
+	            logsType: logsType
+	        }),
+	        success: function(count) {
+	            countElement.text(count);
 	        },
-	        error : function(xhr, status, error) {
-	            console.error('데이터 가져오기 실패');
+	        error: function(xhr, status, error) {
+	            console.log("데이터 가져오기 실패");
 	        }
 	    });
-	}	
-	</script>
-	
-	<!-- 댓글 싫어요 -->
-	<script th:inline="javascript">
-	$(document).ready(function() {
-		$(document).on("click", '.replyDislike', function() {
-			var userId = /*[[${userId}]]*/'';
-	        var button = $(this);			
-			var row = $(this).closest('.rowReply');
-			var recordNo = row.find('[data-recordno]').data('recordno');
-			var replyNo = row.find('[data-replyno]').data('replyno');
-			var logsType = 3;
-			var data = {
-					userId : userId,
-					recordNo : recordNo,
-					replyNo : replyNo,
-					logsType : logsType
-			};
+	}
 
-			var replylikeBtn = row.find('.replyLike');
-			if (replylikeBtn.hasClass('bi-hand-thumbs-up-fill')) {
-				return ;
-			}
-			
-			$.ajax({
-				type : 'POST',
-				url  : '/community/rest/checkLogs',
-				contentType : 'application/json',
-				data : JSON.stringify(data),
-				success : function(response) {
-					console.log('24. 싫어요 성공');
-					updateReplyDislikes(row, recordNo, replyNo, logsType);
+	function updateReplyIcon(row, logsType, isAdd) {
+	    var icon = logsType === 2 ? row.find('.replyLike') : row.find('.replyDislike');
+	    var oppositeIcon = logsType === 2 ? row.find('.replyDislike') : row.find('.replyLike');
+	    var filledClass = logsType === 2 ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill';
+	    var emptyClass = logsType === 2 ? 'bi-hand-thumbs-up' : 'bi-hand-thumbs-down';
+	    var oppositeFilledClass = logsType === 2 ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-up-fill';
+	    var oppositeEmptyClass = logsType === 2 ? 'bi-hand-thumbs-down' : 'bi-hand-thumbs-up';
 
-				    if (button.hasClass('bi-hand-thumbs-down')) {
-				    	button.removeClass('bi-hand-thumbs-down');
-				    	button.addClass('bi-hand-thumbs-down-fill');
-				    	replylikeBtn.prop('disabled', true);
-				    } else {
-				    	button.removeClass('bi-hand-thumbs-down-fill');
-				    	button.addClass('bi-hand-thumbs-down');
-				    	replylikeBtn.prop('disabled', false);
-				    }					
-				},
-				error : function(xhr, status, error) {
-					console.error('25. 싫어요 실패');
-				}
-			});
-		});
-	});
-	
-	function updateReplyDislikes(row, recordNo, replyNo, logsType) {
-		var data = {
-			recordNo : recordNo,
-			replyNo : replyNo,
-			logsType : logsType
-		};
-		$.ajax({
-			type : 'POST',
-			url : '/community/rest/getReactionDisLikeTotalCount',
-			contentType : 'application/json',
-			data : JSON.stringify(data),
-			success : function(dislikeCount) {
-	            var dislikeCountElement = row.find('.replyDislikeCount'); 
-	            dislikeCountElement.text(dislikeCount); 
-			},
-			error : function(xhr, status, error) {
-				console.log("26. 데이터 가져오기 실패");
-			}
-		});			
-	}	
+	    if (isAdd) {
+	        icon.removeClass(emptyClass).addClass(filledClass);
+	        oppositeIcon.removeClass(oppositeFilledClass).addClass(oppositeEmptyClass);
+	    } else {
+	        icon.removeClass(filledClass).addClass(emptyClass);
+	    }
+	}
 	</script>
 	
 	<!-- 댓글 목록으로 아동 -->

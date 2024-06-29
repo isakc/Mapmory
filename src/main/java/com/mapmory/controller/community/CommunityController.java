@@ -144,6 +144,7 @@ public class CommunityController {
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
 	    search.setLimit(pageSize);
+	    search.setCurrentPage(currentPage);
 	    search.setOffset((currentPage - 1) * pageSize);		
 		
 		System.out.println("페이지 값1 : " +search);
@@ -185,9 +186,13 @@ public class CommunityController {
 		userId = redisUtil.getSession(request).getUserId();
 		search.setUserId(userId);
 		
+		System.out.println("서치 : "+search);
+		
 	    int currentPage = (search.getCurrentPage() != 0) ? search.getCurrentPage() : 1;
 	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    
 	    search.setLimit(pageSize);
+	    search.setCurrentPage(currentPage);
 	    search.setOffset((currentPage - 1) * pageSize);
 				
 		System.out.println("페이지 값: " +search);
