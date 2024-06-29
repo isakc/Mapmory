@@ -476,15 +476,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Map<String, Object> getUserList(Search search) {
 		// TODO Auto-generated method stub
-		
 		int offset = (search.getCurrentPage() - 1) * search.getPageSize();
         search.setOffset(offset);
         search.setLimit(search.getPageSize());
-		
+        
 		List<User> userList = userDao.selectUserList(search);
 		int count = userDao.getUserListTotalCount(search);
 		
-		Map<String, Object> result = new HashMap<String,Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put("userList", userList);
 		result.put("count", count);
 		
