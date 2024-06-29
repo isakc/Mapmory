@@ -252,7 +252,7 @@
 				console.log("7.현재행 : "+newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('.card').append(newRow);
+				$('#replyListContainer').append(newRow);
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
@@ -494,151 +494,106 @@
 	</script>
 	<!-- 더보기 모달창 처리 종료 -->
 	
-	<!-- 댓글 좋아요 -->
+	<!-- 댓글 좋아요, 싫어요 시작 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
-	    // 클릭 이벤트는 document에서 한 번만 처리
+	    // 댓글 좋아요 클릭 이벤트
 	    $(document).on("click", '.replyLike', function() {
-	        var userId = userId;
-	        var button = $(this); // 클릭된 버튼 요소를 변수에 저장
-	        var row = button.closest('div');
-	        var recordNo = row.find('.recordNo').text();
-	        var replyNo = row.find('.replyNo').text();
-	        var logsType = 2;
+	        handleReplyReaction($(this), 2);
+	    });
 
-	        var data = {
-	            userId : userId,
-	            recordNo : recordNo,
-	            replyNo : replyNo,
-	            logsType : logsType
-	        };
-	        
-			var dislikeBtn = row.find('.replyDislike');
-			if (dislikeBtn.hasClass('bi-hand-thumbs-down-fill')) {
-				return;
-			}
-	        
-	        $.ajax({
-	            type : 'POST',
-	            url  : '/community/rest/checkLogs',
-	            contentType : 'application/json',
-	            data : JSON.stringify(data),
-	            success : function(response) {
-	                console.log('좋아요 성공');
-	                updateLikes(row, recordNo, replyNo, logsType);
-
-				    if (button.hasClass('bi-hand-thumbs-up')) {
-				        button.removeClass('bi-hand-thumbs-up');
-				        button.addClass('bi-hand-thumbs-up-fill');
-				        dislikeBtn.prop('disabled', true);
-				    } else {
-				    	button.removeClass('bi-hand-thumbs-up-fill');
-				    	button.addClass('bi-hand-thumbs-up');
-				    	dislikeBtn.prop('disabled', false);
-				    }
-	            },
-	            error : function(xhr, status, error) {
-	                console.error('좋아요 실패');
-	            }
-	        });
+	    // 댓글 싫어요 클릭 이벤트
+	    $(document).on("click", '.replyDislike', function() {
+	        handleReplyReaction($(this), 3);
 	    });
 	});
 
-	function updateLikes(row, recordNo, replyNo, logsType) {
-	    var data = {
-	        recordNo : recordNo,
-	        replyNo : replyNo,
-	        logsType : logsType
-	    };
+	function handleReplyReaction(button, logsType) {
+	    var userId = userId;
+	    var row = button.closest('div');
+	    var recordNo = row.find('.recordNo').text();
+	    var replyNo = row.find('.replyNo').text();
 
+	    var likeButton = row.find('.replyLike');
+	    var dislikeButton = row.find('.replyDislike');
+
+	    var isLike = logsType === 2;
+	    var currentButton = isLike ? likeButton : dislikeButton;
+	    var oppositeButton = isLike ? dislikeButton : likeButton;
+
+	    if (currentButton.hasClass(isLike ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill')) {
+	        // 현재 반응이 이미 활성화된 상태라면 현재 반응만 취소
+	        updateReplyReaction(userId, recordNo, replyNo, logsType, false, row);
+	    } else {
+	        // 현재 반응을 활성화하고, 만약 반대 반응이 활성화되어 있다면 취소
+	        updateReplyReaction(userId, recordNo, replyNo, logsType, true, row);
+	        if (oppositeButton.hasClass(isLike ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-up-fill')) {
+	            updateReplyReaction(userId, recordNo, replyNo, isLike ? 3 : 2, false, row);
+	        }
+	    }
+	}
+
+	function updateReplyReaction(userId, recordNo, replyNo, logsType, isAdd, row) {
 	    $.ajax({
-	        type : 'POST',
-	        url : '/community/rest/getReactionLikeTotalCount',
+	        type: 'POST',
+	        url: '/community/rest/checkLogs',
 	        contentType: 'application/json',
-	        data : JSON.stringify(data),
-	        success : function(likeCount) {
-	            var likeCountElement = row.find('.likeCount');
-	            likeCountElement.text(likeCount);
+	        data: JSON.stringify({
+	            userId: userId,
+	            recordNo: recordNo,
+	            replyNo: replyNo,
+	            logsType: logsType
+	        }),
+	        success: function(response) {
+	            console.log((isAdd ? '추가' : '취소') + ' 성공');
+	            updateReplyReactionCount(row, recordNo, replyNo, logsType);
+	            updateReplyIcon(row, logsType, isAdd);
 	        },
-	        error : function(xhr, status, error) {
-	            console.error('데이터 가져오기 실패');
+	        error: function(xhr, status, error) {
+	            console.error((isAdd ? '추가' : '취소') + ' 실패');
 	        }
 	    });
 	}
-	</script>
-	<!-- 댓글 좋아요 -->
-	
-	<!-- 댓글 싫어요 -->
-	<script th:inline="javascript">
-	$(document).ready(function() {
-		$(document).on("click", '.replyDislike', function() {
-			var userId = userId;
-			var button = $(this);
-			var row = $(this).closest('div');
-			var recordNo = row.find('.recordNo').text();
-			var replyNo = row.find('.replyNo').text();
-			var logsType = 3;
-			var data = {
-					userId : userId,
-					recordNo : recordNo,
-					replyNo : replyNo,
-					logsType : logsType
-			};
-			
-			var likeBtn = row.find('.replyLike');
-			if (likeBtn.hasClass('bi-hand-thumbs-up-fill')) {
-				return;
-			}
-			
-			$.ajax({
-				type : 'POST',
-				url  : '/community/rest/checkLogs',
-				contentType : 'application/json',
-				data : JSON.stringify(data),
-				success : function(response) {
-					console.log('24. 싫어요 성공');
-					updateDislikes(row, recordNo, replyNo, logsType);
 
-					
-				    if (button.hasClass('bi-hand-thumbs-down')) {
-				    	button.removeClass('bi-hand-thumbs-down');
-				    	button.addClass('bi-hand-thumbs-down-fill');
-				    	likeBtn.prop('disabled', true);
-				    } else {
-				    	button.removeClass('bi-hand-thumbs-down-fill');
-				    	button.addClass('bi-hand-thumbs-down');
-				    	likeBtn.prop('disabled', false);
-				    }					
-				},
-				error : function(xhr, status, error) {
-					console.error('25. 싫어요 실패');
-				}
-			});
-		});
-	});
-	
-	function updateDislikes(row, recordNo, replyNo, logsType) {
-		var data = {
-			recordNo : recordNo,
-			replyNo : replyNo,
-			logsType : logsType
-		};
-		$.ajax({
-			type : 'POST',
-			url : '/community/rest/getReactionDisLikeTotalCount',
-			contentType : 'application/json',
-			data : JSON.stringify(data),
-			success : function(dislikeCount) {
-	            var dislikeCountElement = row.find('.dislikeCount'); 
-	            dislikeCountElement.text(dislikeCount); 
-			},
-			error : function(xhr, status, error) {
-				console.log("26. 데이터 가져오기 실패");
-			}
-		});			
+	function updateReplyReactionCount(row, recordNo, replyNo, logsType) {
+	    var url = logsType === 2 ? '/community/rest/getReactionLikeTotalCount' : '/community/rest/getReactionDisLikeTotalCount';
+	    var countElement = logsType === 2 ? row.find('.likeCount') : row.find('.dislikeCount');
+
+	    $.ajax({
+	        type: 'POST',
+	        url: url,
+	        contentType: 'application/json',
+	        data: JSON.stringify({
+	            recordNo: recordNo,
+	            replyNo: replyNo,
+	            logsType: logsType
+	        }),
+	        success: function(count) {
+	            countElement.text(count);
+	        },
+	        error: function(xhr, status, error) {
+	            console.log("데이터 가져오기 실패");
+	        }
+	    });
+	}
+
+	function updateReplyIcon(row, logsType, isAdd) {
+	    var icon = logsType === 2 ? row.find('.replyLike') : row.find('.replyDislike');
+	    var oppositeIcon = logsType === 2 ? row.find('.replyDislike') : row.find('.replyLike');
+	    var filledClass = logsType === 2 ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-down-fill';
+	    var emptyClass = logsType === 2 ? 'bi-hand-thumbs-up' : 'bi-hand-thumbs-down';
+	    var oppositeFilledClass = logsType === 2 ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-up-fill';
+	    var oppositeEmptyClass = logsType === 2 ? 'bi-hand-thumbs-down' : 'bi-hand-thumbs-up';
+
+	    if (isAdd) {
+	        icon.removeClass(emptyClass).addClass(filledClass);
+	        oppositeIcon.removeClass(oppositeFilledClass).addClass(oppositeEmptyClass);
+	    } else {
+	        icon.removeClass(filledClass).addClass(emptyClass);
+	    }
 	}
 	</script>
-	<!-- 댓글 싫어요 종료-->	
+	<!-- 댓글 좋아ㅇ, 싫어요 종료-->	
 
 	<!-- 댓글 작성칸 동적 처리 -->
 	<script>
@@ -648,6 +603,7 @@
     }
 	</script>
 	
+	<!-- 업로드 이미지 미리보기 -->
 	<script>
 	    function previewImage(input) {
 	        var file = input.files[0];
@@ -671,12 +627,202 @@
 	    replyCountElement.textContent = currentCount;
 	}	
 	</script>
+	
+	<!-- 무한스크롤 -->
+	<script th:inline="javascript">
+	let currentPage = 2;
+	let isLoading = false;
+	let replyListContainer; 
+	let loadingIndicator; 
+	let hasMoreReplies = true;
+	let recordNo;
+	
+	document.addEventListener('DOMContentLoaded', function() {
+	    replyListContainer = document.getElementById('replyListContainer');
+	    loadingIndicator = document.getElementById('loadingIndicator');
+	    recordNo = document.getElementById('recordNo').value; 
+	    
+	    if (!replyListContainer || !loadingIndicator) {
+	        console.error('Required elements are missing');
+	        return;
+	    }
+
+	    loadMoreReplies();
+	    
+	    window.addEventListener('scroll', throttle(handleScroll, 200));
+	});
+	
+	function loadMoreReplies() {
+	    if (isLoading || !hasMoreReplies) return;
+	    
+	    isLoading = true;
+	    if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+	    $.ajax({
+	        url: `/community/rest/getReplyList/${recordNo}?currentPage=${currentPage}&limit=10`,
+	        method: 'GET',
+	        success: function(response) {
+	            const replyList = response.list;
+	            const totalCount = response.totalCount;
+
+	            replyList.forEach(reply => {
+	                const replyElement = createReplyElement(reply);
+	                replyListContainer.appendChild(replyElement);
+	            });
+
+	            currentPage++;
+	            isLoading = false;
+	            if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+	            if (replyListContainer.children.length >= totalCount) {
+	                hasMoreReplies = false;
+	            }
+	        },
+	        error: function(error) {
+	            console.error('Failed to load more replies:', error);
+	            isLoading = false;
+	            loadingIndicator.style.display = 'none';
+	        }
+	    });
+	}
+
+	function createReplyElement(reply) {
+	    const replyElement = document.createElement('div');
+	    replyElement.className = 'card-body replyCard';
+
+	    const content = `
+	        <div>
+	            <h6>
+	                <img alt="" class="profileImage" src="/user/rest/profile/${reply.profileImageName}">
+	                <span class="replyNickname" data-reply-userid="${reply.userId}">${reply.nickname}</span>
+	                ${reply.subscriptionEndDate === '1' ? 
+	                    '<span><img alt="" class="sub" src="/user/rest/profile/sub.png"></span>' : 
+	                    ''}
+	                <i class="bi bi-three-dots"></i>
+	            </h6>
+	            <h4>
+	                <span class="replyText">${reply.replyText}</span><br/>
+	                ${reply.replyImageName && reply.replyImageName !== 'null' ? 
+	                    `<span><img alt="" class="replyImageName" data-reply-image-name="${reply.replyImageName}" src="/community/rest/replyImage/${reply.replyImageName}"></span>` : 
+	                    ''}
+	            </h4>
+	            <h6>    
+	                <span class="dislikeCount">${reply.dislikeCount}</span>            
+	                <span>
+	                    <i class="bi bi-hand-thumbs-down replyDislike"></i>
+	                </span>        
+	                <span class="likeCount">${reply.likeCount}</span>
+	                <span>
+	                    <i class="bi bi-hand-thumbs-up replyLike"></i>
+	                </span>                                
+	                <span class="recordNo" style="display:none;" data-recordno="${reply.recordNo}">${reply.recordNo}</span>    
+	                <span class="replyNo" style="display:none;" data-replyno="${reply.replyNo}">${reply.replyNo}</span>
+	                <span class="userId" style="display:none;" data-userid="${reply.userId}">${reply.userId}</span>
+	            </h6>
+	            <h6>
+	                <span class="replyDate">${reply.replyDate === reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}</span>
+	            </h6>
+	        </div>
+	    `;
+
+	    replyElement.innerHTML = content;
+
+	    // 이벤트 리스너 추가
+	    const likeButton = replyElement.querySelector('.replyLike');
+	    const dislikeButton = replyElement.querySelector('.replyDislike');
+	    const moreButton = replyElement.querySelector('.bi-three-dots');
+
+	    likeButton.addEventListener('click', function() {
+	        handleReplyReaction($(this), 2);
+	    });
+
+	    dislikeButton.addEventListener('click', function() {
+	        handleReplyReaction($(this), 3);
+	    });
+
+	    moreButton.addEventListener('click', function() {
+	        var $row = $(this).closest('div');
+	        openModal($row);
+	    });
+
+	    return replyElement;
+	}
+
+	function handleScroll() {
+	    if (!hasMoreReplies) return;
+
+	    const scrollHeight = document.documentElement.scrollHeight;
+	    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	    const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+	    if (scrollTop + clientHeight >= scrollHeight - 200) {
+	        loadMoreReplies();
+	    }
+	}
+
+	function throttle(func, limit) {
+	    let inThrottle;
+	    return function() {
+	        const args = arguments;
+	        const context = this;
+	        if (!inThrottle) {
+	            func.apply(context, args);
+	            inThrottle = true;
+	            setTimeout(() => inThrottle = false, limit);
+	        }
+	    }
+	}
+	
+	</script>	
 
 	<style>
 		body {
 			background-color : #E6F4F1;
 		}
+
+	    .fixed-nav-bar {
+	        position: fixed;
+	        top: 0;
+	        width: 100%;
+	        background-color: #fff; /* 원하는 배경색으로 변경 */
+	        z-index: 1000; /* 다른 요소들보다 위에 있도록 설정 */
+	        border-bottom: 1px solid #ccc; /* 선택 사항: 아래쪽에 테두리 추가 */
+	    }
+	    
+	    .fixed-nav-bar.nav {
+	        margin: 0;
+	        padding: 10px; /* 필요에 따라 패딩 조정 */
+	    }
+		  
+	    #content-for-footer {
+	        padding-top: 40px; /* 고정 네비게이션바의 높이에 따라 조정 */
+	        padding-bottom: 100px; /* 고정 댓글 폼의 높이에 따라 조정 */
+	    }	    
 	
+		.reply-list-container {
+		    overflow-y: auto;
+		    padding-bottom : 100px;
+		}
+		
+		.footer {
+		    position: fixed;
+		    bottom: 0;
+		    width: 100%;
+		    background-color: #E6F4F1;
+		    z-index: 1000;
+		    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+		}
+		
+		.replyForm {
+		    position: fixed;
+		    bottom: 80px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    width: 100%;
+		    background-color: #E6F4F1;
+		    z-index: 1000; /* 댓글 작성 폼의 z-index를 더 크게 설정하여 footer 위로 올리기 */
+		    border-top: 1px solid #ccc;
+		    padding: 10px;
+		}		
+		
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -863,6 +1009,7 @@
 	<div id=content-for-footer>
 		<div class="container" id="container">
 			<div class="card">
+				<div class="fixed-nav-bar">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
@@ -873,7 +1020,8 @@
 				    	</a>
 					</li>
 				</ul>				
-				<div id="replyListContainer">
+				</div>
+				<div id="replyListContainer" class="reply-list-container">
 				<div th:each="reply, rowStat : ${replyList}" class="replyList">
 					<div class="card-body replyCard">
 						<div>
@@ -912,11 +1060,12 @@
 						</div>
 					</div>
 				</div>
-			</div>		
-			</div>	
-			<div class="separator"></div>							
+			</div>
+			<div id="loadingIndicator" style="display: none;">Loading...</div>		
+			</div>							
 		</div>
 		
+		<div class="footer fixed-bottom">
 		<div class="container replyForm">
 			<div class= "form">
 				<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
@@ -941,6 +1090,7 @@
 		  			</fieldset>
 				</form>	
 			</div>	
+		</div>
 		</div>
 		
 		<!-- 더보기 모달창 -->

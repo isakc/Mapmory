@@ -300,7 +300,38 @@
 	<style>
 		body {
 			background-color : #E6F4F1;
+		    padding-top: 55px; /* 고정된 검색 바의 높이에 따라 조정 */			
 		}
+			
+		.fixed-top {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    z-index: 1030; /* Bootstrap의 기본 z-index 값 */
+		    background-color: #E6F4F1; /* 필요에 따라 색상 변경 */
+		    padding: 0.5rem 1rem;
+		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 선택 사항: 부드러운 그림자 추가 */
+		    border-bottom: 1px solid #ddd; /* 선택 사항: 아래쪽 테두리 추가 */
+		}
+		
+		.fixed-top .input-group {
+		    display: flex;
+		    justify-content: space-between;
+		    align-items: center;
+		}
+		
+		.fixed-top .form-group {
+		    margin: 0;
+		}
+		
+		.fixed-top .btn-group {
+		    flex-grow: 0;
+		}
+		
+		.fixed-top .flex-grow-1 {
+		    flex-grow: 1;
+		}			
 			
 		#list {
 			border: 3px solid #d3d3d3;
@@ -402,7 +433,7 @@
 	<div id=content-for-footer>	
 		<div class="container">
 			<div class="card">
-            	<div class="search">
+            	<div class="search fixed-top">
                 <form th:action="@{/community/getSharedRecordList}" method="get" class="input-group" id="searachForm">
                     <div class="form-group">
                         <div class="btn-group">

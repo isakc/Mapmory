@@ -74,6 +74,7 @@
 	        AND fb.fb_type = 1
 	    )		
 		ORDER BY reply_date ASC
+		LIMIT #{search.limit} OFFSET #{search.offset}
 	</select>
 
 	<!-- 내가 쓴 댓글 목록 조회 -->

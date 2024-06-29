@@ -117,8 +117,16 @@
 				SELECT
 				*
 				FROM users
-				<if test="searchCondition == 0">WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
-				<if test="searchCondition == 1">WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0">
+                    WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1">
+                    WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
 				ORDER BY reg_date DESC
 				) origin,
 				(SELECT @rownum :=0) AS r
@@ -137,8 +145,16 @@
 				SELECT
 				*
 				FROM users 
-			<if test="searchCondition == 0">WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')</if>
-			<if test="searchCondition == 1">WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')</if>
+				<if test="searchCondition != null and searchKeyword != null">
+            <choose>
+                <when test="searchCondition == 0">
+                    WHERE user_id LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+                <when test="searchCondition == 1">
+                    WHERE nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
 			ORDER BY reg_date DESC
 			) origin,
 			(SELECT @rownum :=0) AS r
