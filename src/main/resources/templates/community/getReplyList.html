@@ -252,7 +252,7 @@
 				console.log("7.현재행 : "+newRow);	
             	                        
 				// 새로운 행을 댓글 목록에 추가
-				$('.card').append(newRow);
+				$('#replyListContainer').append(newRow);
 				
 				// 입력 필드 초기화
 				$('#replyText').val('');
@@ -677,6 +677,49 @@
 			background-color : #E6F4F1;
 		}
 
+	    .fixed-nav-bar {
+	        position: fixed;
+	        top: 0;
+	        width: 100%;
+	        background-color: #fff; /* 원하는 배경색으로 변경 */
+	        z-index: 1000; /* 다른 요소들보다 위에 있도록 설정 */
+	        border-bottom: 1px solid #ccc; /* 선택 사항: 아래쪽에 테두리 추가 */
+	    }
+	    
+	    .fixed-nav-bar.nav {
+	        margin: 0;
+	        padding: 10px; /* 필요에 따라 패딩 조정 */
+	    }
+		  
+	    #content-for-footer {
+	        padding-top: 40px; /* 고정 네비게이션바의 높이에 따라 조정 */
+	        padding-bottom: 100px; /* 고정 댓글 폼의 높이에 따라 조정 */
+	    }	    
+	
+		.reply-list-container {
+		    overflow-y: auto;
+		    padding-bottom : 95px;
+		}
+		
+		.footer {
+		    position: fixed;
+		    bottom: 0;
+		    width: 100%;
+		    background-color: #E6F4F1;
+		    z-index: 1000;
+		    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+		}
+		
+		.replyForm {
+		    position: fixed;
+		    bottom: 80px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    width: 100%;
+		    background-color: #E6F4F1;
+		    z-index: 1000; /* 댓글 작성 폼의 z-index를 더 크게 설정하여 footer 위로 올리기 */
+		    border-top: 1px solid #ccc;
+		    padding: 10px;
+		}		
+		
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
 		  position: fixed;
@@ -863,6 +906,7 @@
 	<div id=content-for-footer>
 		<div class="container" id="container">
 			<div class="card">
+				<div class="fixed-nav-bar">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
@@ -873,7 +917,8 @@
 				    	</a>
 					</li>
 				</ul>				
-				<div id="replyListContainer">
+				</div>
+				<div id="replyListContainer" class="reply-list-container">
 				<div th:each="reply, rowStat : ${replyList}" class="replyList">
 					<div class="card-body replyCard">
 						<div>
@@ -913,10 +958,10 @@
 					</div>
 				</div>
 			</div>		
-			</div>	
-			<div class="separator"></div>							
+			</div>							
 		</div>
 		
+		<div class="footer fixed-bottom">
 		<div class="container replyForm">
 			<div class= "form">
 				<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
@@ -941,6 +986,7 @@
 		  			</fieldset>
 				</form>	
 			</div>	
+		</div>
 		</div>
 		
 		<!-- 더보기 모달창 -->
