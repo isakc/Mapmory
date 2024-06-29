@@ -39,7 +39,8 @@
 	<div id=content-for-footer>
 		<div id="map">
 			<div id="bottomBox">
-        		<button class="btn btn-primary" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        		<button class="btn btn-primary mapButton" id="listBtn">리스트로 보기</button>
         		
         		<div id="resultDivs">
 					<div id="result" class="infoItem"></div>
@@ -110,8 +111,8 @@
 	let markers = []; //기록 마커 모음
 	let bounds= new kakao.maps.LatLngBounds(); // 마커들의 주어진 영역이 화면 안에 전부 나타날 수 있도록 지도의 중심 좌표와 확대 수준을 설정
 	let startEndMarkers=[]; //출발, 도착 마커
-	let currentMarker;
-	let requestData;
+	let currentMarker; // 현재 위치 마커
+	let requestData; // 대중교통 안내에서 값 가져오는 방법
 	let polylines = []; // 경로 찾기 선 그리기
 	let paths = []; // 경로 찾기 때 paths에 저장
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
@@ -122,7 +123,12 @@
 	let result = $("#result");
 	let routeDescriptionList = $("#routeDescriptionList");
 	let resultDivsBtn = $("#resultDivsBtn");
-	let badgeImage;
+	let listBtn = $("#listBtn");
+	let badgeImage; // 구독 뱃지 이미지 주소
+	let swiper; // 넘기기 객체
+    const checkboxGroup = $("#checkboxGroup");
+    const searchBoxGroup = $("#searchBoxGroup");
+    const refrestButtn = $(".fa-sync").parent();
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -173,29 +179,29 @@
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬
 							
-							//result.append(recordListElement(index)); // html을 result에 붙이기
+							result.append(recordListElement(index)); // html을 result에 붙이기
+							recordListSwipe(index); // swipe 붙이기
 							
-							
-							
-							recordListSwipe(index); // html을 result에 붙이기
-							
-							
-							
-
 							return record;
 						});
-						
 						$(".infoItem").removeClass("on");
-						//result.addClass("on");
 						$(".swiper-container").addClass("on");
+						$("#listBtn").addClass("on");
 						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
+						navigateToMarkerOnSelect(0, recordList);
+						tempMarkers = markers;
+						tempRecordList = recordList;
+					}else{
+						console.log("없음");
+		                $('#loading').hide();
 					}
 					
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
+	                $('#loading').hide();
 				}, // error
 				complete: function() {
 	                $('#loading').hide();
@@ -204,6 +210,7 @@
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
 			alert('내 위치 확인 권한을 허락 해주세요!');
+            $('#loading').hide();
 		});// 위치정보 불러오기 실패
 	};// 기록 불러오기
 	
@@ -234,6 +241,7 @@
 				contentType: 'application/json', // Content-Type을 JSON으로 설정
 				method: 'GET',
 				success: function(response) {
+					deleteSwiperWrapper();
 					console.log(response);
 
 					if(response.length != 0){
@@ -243,14 +251,18 @@
 							placeList.push(place);
 							
 							result.append(recommendListElement(index));
-                        	
+							placeListSwipe(index); // swipe 붙이기
+							
 							return place;
 						});
 
 						$(".infoItem").removeClass("on");
-						result.addClass("on");
+						$(".swiper-container").addClass("on");
+						$("#listBtn").addClass("on");
+						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(placeList);
+						navigateToMarkerOnSelect(0, placeList);
 					}else{
 						alert("해당하는 기록이 없습니다!!");
 					}//if~else
@@ -297,34 +309,6 @@
 	    return deferred.promise();
 	} // getCurrentLocation: 현재 위치를 가져오는 함수
 	
-	$(".fa-search").on('click', function(){
-		searchRecord();
-	});
-	
-	$(document).on('click', '.hashTag', function(){
-		event.stopPropagation();
-		$('input[name="searchKeyword"]').val($(this).text());
-        searchRecord();
-	});// 해시태그를 클릭했을 때 검색
-	
-	$(document).on("click", ".recordEmoji", function(event){
-		event.stopPropagation();
-		$('input[name="categoryNo"]').val($(this).data('categoryno'));
-        searchRecord();
-	});// 이모지를 클릭했을 때 검색
-	
-	$(document).on('click', '.transitRoute', function() {
-		$(".transitRoute .list-group").empty();
-		
-		if($(this).hasClass('active')){
-			$(this).removeClass('active');
-		}else{
-			$(".transitRoute").removeClass('active');
-			$(this).addClass('active');
-			$(this).append(showPathDetails( $(this).data('index') ) );
-		}
-	 });// 대중교통에서 해당 경로를 선택할 경우
-	
 	$('form').on('submit', function(event) {
 		event.preventDefault();
 		searchRecord();
@@ -332,89 +316,9 @@
 	
 	$('form').trigger('submit'); // 들어오면 실행
 	
-	$('#private, #public, #follow, input[name="radius"]').on('change', function(event) {
-		event.preventDefault();
-		searchRecord();
-	});// private, public, follow, 반경 변경 시 다시 검색
-	
-	$(document).on("click", "#routeButton", function(event){
-		event.stopPropagation();
-		
-		$('.routeAdditionalButtons').css('visibility', function(i, visibility) {
-			return (visibility === 'visible') ? 'hidden' : 'visible';
-		});
-	}); // 경로클릭
-	
-	$(document).on("click", ".routeButton", function(event){
-		event.stopPropagation();
-		
-		if($(this).hasClass('pedestrianRouteButton')){
-			drawRoute(1);
-		}else if($(this).hasClass('carRouteButton')){
-			drawRoute(2);
-		}else if($(this).hasClass('transitRouteButton')){
-			drawTransitRoute();
-		}
-	});
-	
-	$(document).on("click", ".simpleRecordBackButton", function(){
-		showResult();
-	});
-	
-	$(document).on("click", ".simpleRecord .row", function(){
-		$(".infoItem").removeClass('on');
-		description.addClass('on');
-	    deleteDescription();
-	    description.append(detailRecordElement($(this).parent().data('index')) );
-	}); // 간단 보기 눌렀을 때 상세 보기로 
-	
-	$(document).on("click", ".detailRecordBackButton", function(event){
-		deleteDescription();
-		description.append(simpleRecordElement($(this).data('index')) );
-	}); // 상세 보기 눌렀을 때 간단 보기로
-	
-	$(document).on("click", ".detailRecord", function(event){
-		deleteDescription();
-		description.append(simpleRecordElement($(this).data('index')) );
-	}); // 상세 보기 눌렀을 때 간단 보기로
-	
-	$(document).on("click", ".resultListItem", function(event){
-		clickMarkerFromCard($(this).index('.resultListItem'), recordList);
-	});
-	
-	$(document).on("click", ".placeListItem", function(event){
-		clickMarkerFromCard($(this).index('.placeListItem'), placeList);
-	})
-	
-	$(document).on('click', '.mySwiper', function(event) {
-        event.stopPropagation(); // 이벤트 전파 중지
-    });
-	
-    $(document).on('click', '.video-js', function(event){
-    	event.stopPropagation();
-    });
-	
 	$('input[name="searchKeyword"]').on('focus', function(){
         getSuggestions();
     }); // 검색창에 누르면 추천 검색어 나오게 설정
-    
-    $(document).on('click', function(event) {
-        if (!$(event.target).closest('.searchKeywordBox').length) {
-        	$('input[name="searchKeyword"]').blur();
-        }
-    });// input 요소 이외의 영역을 클릭하면 포커스를 해제
-	
-    $(document).on('click', function(event) {
-        if (!$(event.target).closest('#searchKeyword').length) {
-            $('#suggestions').hide();
-        }
-    }); // 입력 필드 밖을 클릭하면 추천 검색어 숨기기
-	 
-    $('#suggestions').on('click', 'div', function(){
-    	$('input[name="searchKeyword"]').val($(this).text());
-        $('#suggestions').hide();
-        searchRecord();
-    }); //추천 검색어 클릭하면 검색
     
     function getSuggestions() {
         $.ajax({
@@ -437,52 +341,9 @@
         });
         suggestionsBox.show();
     } //displaySuggestions(): 추천 검색어를 화면에 표시하는 함수
-	
-    const checkboxGroup = $("#checkboxGroup");
-    const searchBoxGroup = $("#searchBoxGroup");
-    const refrestButtn = $(".fa-sync").parent();
-    	
-    $('#toggle-switch').click(function() {
-        $(this).toggleClass('active');
-        
-        if ($(this).hasClass('active')) {
-          $(this).attr('title', '추천');
-          checkboxGroup.css('display', 'none');
-          searchBoxGroup.css('display', 'none');
-          getRecommendPlace();
-        } else {
-          $(this).attr('title', '기록');
-          checkboxGroup.css('display', 'inline-block');
-          searchBoxGroup.css('display', 'block');
-          searchRecord();
-        }
-    });// 토글 스위치
-    
-    refrestButtn.on('click', function(){
-    	if(searchBoxGroup.css('display') === 'none' ){
-            getRecommendPlace();
-    	}else{
-    		location.reload();	
-    	}
-    });// 재검색 버튼 클릭시
-
-    function lazyLoad() {
-        var windowBottom = $(window).scrollTop() + $(window).height();
-        $('img.lazy-load').each(function() {
-            var $this = $(this);
-            var imageTop = $this.offset().top;
-            if (imageTop < windowBottom) {
-                var dataSrc = $this.attr('data-src');
-                $this.attr('src', dataSrc);
-                $this.removeClass('lazy-load');
-            }
-        });
-    }
-
-    $(window).on('scroll', lazyLoad);
-    $(window).on('resize', lazyLoad);
-    lazyLoad(); // Initial check
 	</script>
+	
+    <script src="/javascript/map/mapClickEvent.js"></script>
 </body>
 
 </html>
