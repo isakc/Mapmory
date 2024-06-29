@@ -131,7 +131,7 @@ public class MapRestController {
 	@PostMapping(value="rest/getMapRecordList")
 	public ResponseEntity<Map<String, Object>> getMapRecordList(@RequestBody Search search) throws Exception {
 		
-		search.setLimit(30);
+		search.setLimit(10);
 		search.setCurrentPage(1);
 		
 		List<MapRecord> mapRecordList = timelineService.getMapRecordList(search);
@@ -170,6 +170,11 @@ public class MapRestController {
 			for(ImageTag imageName : record.getImageName()) {
 				String imageFileName = userService.getImage("thumbnail", imageName.getImageTagText());
 				imageName.setImageTagText(imageFileName);
+			}
+			
+			if(record.getCategoryImoji() != null) {
+				String categoryImage = userService.getImage("emoji", record.getCategoryImoji());
+				record.setCategoryImoji(categoryImage);
 			}
 		}
 		
