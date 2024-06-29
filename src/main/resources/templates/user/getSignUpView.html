@@ -267,9 +267,14 @@
      <div class="mb-3">
       <label for="sex" class="form-label">성별</label>
       <select id="sex" name="sex" class="form-select" required>
+      	<!-- 
         <option value="0" th:if="${socialUserInfo.gender=='U'} ? select : ''">비공개</option>
         <option value="1" th:if="${socialUserInfo.gender=='M'} ? select : ''">남성</option>
         <option value="2" th:if="${socialUserInfo.gender=='F'} ? select : ''">여성</option>
+         -->
+        <option value="0" th:selected="${socialUserInfo.gender == 'U'}">비공개</option>
+		<option value="1" th:selected="${socialUserInfo.gender == 'M'}">남성</option>
+		<option value="2" th:selected="${socialUserInfo.gender == 'F'}">여성</option>
       </select>
     </div>
 

@@ -111,9 +111,10 @@
             
             <p><strong>생일:</strong> <span th:text="${user.birthday}">생일</span></p>
             
-            <p><strong>성별:</strong> 
-                <span th:if="${user.sex == 0}">남</span>
-                <span th:if="${user.sex == 1}">여</span>
+            <p><strong>성별:</strong>
+            	<span th:if="${user.sex == 0}">비공개</span> 
+                <span th:if="${user.sex == 1}">남</span>
+                <span th:if="${user.sex == 2}">여</span>
             </p>
             
             <p><strong>이메일:</strong> <span th:text="${user.email}">이메일</span></p>
@@ -129,10 +130,6 @@
 
 			<p><strong>계정 정지 종료 일자:</strong>
 			    <span th:text="${suspendMap['endSuspensionDate']} ?: '정지중이 아님'">계정 정지 종료 일자</span>
-			</p>
-			
-			<p><strong>마지막 로그인 일자:</strong> 
-				<span th:text="${user['leaveAccountDate']} ?: '로그인중임'">마지막 로그인 일자</span>
 			</p>
 			          
             <div class="action-links">
