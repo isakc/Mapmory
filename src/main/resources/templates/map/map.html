@@ -195,11 +195,13 @@
 						tempRecordList = recordList;
 					}else{
 						console.log("없음");
+		                $('#loading').hide();
 					}
 					
 				}, // success
 				error: function(error) {
 					console.log('ajax 에러 발생:', error);
+	                $('#loading').hide();
 				}, // error
 				complete: function() {
 	                $('#loading').hide();
@@ -208,6 +210,7 @@
 		}).fail(function(error) {
 			console.log('위치 정보를 불러오는데 실패함:', error);
 			alert('내 위치 확인 권한을 허락 해주세요!');
+            $('#loading').hide();
 		});// 위치정보 불러오기 실패
 	};// 기록 불러오기
 	
