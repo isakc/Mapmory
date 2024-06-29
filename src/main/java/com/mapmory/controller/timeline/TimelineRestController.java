@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,25 +92,26 @@ public class TimelineRestController {
 			@RequestBody Record record,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
-		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now().toString().replace("T"," ").split("\\.")[0]);
+		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
 		record.setUpdateCount(-1);
 		record.setTempType(0);
 		record.setTimecapsuleType(0);
 		record.setCategoryNo(0);
 		String text="";
+		CountAddressDto countAddressDto=timelineService.getCountAddress(record);
 		int recordNo=timelineService.addTimeline(record);
 		record=timelineService.getDetailTimeline(recordNo);
-		CountAddressDto countAddressDto=timelineService.getCountAddress(record);
 		if(recordNo!=0) {
-			text+="체크포인트가 저장 완료 : "+record.getLatitude()+"/"+record.getLongitude()+"/"
-					+record.getCheckpointAddress()+"/"+record.getCheckpointDate();
+			text+="<span>체크포인트가 저장 완료 : "+record.getLatitude()+"/"+record.getLongitude()+"/"
+					+record.getCheckpointAddress()+"/"+record.getCheckpointDate()+"</span>";
 			if(countAddressDto.getCheckpointCount()>1) {
-				text+=", 현재 위치에 "+ countAddressDto.getCheckpointCount() + " 회, 재방문하였습니다. 최근 방문 일시는" 
-						+ countAddressDto.getCheckpointDate()+ "입니다.";
-;			}
+				text+="<br/><br/><span>현재 위치에 "+ (countAddressDto.getCheckpointCount()+1) + " 회, 재방문하였습니다. 최근 방문 일시는 " 
+						+ countAddressDto.getCheckpointDate()+ " 입니다.</span>";
+			}
 		}else {
 			text+="체크포인트 저장 안됨";
 		}
+		map.put("recordNo", record.getRecordNo());
 		map.put("text", text);
 		return ResponseEntity.ok(map);
 	}
