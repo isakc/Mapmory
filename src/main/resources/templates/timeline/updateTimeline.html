@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>Mapmory 기록수정</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
@@ -35,6 +35,11 @@ form {
 }
 fieldset{
 	margin : 5px;
+}        
+.loading-container {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
 }
 </style>
 </head>
@@ -73,10 +78,7 @@ fieldset{
 		       th:value="${record.updateCount != -1 ? record.recordTitle : ''}"
 		       th:placeholder="${record.updateCount == -1 ? record.recordTitle : '제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.'}">	
 			<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
-			<div id="recordTitleHelp3" class="d-none">
-				<small class="form-text text-muted" 
-				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-	    	</div>
+			<div id="recordTitleHelp3"></div>
 	    </div>
 			
 	    <div class="row">
@@ -97,7 +99,6 @@ fieldset{
 	      <label for="checkpointAddress" class="form-label mt-4" th:text="'체크포인트 주소'"></label>
 	      <input type="text" class="form-control" th:field="*{checkpointAddress}" readonly="readonly" autocomplete="off">
 	    </div>
-	    <br/>
 	    <div id=mediaAppend></div>
 	    <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
 			<video width="320" height="240" controls>
@@ -133,10 +134,7 @@ fieldset{
 			placeholder="#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다." autocomplete="off">
 			<small id="hashtagTextHelp" class="form-text text-muted" 
 			th:text="'#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.'"></small>
-			<div id="hashtagTextHelp3" class="d-none">
-				<small class="form-text text-muted" 
-				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-	    	</div>
+			<div id="hashtagTextHelp3"></div>
 	    </div>
 	    
 	    <div class="row">
@@ -144,14 +142,15 @@ fieldset{
 	     	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
 			<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : /안녕/'"></small>
 			<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
-			<div id="recordTextHelp3" class="d-none">
+			<div id="recordTextHelp3"></div>
+			<!-- <div id="recordTextHelp3" class="d-none">
 				<small class="form-text text-muted" 
 				th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-	    	</div>
+	    	</div> -->
 	    </div>
     
 	</fieldset>
-	<div class="container text-left">
+	<div th:id="buttonGroup" class="container text-left mb-3">
 		<div class="row">
 		    <div class="col-12">
 				<button type="button" class="btn btn-primary" th:name="updateTimeline" th:text="'다시작성'"></button>
@@ -160,6 +159,12 @@ fieldset{
 			</div>
 		</div>
 	</div>
+	<div id="loadingContainer" class="loading-container">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>요청을 처리중 입니다.</p>
+    </div>
 	
 	</form>
 	
@@ -330,6 +335,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 });
 
+function handleButtonClick() {
+    document.getElementById('buttonGroup').style.display = 'none';
+    document.getElementById('loadingContainer').style.display = 'block';
+}
+
 function badWord(text, idName){
         //console.log('Space bar was pressed and released');
         $.ajax("/timeline/rest/checkBadWord",{
@@ -339,10 +349,15 @@ function badWord(text, idName){
 				text : text
 			},
 			success : function(response,status){
+				let text=
+					'<small class="form-text text-danger">' 
+				+'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.</small>';
 				if (response.badWord) {
-				    document.getElementById(idName).classList.replace('d-none', 'd-block');
+				    //document.getElementById(idName).classList.replace('d-none', 'd-block');
+				    document.getElementById(idName).innerHTML = text;
 				} else {
-				    document.getElementById(idName).classList.replace('d-block', 'd-none');
+				    document.getElementById(idName).innerHTML = null;
+				    //document.getElementById(idName).classList.replace('d-block', 'd-none');
 				}
 
 			},
@@ -379,12 +394,20 @@ $(function() {
 	}) */
 	
 	$("button[name='updateTimeline']").click(function() {
+		handleButtonClick();
 		uri="?recordNo="+recordNo;
 		self.location="/timeline/updateTimeline"+uri;
 	})
 	
 	$("button[name='addVoiceToText']").click(function() {
-		window.open("/timeline/addVoiceToText",'_blank','width=400,height=300,left=400,top=300,scrollbars=no,location=no,toolbar=no,menubar=no,resizable=no');
+		window.open("/timeline/addVoiceToText",'_blank',
+				'width=400,height=300,left=400,top=300,scrollbars=no,location=no,toolbar=no,menubar=no,resizable=no');
+	})
+	
+	$("button:contains('작성완료')").click(function() {
+        event.preventDefault();
+		handleButtonClick();
+        $('form').submit();
 	})
 	
 	$("button[name='mediaX']").click(function() {

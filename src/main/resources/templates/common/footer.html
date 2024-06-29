@@ -80,7 +80,11 @@
 			</div>		
 		</div>
 	</nav> 
-<!-- <a href="#" th:text="체크포인트"></a> -->
+	
+	
+	
+<div th:include="timeline/component/modal::defaultModal"></div>
+<div th:include="timeline/component/modal::checkpointModal"></div>
 <input type="hidden" th:name="recordUserIdOfFooter" th:value="${userId}"/>
 <input type="hidden" th:name="latitudeOfFooter" th:value="'37.4923615'"/>
 <input type="hidden" th:name="longitudeOfFooter" th:value="'127.0292881'"/>
@@ -115,7 +119,8 @@ $(function() {
 		    
 		} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
 			let message = 'geolocation을 사용할수 없어요..'
-			alert(message);
+			showModal('위치 추적 오류',message);
+			//alert(message);
 		}
 	})//$("img[name='체크포인트']").on("click", function() { 끝
 		
@@ -166,8 +171,15 @@ $(function() {
 		    		checkpointAddress : checkpointAddress
 				}),
 				success : function(response,status){
-					alert(JSON.stringify(response));
+					
 					console.log(JSON.stringify(response));
+					checkpointShowModal('체크포인트',response.text);
+					
+					$('#checkpointModalCheck').on("click",function(){
+						let uri="?recordNo="+response.recordNo;
+						self.location="/timeline/updateTimeline"+uri;
+					})
+					
 				},
         		error: function(xhr, status, error) {
             		alert('Error: ' + error);
@@ -175,8 +187,6 @@ $(function() {
 
 			})
 		})//$('input[name="checkpointAddressOfFooter"]').on("change",function(){ 끝
-			
-		
 		
 		$("div[name='프로필']").on("click", function() {
 			window.location.href=`/user/getProfile?userId=${userId}`;

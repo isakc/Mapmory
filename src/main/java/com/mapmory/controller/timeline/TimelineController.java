@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
 import com.mapmory.services.timeline.domain.Category;
+import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.SummaryRecordDto;
@@ -97,7 +99,7 @@ public class TimelineController {
 		String userId = redisUtil.getSession(request).getUserId();
 		
 		if(selectDay==null) {
-		LocalDate today = LocalDate.now();
+		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 //		LocalDate today = LocalDate.of(2024,5,29);
 		selectDay=Date.valueOf(today);
 		}
@@ -188,9 +190,9 @@ public class TimelineController {
 		String userId = redisUtil.getSession(request).getUserId();
 		
 		if(selectDate==null) {
-			selectDate=LocalDateTime.now().toString().split("\\.")[0];
+			selectDate=LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
 		}else {
-			selectDate+="T"+LocalTime.now().toString().split("\\.")[0];
+			selectDate+="T"+LocalTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
 		}
 		
 		Search search = Search.builder()
@@ -301,7 +303,7 @@ public class TimelineController {
 				|| !(record.getImageName()==null || record.getImageName().isEmpty())
 				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
-				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+				record.setRecordAddDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
 			}
 			record.setTempType(1);
 		}else {
@@ -314,7 +316,7 @@ public class TimelineController {
 					|| ContentFilterUtil.checkBadWord(hashtagText) ) {
 				record.setSharedDate(null);
 			}else {
-				record.setSharedDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+				record.setSharedDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
 			}
 		}else {
 			record.setSharedDate(null);
@@ -338,6 +340,19 @@ public class TimelineController {
 			@RequestParam(name="selectDay", required = true) String selectDay,
 			HttpServletRequest request
 			) throws Exception,IOException {
+		
+		Record record = timelineService.getDetailTimeline(recordNo);
+		if(record.getMediaName()!=null && !record.getMediaName().trim().equals("")) timelineUtil.deleteMediaFile(record.getMediaName());
+		if(record.getImageName()!=null && !record.getImageName().isEmpty()) {
+			for(ImageTag image:record.getImageName()) {
+				timelineUtil.deleteImageFile(image.getImageTagText());
+			}
+		}
+		for(KeywordData k: TimelineUtil.calculateKeyword(record, 
+				Record.builder().recordUserId(record.getRecordUserId()).build())) {
+			timelineService.addKeyword(k);
+		}
+		
 		timelineService.deleteTimeline(recordNo);
 		String uri="?selectDay="+selectDay;
 		return "redirect:/timeline/getTimelineList"+uri;
@@ -427,7 +442,7 @@ public class TimelineController {
 			}else {
 				if(record.getRecordTitle()==null ||record.getRecordTitle().trim().equals("")){
 					 record.setRecordTitle("임시저장된 타임캡슐_"
-					+LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+					+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
 				}
 			}
 		}
@@ -442,7 +457,7 @@ public class TimelineController {
 				|| !(record.getImageName()==null || record.getImageName().isEmpty())
 				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
-				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+				record.setRecordAddDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
 			}
 		}
 		
@@ -490,7 +505,7 @@ public class TimelineController {
 				|| !(record.getImageName()==null || record.getImageName().isEmpty())
 				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
-				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
+				record.setRecordAddDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
 			}
 		}
 		
@@ -510,6 +525,14 @@ public class TimelineController {
 			@RequestParam(value="recordNo", required = true) int recordNo,
 			HttpServletRequest request
 			) throws Exception,IOException {
+		Record record = timelineService.getDetailTimeline(recordNo);
+		if(record.getMediaName()!=null && !record.getMediaName().trim().equals("")) timelineUtil.deleteMediaFile(record.getMediaName());
+		if(record.getImageName()!=null && !record.getImageName().isEmpty()) {
+			for(ImageTag image:record.getImageName()) {
+				timelineUtil.deleteImageFile(image.getImageTagText());
+			}
+		}
+		
 		timelineService.deleteTimeline(recordNo);
 		return "redirect:/timeline/getTimecapsuleList";
 	}
