@@ -172,7 +172,7 @@ public class TimelineController {
 		model.addAttribute("timelineCount",timelineList.size());
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("tMapApiKey",tMapApiKey);
+		//model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
@@ -199,20 +199,25 @@ public class TimelineController {
 				.searchKeyword(selectDate)
 				.build();
 		
-		selectDate = timelineService.getSummaryDate(search).substring(0, 10);
+		String searchDate = timelineService.getSummaryDate(search);
+		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
+		if(searchDate!=null) {
+			searchDate=searchDate.substring(0, 10);
+			search.setSelectDate(Date.valueOf(searchDate));
+			
+			recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
+			
+			List<String> dateList=timelineService.getSummaryDateList(userId);
+			
+			model.addAttribute("dateList",dateList);
+			model.addAttribute("startDay", dateList.get(0));
+			model.addAttribute("endDay", dateList.get(dateList.size()-1) );
+			model.addAttribute("selectDate", searchDate);
+		}
 		
-		search.setSelectDate(Date.valueOf(selectDate));
-		
-		List<SummaryRecordDto> recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
-		
-		List<String> dateList=timelineService.getSummaryDateList(userId);
-		
-		model.addAttribute("dateList",dateList);
-		model.addAttribute("startDay", dateList.get(0));
-		model.addAttribute("endDay", dateList.get(dateList.size()-1) );
+		System.out.println("recordList : " + recordList);
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
-		model.addAttribute("selectDate", selectDate);
 		model.addAttribute("recordList", recordList);
 		return "timeline/getSummaryRecord";
 	}
@@ -290,10 +295,11 @@ public class TimelineController {
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
 		record.setUpdateCount(record.getUpdateCount()+1);
+//		System.out.println("오류 체크 : "+record.getMediaName()+"/"+record.getImageName()+"/"+record.getRecordText());
 		
-		if(record.getMediaName()!=null || !record.getMediaName().isEmpty() 
-				|| record.getImageName()!=null || !record.getImageName().isEmpty()
-				|| record.getRecordText()!=null || !record.getRecordText().trim().equals("") ) {
+		if( !(record.getMediaName()==null || record.getMediaName().trim().equals(""))
+				|| !(record.getImageName()==null || record.getImageName().isEmpty())
+				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
 				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
 			}
@@ -328,11 +334,13 @@ public class TimelineController {
 
 	@GetMapping("deleteTimeline")
 	public String deleteTimeline(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo,
+			@RequestParam(name="recordNo", required = true) int recordNo,
+			@RequestParam(name="selectDay", required = true) String selectDay,
 			HttpServletRequest request
 			) throws Exception,IOException {
 		timelineService.deleteTimeline(recordNo);
-		return "redirect:timeline/getTimelineList";
+		String uri="?selectDay="+selectDay;
+		return "redirect:/timeline/getTimelineList"+uri;
 	}
 	
 	@GetMapping("getTimecapsuleList")
@@ -430,9 +438,9 @@ public class TimelineController {
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
 		if(record.getTempType()==1 
-				|| record.getMediaName()!=null || !record.getMediaName().isEmpty() 
-				|| record.getImageName()!=null || !record.getImageName().isEmpty()
-				|| record.getRecordText()!=null || !record.getRecordText().trim().equals("") ) {
+				|| !(record.getMediaName()==null || record.getMediaName().trim().equals(""))
+				|| !(record.getImageName()==null || record.getImageName().isEmpty())
+				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
 				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
 			}
@@ -478,9 +486,9 @@ public class TimelineController {
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
 		
 		if(record.getTempType()==1 
-				|| record.getMediaName()!=null || !record.getMediaName().isEmpty() 
-				|| record.getImageName()!=null || !record.getImageName().isEmpty()
-				|| record.getRecordText()!=null || !record.getRecordText().trim().equals("") ) {
+				|| !(record.getMediaName()==null || record.getMediaName().trim().equals(""))
+				|| !(record.getImageName()==null || record.getImageName().isEmpty())
+				|| !(record.getRecordText()==null || record.getRecordText().trim().equals("")) ) {
 			if(record.getRecordAddDate()==null || record.getRecordAddDate().trim().equals("")) {
 				record.setRecordAddDate(LocalDateTime.now().toString().replace("T", " ").split("\\.")[0]);
 			}

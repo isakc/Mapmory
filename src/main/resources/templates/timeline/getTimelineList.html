@@ -309,18 +309,32 @@ input[type="hidden"] {
 	<div id="content" th:if="${!( timelineList==null || timelineList.isEmpty() )}">
 		<ul class="timeline" th:each="record : ${timelineList}">
 			<li class="event" ><!-- th:data-date="${record.checkpointDate}" -->
-				<h3 th:text="${record.checkpointDate}"></h3>
-				<p>
-					<span th:text="'&nbsp ' + ${record.checkpointAddress} + '&nbsp '"></span>
-					<span th:text="'&nbsp &nbsp'"></span>
-					<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}"></label>
-					<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'"></label>
-				</p>
-				<p>
-					<span class="recordNo">
-						<a class="text-primary" th:id="getSimpleTimeline" th:name="getSimpleTimeline" th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></a>
-					</span>
-				</p>
+				<div class="container">
+					<div class="row">
+						<div class="col-8">
+							<h3 th:text="${record.checkpointDate}"></h3>
+						</div>
+						<div class="col-4 text-end">
+							<label class="badge bg-primary" th:text="${record.tempType==1 ? '기록됨' : '체크포인트'}" 
+							style="align-items: center; justify-content: center;"></label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-9">
+							<p th:text="${record.checkpointAddress}"></p>
+						</div>
+						<div class="col-3 text-end">
+							<label class="badge bg-primary" th:if="${record.sharedDate}" th:text="'공유됨'" 
+							style="align-items: center; justify-content: center;"></label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<p class="text-primary" th:id="getDetailTimeline" th:name="getDetailTimeline" 
+							th:data-recordno="${record.recordNo}" th:text="${record.recordTitle}"></P>
+						</div>
+					</div>
+				</div>
 			</li>
 		</ul>
 	</div>
@@ -375,7 +389,7 @@ $(function() {
 		self.location="/timeline/getKeywordList";
 	})
 	
-	$("a[name='getSimpleTimeline']").click(function() {
+	$("p[name='getDetailTimeline']").click(function() {
 		let recordNo=$(this).data('recordno');
 		/* alert(recordNo); */
 		uri="?recordNo="+recordNo;
