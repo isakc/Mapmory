@@ -3,6 +3,10 @@
  */
 
 const recordListSwipe = (index) => {
+	if (swiper) {
+        swiper.destroy(true, true);
+    }
+    
 	swiper = new Swiper('.swiper-container', {
         slidesPerView: 1,
         spaceBetween: 10,
@@ -10,31 +14,29 @@ const recordListSwipe = (index) => {
             el: '.swiper-pagination',
             clickable: true,
         },
+        observer: true,
+        observeParents: true,
         watchOverflow: true,
         on: {
 			slideChange: function () {
-				let index = this.activeIndex;
-				console.log(index);
+				let visibleIndex = this.activeIndex;
+				let realIndex = 0;
 				
-				selectLatitude = recordList[index].latitude;
-    			selectLongitude = recordList[index].longitude;
-    			map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
-    
-    			if (clickedMarker) {
-        			clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
-        			clickedMarker.setZIndex(4);
-    			}
-    
-    			beforeMarkerType = recordList[index].markerType;
-    			markers[index].setZIndex(5);
-    			markers[index].setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
-    			clickedMarker = markers[index]; // 현재 클릭된 마커를 업데이트
+				$("#swiper-wrapper .resultListItem").each(function(i) {
+					if ($(this).is(":visible")) {
+						if (realIndex === visibleIndex) {
+							navigateToMarkerOnSelect(i, recordList, visibleIndex);
+							return false; // 루프 종료
+						}
+						realIndex++;
+					}
+				});
 			}
 		}
     });
     
 	const slideHtml = `
-		<div class="swiper-slide card border-0 container resultListItem">
+		<div class="swiper-slide card border-0 container resultListItem" data-marker-type=${recordList[index].markerType}>
 		
 			<!--<div class="profileImageContainer">
 				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
@@ -45,7 +47,7 @@ const recordListSwipe = (index) => {
 	    	<div class="row g-0">
 	      		<div class="col-9 card-body p-1">
 	            	<div class="mb-2">
-	                	<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	                	<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
 	            	</div><!-- 제목 -->
 	            
 	      			<div>
@@ -80,17 +82,9 @@ const recordListSwipe = (index) => {
 	swiper.appendSlide(slideHtml);
 };
 
-
-
-
-
-
-
-
-
 const recordListElement = (index) => {
 	return `
-		<div class="card border-0 border-bottom mb-3 container resultListItem">
+		<div class="card border-0 border-bottom mb-3 container resultListItem" data-marker-type=${recordList[index].markerType}>
 		
 			<!--<div class="profileImageContainer">
 				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
@@ -101,7 +95,7 @@ const recordListElement = (index) => {
 	    	<div class="row g-0">
 	      		<div class="col-9 card-body p-1">
 	            	<div class="mb-2">
-	                	<h5 class="card-title fw-bold ellipsis fs-3">${index+1}. ${recordList[index].recordTitle}</h5>
+	                	<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
 	            	</div><!-- 제목 -->
 	            
 	      			<div>
@@ -313,6 +307,42 @@ const detailRecordElement = (index) => {
     	
   		return htmlElement;
 }
+
+
+
+const placeListSwipe = (index) => {
+	if (swiper) {
+        swiper.destroy(true, true);
+    }
+    
+	swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        watchOverflow: true,
+        on: {
+			slideChange: function () {
+				let index = this.activeIndex;
+				
+				navigateToMarkerOnSelect(index, placeList, index);
+			}
+		}
+    });
+    
+	const slideHtml = `
+		<div class="swiper-slide card border-0 mb-3 place placeListItem">
+    			<h2 class="card-title fw-bold ellipsis fs-3">${index+1}. ${placeList[index].placeName} </h2>
+    			<p class="card-text">${placeList[index].categoryName} </p>
+    			<p class="card-text fs-5">${placeList[index].addressName} </p>
+    	</div>
+	`;
+	
+	swiper.appendSlide(slideHtml);
+};
+
 
 const recommendListElement = (index) => {
 	return `<div class="card border-0 border-bottom mb-3 place placeListItem">
