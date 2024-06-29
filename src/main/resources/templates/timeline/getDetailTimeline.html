@@ -83,9 +83,12 @@ h4.card-badge span{
 
 button{
 	margin-bottom: 10px;
+}        
+.loading-container {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
 }
-
-
 </style>
 </head>
 <body>
@@ -128,7 +131,7 @@ button{
  				<span th:utext="${record.recordText}"></span>
  			</div>
  		</div>
-		<div class="container text-left">
+		<div th:id="buttonGroup" class="container text-left mb-3">
 			<div class="row">
 			    <div class="col-12">
 					<button type="button" class="btn btn-primary btn-lg" th:name="updateTimeline" th:text=" '수정' "></button>
@@ -136,6 +139,12 @@ button{
 				</div>
 			</div>
 		</div>
+		<div id="loadingContainer" class="loading-container">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>요청을 처리중 입니다.</p>
+        </div>
 	</div>
 </div>
 <div th:replace="common/footer::defaultFooter"></div>
@@ -147,6 +156,11 @@ button{
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script type="text/javascript">
+function handleButtonClick() {
+    document.getElementById('buttonGroup').style.display = 'none';
+    document.getElementById('loadingContainer').style.display = 'block';
+}
+
 $(function() {
 	
 	let recordNo=$('input[name="recordNo"]').val();
@@ -174,12 +188,14 @@ $(function() {
 
 	
 	$("button[name='updateTimeline']").click(function() {
+		handleButtonClick();
 		uri="?recordNo="+recordNo;
 		self.location="/timeline/updateTimeline"+uri;
 	})
 	
 	$("button[name='deleteTimeline']").click(function() {
-		uri="?recordNo="+recordNo;
+		handleButtonClick();
+		uri="?recordNo="+recordNo+"&selectDay="+selectDay;
 		self.location="/timeline/deleteTimeline"+uri;
 	})
 	

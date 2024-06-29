@@ -190,11 +190,11 @@ input[name="searchKeyword"]{
 }
 
 #result {
-    max-height: 190px; /* 최대 높이 설정 */
+    max-height: 500px; /* 최대 높이 설정 */
 }
 
 #description {
-    max-height: 600px; /* 최대 높이 설정 */
+    max-height: 500px; /* 최대 높이 설정 */
 }
 
 #routeDescriptionList {
@@ -262,7 +262,6 @@ input[name="searchKeyword"]{
 .infoItem {
 	background-color: rgba(255, 255, 255); /* 흰색 배경, 약간 투명하게 조정 가능 */
     width: 100%;
-    max-height: 190px; /* 최대 높이 설정 */
     overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
     scrollbar-width: none; /* 스크롤바 숨기기 */
     padding: 10px;
@@ -273,11 +272,11 @@ input[name="searchKeyword"]{
 	display: block;
 }
 
-#resultDivsBtn{
+.mapButton{
 	display: none;
 }
 
-#resultDivsBtn.on{
+.mapButton.on{
 	display: block;
 }
 
