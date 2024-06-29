@@ -6,25 +6,6 @@ let clickedMarkerImage = new kakao.maps.MarkerImage(markerImages[7], new kakao.m
 let clickedMarker = null; // 클릭된 마커를 추적할 변수
 let beforeMarkerType = null;
 
-function clickMarkerFromCard(index, contentList) {
-    // 마커 배열에서 해당 record을 가진 마커 찾기
-    const marker = markers.find(m => {
-    	if (m.locationData.markerType === 3) {
-        	return m.locationData.latitude === contentList[index].latitude &&
-               	m.locationData.longitude === contentList[index].longitude &&
-               	m.locationData.addressName === contentList[index].addressName;
-   		}else {
-        	return m.locationData.latitude === contentList[index].latitude && 
-        	       m.locationData.longitude === contentList[index].longitude &&
-                   m.locationData.recordNo === contentList[index].recordNo;
-    	}
-	});
-    
-    if (marker) {
-        clickContentMarker(marker, index, contentList);
-    }
-}
-
 function setMarkers(contentList) {
     contentList.forEach( (content, index) => {
         let marker = createMarkerImage(content);
@@ -44,20 +25,14 @@ function setMarkers(contentList) {
 
         kakao.maps.event.addListener(marker, 'click', function() {
 			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
-            	clickContentMarker(marker, index, contentList);
+				if(result.hasClass('on') || $(".swiper-container").hasClass('on')){
+            		navigateToMarkerOnSelect(index, contentList, index);
+				}else{
+					clickContentMarker(index, contentList);
+				}
 			}
         });// 마커에 클릭이벤트를 등록
     });
-
-    kakao.maps.event.addListener(map, 'click', function() {
-        hideResultDivs();
-        
-		resultDivsBtn.removeClass('on');
-		if(recordList.length!=0 || placeList.length != 0){
-			resultDivsBtn.addClass('on');	
-		}
-		
-    });// 맵을 클릭한 경우 해제 시키기
 }
 	
 function createMarkerImage(location) {
@@ -76,24 +51,35 @@ function createMarkerImage(location) {
 	return marker;
 }// 이미지 있는 마커 생성
 
-function clickContentMarker(marker, index, contentList) {
+function navigateToMarkerOnSelect(index, contentList, activeIndex){
     selectLatitude = contentList[index].latitude;
     selectLongitude = contentList[index].longitude;
     map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
     
     if (clickedMarker) {
         clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
+        clickedMarker.setZIndex(4);// ZIndex 수정
     }
     
     beforeMarkerType = contentList[index].markerType;
     
-    marker.setZIndex(5);
-    marker.setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
-    clickedMarker = marker; // 현재 클릭된 마커를 업데이트
+    markers[index].setZIndex(5);
+    markers[index].setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
+    
+    clickedMarker = markers[index]; // 현재 클릭된 마커를 업데이트
+    
+    swiper.slideTo(activeIndex);
 
-    $(".infoItem").removeClass("on");
-	description.addClass("on");
-	deleteDescription();
+}
+
+
+function clickContentMarker(index, contentList) {
+	navigateToMarkerOnSelect(index, contentList, index);
+	
+	$(".mapButton").removeClass('on'); // 기록에 들어갈 때 리스트로 보기 버튼 감추기
+    $(".infoItem").removeClass("on");//infoItem에 있는 on 지우기
+	description.addClass("on");//description에 on
+	deleteDescription(); // description 안에 있는 이전 내용 지우기
 	
 	if(contentList[0].markerType === 3){
 		description.append(detailPlaceElement(index) );
@@ -101,8 +87,7 @@ function clickContentMarker(marker, index, contentList) {
 		description.append(simpleRecordElement(index) );
 	}
 	
-	showResultDivs();
-    
+	//showResultDivs();
 } // 마커나 리스트에서 클릭했을 경우
 
 function clearPolylines() {
@@ -162,17 +147,27 @@ function deleteRouteDescriptionList() {
 
 function showResult() {
 	$(".infoItem").removeClass('on');
-	/*result.addClass('on');*/
-	$(".swiper-container").addClass('on');
-}// showResult: 결과 목록 보여줄때=> simpleRecord에서 뒤로갈때
+	
+	if(listBtn.hasClass('list')){
+		result.addClass('on');
+	}else{
+		$(".swiper-container").addClass('on');
+	}//만약 어디에서 본지 확인후 다시 on 붙이기
+	
+	listBtn.addClass('on'); //리스트로 볼지, 넘기기로 볼지 선택하는 버튼 다시 보이기	
+}// showResult: 결과 목록 보여줄때 => simpleRecord에서 뒤로갈때
 
 function hideResultDivs(){
 	resultDivs.css('display', 'none');
 }//맵에서 땅 누를때
 
 function showResultDivs(){
-	resultDivs.css('display', 'block');
-	resultDivsBtn.removeClass('on');
+	resultDivs.css('display', 'block'); //resultDiv 다시 보이게 하고
+	resultDivsBtn.removeClass('on'); // 위로 버튼 없애기
+	
+	if(result.hasClass('on') || $(".swiper-container").hasClass('on')){
+		listBtn.addClass('on');
+	}//만약 리스트보기에서 내려갔을 경우 리스트로 볼지, 넘기기로 볼지 선택하는 버튼 다시 보이기		
 }// 위로 버튼 누를때
 
 function showDescription(){

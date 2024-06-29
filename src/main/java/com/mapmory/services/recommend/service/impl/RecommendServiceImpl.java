@@ -614,6 +614,7 @@ public class RecommendServiceImpl implements RecommendService {
 
 			List<Record> recordList = recommendDao.getRecordList(recordNo);
 			List<RecommendPlaceDTO> recommendPlaceList = new ArrayList<RecommendPlaceDTO>();	
+			String[] categoryCodeGroup = {"FD6", "CE7", "AD5", "AT4", "CT1", "SC4"}; //음식점, 카페, 숙박, 관광명소, 문화시설, 학교
 			
 			Collections.shuffle(recordList); // 랜덤으로 섞음
 			
@@ -635,16 +636,25 @@ public class RecommendServiceImpl implements RecommendService {
 				
 				url.append("https://dapi.kakao.com/v2/local/search/keyword?")
 				.append("query=").append(record.getCheckpointAddress())
-				.append("&page=").append( (int) (Math.random() * 3) + 1 );
+				.append("&page=").append( (int) (Math.random() * 3) + 1 ) //3페이지 중 랜덤
+				.append("&category_group_code=");
+				
+				for(int i=0 ; i<categoryCodeGroup.length; i++) {
+					url.append(categoryCodeGroup[i]);
+					
+					if(i != categoryCodeGroup.length -1) {
+						url.append(",");
+					}
+				}
 				
 				resultJson = restTemplate.exchange(url.toString(), HttpMethod.GET, entity, String.class).getBody(); // REST
-				System.out.println("resultJson임!!: " + resultJson);
 				rootNode = objectMapper.readTree(resultJson);
 				totalCount = rootNode.path("meta").path("total_count").asInt();
 				
 				if(totalCount != 0) {
 				    documents = rootNode.path("documents");
-				    JsonNode item = documents.get((int) (Math.random() * documents.size() ));
+//				    JsonNode item = documents.get(0); //1페이지 첫번째꺼 가져오기
+				    JsonNode item = documents.get((int) (Math.random() * documents.size() )); //그 페이지 중 랜덤 가져오기
 				    
 					RecommendPlaceDTO recommendPlaceDTO = RecommendPlaceDTO.builder()
 							.placeName(item.path("place_name").asText())
@@ -660,7 +670,7 @@ public class RecommendServiceImpl implements RecommendService {
 
 					recommendPlaceList.add(recommendPlaceDTO);
 
-					if (recommendPlaceList.size() == 5) {
+					if (recommendPlaceList.size() == 10) {
 						break outerLoop;
 					}
 				    
