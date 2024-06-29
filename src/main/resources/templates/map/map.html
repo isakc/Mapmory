@@ -39,10 +39,15 @@
 	<div id=content-for-footer>
 		<div id="map">
 			<div id="bottomBox">
-        		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
+        		<button class="btn btn-primary" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
         		
         		<div id="resultDivs">
-					<div id="result" class="infoItem"></div><!-- 결과창  -->
+					<div id="result" class="infoItem"></div>
+					
+					<div class="swiper-container infoItem" >
+    					<div class="swiper-wrapper" id="swiper-wrapper"></div>
+					</div>
+					
 					<div id="description" class="infoItem"></div><!-- 기록 보기  -->
 					<div id="routeDescriptionList" class="infoItem list-group p-0"></div><!-- 경로 안내 창  -->
 				</div>
@@ -112,6 +117,7 @@
 	let recordList=[]; // 기록리스트 모아놓기 => 간단 보기나 상세 보기할 때 rest 통신을 할 필요가 없어짐
 	let placeList=[]; // 추천 장소 리스트 모아놓기
 	let resultDivs = $("#resultDivs");
+	let swiperWrapper = $("#swiper-wrapper");
 	let description = $("#description");
 	let result = $("#result");
 	let routeDescriptionList = $("#routeDescriptionList");
@@ -154,24 +160,34 @@
 				method: 'POST',
 				data: JSON.stringify(requestData),
 				success: function(response) {
+					deleteSwiperWrapper();
+					
 					badgeImage = response.badgeImage;
 					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
 					if(response.mapRecordList.length != 0){
-						$(".mapButton").removeClass('on');
+						resultDivsBtn.removeClass('on');
 						const coordinates = response.mapRecordList.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬
 							
-							result.append(recordListElement(index)); // html을 result에 붙이기
+							//result.append(recordListElement(index)); // html을 result에 붙이기
+							
+							
+							
+							recordListSwipe(index); // html을 result에 붙이기
+							
+							
+							
 
 							return record;
 						});
 						
 						$(".infoItem").removeClass("on");
-						result.addClass("on");
+						//result.addClass("on");
+						$(".swiper-container").addClass("on");
 						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
@@ -194,6 +210,7 @@
 	const getRecommendPlace = () => {
 		clearMarkers();
 		clearPolylines();
+		clearStartEndMarkers();
 		deleteResult();
 		recordList= [];
 		placeList= [];
@@ -322,7 +339,10 @@
 	
 	$(document).on("click", "#routeButton", function(event){
 		event.stopPropagation();
-		 $(".routeAdditionalButtons").toggle();
+		
+		$('.routeAdditionalButtons').css('visibility', function(i, visibility) {
+			return (visibility === 'visible') ? 'hidden' : 'visible';
+		});
 	}); // 경로클릭
 	
 	$(document).on("click", ".routeButton", function(event){
@@ -360,6 +380,10 @@
 	
 	$(document).on("click", ".resultListItem", function(event){
 		clickMarkerFromCard($(this).index('.resultListItem'), recordList);
+	});
+	
+	$(document).on("click", ".placeListItem", function(event){
+		clickMarkerFromCard($(this).index('.placeListItem'), placeList);
 	})
 	
 	$(document).on('click', '.mySwiper', function(event) {
@@ -442,6 +466,22 @@
     	}
     });// 재검색 버튼 클릭시
 
+    function lazyLoad() {
+        var windowBottom = $(window).scrollTop() + $(window).height();
+        $('img.lazy-load').each(function() {
+            var $this = $(this);
+            var imageTop = $this.offset().top;
+            if (imageTop < windowBottom) {
+                var dataSrc = $this.attr('data-src');
+                $this.attr('src', dataSrc);
+                $this.removeClass('lazy-load');
+            }
+        });
+    }
+
+    $(window).on('scroll', lazyLoad);
+    $(window).on('resize', lazyLoad);
+    lazyLoad(); // Initial check
 	</script>
 </body>
 

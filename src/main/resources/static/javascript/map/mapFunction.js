@@ -52,7 +52,7 @@ function setMarkers(contentList) {
     kakao.maps.event.addListener(map, 'click', function() {
         hideResultDivs();
         
-		$(".mapButton").removeClass('on');
+		resultDivsBtn.removeClass('on');
 		if(recordList.length!=0 || placeList.length != 0){
 			resultDivsBtn.addClass('on');	
 		}
@@ -148,6 +148,10 @@ function deleteResult() {
 	result.html('');
 } // deleteResult
 
+function deleteSwiperWrapper() {
+	swiperWrapper.html('');
+} // deleteSwiperWrapper
+
 function deleteDescription() {
 	description.html('');
 } // deleteDescription
@@ -158,7 +162,8 @@ function deleteRouteDescriptionList() {
 
 function showResult() {
 	$(".infoItem").removeClass('on');
-	result.addClass('on');
+	/*result.addClass('on');*/
+	$(".swiper-container").addClass('on');
 }// showResult: 결과 목록 보여줄때=> simpleRecord에서 뒤로갈때
 
 function hideResultDivs(){
