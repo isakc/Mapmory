@@ -321,7 +321,7 @@ $(function() {
 		let d_DayDate = $('#d_DayDate').val();
 		let checkpointAddress = $('#checkpointAddress').val();
 		
-		if(d_DayDate===null || checkpointAddress===null){
+		if(d_DayDate===null || d_DayDate.trim()==='' || checkpointAddress===null|| checkpointAddress.trim()===''){
 			showModal('작성완료 오류','D-day 날짜와 체크포인트 주소는 반드시 입력해야합니다.');
 			return false;
 		}
