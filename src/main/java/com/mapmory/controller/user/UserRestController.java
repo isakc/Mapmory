@@ -199,6 +199,9 @@ public class UserRestController {
 				boolean keep = Boolean.valueOf(map.get("keepLogin"));
 				boolean needToChangePassword = userService.checkPasswordChangeDeadlineExceeded(userId);
 				
+				System.out.println("===================");
+				System.out.println("is keep?? : " + keep);
+				System.out.println("===================");
 				
 				// 계정 탈퇴
 				LocalDateTime leaveAccountDate = user.getLeaveAccountDate();
@@ -972,7 +975,9 @@ public class UserRestController {
     
     private ResponseEntity<String> doLogin(String userId, byte role, HttpServletResponse response, boolean keep, boolean needToChangePassword) throws Exception {
     	
-    	loginService.acceptLogin(userId, role, response, keep);
+    	Cookie cookie = loginService.acceptLogin(userId, role, response, keep);
+    	
+    	System.out.println("생성된 쿠키의 남은 수명 : " + cookie.getMaxAge());
     	
     	userService.addLoginLog(userId);
 		

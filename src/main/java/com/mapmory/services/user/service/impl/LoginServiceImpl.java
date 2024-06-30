@@ -40,7 +40,7 @@ public class LoginServiceImpl implements LoginService {
 	}
 	
 	@Override
-	public void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
+	public Cookie acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception {
 
 		String sessionId = UUID.randomUUID().toString();
 		if ( !setSession(userId, role, sessionId, keep))
@@ -48,13 +48,30 @@ public class LoginServiceImpl implements LoginService {
 		
 		// Cookie cookie = createLoginCookie(sessionId, keep);
 		Cookie cookie;
-		if(keep)
+		if(keep) {
+			System.out.println("수명이 매우 긴 쿠키를 생성합니다.");
 			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 60 * 24 * 90, "/");
-		else
-			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60, "/");
+		} else {
+			System.out.println("일반 쿠키를 생성합니다.");
+			// cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 15, "/");
+			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 30 , "/");
+		}
+			
 		response.addCookie(cookie);
 		
+		System.out.println("=================ACCEPT LOGIN :: CREATE JSESSIONID COOKIE====================");
+		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
+		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
+		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
+		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
+		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
+		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
+		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
+		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
+		System.out.println("=====================================");
+		
 		// userService.addLoginLog(userId);
+		return cookie;
 	}
 	
 	@Override

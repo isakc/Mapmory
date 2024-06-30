@@ -2,6 +2,7 @@ package com.mapmory.services.user.service;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +22,7 @@ public interface LoginService {
 	 */
 	public boolean login(Login loginData, String savedPassword) throws Exception;
 	
-	public void acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception;
+	public Cookie acceptLogin(String userId, byte role, HttpServletResponse response, boolean keep) throws Exception;
 	
 	/**
 	 * 
