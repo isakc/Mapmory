@@ -96,19 +96,6 @@ public class TimelineServiceImpl implements TimelineService {
 
 	@Override
 	public void deleteTimeline(int recordNo) throws Exception {
-		Record record = timelineDao.selectDetailTimeline(recordNo);
-		if(record.getMediaName()!=null && !record.getMediaName().trim().equals("")) timelineUtil.deleteMediaFile(record.getMediaName());
-		if(record.getImageName()!=null && !record.getImageName().isEmpty()) {
-			for(ImageTag image:record.getImageName()) {
-				timelineUtil.deleteImageFile(image.getImageTagText());
-			}
-		}
-		
-		for(KeywordData k: TimelineUtil.calculateKeyword(record, 
-				Record.builder().recordUserId(record.getRecordUserId()).build())) {
-			addKeyword(k);
-		}
-		
 		timelineDao.deleteTimeline(recordNo);
 	}
 	
@@ -219,9 +206,11 @@ public class TimelineServiceImpl implements TimelineService {
 	@Override
 	public int addKeyword(KeywordData keywordData) throws Exception {
 		KeywordData updateData=timelineDao.selectKeyword(keywordData);
-		int i;
+		int i=0;
 		if(updateData==null) {
-			i=timelineDao.insertKeyword(keywordData);
+			if(keywordData.getKeywordCount()>0) {
+				i=timelineDao.insertKeyword(keywordData);
+			}
 		}else {
 			int adjustedCount=updateData.getKeywordCount()+keywordData.getKeywordCount();
 			if(adjustedCount<=0) {

@@ -44,5 +44,40 @@ function showModal(title, text) {
 }
 </script>
 </div>
+
+<div th:fragment="checkpointModal">
+
+ <div id="checkpointModal" class="modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="checkpointModalTitle" class="modal-title">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="checkpointModalText">Modal text</p>
+      </div>
+      <div class="modal-footer">
+        <button id="checkpointModalCheck" type="button" class="btn btn-primary">확인</button>
+        <button id="checkpointModalClose" type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
+<script type="text/javascript">
+
+function checkpointShowModal(title, text) {
+  var checkpointModal = new bootstrap.Modal(document.getElementById('checkpointModal'));
+  document.getElementById('checkpointModalTitle').textContent = title;
+  document.getElementById('checkpointModalText').innerHTML = text;
+  checkpointModal.show();
+  $('#checkpointModalClose').focus();
+}
+</script>
+</div>
 </body>	
 </html>
