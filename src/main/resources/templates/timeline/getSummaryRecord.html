@@ -147,7 +147,7 @@ h4 input[type="text"]:focus {
 <script th:inline="javascript">
 $(function() {
 	let selectDate=$('input[name="getSummaryRecordSelect"]').val();
-	let uri;
+	let param;
 	let dateList=[[${dateList}]]; // dataList는 서버에서 가져온 날짜 데이터 배열
 
 	// 날짜 데이터 변환: yy-mm-dd 형식으로 구성된 문자열 배열로 변환
@@ -164,20 +164,20 @@ $(function() {
 	        console.log("사용자가 선택한 날짜:", dateText);
 	        // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
 	        // 예: AJAX 요청을 보내거나 다른 동작을 수행
-	        var uri = "?searchCondition=0&selectDate=" + dateText;
-	        self.location.replace("/timeline/getSummaryRecord" + uri);
+	        var param = "?searchCondition=0&selectDate=" + dateText;
+	        self.location.replace("/timeline/getSummaryRecord" + param);
 	    }
 	});
 
 	
 	$("svg[name='getSummaryRecordLeft']").click(function() {
-		uri="?searchCondition="+1+"&selectDate="+selectDate
-		self.location.replace("/timeline/getSummaryRecord"+uri);
+		param="?searchCondition="+1+"&selectDate="+selectDate
+		self.location.replace("/timeline/getSummaryRecord"+param);
 	})
 	
 	$("svg[name='getSummaryRecordRight']").click(function() {
-		uri="?searchCondition="+2+"&selectDate="+selectDate
-		self.location.replace("/timeline/getSummaryRecord"+uri);
+		param="?searchCondition="+2+"&selectDate="+selectDate
+		self.location.replace("/timeline/getSummaryRecord"+param);
 	})
 })
 </script>
