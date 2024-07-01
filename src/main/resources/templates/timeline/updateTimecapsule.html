@@ -21,8 +21,8 @@ fieldset {
 	<form th:action="@{/timeline/updateTimecapsule}" th:object="${record}" method="post" enctype="multipart/form-data">
 	<input type="hidden" th:field="*{recordNo}" />
 	<input type="hidden" th:field="*{recordUserId}" />
-	<input type="text" th:field="*{latitude}" />
-	<input type="text" th:field="*{longitude}" />
+	<input type="hidden" th:field="*{latitude}" />
+	<input type="hidden" th:field="*{longitude}" />
 	<input type="hidden"th:field="*{tempType}" />
 	<input type="hidden" th:field="*{recordAddDate}" />
 	<input type="hidden" th:field="*{checkpointDate}" />
@@ -35,10 +35,10 @@ fieldset {
     	<label for="recordTitle" class="form-label mt-4" th:text="'제목'"></label>
     	<input type="text" class="form-control" th:field="*{recordTitle}" placeholder="제목을 입력하세요. 입력 안하면 기본 값이 설정됩니다.">
 		<small id="recordTitleHelp" class="form-text text-muted" th:text="'기본 값 : 주소_YYYY-MM-DD hh:mm:ss'"></small>
-		<div id="recordTitleHelp3" class="d-none">
+		<!-- <div id="recordTitleHelp3" class="d-none">
 			<small class="form-text text-muted" 
 			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
+    	</div> -->
     </div>
 		
     <div class="row">
@@ -98,10 +98,10 @@ fieldset {
 		placeholder="#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다." autocomplete="off">
 		<small id="hashtagTextHelp" class="form-text text-muted" 
 		th:text="'#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.'"></small>
-		<div id="hashtagTextHelp3" class="d-none">
+		<!-- <div id="hashtagTextHelp3" class="d-none">
 			<small class="form-text text-muted" 
 			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
+    	</div> -->
     </div>
     
     <div class="row">
@@ -109,16 +109,16 @@ fieldset {
      	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
 		<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : \\안녕\\'"></small>
 		<small id="recordTextHelp2" class="form-text text-muted" th:text="'1천 자 이하 작성 가능합니다.'"></small>
-		<div id="recordTextHelp3" class="d-none">
+		<!-- <div id="recordTextHelp3" class="d-none">
 			<small class="form-text text-muted" 
 			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 기록을 공유할 수 없습니다.'"></small>
-    	</div>
+    	</div> -->
     </div>
     
 	</fieldset>
 	
 	<button type="button" class="btn btn-primary" th:name="updateTimecapsule" th:text="'다시작성'"></button>
-	<button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button>
+	<!-- <button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button> -->
 	<button type="button" class="btn btn-primary" th:text="'임시저장'"></button>
 	<button type="button"  class="btn btn-primary" th:text="'작성완료'"></button>
 	
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 });
 
-function badWord(text, idName){
+/* function badWord(text, idName){
         //console.log('Space bar was pressed and released');
         $.ajax("/timeline/rest/checkBadWord",{
 			method : "GET",
@@ -291,9 +291,9 @@ function badWord(text, idName){
                 alert('Error: ' + error);
             }
 		})
-}
+} */
 
-document.addEventListener('DOMContentLoaded', function() {
+/* document.addEventListener('DOMContentLoaded', function() {
 	let text1 = $('textarea[name="recordText"]').val();
     let idName1 = 'recordTextHelp3';
     badWord(text1, idName1);
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     text3 = $('input[name="hashtagText"]').val();
     idName3 = 'hashtagTextHelp3';
     badWord(text3, idName3);
-});
+}); */
 
 
 
@@ -414,7 +414,7 @@ $(function() {
 		})
 	})
 	
-	$('textarea[name="recordText"]').on('keyup',function(event){
+	/* $('textarea[name="recordText"]').on('keyup',function(event){
 		let text=$('textarea[name="recordText"]').val();
 		let idName='recordTextHelp3';
 		if (event.keyCode === 32 || event.keyCode === 8) {
@@ -428,7 +428,7 @@ $(function() {
 		if (event.keyCode === 32 || event.keyCode === 8) {
 			badWord(text,idName);
 		}
-	})
+	}) */
 	
 	$('input[name="hashtagText"]').on('keyup',function(event){
 		
@@ -440,11 +440,11 @@ $(function() {
     		}
 		}
 		
-		let text=$('input[name="hashtagText"]').val();
+		/* let text=$('input[name="hashtagText"]').val();
 		let idName='hashtagTextHelp3';
 		if (event.keyCode === 32 || event.keyCode === 8) {
 			badWord(text,idName);
-		}
+		} */
 	})
 	
 })

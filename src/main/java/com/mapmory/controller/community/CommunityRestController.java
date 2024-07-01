@@ -122,7 +122,7 @@ public class CommunityRestController {
 	@PostMapping("/rest/addReply")
 	public ResponseEntity<?> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
 							@RequestParam("recordNo") int recordNo, HttpServletRequest request, @RequestParam("userId") String userId,
-							@RequestParam("replyText") String replyText, Search search) throws Exception {
+							@RequestParam("replyText") String replyText, @RequestParam(value ="currentPage", defaultValue ="1") int currentPage, Search search) throws Exception {
 		userId = redisUtil.getSession(request).getUserId();
 		
 		System.out.println("/rest/addReply : REST 시작");
@@ -136,7 +136,12 @@ public class CommunityRestController {
 		
 		System.out.println(reply);
 		
-
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
+	    search.setLimit(pageSize);
+	    search.setUserId(userId);
+	    search.setOffset((currentPage - 1) * pageSize);		
+		
 		if (replyImageName != null && !replyImageName.isEmpty()) {
 			if(contentFilterUtil.checkBadImage(replyImageName) == false) {
 				System.out.println("이미지 검사 통과");
@@ -153,13 +158,20 @@ public class CommunityRestController {
 
 		communityService.addReply(reply);
 		
+		int totalReplies = communityDao.getReplyTotalCount(search, recordNo);
+		int lastPage = (totalReplies - 1) / pageSize + 1;
+
+		search.setCurrentPage(lastPage);
+		search.setOffset((lastPage - 1) * pageSize);
+		
+		
 		System.out.println("getReplyList :"+ communityService.getReplyList(search, recordNo));
 		
 	    Map<String, Object> replyMap = communityService.getReplyList(search, recordNo);
 	    List<Object> replyList = (List<Object>) replyMap.get("list");
 	    
 	    if (replyList != null && !replyList.isEmpty()) {
-	        Reply lastReply = (Reply) replyList.get(replyList.size() - 1);
+	        Reply lastReply = (Reply)replyList.get(replyList.size() - 1);
 	        System.out.println("마지막 댓글: " + lastReply);
 	        return ResponseEntity.ok(lastReply);
 	    } else {
@@ -417,34 +429,36 @@ public class CommunityRestController {
 	        return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body(null);
 	    }
 
-	    // 대상 사용자의 정지 정보를 가져옵니다.
-	    String targetUserId = fetchedReport.getTargetUserId();
-	    Map<String, String> suspendData = userService.checkSuspended(targetUserId);
+	    // 신고를 승인 또는 반려합니다.
+	    communityService.confirmReport(report);
 
-	    // 정지 횟수를 기본값 0으로 설정합니다.
-	    int count1 = 0;
-	    if (suspendData != null && suspendData.containsKey("suspentionCount")) {
-	        String count = suspendData.get("suspentionCount");
-	        if (count != null) {
-	            try {
-	                count1 = Integer.parseInt(count);
-	            } catch (NumberFormatException e) {
-	                return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(null);
+	    // reportResult가 1(승인)일 경우에만 사용자 정지 로직을 실행합니다.
+	    if (report.getReportResult() == 1) {
+	        String targetUserId = fetchedReport.getTargetUserId();
+	        Map<String, String> suspendData = userService.checkSuspended(targetUserId);
+
+	        // 정지 횟수를 기본값 0으로 설정합니다.
+	        int suspensionCount = 0;
+	        if (suspendData != null && suspendData.containsKey("suspentionCount")) {
+	            String count = suspendData.get("suspentionCount");
+	            if (count != null) {
+	                try {
+	                    suspensionCount = Integer.parseInt(count);
+	                } catch (NumberFormatException e) {
+	                    return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(null);
+	                }
 	            }
 	        }
-	    }
 
-	    System.out.println("정지 횟수: " + count1);
-	    System.out.println("정지 아이디: " + targetUserId);
+	        System.out.println("정지 횟수: " + suspensionCount);
+	        System.out.println("정지 아이디: " + targetUserId);
 
-	    // 정지 횟수가 4회 미만인 경우에만 신고를 승인하고 사용자를 정지합니다.
-	    if (count1 < 4) {
-	        // 신고 승인
-	        communityService.confirmReport(report);
-	        // 사용자를 정지
-	        userService.addSuspendUser(targetUserId, fetchedReport.getReportText());
-	    } else {
-	        throw new Exception("정지 횟수 초과");
+	        // 정지 횟수가 4회 미만인 경우에만 사용자를 정지합니다.
+	        if (suspensionCount < 4) {
+	            userService.addSuspendUser(targetUserId, fetchedReport.getReportText());
+	        } else {
+	            throw new Exception("정지 횟수 초과");
+	        }
 	    }
 
 	    return ResponseEntity.ok(report);
