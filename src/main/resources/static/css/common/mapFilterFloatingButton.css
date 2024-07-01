@@ -224,8 +224,10 @@ ul.ks-cboxtags li input[type="checkbox"]:checked.pubCheck + label::before {
 }
 
 ul.ks-cboxtags li input[type="checkbox"]:checked.pubCheck + label {
-    border: 2px solid #28A745;
-    background-color: #28A745;
+/*     border: 2px solid #28A745;
+    background-color: #28A745; */
+    border: 2px solid #007BFF;
+    background-color: #007BFF;
     color: #fff;
     transition: all 0.2s;
 }
@@ -251,8 +253,10 @@ ul.ks-cboxtags li input[type="checkbox"]:checked.priCheck + label::before  {
 }
 
 ul.ks-cboxtags li input[type="checkbox"]:checked.priCheck + label  {
-    border: 2px solid #007BFF;
-    background-color: #007BFF;
+/*     border: 2px solid #007BFF;
+    background-color: #007BFF; */
+    border: 2px solid #28A745;
+    background-color: #28A745;
     color: #fff;
     transition: all .2s;
 }
