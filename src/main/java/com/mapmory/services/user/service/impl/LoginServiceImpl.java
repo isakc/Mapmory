@@ -53,8 +53,7 @@ public class LoginServiceImpl implements LoginService {
 			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 60 * 24 * 90, "/");
 		} else {
 			System.out.println("일반 쿠키를 생성합니다.");
-			// cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 15, "/");
-			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 30 , "/");
+			cookie = CookieUtil.createCookie("JSESSIONID", sessionId, 60 * 30, "/");
 		}
 			
 		response.addCookie(cookie);
