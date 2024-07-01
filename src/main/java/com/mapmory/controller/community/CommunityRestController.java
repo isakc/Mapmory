@@ -122,7 +122,7 @@ public class CommunityRestController {
 	@PostMapping("/rest/addReply")
 	public ResponseEntity<?> addReply(@RequestParam(value = "replyImageName", required = false) MultipartFile replyImageName, 
 							@RequestParam("recordNo") int recordNo, HttpServletRequest request, @RequestParam("userId") String userId,
-							@RequestParam("replyText") String replyText, Search search) throws Exception {
+							@RequestParam("replyText") String replyText, @RequestParam(value ="currentPage", defaultValue ="1") int currentPage, Search search) throws Exception {
 		userId = redisUtil.getSession(request).getUserId();
 		
 		System.out.println("/rest/addReply : REST 시작");
@@ -136,7 +136,12 @@ public class CommunityRestController {
 		
 		System.out.println(reply);
 		
-
+	    int pageSize = (search.getPageSize() != 0) ? search.getPageSize() : 10;
+	    search.setCurrentPage(currentPage);
+	    search.setLimit(pageSize);
+	    search.setUserId(userId);
+	    search.setOffset((currentPage - 1) * pageSize);		
+		
 		if (replyImageName != null && !replyImageName.isEmpty()) {
 			if(contentFilterUtil.checkBadImage(replyImageName) == false) {
 				System.out.println("이미지 검사 통과");
@@ -153,13 +158,20 @@ public class CommunityRestController {
 
 		communityService.addReply(reply);
 		
+		int totalReplies = communityDao.getReplyTotalCount(search, recordNo);
+		int lastPage = (totalReplies - 1) / pageSize + 1;
+
+		search.setCurrentPage(lastPage);
+		search.setOffset((lastPage - 1) * pageSize);
+		
+		
 		System.out.println("getReplyList :"+ communityService.getReplyList(search, recordNo));
 		
 	    Map<String, Object> replyMap = communityService.getReplyList(search, recordNo);
 	    List<Object> replyList = (List<Object>) replyMap.get("list");
 	    
 	    if (replyList != null && !replyList.isEmpty()) {
-	        Reply lastReply = (Reply) replyList.get(replyList.size() - 1);
+	        Reply lastReply = (Reply)replyList.get(replyList.size() - 1);
 	        System.out.println("마지막 댓글: " + lastReply);
 	        return ResponseEntity.ok(lastReply);
 	    } else {
