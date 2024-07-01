@@ -395,8 +395,8 @@ $(function() {
 	
 	$("button[name='updateTimeline']").click(function() {
 		handleButtonClick();
-		uri="?recordNo="+recordNo;
-		self.location="/timeline/updateTimeline"+uri;
+		let param="?recordNo="+recordNo;
+		self.location="/timeline/updateTimeline"+param;
 	})
 	
 	$("button[name='addVoiceToText']").click(function() {
