@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>Mapmory 타임캡슐 목록</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
@@ -35,7 +35,7 @@ body {
    			<input id="getTimecapsuleListSwitch" class="form-check-input" 
    			type="checkbox" th:name="getTimecapsuleListSwitch" th:value="1"/>
    		</div>
-	<div id="timecapsule" class="card bg-light mb-3" th:each="timecapsule:${timecapsuleList}" style="max-width: 20rem;">
+	<div id="timecapsule" class="card bg-light mb-3" th:name="timecapsule" th:each="timecapsule:${timecapsuleList}" style="max-width: 20rem;">
 	  <div class="card-header"></div>
 	  <div class="card-body">
 	    <h4 class="card-title text-primary" th:name="recordTitle" th:data-recordno="${timecapsule.recordNo}" 
@@ -53,7 +53,7 @@ body {
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script type="text/javascript">
+<script th:inline="javascript">
 $(function() {
 	$('button[name="addTimecapsule"]').click(function() {
 		let url="/timeline/addTimecapsule";
@@ -73,6 +73,65 @@ $(function() {
 		let url="/timeline/getDetailTimecapsule"+uri;
 		self.location = url;
 	})
+	
+	let currentPage = [[${currentPage}]]+1;
+	let userId = [[${userId}]]; // 실제 사용자 ID를 여기에 할당
+
+   /*  function loadMoreData() {
+    	
+        $.ajax({
+            url: '/timeline/rest/getTimecapsuleList',
+            type: 'GET',
+            data: {
+                userId: userId,
+                currentPage: currentPage
+            },
+            success: function(response) {
+                if(response.records && response.records.length > 0) {
+                    let newContent = '';
+                    response.records.forEach(function(record) {
+                        newContent += `
+                            <div id="timecapsule" class="card bg-light mb-3" name="timecapsule" style="max-width: 20rem;">
+                              <div class="card-header"></div>
+                              <div class="card-body">
+                                <h4 class="card-title text-primary" name="recordTitle" data-recordno="${record.recordNo}">${record.recordTitle}</h4>
+                                <p class="card-text">
+                                    <label class="badge bg-primary" for="d_DayDate">D-Day 날짜</label>
+                                    <span id="d_DayDate">${record.d_DayDate}</span><br/>
+                                    <label class="badge bg-primary" for="checkpointAddress">주소</label>
+                                    <span id="checkpointAddress">${record.checkpointAddress}</span>
+                                </p>
+                              </div>
+                            </div>
+                        `;
+                    });
+                    $('div[name="timecapsule"]:last').after(newContent);
+                    currentPage = response.nextPage;
+
+                    // 새롭게 추가된 레코드에 대해 클릭 이벤트 바인딩
+                    $('h4[name="recordTitle"]').off('click').on('click', function() {
+                        let recordNo = $(this).data('recordno');
+                        let uri = "?recordNo=" + recordNo;
+                        let url = "/timeline/getDetailTimecapsule" + uri;
+                        self.location = url;
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("데이터를 불러오는 중 오류 발생:", error);
+            }
+        });
+    }
+
+    $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() >= $(document).height()) {
+            loadMoreData();
+        	currentPage++;
+        }
+    }); */
+
+    // 페이지가 로드될 때 첫 번째 페이지 로드
+    //loadMoreData();
 })
 </script>
 </body>	
