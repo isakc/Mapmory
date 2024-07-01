@@ -355,7 +355,7 @@ public class UserRestController {
 	
 	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
 	// @GetMapping("/getFollowList/{profileUserId}")  
-	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
+	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request, @RequestParam(required=false) String keyword) throws Exception {
 		
 		/*
 		if(currentPage == null)
@@ -368,8 +368,8 @@ public class UserRestController {
 		// int currentPage = search.getCurrentPage();
 		int selectFollow = 0;
 		
-		// List<FollowMap> followList = userService.getFollowList(myUserId, userId, keyword, currentPage, pageSize, selectFollow);
-		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
+		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+		// List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		List<String> profileImageList = new ArrayList<>();
 		for(FollowMap user : followList) {
