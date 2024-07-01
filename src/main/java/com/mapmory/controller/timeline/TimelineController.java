@@ -629,16 +629,16 @@ public class TimelineController {
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
 			HttpServletRequest request
 			) throws Exception,IOException {
-		record.setRecordTitle(record.getCheckpointAddress()+"_"
+				record.setRecordTitle(record.getCheckpointAddress()+"_"
 				+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
 				record.setUpdateCount(-1);
 				record.setTempType(0);
 				record.setTimecapsuleType(0);
 				record.setCategoryNo(0);
 				
-		int recordNo=timelineService.addTimeline(record);
-		String param="?recordNo="+recordNo;
-		return "redirect:/timeline/updateTimeline"+param;
+				int recordNo=timelineService.addTimeline(record);
+				String param="?recordNo="+recordNo;
+				return "redirect:/timeline/updateTimeline"+param;
 	}
 	
 	
