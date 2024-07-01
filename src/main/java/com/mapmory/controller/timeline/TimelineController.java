@@ -280,7 +280,7 @@ public class TimelineController {
 	
 	@GetMapping("updateTimeline")
 	public String updateTimelineView(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+			@RequestParam(name="recordNo", required = true) int recordNo) throws Exception,IOException {
 		Record record=timelineService.getDetailTimeline(recordNo);
 //		record=timelineUtil.imageNameToUrl(record);
 //		record=timelineUtil.mediaNameToUrl(record);
@@ -294,12 +294,14 @@ public class TimelineController {
 		
 		
 		 // 추천 // 
-		recommendService.addSearchData(record); Recommend recommend =
-		recommendService.getRecordData(record, record.getRecordNo());
-		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
-		System.out.println("positive : "+recommend.getPositive());
-		recommendService.updateDataset(recommend);
-		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
+			recommendService.addSearchData(record); Recommend recommend =
+			recommendService.getRecordData(record, record.getRecordNo());
+			recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+			System.out.println("positive : "+recommend.getPositive());
+			recommendService.updateDataset(recommend);
+			recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		}
 		//
 				
 		return "timeline/updateTimeline";
@@ -356,13 +358,15 @@ public class TimelineController {
 		timelineService.updateTimeline(record);
 		
 
-		// 추천 // 
-		recommendService.addSearchData(record); 
-		Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
-		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
-		System.out.println("positive : "+recommend.getPositive());
-		recommendService.updateDataset(recommend);
-		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		// 추천 //
+		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
+			recommendService.addSearchData(record); 
+			Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
+			recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+			System.out.println("positive : "+recommend.getPositive());
+			recommendService.updateDataset(recommend);
+			recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		}
 		//
 		
 		String uri="?recordNo="+record.getRecordNo();
