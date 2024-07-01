@@ -7,7 +7,7 @@ body{
 
 #map {
 	width: 100%;
-	height:91dvh;
+	height:90dvh;
 	position: relative;
 	overflow: hidden;
 }

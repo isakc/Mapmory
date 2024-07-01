@@ -2,6 +2,13 @@
  * 
  */
 
+const preloadImage = (src, callback) => {
+	const img = new Image();
+	img.src = src;
+	img.onload = () => callback(null, src);
+	img.onerror = () => callback(new Error('Image load error'));
+};
+
 const recordListSwipe = (index) => {
 	if (swiper) {
         swiper.destroy(true, true);
@@ -35,14 +42,12 @@ const recordListSwipe = (index) => {
 		}
     });
     
-	const slideHtml = `
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
+	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
+		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
+		'';
+	const htmlString = `
 		<div class="swiper-slide card border-0 container resultListItem" data-marker-type=${recordList[index].markerType}>
-		
-			<!--<div class="profileImageContainer">
-				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
-	        	<span class="fs-5 ">${recordList[index].nickName}</span>
-	        	${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
-			</div> 프로필 상자 -->
 
 	    	<div class="row g-0">
 	      		<div class="col-9 card-body p-1">
@@ -52,7 +57,7 @@ const recordListSwipe = (index) => {
 	            
 	      			<div>
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -71,7 +76,7 @@ const recordListSwipe = (index) => {
 	      		<div class="recordImageContainer">
 	      		
 	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
-	      			`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid" alt="기록 사진"/>`:
+	      			`<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>`:
 					''}
 	      		</div>
 	      	</div><!-- 사진 부분 col-3 -->
@@ -79,17 +84,35 @@ const recordListSwipe = (index) => {
 	  </div><!-- card -->
 	`;
 	
-	swiper.appendSlide(slideHtml);
+	const htmlElement = $(htmlString);
+	
+	preloadImage(categoryImgSrc, (err, src) => {
+		const categoryImgElement = htmlElement.find(`#category-img-${index}`);
+		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  	});
+
+	preloadImage(recordImgSrc, (err, src) => {
+    	const recordImgElement = htmlElement.find(`#record-img-${index}`);
+    	recordImgElement.attr('src', err ? recordImgSrc : src);
+  	});
+  
+	swiper.appendSlide(htmlElement);
 };
 
 const recordListElement = (index) => {
-	return `
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
+	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
+		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
+		'';
+	const htmlString = `
 		<div class="card border-0 border-bottom mb-3 container resultListItem" data-marker-type=${recordList[index].markerType}>
 		
 			<!--<div class="profileImageContainer">
-				<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}"/> 
+				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
 	        	<span class="fs-5 ">${recordList[index].nickName}</span>
-	        	${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
+	        	${recordList[index].subscribed ? `<img src="https://via.placeholder.com/150?text=Loading..." class="rounded-image subImage"/>` : ''}
 			</div> 프로필 상자 -->
 
 	    	<div class="row g-0">
@@ -98,9 +121,9 @@ const recordListElement = (index) => {
 	                	<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
 	            	</div><!-- 제목 -->
 	            
-	      			<div>
+	      			<div>    
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -117,43 +140,74 @@ const recordListElement = (index) => {
 	      
 	      	<div class="col-3">
 	      		<div class="recordImageContainer">
-	      		
 	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
-	      			`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid" alt="기록 사진"/>`:
+	      			`<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>`:
 					''}
 	      		</div>
 	      	</div><!-- 사진 부분 col-3 -->
 	     </div><!--row-->
 	  </div><!-- card -->
 	`;
+
+	const htmlElement = $(htmlString);
+	
+	preloadImage(categoryImgSrc, (err, src) => {
+		const categoryImgElement = htmlElement.find(`#category-img-${index}`);
+		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  	});
+
+	preloadImage(recordImgSrc, (err, src) => {
+    	const recordImgElement = htmlElement.find(`#record-img-${index}`);
+    	recordImgElement.attr('src', err ? recordImgSrc : src);
+  	});
+  		
+  	preloadImage(subImgSrc, (err, src) => {
+    	const subImgElement = htmlElement.find(`.subImage`);
+    	subImgElement.attr('src', err ? subImgSrc : src);
+  	});
+  	
+  	preloadImage(profileImgSrc, (err, src) => {
+    	const profileImgElement = htmlElement.find(`#profileImg-${index}`);
+    	profileImgElement.attr('src', err ? profileImgSrc : src);
+  	});
+  
+  return htmlElement;
 };
 
 const simpleRecordElement = (index) => {
-	return  `
-			<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
-    			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
-    			<i class="fas fa-minus fs-3"></i>
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
+	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
+		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
+		'';
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
+	const htmlString = `
+			<div class="d-flex justify-content-center align-items-center"  style="position: relative; width: 100%;">
+				<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
+				<i class="fas fa-minus fs-3"></i>
 			</div>
 	        
-	        <div class="card border-0 border-bottom mb-3 simpleRecord container" data-index=${index} >
+	        <div class="card border-0 border-bottom mb-3 simpleRecord container" data-index=${index}>
 	        
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
-						<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}" />
+						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
 	        			<span class="fs-5 ">${recordList[index].nickName}</span>
-	        			${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
+	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
 					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
-    					<div class="routeAdditionalButtons bg-primary">
-      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
-	        			</div>
-	        			
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-	        		</div>
-	        	</div><!-- row -->
+
+					<div class="routeAdditionalButtons bg-primary">
+						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+						<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+						<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+					</div>
+
+					<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+
+				</div>
+			</div><!-- row -->
 	        		
 				<div class="row g-0">
 	      			<div class="col-9 card-body p-1">
@@ -162,8 +216,9 @@ const simpleRecordElement = (index) => {
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
+	      				<!--<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"-->
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -184,8 +239,8 @@ const simpleRecordElement = (index) => {
 	      		<div class="col-3">
 	      			<div class="recordImageContainer">
 	      				${recordList[index].imageName && recordList[index].imageName.length > 0 ?
-	      				`<img src="data:image/jpeg;base64, ${recordList[index].imageName[0].imageTagText}" class="img-fluid rounded-start" alt="기록 사진"/>`:
-						''}
+	      			`<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>`:
+					''}
 	      			</div>
 	      		</div><!-- 사진 부분 col-3 -->
 	     	</div><!--row-->
@@ -194,33 +249,60 @@ const simpleRecordElement = (index) => {
 	    		<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
 	        </div>
 	    `;
+	    
+	    const htmlElement = $(htmlString);
+  
+  		preloadImage(categoryImgSrc, (err, src) => {
+    		const categoryImgElement = htmlElement.find(`.recordEmoji`);
+    		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  		});
+
+  		preloadImage(recordImgSrc, (err, src) => {
+    		const recordImgElement = htmlElement.find(`#record-img-${index}`);
+    		recordImgElement.attr('src', err ? recordImgSrc : src);
+  		});
+  		
+  		preloadImage(subImgSrc, (err, src) => {
+    		const subImgElement = htmlElement.find(`.subImage`);
+    		subImgElement.attr('src', err ? subImgSrc : src);
+  		});
+  		
+  		preloadImage(profileImgSrc, (err, src) => {
+    		const profileImgElement = htmlElement.find(`#profileImg-${index}`);
+    		profileImgElement.attr('src', err ? profileImgSrc : src);
+  		});
+  
+  return htmlElement;
 }
 
 const detailRecordElement = (index) => {
-	const videoId = `my-video-${index}`;
+	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
+	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
+	const subImgSrc = `/user/rest/profile/sub.png`;
+	const videoId = `my-video-${index}`; // 각 비디오 요소에 고유한 ID를 부여
 	const htmlString = `
-			<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
-    			<i class="fas fa-arrow-left fs-3 detailRecordBackButton" data-index=${index} style="position: absolute; left: 0;"></i>
-    			<i class="fas fa-minus fs-3"></i>
+			<div class="d-flex justify-content-center align-items-center"  style="position: relative; width: 100%;">
+				<i class="fas fa-arrow-left fs-3 detailRecordBackButton" style="position: absolute; left: 0;" data-index=${index}></i>
+				<i class="fas fa-minus fs-3"></i>
 			</div>
 	        
 	        <div class="card border-0 border-bottom mb-3 detailRecord container" data-index=${index} >
 
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
-						<img class="rounded-image" src="data:image/jpeg;base64,${recordList[index].profileImageName}" />
+						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
 	        			<span class="fs-5 ">${recordList[index].nickName}</span>
-	        			${recordList[index].subscribed ? `<img src="data:image/jpeg;base64,${badgeImage}" class="rounded-image subImage"/>` : ''}
+	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
+					<div class="routeButtonGroup col-6 p-0">
+	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+	        			
     					<div class="routeAdditionalButtons bg-primary">
       						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
 	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
 	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
 	        			</div>
-	        			
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
 	        		</div>
 	        	</div><!-- row -->
 	        		
@@ -232,7 +314,7 @@ const detailRecordElement = (index) => {
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				${recordList[index].categoryImoji != null ? 
-	      				`<img src="data:image/jpeg;base64,${recordList[index].categoryImoji}" alt="Category Imoji"
+	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
 	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
 	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
@@ -268,7 +350,7 @@ const detailRecordElement = (index) => {
                 	<div class="swiper-wrapper">
                 		${recordList[index].imageName.map(image => 
                 		` <div class="swiper-slide">
-                    		<img src="data:image/jpeg;base64,${image.imageTagText}" class="swiperImg"/>
+                    		<img src="/user/rest/thumbnail/${image.imageTagText}" class="swiperImg"/>
                     	   </div>
                     `).join('')}
                 	</div>
@@ -283,6 +365,28 @@ const detailRecordElement = (index) => {
 	    `;
 	    
 	    const htmlElement = $(htmlString);
+	    
+	    preloadImage(categoryImgSrc, (err, src) => {
+    		const categoryImgElement = htmlElement.find(`.recordEmoji`);
+    		categoryImgElement.attr('src', err ? categoryImgSrc : src);
+  		});
+  		
+  		recordList[index].imageName.map( (image, index) =>
+  			preloadImage("/user/rest/thumbnail/"+ image.imageTagText, (err, src) => {
+    			const recordImgElement = htmlElement.find(`.swiperImg`)[index];
+    			$(recordImgElement).attr('src', err ? "/user/rest/thumbnail/"+image.imageTagText : src);
+  			})
+  		);
+  		
+  		preloadImage(subImgSrc, (err, src) => {
+    		const subImgElement = htmlElement.find(`.subImage`);
+    		subImgElement.attr('src', err ? subImgSrc : src);
+  		});
+  		
+  		preloadImage(profileImgSrc, (err, src) => {
+    		const profileImgElement = htmlElement.find(`#profileImg`);
+    		profileImgElement.attr('src', err ? profileImgSrc : src);
+  		});
   		
   		recordList[index].mediaName != '' ?
   		setTimeout(() => {
@@ -301,95 +405,93 @@ const detailRecordElement = (index) => {
             	},
         	});
         	
-        	videojs(videoId);
+        	        	videojs(videoId);
     	}, 0)
     	: '';
     	
   		return htmlElement;
 }
 
-
-
 const placeListSwipe = (index) => {
 	if (swiper) {
-        swiper.destroy(true, true);
-    }
-    
+		swiper.destroy(true, true);
+	}
+
 	swiper = new Swiper('.swiper-container', {
-        slidesPerView: 1,
-        spaceBetween: 10,
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        watchOverflow: true,
-        on: {
-			slideChange: function () {
+		slidesPerView: 1,
+		spaceBetween: 10,
+		pagination: {
+			el: '.swiper-pagination',
+			clickable: true,
+		},
+		watchOverflow: true,
+		on: {
+			slideChange: function() {
 				let index = this.activeIndex;
-				
+
 				navigateToMarkerOnSelect(index, placeList, index);
 			}
 		}
-    });
-    
+	});
+
 	const slideHtml = `
 		<div class="swiper-slide card border-0 mb-3 place placeListItem">
-    			<h2 class="card-title fw-bold ellipsis fs-3">${index+1}. ${placeList[index].placeName} </h2>
-    			<p class="card-text">${placeList[index].categoryName} </p>
-    			<p class="card-text fs-5">${placeList[index].addressName} </p>
-    	</div>
+			<h2 class="card-title fw-bold ellipsis fs-3">${placeList[index].placeName} </h2>
+			<p class="card-text">${placeList[index].categoryName} </p>
+			<p class="card-text fs-5">${placeList[index].addressName} </p>
+		</div>
 	`;
-	
+
 	swiper.appendSlide(slideHtml);
 };
 
 
-const recommendListElement = (index) => {
-	return `<div class="card border-0 border-bottom mb-3 place placeListItem">
-    			<h2 class="card-title fw-bold ellipsis fs-3">${index+1}. ${placeList[index].placeName} </h2>
-    			<p class="card-text">${placeList[index].categoryName} </p>
-    			<p class="card-text fs-5">${placeList[index].addressName} </p>
-    		</div>
-    		`;
-}// recommendListElement: 추천 장소 리스트
+const
+	recommendListElement = (index) => {
+		return `<div class="card border-0 border-bottom mb-3 place placeListItem">
+					<h2 class="card-title fw-bold ellipsis fs-3">${placeList[index].placeName}</h2>
+					<p class="card-text">${placeList[index].categoryName} </p>
+					<p class="card-text fs-5">${placeList[index].addressName} </p>
+				</div>
+	`;
+	}// recommendListElement: 추천 장소 리스트
 
 const detailPlaceElement = (index) => {
 	return `
-			<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
-    			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
-    			<i class="fas fa-minus fs-3"></i>
-			</div>
-	
-	        <div class="card border-0 border-bottom mb-3 container" data-index=${index}>
-	        <div class="row">
-	        		<div class="col-6">
+		<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
+			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
+			<i class="fas fa-minus fs-3"></i>
+		</div>
+
+		<div class="card border-0 border-bottom mb-3 container" data-index=${index}>
+			<div class="row">
+				<div class="col-6"></div>
+
+				<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
+					<div class="routeAdditionalButtons bg-primary">
+						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+						<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+						<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
 					</div>
-					
-					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
-	        			
-    					<div class="routeAdditionalButtons bg-primary">
-      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
-	        			</div>
-	        			
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-	        		</div>
-	        	</div><!-- row -->
-	        		
-	            <div class="g-0">
-	                    <div class="card-body">
-	                        <h5 class="card-title fw-bold fs-3">${placeList[index].placeName}</h5>
-	                        <p class="card-text"><i class="fas fa-list"></i> ${placeList[index].categoryName}</p>
-	                        <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${placeList[index].addressName}</p>
-    						<p class="card-text"><i class="fas fa-phone"></i> ${placeList[index].phone} </p> 
-    						<p class="card-text"><a href=${placeList[index].placeUrl}>More Info</a></p>
-	                        
-	                </div>
-	            </div>
-	        </div>
-	    `;
+
+					<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+				</div>
+			</div><!-- row -->
+
+			<div class="g-0">
+				<div class="card-body">
+					<h5 class="card-title fw-bold fs-3">${placeList[index].placeName}</h5>
+					<p class="card-text"><i class="fas fa-list"></i> ${placeList[index].categoryName}</p>
+					<p class="card-text"><i class="fas fa-map-marker-alt"></i> ${placeList[index].addressName}</p>
+					<p class="card-text"><i class="fas fa-phone"></i> ${placeList[index].phone} </p>
+					<p class="card-text"><a href=${placeList[index].placeUrl}>More Info</a></p>
+
+				</div>
+			</div>
+		</div>
+	`;
 }
+	
 	
 const routeListElement = (response) => {
 	console.log(response);
@@ -428,7 +530,7 @@ const routeListElement = (response) => {
 		
 		<ul class="list-group">
 			${response.description.map((item, index) =>
-  			`<li class="list-group-item border-0 border-bottom">${index+1}. ${index == 0 ? '출발지에서 ' : ''} ${item} </li>`
+  			`<li class="list-group-item border-0 border-bottom">${index == 0 ? '출발지에서 ' : ''} ${item} </li>`
 			).join('')}
 		</ul>
 `;
@@ -455,7 +557,7 @@ const transitRouteListElement = (paths) => {
 	        	</div>
 	        	
 	        	<div class="ml-auto">
- 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-times fs-4"></i></button>
+ 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left fs-4"></i></button>
  				</div>
 	        </div>
 		</div>
