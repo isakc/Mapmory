@@ -329,8 +329,8 @@ $(function() {
 	}) */
 	
 	$("button[name='updateTimecapsule']").click(function() {
-		uri="?recordNo="+recordNo;
-		self.location="/timeline/updateTimecapsule"+uri;
+		let param="?recordNo="+recordNo;
+		self.location="/timeline/updateTimecapsule"+param;
 	})
 	
 	$("button[name='addVoiceToText']").click(function() {

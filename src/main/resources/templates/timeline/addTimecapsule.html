@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>Mapmory 타임캡슐 기록</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
@@ -206,7 +206,7 @@ function validateFileCount() {
     const selectedFiles = fileInput.files.length;
 
     // 총 파일 갯수가 9개를 넘는지 확인합니다.
-    if (totalFiles > 9) {
+    if (selectedFiles > 9) {
     	showModal('사진 파일 오류',"이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+selectedFiles+" 장");
         //alert("이미지 파일의 최대 9장까지 업로드 가능합니다. 현재 업로드 장 수 "+totalFiles+" 장");
         fileInput.value = '';
@@ -329,14 +329,14 @@ $(function() {
 		$('input[name="tempType"]').val(1);
 		$('form').submit();
 	})
-	/* 
+	
 	$('button:contains("주소검색"), input[name="checkpointAddress"]').on('click',function(){
 			sample5_execDaumPostcode();
-	}) */
-	
+	})
+	/*
 	$('button:contains("주소검색")').on('click',function(){
 			sample5_execDaumPostcode();
-	})
+	})*/
 	
 	/* $('textarea[name="recordText"]').on('keyup',function(event){
 		let text=$('textarea[name="recordText"]').val();

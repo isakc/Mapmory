@@ -278,6 +278,7 @@ input[type="hidden"] {
 							<a class="dropdown-item text-primary" href="#" th:name="getTimecapsuleList" th:text="'타임캡슐 목록'"></a>
 		          			<a class="dropdown-item text-primary" href="#" th:name="getSummaryRecord" th:text="'요약된 기록 목록'"></a>
 		          			<a class="dropdown-item text-primary" href="#" th:name="getKeywordList" th:text="'내가 사용한 키워드'"></a>
+		          			<a class="dropdown-item text-primary" th:href="@{/timeline/addTimelienForRecord}" th:name="addTimelienForRecord" th:text="'개발자 용 addTimeline'"></a>
 		      			</div>
 		          	</div>
 		      	</div>
@@ -358,7 +359,7 @@ input[type="hidden"] {
 <script th:inline="javascript">
 $(function() {
 	let selectDay=$('input[name="getTimelineListSelect"]').val();
-	let uri;
+	let param;
 	
 	$( "#datepicker" ).datepicker({
 		dateFormat :"yy-mm-dd",
@@ -366,8 +367,8 @@ $(function() {
             console.log("사용자가 선택한 날짜:", dateText);
             // 여기서 선택한 날짜를 원하는 방식으로 처리할 수 있음
             // 예: AJAX 요청을 보내거나 다른 동작을 수행
-    		uri="?selectDay="+dateText
-    		self.location.replace("/timeline/getTimelineList"+uri);
+    		param="?selectDay="+dateText
+    		self.location.replace("/timeline/getTimelineList"+param);
         }
 	});
 	
@@ -378,12 +379,13 @@ $(function() {
 	}) */
 	
 	$("a[name='getTimecapsuleList']").click(function() {
-		self.location="/timeline/getTimecapsuleList";
+		let param = "?tempType=1";
+		self.location="/timeline/getTimecapsuleList"+param;
 	})
 	
 	$("a[name='getSummaryRecord']").click(function() {
-		uri="?searchCondition="+0;
-		self.location="/timeline/getSummaryRecord"+uri;
+		param="?searchCondition="+0;
+		self.location="/timeline/getSummaryRecord"+param;
 	})
 	
 	$("a[name='getKeywordList']").click(function() {
@@ -393,8 +395,8 @@ $(function() {
 	$("p[name='getDetailTimeline']").click(function() {
 		let recordNo=$(this).data('recordno');
 		/* alert(recordNo); */
-		uri="?recordNo="+recordNo;
-		self.location.replace("/timeline/getDetailTimeline"+uri);
+		param="?recordNo="+recordNo;
+		self.location.replace("/timeline/getDetailTimeline"+param);
 	})
 	
 	 /* $("input[name='getTimelineListSelect']").datepicker({
@@ -423,14 +425,14 @@ $(function() {
 		/* let userId=$(this).data('userid');
 		let selectDay=$(this).data('selectday'); */
 		let plus=-1;
-		uri="?selectDay="+selectDay+"&plus="+plus;
-		self.location.replace("/timeline/getTimelineList"+uri);
+		param="?selectDay="+selectDay+"&plus="+plus;
+		self.location.replace("/timeline/getTimelineList"+param);
 	})
 	
 	$("span[name='getTimelineListRight']").click(function() {
 		let plus=1;
-		uri="?selectDay="+selectDay+"&plus="+plus;
-		self.location.replace("/timeline/getTimelineList"+uri);
+		param="?selectDay="+selectDay+"&plus="+plus;
+		self.location.replace("/timeline/getTimelineList"+param);
 	})
 })
 </script>

@@ -95,7 +95,8 @@ public class TimelineRestController {
 			@RequestBody Record record,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
-		record.setRecordTitle(record.getCheckpointAddress()+"_"+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
+		record.setRecordTitle(record.getCheckpointAddress()+"_"
+		+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
 		record.setUpdateCount(-1);
 		record.setTempType(0);
 		record.setTimecapsuleType(0);
@@ -107,7 +108,7 @@ public class TimelineRestController {
 		if(recordNo!=0) {
 			text+="<span>체크포인트가 저장 완료 : "+record.getLatitude()+"/"+record.getLongitude()+"/"
 					+record.getCheckpointAddress()+"/"+record.getCheckpointDate()+"</span>";
-			if(countAddressDto.getCheckpointCount()>1) {
+			if(countAddressDto!=null && (countAddressDto.getCheckpointCount()>0) ) {
 				text+="<br/><br/><span>현재 위치에 "+ (countAddressDto.getCheckpointCount()+1) + " 회, 재방문하였습니다. 최근 방문 일시는 " 
 						+ countAddressDto.getCheckpointDate()+ " 입니다.</span>";
 			}
@@ -159,12 +160,13 @@ public class TimelineRestController {
 	public ResponseEntity<Map<String, Object>> getTimecapsuleList(
 			@RequestParam(name = "userId", required = true) String userId,
 			@RequestParam(name = "currentPage", required = true) int currentPage,
+			@RequestParam(name="tempType", required = true) int tempType,
 			Map<String, Object> response
 			) throws Exception,IOException{
 		
 		Search search = Search.builder()
 				.userId(userId)
-				.tempType(1)
+				.tempType(tempType)
 				.timecapsuleType(1)
 				.limit(pageLimit)
 				.currentPage(currentPage).build();
@@ -173,6 +175,26 @@ public class TimelineRestController {
         response.put("records", recordList);
 		return ResponseEntity.ok(response);
 	}
+	
+	//getTimecapsuleList에 하나로 합쳤음
+//	@GetMapping("getTempTimecapsuleList")
+//	public ResponseEntity<Map<String, Object>> getTempTimecapsuleList(
+//			@RequestParam(name = "userId", required = true) String userId,
+//			@RequestParam(name = "currentPage", required = true) int currentPage,
+//			Map<String, Object> response
+//			) throws Exception,IOException{
+//		
+//		Search search = Search.builder()
+//				.userId(userId)
+//				.tempType(0)
+//				.timecapsuleType(1)
+//				.limit(pageLimit)
+//				.currentPage(currentPage).build();
+//		List<Record> recordList = timelineService.getTimelineList(search);
+//		response = new HashMap<>();
+//        response.put("records", recordList);
+//		return ResponseEntity.ok(response);
+//	}
 	
 	@PostMapping("addCategory")
 	public ResponseEntity<Map<String, Object>> addCategory(@ModelAttribute Category category,
