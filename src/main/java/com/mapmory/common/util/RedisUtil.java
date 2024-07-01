@@ -25,6 +25,7 @@ public class RedisUtil<T> {
 	RedisTemplate<String, T> redisTemplate;
 	
 	private final static long EXPIRE_TIME = 30L;
+	// private final static long EXPIRE_TIME = 1L;
 	
 	/**
 	 * redis에게 데이터를 넣는다.
@@ -140,19 +141,6 @@ public class RedisUtil<T> {
 
 		Cookie cookie = CookieUtil.findCookie("JSESSIONID", request);
 		
-		/*
-		System.out.println("=================BEFORE UPDATE SESSION====================");
-		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
-		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
-		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
-		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
-		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
-		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
-		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
-		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
-		System.out.println("=====================================");
-		*/
-		
 		if(cookie == null)
 			return true;
 		
@@ -160,6 +148,7 @@ public class RedisUtil<T> {
 		SessionData sessionData = (SessionData) redisTemplate.opsForValue().get(key);
 		
 		boolean successed;
+		/*
 		if(sessionData.getIsKeepLogin() == 1) {
 			cookie.setPath("/");
 			cookie.setMaxAge(60*60*24*90);
@@ -169,22 +158,13 @@ public class RedisUtil<T> {
 			cookie.setMaxAge(60*30);
 			successed = redisTemplate.expire(key, 60*30, TimeUnit.MINUTES);
 		}
-			
-		response.addCookie(cookie);
-		
-		/*
-		System.out.println("=================AFTER UPDATE SESSION====================");
-		System.out.println("쿠키에 저장된 key name : " + cookie.getValue());
-		System.out.println("남은 쿠키의 수명 : " + cookie.getMaxAge());
-		System.out.println("쿠키에 설정된 domain : " + cookie.getDomain());
-		System.out.println("쿠키에 설정된 path : " + cookie.getPath());
-		System.out.println("쿠키에 설정된 이름 : " + cookie.getName());
-		System.out.println("쿠키에 설정된 secure 상태 : " + cookie.getSecure());
-		System.out.println("쿠키에 저장된 value : " + cookie.getValue());
-		System.out.println("쿠키에 설정된 comment : " + cookie.getComment());
-		System.out.println("=====================================");
 		*/
-		
+			
+		cookie.setPath("/");
+		cookie.setMaxAge(60*30);
+		successed = redisTemplate.expire(key, 30, TimeUnit.MINUTES);
+		response.addCookie(cookie);
+
 		if( !successed) {
 			System.out.println("Transaction 오류");
 			return false;

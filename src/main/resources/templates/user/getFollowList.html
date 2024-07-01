@@ -37,12 +37,6 @@
 			history.back();
 		});
 		
-		/*
-		$('input').on('input', function() {
-			
-			// 입력할 때마다 리스트 최신화
-		});
-		*/
 		
 		$(document).on('click', '.follow', function() {
 			
@@ -162,6 +156,43 @@
 			
 		});
 		
+
+		// 검색
+		$('input[name="search"]').on('input', function() {
+			
+			const inputVal = $(this).val();
+			
+			console.log("my input is ", inputVal);
+			
+			// 검색 상태 초기화
+ 			listSetup = true;
+ 			listCurrentPage = 1;
+ 			listEndOfData = false;
+        	 $('#list-contents').empty();
+        	 loadMoreList(inputVal);
+			
+        	 /*
+			$.ajax({
+				
+				url: `/user/rest/getFollowList/${profileUserId}?currentPage=${listCurrentPage}&keyword=test`,
+				 method: "post",
+		         // dataType: "application/json",
+		         success: function(responseBody) {
+		        	 
+		        	 console.log("server responsed", responseBody);
+		        	 
+		 			
+		 			
+		         },
+		         error: function(xhr, status, error) {
+			        console.error("네트워크 오류:", error);
+			        alert("네트워크 오류");
+			        reject(); // 에러 발생 시
+			      }
+			});
+        	 */
+		});
+		
 	});
 </script>
 
@@ -226,7 +257,7 @@
 	    if (documentHeight <= windowHeight) {
 	    	
 	    	// console.log('setup start');
-	    	loadMoreList().then((value)=> {
+	    	loadMoreList("").then((value)=> {
 	    		
 	    		console.log(value);
 	    		// isLoading = false; // 로딩 완료 후 플래그 재설정    	
@@ -242,9 +273,11 @@
 	    }
 	}
 	
-	function loadMoreList() {
+	function loadMoreList(inputVal) {
 		
 		console.log("let's load");
+		
+		console.log("검색어 : " + inputVal);
 		  
 	    isLoading = true; // 로딩 시작
 	    const loadingView = `<div id="loading" class="loading">
@@ -262,12 +295,18 @@
 		  
 	  	} 
 		
+		let url = `/user/rest/getFollowList/${profileUserId}?currentPage=${listCurrentPage}`;
+		
+		if( (inputVal != "") && (inputVal != undefined)) {
+			url += `&keyword=${inputVal}`;
+		}
+		
 		return new Promise((resolve, reject) => {
 			
 			$.ajax({
 	
 				// url: `/timeline/rest/getProfileTimelineList?userId=${profileUserId}&currentPage=${sharedListCurrentPage}&logsType=0`,
-				  url: `/user/rest/getFollowList/${profileUserId}?currentPage=${listCurrentPage}`,
+				  url: url,
 			      method: "post",
 			      // contentType:"application/json",
 			      // dataType: "application/json",
@@ -363,37 +402,24 @@
 			
 		});
 		
+		
 	}
 
 </script>
-
-
-<!-- 검색은 선택 사항. -->
-<!-- 
-<form>
-	<input type="text" name="search" />
-</form>
- -->
-
 
 </head>
 <body>
 	
 	<div id="content-for-footer" class="container ">
 
-		<!-- 
-		<div class="row sticky-top mt-4" style="background:#FFFFFF;">
-			<a class="col-1 text-end fs-1" href="javascript:history.back()">⇦</a>
-			<div class="col-6"></div>
-			<p class="h2 col-5 mt-2">팔로우 목록</p>
-		</div>
-		 -->
 		 
 		 <div class="d-flex sticky-top mt-4" style="background:#FFFFFF;  justify-content: space-between;">
 			<a class="fs-1" href="javascript:history.back()">⇦</a>
 			<p class="h2"  style="position: relative; top: 10px;">팔로우 목록</p>
 		</div>
-	
+		<form class="mt-3">
+			<input type="text" name="search" class="form-control" placeholder="사용자 이롬 또는 닉네임을 검색..."/>
+		</form>
 		
 		<div class="mt-3" id="list-contents">
 			<!-- <th:block th:replace="~{/user/fragments/followList}"></th:block>  -->
