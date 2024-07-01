@@ -429,34 +429,36 @@ public class CommunityRestController {
 	        return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body(null);
 	    }
 
-	    // 대상 사용자의 정지 정보를 가져옵니다.
-	    String targetUserId = fetchedReport.getTargetUserId();
-	    Map<String, String> suspendData = userService.checkSuspended(targetUserId);
+	    // 신고를 승인 또는 반려합니다.
+	    communityService.confirmReport(report);
 
-	    // 정지 횟수를 기본값 0으로 설정합니다.
-	    int count1 = 0;
-	    if (suspendData != null && suspendData.containsKey("suspentionCount")) {
-	        String count = suspendData.get("suspentionCount");
-	        if (count != null) {
-	            try {
-	                count1 = Integer.parseInt(count);
-	            } catch (NumberFormatException e) {
-	                return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(null);
+	    // reportResult가 1(승인)일 경우에만 사용자 정지 로직을 실행합니다.
+	    if (report.getReportResult() == 1) {
+	        String targetUserId = fetchedReport.getTargetUserId();
+	        Map<String, String> suspendData = userService.checkSuspended(targetUserId);
+
+	        // 정지 횟수를 기본값 0으로 설정합니다.
+	        int suspensionCount = 0;
+	        if (suspendData != null && suspendData.containsKey("suspentionCount")) {
+	            String count = suspendData.get("suspentionCount");
+	            if (count != null) {
+	                try {
+	                    suspensionCount = Integer.parseInt(count);
+	                } catch (NumberFormatException e) {
+	                    return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(null);
+	                }
 	            }
 	        }
-	    }
 
-	    System.out.println("정지 횟수: " + count1);
-	    System.out.println("정지 아이디: " + targetUserId);
+	        System.out.println("정지 횟수: " + suspensionCount);
+	        System.out.println("정지 아이디: " + targetUserId);
 
-	    // 정지 횟수가 4회 미만인 경우에만 신고를 승인하고 사용자를 정지합니다.
-	    if (count1 < 4) {
-	        // 신고 승인
-	        communityService.confirmReport(report);
-	        // 사용자를 정지
-	        userService.addSuspendUser(targetUserId, fetchedReport.getReportText());
-	    } else {
-	        throw new Exception("정지 횟수 초과");
+	        // 정지 횟수가 4회 미만인 경우에만 사용자를 정지합니다.
+	        if (suspensionCount < 4) {
+	            userService.addSuspendUser(targetUserId, fetchedReport.getReportText());
+	        } else {
+	            throw new Exception("정지 횟수 초과");
+	        }
 	    }
 
 	    return ResponseEntity.ok(report);
