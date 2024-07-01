@@ -435,9 +435,11 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
+		/*
 		String[] temp = user.getPhoneNumber().split("-");
 		String phoneNumber = temp[0] + temp[1] + temp[2];
 		user.setPhoneNumber(phoneNumber);
+		*/
 		
 		model.addAttribute("user", user);
 		

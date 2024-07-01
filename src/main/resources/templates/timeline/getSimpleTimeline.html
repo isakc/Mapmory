@@ -76,7 +76,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script type="text/javascript">
 $(function() {
-	
+	let param;
 	$("div[name='getKakaoMap']").click(function() {
 
         $('#getSimpleTimeline').removeClass('visible');
@@ -84,15 +84,15 @@ $(function() {
 		
 	    setTimeout(function() {
 			let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
-			uri="?selectDay="+selectDay;
-			self.location.replace("/timeline/getTimelineList"+uri);
+			param="?selectDay="+selectDay;
+			self.location.replace("/timeline/getTimelineList"+param);
 	    }, 300); // 페이지 로드 후 100ms 후에 애니메이션 시작
 	})
 	
 	$("div[name='getSimpleTimeline']").click(function() {
 		let recordNo=$(this).data('recordno');
-		uri="?recordNo="+recordNo;
-		self.location.replace("/timeline/getDetailTimeline"+uri);
+		param="?recordNo="+recordNo;
+		self.location.replace("/timeline/getDetailTimeline"+param);
 	})
 	
     setTimeout(function() {

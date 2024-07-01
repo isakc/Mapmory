@@ -29,6 +29,8 @@
 
 	const sessionId = sessionStorage.getItem('userId');
 	const profileUserId = /*[[${profileUserId}]]*/ '';
+	let debounceTimer = null;
+	const DEBOUNCE_DELAY = 700;
 
 	$(function() {
 		
@@ -162,14 +164,21 @@
 			
 			const inputVal = $(this).val();
 			
-			console.log("my input is ", inputVal);
-			
-			// 검색 상태 초기화
- 			listSetup = true;
- 			listCurrentPage = 1;
- 			listEndOfData = false;
-        	 $('#list-contents').empty();
-        	 loadMoreList(inputVal);
+			if(debounceTimer != null && debounceTimer != undefined)
+	        	 clearTimeout(debounceTimer);
+	       	 debounceTimer = setTimeout(function() {
+	       		 
+	    			// 검색 상태 초기화
+	     			listSetup = true;
+	     			listCurrentPage = 1;
+	     			listEndOfData = false;
+	            	 $('#list-contents').empty();
+	            	 
+	       		 // lastInputVal = inputVal;
+	       		 $(this).prop('disabled', true);
+	       		 console.log($(this).prop('disabled'));
+	       		 loadMoreList(inputVal);
+	       	 }, DEBOUNCE_DELAY);
 			
 		});
 	});
@@ -184,7 +193,7 @@
 	
 	$(function() {
 		
-		loadMoreList();
+		loadMoreList("");
 		
 		// window.scrollTo(0, 100);
 	
@@ -243,7 +252,7 @@
 	    }
 	}
 	
-	function loadMoreList() {
+	function loadMoreList(inputVal) {
 		
 		  
 	    isLoading = true; // 로딩 시작
@@ -262,7 +271,7 @@
 		  
 	  	} 
 		
-		let url = `/user/rest/getFollowList/${profileUserId}?currentPage=${listCurrentPage}`;
+		let url = `/user/rest/getFollowerList/${profileUserId}?currentPage=${listCurrentPage}`;
 		
 		if( (inputVal != "") && (inputVal != undefined)) {
 			url += `&keyword=${inputVal}`;
@@ -348,6 +357,9 @@
 			    	  // console.log("shared loading end : "+ isLoading);
 			    	  
 			          resolve("content loaded"); // 성공적으로 처리되었음을 알림
+			      },
+			      complete: function() {
+				      $('input[name="search"]').prop('disabled', false);
 			      },
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);
