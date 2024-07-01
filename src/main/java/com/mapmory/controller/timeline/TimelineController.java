@@ -297,6 +297,7 @@ public class TimelineController {
 		recommendService.addSearchData(record); Recommend recommend =
 		recommendService.getRecordData(record, record.getRecordNo());
 		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		System.out.println("positive : "+recommend.getPositive());
 		recommendService.updateDataset(recommend);
 		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
 		//
@@ -355,9 +356,10 @@ public class TimelineController {
 		timelineService.updateTimeline(record);
 		
 		// 추천 // 
-		recommendService.addSearchData(record); Recommend recommend =
-		recommendService.getRecordData(record, record.getRecordNo());
+		recommendService.addSearchData(record); 
+		Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
 		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		System.out.println("positive : "+recommend.getPositive());
 		recommendService.updateDataset(recommend);
 		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
 		//
