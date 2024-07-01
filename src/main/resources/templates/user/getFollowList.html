@@ -29,6 +29,9 @@
 
 	const sessionId = sessionStorage.getItem('userId');
 	const profileUserId = /*[[${profileUserId}]]*/ '';
+	// let lastInputVal = "";
+	let debounceTimer = null;
+	const DEBOUNCE_DELAY = 700;
 
 	$(function() {
 		
@@ -161,36 +164,36 @@
 		$('input[name="search"]').on('input', function() {
 			
 			const inputVal = $(this).val();
+			// const inputVal = ($(this).val() !== undefined) ? $(this).val() : "";
+
+			// lastInputVal = inputVal;
 			
-			console.log("my input is ", inputVal);
-			
-			// 검색 상태 초기화
- 			listSetup = true;
- 			listCurrentPage = 1;
- 			listEndOfData = false;
-        	 $('#list-contents').empty();
-        	 loadMoreList(inputVal);
-			
+			// console.log("my input is ", inputVal);
+
+        	 
         	 /*
-			$.ajax({
-				
-				url: `/user/rest/getFollowList/${profileUserId}?currentPage=${listCurrentPage}&keyword=test`,
-				 method: "post",
-		         // dataType: "application/json",
-		         success: function(responseBody) {
-		        	 
-		        	 console.log("server responsed", responseBody);
-		        	 
-		 			
-		 			
-		         },
-		         error: function(xhr, status, error) {
-			        console.error("네트워크 오류:", error);
-			        alert("네트워크 오류");
-			        reject(); // 에러 발생 시
-			      }
-			});
+        	 if( !isLoading ) {
+        		
+        		 console.log("검색어를 기반으로 리로딩");
+        		 loadMoreList(inputVal);
+        	 }
         	 */
+        	 
+        	 if(debounceTimer != null && debounceTimer != undefined)
+	        	 clearTimeout(debounceTimer);
+        	 debounceTimer = setTimeout(function() {
+        		 
+     			// 검색 상태 초기화
+      			listSetup = true;
+      			listCurrentPage = 1;
+      			listEndOfData = false;
+             	 $('#list-contents').empty();
+             	 
+        		 // lastInputVal = inputVal;
+        		 $(this).prop('disabled', true);
+        		 console.log($(this).prop('disabled'));
+        		 loadMoreList(inputVal);
+        	 }, DEBOUNCE_DELAY);
 		});
 		
 	});
@@ -205,7 +208,7 @@
 	
 	$(function() {
 		
-		loadMoreList();
+		loadMoreList("");
 		
 		// window.scrollTo(0, 100);
 	
@@ -224,7 +227,7 @@
 	            if ( scrollTop + windowHeight >= documentHeight - 100) {
 	            	
 	            	isLoading = true; // 로딩 시작
-	            	loadMoreList().then((value) => {
+	            	loadMoreList("").then((value) => {
 	            		
 	            		console.log(value);
 	            		// console.log("load finish");
@@ -312,7 +315,7 @@
 			      // dataType: "application/json",
 			      success: function(response) {
 
-			    	  console.log("server gives me :: ", response);
+			    	  // console.log("server gives me :: ", response);
 
 			    	  if(response.followList.length == 0) {
 			      		  
@@ -392,6 +395,21 @@
 			    	  
 			          resolve("content loaded"); // 성공적으로 처리되었음을 알림
 			      },
+			      complete: function() {
+				      $('input[name="search"]').prop('disabled', false);
+			      },
+			      /*
+			      complete: function() {
+			    	  
+			    	console.log("마지막 검색어와 일치하는지 검사");
+                    isLoading = false;
+                    if (lastInputVal !== inputVal) {
+                    	
+                    	console.log("일치하지 않으니 최신화");
+                        loadMoreList(lastInputVal);
+                    }
+                  },
+                  */
 			      error: function(xhr, status, error) {
 			        console.error("네트워크 오류:", error);
 			        alert("네트워크 오류");
@@ -401,7 +419,6 @@
 			});
 			
 		});
-		
 		
 	}
 
