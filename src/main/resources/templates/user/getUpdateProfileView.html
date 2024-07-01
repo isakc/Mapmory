@@ -27,6 +27,10 @@
 			history.back();
 		});
 		
+		$('#updateProfileImage').on('click', function() {
+			
+			$('input[type="file"]').click();
+		});
 		
 		$('input[type="file"]').on("change", (event) => updateImg(event) );
 		
@@ -68,9 +72,10 @@
 				<img class="profile-custom" alt="" th:src="@{/user/rest/profile/{uuid}(uuid=${user.profileImageName})}">
 				<!-- <input type="hidden" name="old-profile-name" th:value="${user.profileImageName">  --> 
 			</div>
-			<div class="row ms-2">
+			<div class="ms-2 mt-4">
 				<!--  <label class="form-label mt-4" for="profileImage">프로필 이미지</label> -->
-				<input type="file" name="profile" accept="image/*" class="form-control"  />
+				<button type="button" id="updateProfileImage" class="btn btn-secondary">프로필 사진 수정</button>
+				<input type="file" name="profile" accept="image/*" class="form-control" style="visibility: hidden;" />
 			</div>
 		</div>
 		<hr/>
