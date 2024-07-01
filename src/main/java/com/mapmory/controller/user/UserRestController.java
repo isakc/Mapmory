@@ -414,11 +414,14 @@ public class UserRestController {
 		int selectFollow = 1;
 		
 		List<FollowMap> followerList = null;
-		// if( keyword.equals("undefined"))
+		
+		followerList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+		/*
 		if( keyword.isEmpty() )
 			followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		else
 			followerList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+		*/
 		
 		List<String> profileImageList = new ArrayList<>();
 		for(FollowMap user : followerList) {

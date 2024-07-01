@@ -326,7 +326,7 @@
     
     function getSuggestions() {
         $.ajax({
-            url: '/recommend/rest/getSearchRecommend', // 추천 검색어를 제공하는 API 엔드포인트
+            url: '/recommend/rest/getSearchRecommend?userId='+userId, // 추천 검색어를 제공하는 API 엔드포인트
             method: 'GET',
             success: function(data) {
                 displaySuggestions(data);
