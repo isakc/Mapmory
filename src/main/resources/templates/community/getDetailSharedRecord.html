@@ -481,6 +481,14 @@
 	}
 	</script>
 	
+	<script th:inline="javascript">
+	$(document).ready(function() {
+		$(document).on("click", '.back', function() {
+			window.location.href="/community/getSharedRecordList";
+		});
+	});
+	</script>
+	
 	<!-- 댓글 목록으로 아동 -->
 	<script th:inline="javascript">
 	$(document).ready(function() {
@@ -513,6 +521,13 @@
 			margin-top : 5px;
 			width : 100%
 		}			
+		
+		.back {
+			font-size : 25px;
+			font-weight : bold;
+			margin-top : -10px;
+			margin-bottom : 10px;
+		}
 		
 		.moreModal {
 		  display: none; /* 모달 숨기기 */
@@ -787,6 +802,9 @@
 		<div class="container">
 			<div class="card recordBody">
 				<div class="card-body head">
+					<div class="back">
+						<i class="bi bi-arrow-left back"></i>
+					</div>
 					<h4>
 						<img alt="" class="profileImage" th:src="@{/user/rest/profile/{uuid}(uuid=${record.profileImageName})}">
 						<span id="nickname" th:text="${record.nickname}" th:data-record-userid="${record.recordUserId}"></span> 
