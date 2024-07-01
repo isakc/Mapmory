@@ -33,6 +33,8 @@ import com.mapmory.common.util.RedisUtil;
 import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.service.RecommendService;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.KeywordData;
@@ -79,8 +81,17 @@ public class TimelineController {
     @Value("${timeline.kakaomap.restKey}")
     private String restKey;
     
+
+    ///////추천 추가된 부분//////
+	// 맨 위에 추가할 것
+	@Autowired
+	@Qualifier("recommendServiceImpl")
+	private RecommendService recommendService;
+		
+
     @Value("${page.Size}")
     private int pageLimit;
+
     
     private int searchOption=2;
 	
@@ -280,6 +291,17 @@ public class TimelineController {
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
+		
+		
+		 // 추천 // 
+		recommendService.addSearchData(record); Recommend recommend =
+		recommendService.getRecordData(record, record.getRecordNo());
+		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		System.out.println("positive : "+recommend.getPositive());
+		recommendService.updateDataset(recommend);
+		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		//
+				
 		return "timeline/updateTimeline";
 	}
 	
@@ -333,8 +355,19 @@ public class TimelineController {
 		
 		timelineService.updateTimeline(record);
 		
-		String param="?recordNo="+record.getRecordNo();
-		return "redirect:/timeline/getDetailTimeline"+param;
+
+		// 추천 // 
+		recommendService.addSearchData(record); 
+		Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
+		recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+		System.out.println("positive : "+recommend.getPositive());
+		recommendService.updateDataset(recommend);
+		recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		//
+		
+		String uri="?recordNo="+record.getRecordNo();
+		return "redirect:/timeline/getDetailTimeline"+uri;
+
 	}
 
 	@GetMapping("deleteTimeline")
