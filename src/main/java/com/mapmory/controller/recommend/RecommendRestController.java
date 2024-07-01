@@ -65,9 +65,9 @@ public class RecommendRestController {
 	    
 	    
 	    @GetMapping("/rest/getSearchRecommend")
-	    public String[] getSearchRecommend() throws Exception{
+	    public String[] getSearchRecommend(@RequestParam String userId) throws Exception{
 	    	
-	    	String[] result = recommendService.getSearchData("user1");
+	    	String[] result = recommendService.getSearchData(userId);
 	    	System.out.println(result);
 	    	
 	    	return result;
