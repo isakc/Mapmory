@@ -503,6 +503,8 @@ public class UserServiceImpl implements UserService {
 						.limit(limit)
 						.build();
 		
+		System.out.println("검색어 : " + searchKeyword);
+		
 		return userDao.selectFollowList(search);
 	}
 

@@ -355,12 +355,15 @@ public class UserRestController {
 	
 	@PostMapping("/getFollowList/{profileUserId}")  // @ModelAttribute Search search,
 	// @GetMapping("/getFollowList/{profileUserId}")  
-	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request, @RequestParam(required=false) String keyword) throws Exception {
+	public ResponseEntity<Map<String, Object>> getFollowList(@RequestParam int currentPage, @RequestParam(required=false, name="keyword") String keyword, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 		
 		/*
 		if(currentPage == null)
 			currentPage = 1;
 		*/
+		
+		System.out.println("현재 페이지 : " + currentPage);
+		System.out.println("입력된 검색어 : " + keyword);
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 		// String userId = search.getUserId();
@@ -368,8 +371,14 @@ public class UserRestController {
 		// int currentPage = search.getCurrentPage();
 		int selectFollow = 0;
 		
+		/*
+		List<FollowMap> followList = null;
+		if( keyword == null )
+			followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
+		else
+			followList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+			*/
 		List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
-		// List<FollowMap> followList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		
 		List<String> profileImageList = new ArrayList<>();
 		for(FollowMap user : followList) {
@@ -391,7 +400,7 @@ public class UserRestController {
 	
 	@PostMapping("/getFollowerList/{profileUserId}")
 	// @GetMapping("/getFollowerList/{profileUserId}")
-	public ResponseEntity<Map<String, Object>> getFollowerList(@RequestParam int currentPage, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
+	public ResponseEntity<Map<String, Object>> getFollowerList(@RequestParam int currentPage, @RequestParam(required=false, name="keyword") String keyword, @PathVariable String profileUserId, HttpServletRequest request) throws Exception {
 
 		/*
 		if(currentPage == null)
@@ -404,7 +413,12 @@ public class UserRestController {
 		// int currentPage = search.getCurrentPage();
 		int selectFollow = 1;
 		
-		List<FollowMap> followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
+		List<FollowMap> followerList = null;
+		// if( keyword.equals("undefined"))
+		if( keyword.isEmpty() )
+			followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
+		else
+			followerList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
 		
 		List<String> profileImageList = new ArrayList<>();
 		for(FollowMap user : followerList) {

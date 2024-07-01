@@ -25,6 +25,7 @@ public class RedisUtil<T> {
 	RedisTemplate<String, T> redisTemplate;
 	
 	private final static long EXPIRE_TIME = 30L;
+	// private final static long EXPIRE_TIME = 1L;
 	
 	/**
 	 * redis에게 데이터를 넣는다.
@@ -147,6 +148,7 @@ public class RedisUtil<T> {
 		SessionData sessionData = (SessionData) redisTemplate.opsForValue().get(key);
 		
 		boolean successed;
+		/*
 		if(sessionData.getIsKeepLogin() == 1) {
 			cookie.setPath("/");
 			cookie.setMaxAge(60*60*24*90);
@@ -156,7 +158,11 @@ public class RedisUtil<T> {
 			cookie.setMaxAge(60*30);
 			successed = redisTemplate.expire(key, 60*30, TimeUnit.MINUTES);
 		}
+		*/
 			
+		cookie.setPath("/");
+		cookie.setMaxAge(60*30);
+		successed = redisTemplate.expire(key, 30, TimeUnit.MINUTES);
 		response.addCookie(cookie);
 
 		if( !successed) {

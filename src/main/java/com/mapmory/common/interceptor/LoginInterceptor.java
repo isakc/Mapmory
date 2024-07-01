@@ -30,8 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 	@Autowired
 	private UserService userService;
 	
-	private static final Long SESSION_UPDATE_TIME = 54000L;
-	// private static final Long SESSION_UPDATE_TIME = 107990L;
+	// 	private static final Long SESSION_UPDATE_TIME = 54000L;
+	private static final Long SESSION_UPDATE_TIME = 900L;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -150,9 +150,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 					// 쿠키 만료 기한이 15분 이하로 남았을 때만 갱신
 					Long ttl = redisUtil.getTTL(cookie.getValue());
-//					System.out.println("================================");
-//					System.out.println("session TTL : "+ ttl);
-//					System.out.println("================================");
+					System.out.println("================================");
+					System.out.println("session TTL : "+ ttl);
+					System.out.println("================================");
 					
 					if(ttl < SESSION_UPDATE_TIME) {
 						
