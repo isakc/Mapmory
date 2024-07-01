@@ -24,6 +24,7 @@
     <script src="/javascript/map/element.js"></script>
     <script src="/javascript/map/mapFunction.js"></script>
     <script src="/javascript/map/drawRoute.js"></script>
+    <script src="/javascript/map/mapClickEvent.js"></script>
 </head>
 <body>
 	<div id="loading" class="loading-overlay">
@@ -95,7 +96,7 @@
 		
 		<div class="footer-map">
 			<div th:include="~{ 'common/floatingButton.html' }"></div>
-			<div th:include="~{ 'common/mapFilterFloatingButton.html' }"></div>
+			<div th:include="~{ 'common/mapFilterFloatingButton.html' }" id="mapFilterFloatingButton"></div>
 			<div th:replace="common/footer::defaultFooter"></div>
 		</div>
 	</div>
@@ -129,6 +130,7 @@
     const checkboxGroup = $("#checkboxGroup");
     const searchBoxGroup = $("#searchBoxGroup");
     const refrestButtn = $(".fa-sync").parent();
+    const mapFilterButton = $('#mapFilterFloatingButton');
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	mapOption = {
@@ -341,6 +343,8 @@
         });
         suggestionsBox.show();
     } //displaySuggestions(): 추천 검색어를 화면에 표시하는 함수
+    
+   
 	</script>
 	
     <script src="/javascript/map/mapClickEvent.js"></script>
