@@ -19,17 +19,14 @@
 			
 			const today = new Date().toISOString().split('T')[0];
 			$('#birthday').attr('max', today);
-			
-			/*
-			$('#back').on('click', function() {
-				
-				const result = confirm('뒤로가기를 누르시면 약관 동의를 다시 진행하셔야 합니다. 계속 하시겠습니까?');
-				
-				if(result)
-					window.location.href = "/user/getAgreeTermsAndConditionsList";
-				
+
+			$('#email').on('input', function(){
+				$('#emailChecked').text("false");
 			});
-			*/
+			
+			$('#phoneNumber').on('input', function(){
+				$('#phoneNumberChecked').text("false");
+			});
 			
 			$('#submitForm').on('click', function() {
 				
@@ -173,7 +170,7 @@
 
     <div class="mb-3">
       <label for="phoneNumber" class="form-label">휴대전화번호</label>
-      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 010-1234-1234)" required/>
+      <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="휴대전화번호 (예: 01012341234)" required/>
       <button type="button" id="sendAuthPhoneNum" class="btn btn-secondary mt-2">인증번호 발송</button>
       <input type="hidden" class="form-control mt-2" id="phoneAuthCode" name="phoneAuthCode" placeholder="인증코드 6자리 입력">
       <p id="phoneNumberMsg" style="display: none;"></p>
