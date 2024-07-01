@@ -117,7 +117,7 @@ $('#private, #public, #follow').on('change', function(event) {
 
 $(document).on("click", "#routeButton", function(event) {
 	event.stopPropagation();
-
+	console.log("dd");
 	$('.routeAdditionalButtons').css('visibility', function(i, visibility) {
 		return (visibility === 'visible') ? 'hidden' : 'visible';
 	});
@@ -200,21 +200,24 @@ $('#suggestions').on('click', 'div', function() {
 
 $('#toggle-switch').click(function() {
 	$(this).toggleClass('active');
+	
 
 	if ($(this).hasClass('active')) {
 		$(this).attr('title', '추천');
 		checkboxGroup.css('display', 'none');
 		searchBoxGroup.css('display', 'none');
+		mapFilterButton.hide();
 		getRecommendPlace();
 	} else {
 		$(this).attr('title', '기록');
 		checkboxGroup.css('display', 'inline-block');
 		searchBoxGroup.css('display', 'block');
+		mapFilterButton.show();
 		searchRecord();
 	}
 });// 토글 스위치
 
-refrestButtn.on('click', function() {
+refreshButton.on('click', function() {
 	if (searchBoxGroup.css('display') === 'none') {
 		getRecommendPlace();
 	} else {

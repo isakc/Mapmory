@@ -125,7 +125,19 @@
 </head>
 <body>
     <div id="content-for-footer">
-        <div class="container">
+    	<div th:if="${message != null}" class="container">
+			<div class="text-center">
+				<h1 class="text-center mb-4" style="color: var(--primary-color);">현재 구독 중입니다!</h1>
+
+				<p>
+					<a href="/purchase/getDetailSubscription" class="btn btn-primary text-center mb-4">내 구독으로 가기</a>
+				</p>
+
+			</div>
+		</div>
+    
+    
+        <div th:if="${message == null}" class="container">
             <h1 class="text-center mb-4" style="color: var(--primary-color);">간편 결제</h1>
             
             <div class="purchase mb-3">
