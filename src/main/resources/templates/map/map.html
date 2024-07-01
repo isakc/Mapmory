@@ -24,7 +24,6 @@
     <script src="/javascript/map/element.js"></script>
     <script src="/javascript/map/mapFunction.js"></script>
     <script src="/javascript/map/drawRoute.js"></script>
-    <script src="/javascript/map/mapClickEvent.js"></script>
 </head>
 <body>
 	<div id="loading" class="loading-overlay">
@@ -129,7 +128,7 @@
 	let swiper; // 넘기기 객체
     const checkboxGroup = $("#checkboxGroup");
     const searchBoxGroup = $("#searchBoxGroup");
-    const refrestButtn = $(".fa-sync").parent();
+    const refreshButton = $(".fa-sync").parent();
     const mapFilterButton = $('#mapFilterFloatingButton');
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
@@ -145,6 +144,7 @@
 		clearPolylines();
 		clearStartEndMarkers();
 		deleteResult();
+		deleteDescription();
 		recordList= [];
 		placeList=[];
 
@@ -174,9 +174,11 @@
 					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
-					if(response.mapRecordList.length != 0){
+					//if(response.mapRecordList.length != 0){
+					if(response.length != 0){
 						resultDivsBtn.removeClass('on');
-						const coordinates = response.mapRecordList.map( (record,index) => {
+						//const coordinates = response.mapRecordList.map( (record,index) => {
+						const coordinates = response.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
 							recordList.push(record); // 기록리스트에 푸쉬

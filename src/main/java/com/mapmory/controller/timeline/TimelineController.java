@@ -81,12 +81,17 @@ public class TimelineController {
     @Value("${timeline.kakaomap.restKey}")
     private String restKey;
     
+
     ///////추천 추가된 부분//////
 	// 맨 위에 추가할 것
 	@Autowired
 	@Qualifier("recommendServiceImpl")
 	private RecommendService recommendService;
 		
+
+    @Value("${page.Size}")
+    private int pageLimit;
+
     
     private int searchOption=2;
 	
@@ -183,7 +188,7 @@ public class TimelineController {
 		model.addAttribute("timelineCount",timelineList.size());
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
-		//model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
@@ -395,11 +400,15 @@ public class TimelineController {
 				.userId(userId)
 				.tempType(1)
 				.timecapsuleType(1)
+//				.limit(pageLimit)
+//				.currentPage(1)
 				.build();
+				
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
+		model.addAttribute("currentPage",1);
 		model.addAttribute("timecapsuleList", timelineService.getTimelineList(search));
 		return "timeline/getTimecapsuleList";
 	}
@@ -574,7 +583,7 @@ public class TimelineController {
 		for(KeywordData k :timelineService.getKeywordList(userId)) {
 			Map<String,Object> map=new HashMap<String, Object>();
 			map.put("word", k.getKeyword());
-			map.put("size", k.getKeywordCount()*12+10);
+			map.put("size", k.getKeywordCount()*8+10);
 			keywordList.add(map);
 		}
 		ObjectMapper objectMapper = new ObjectMapper();

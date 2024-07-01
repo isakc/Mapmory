@@ -117,7 +117,7 @@ $('#private, #public, #follow').on('change', function(event) {
 
 $(document).on("click", "#routeButton", function(event) {
 	event.stopPropagation();
-
+	console.log("dd");
 	$('.routeAdditionalButtons').css('visibility', function(i, visibility) {
 		return (visibility === 'visible') ? 'hidden' : 'visible';
 	});
@@ -217,7 +217,7 @@ $('#toggle-switch').click(function() {
 	}
 });// 토글 스위치
 
-refrestButtn.on('click', function() {
+refreshButton.on('click', function() {
 	if (searchBoxGroup.css('display') === 'none') {
 		getRecommendPlace();
 	} else {

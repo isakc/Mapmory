@@ -591,45 +591,15 @@ public class UserController {
         	byte role=user.getRole();
         	
 	    	return doSocialLogin(userId, role, response);
-	    	/*
-	    	if(role == 1)
-	    		return "redirect:/map";
-	    	else
-	    		return "redirect:/user/admin/getAdminMain";
-	    	*/
 	    }
 	}
-	
-	/// 현재 문제가 있다.
-	/*
-	@RequestMapping("/google/auth/callback")
-	public void googleLogin(@RequestParam String code, HttpServletResponse response) throws Exception {
 
-		// System.out.println("code : " + code);
-		
-		 // userService.getGoogleProfie(code);
-		
-		GoogleToken token = userService.getGoogleToken(code);
-		GoogleJwtPayload payload = userService.getGoogleProfile(token.getId_token());
-		System.out.println(payload);
-	}
-	*/
-	
 	@GetMapping("/getNaverLoginView")
 	public String getNaverLoginView() {
 		
 		String naverAuthUrl = "https://nid.naver.com/oauth2.0/authorize?client_id="+naverClientId+"&redirect_url="+naverRedirectUri+"&response_type=code&state="+naverState;
 		
 		return "redirect:"+naverAuthUrl;
-		
-	}
-	
-	@GetMapping("/getGoogleLoginView")
-	public String getGoogleLoginView() {
-		
-		String googleAuthUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
-		
-		return "redirect:"+googleAuthUrl;
 		
 	}
 	
@@ -796,20 +766,6 @@ public class UserController {
             	// 로그인 처리
             	User user = userService.getDetailUser(userId);
             	byte role=user.getRole();    
-            	/*
-            	String uuid = UUID.randomUUID().toString();
-            	loginService.setSession(userId, user.getRole(), uuid, false);
-            	Cookie cookie = createLoginCookie(uuid, false);
-            	response.addCookie(cookie);
-            	*/
-            	
-            	/*
-            	loginService.acceptLogin(userId, role, response, false);
-            	
-            	
-                return "redirect:/map"; // 메인 페이지로 리다이렉트
-            	// return ResponseEntity.ok("map");
-            	*/
             	
             	return doSocialLogin(userId, role, response);
             }
@@ -881,6 +837,8 @@ public class UserController {
 	
 	private String doSocialLogin(String userId, byte role, HttpServletResponse response) throws Exception {
     	
+		System.out.println("소셜 로그인 성공!");
+		
 		// 소셜 로그인 회원은 보안 상 로그인 유지 설정 불가하게 만듦. 어차피 로그인하기 편해서 불편하지는 않을 것으로 생각됨.
     	loginService.acceptLogin(userId, role, response, false);
     	userService.addLoginLog(userId);
