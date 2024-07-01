@@ -295,15 +295,16 @@ const detailRecordElement = (index) => {
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
-					<div class="routeButtonGroup col-6 p-0">
-	        			<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
-	        			
-    					<div class="routeAdditionalButtons bg-primary">
-      						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-	        				<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-	        				<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
-	        			</div>
-	        		</div>
+					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
+
+						<div class="routeAdditionalButtons bg-primary">
+							<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
+							<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
+							<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+						</div>
+
+						<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+					</div>
 	        	</div><!-- row -->
 	        		
 				<div class="row g-0">
