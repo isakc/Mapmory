@@ -233,6 +233,7 @@
 		WHERE
 		  <if test="selectFollow == 0">
 		  fb.user_id = #{userId}
+
 		  </if>
 		  <if test="selectFollow == 1">
 		  fb.target_id = #{userId}
@@ -259,7 +260,7 @@
 			  fb.target_id = #{userId}
 			  </if>
 			AND fb_type=0
-			<if test="searchKeyword != null">AND (u.nickname LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') OR u.user_name LIKE CONCAT('%', #{searchKeyword:VARCHAR}, '%') )</if>
+			<if test="searchKeyword != null">AND (LOWER(u.nickname) LIKE LOWER(CONCAT('%', #{searchKeyword:VARCHAR}, '%')) OR LOWER(u.user_name) LIKE LOWER(CONCAT('%', #{searchKeyword:VARCHAR}, '%')) )</if>
 		ORDER BY fb.FB_NO DESC
 		<if test="limit != 0 and currentPage != 0"> 
 		LIMIT #{limit} OFFSET #{offset}
