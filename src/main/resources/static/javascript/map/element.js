@@ -394,6 +394,11 @@ const detailRecordElement = (index) => {
   		
   		recordList[index].imageName != '' ?  		
   		setTimeout(() => {
+			
+		if (swiper) {
+        	swiper.destroy(true, true);
+    	}
+    	
         	swiper = new Swiper(htmlElement.find('.mySwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
             	loop: true,
