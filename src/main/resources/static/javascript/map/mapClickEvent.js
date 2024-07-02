@@ -253,10 +253,12 @@ listBtn.on('click', function(){
 		result.addClass('on');
 		listBtn.addClass('list');
 		listBtn.html("<i class='fas fa-map'></i> 지도");
+		//목록을 눌렀을 경우
 	}else{
 		$(".infoItem").removeClass('on');
 		$(".swiper-container").addClass('on');
 		listBtn.removeClass('list');
 		listBtn.html("<i class='fas fa-list'></i> 목록");
+		//지도를 눌렀을 경우
 	}
 }) //리스트로 보기, 넘기기로 보기 토글
