@@ -35,6 +35,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -282,19 +283,9 @@ public class UserController {
 	
 
 	@GetMapping("/getSecondaryAuthView")
-	public void getSecondaryAuthView() {
-		
-		// login interceptor에서 직접 접근하는 것을 막아야 함
-		/*
-		Cookie cookie = findCookie("SECONDARYAUTH", request);
-		if(cookie == null) 
-			return "redirect:/";
-		*/
-		
-		// Map<String, String> map = redisUtilMap.select(cookie.getValue(), Map.class);
-		// String userId = map.get("userId");
-		
-		// model.addAttribute("userId", userId);
+	public void getSecondaryAuthView(@RequestParam String userId, Model model) {
+				
+		model.addAttribute("userId", userId);
 	}
 	
 	@GetMapping("/getAddSecondaryAuthView")
@@ -475,42 +466,6 @@ public class UserController {
 		
 	}
 
-	
-	
-	@PostMapping("/updateProfile")  // @RequestParam(name="old-profile-name") String oldProfileName, 
-	public String postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
-		
-		String userId = redisUtil.getSession(request).getUserId();
-		
-		boolean result;
-		if( !file.isEmpty()) {
-			
-			if(contentFilterUtil.checkBadImage(file)) {
-				System.out.println("부적절한 이미지입니다.");
-			}
-			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
-			
-		} else {
-			
-			/// 자기소개만 변경하는 경우
-			
-			result = userService.updateProfile(userId, introduction);
-		}
-
-		System.out.println(result);
-		
-		/*
-		User user = userService.getDetailUser(userId);
-		
-		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
-		
-		model.addAttribute("profileImage", cdnPath);
-		*/
-		
-		return "redirect:/user/getProfile?userId="+userId;
-	}
-
-
 	// for navigation
 	@PostMapping("/checkSecondaryKey")
 	public String checkKey(@RequestBody GoogleUserOtpCheck googleUserOtpCheck, @RequestParam(required=false) String changePassword) throws InvalidKeyException, NoSuchAlgorithmException {
@@ -529,7 +484,7 @@ public class UserController {
 	}
 	
 	@RequestMapping("/naver/auth/callback")
-	public String naverLogin(HttpServletRequest request, @RequestParam String code, @RequestParam String state, HttpServletResponse response) throws Exception {
+	public String naverLogin(HttpServletRequest request, @RequestParam String code, @RequestParam String state, HttpServletResponse response, Model model) throws Exception {
 		
 		System.out.println("Flag");
 		
@@ -586,6 +541,14 @@ public class UserController {
 	    		
 	    	}	    	
 	    } else {
+	    	
+	    	// 로그인
+	    	if(userService.checkSetSecondaryAuth(userId)) {
+	    		
+	    		model.addAttribute("userId", userId);
+	    		// return "redirect:/user/getSecondaryAuthView/"+userId;
+	    		return "redirect:/user/getSecondaryAuthView";
+	    	}
 	    	
 	    	User user = userService.getDetailUser(userId);
         	byte role=user.getRole();
@@ -764,6 +727,13 @@ public class UserController {
             } else {
 
             	// 로그인 처리
+    	    	if(userService.checkSetSecondaryAuth(userId)) {
+    	    		
+    	    		model.addAttribute("userId", userId);
+    	    		// return "redirect:/user/getSecondaryAuthView/"+userId;
+    	    		return "redirect:/user/getSecondaryAuthView";
+    	    	}
+            	
             	User user = userService.getDetailUser(userId);
             	byte role=user.getRole();    
             	
