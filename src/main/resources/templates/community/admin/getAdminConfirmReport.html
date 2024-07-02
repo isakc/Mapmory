@@ -177,13 +177,13 @@
 			
 				<label for="replyNo">댓글내용</label>
 				<div class="d-grid gap-2">
-					<button type="button" class="btn btn-info" id="toReply" th:attr="data-url=@{'/community/getReply/' + ${report.replyNo}}">댓글보기</button>
+					<button type="button" class="btn btn-outline-info" id="toReply" th:attr="data-url=@{'/community/getReply/' + ${report.replyNo}}">댓글보기</button>
 				</div>			
 			</div>
 			<div class="btn-group" role="group">
 				<input type = "hidden" id="reportNo" th:value="${report.reportNo}">
-				<button type="button" class="btn btn-success" id="accept">승인</button>
-				<button type="button" class="btn btn-danger" id="reject">반려</button>
+				<button type="button" class="btn btn-outline-success" id="accept">승인</button>
+				<button type="button" class="btn btn-outline-danger" id="reject">반려</button>
 			</div>
 		</fieldset> 
 	</form>
