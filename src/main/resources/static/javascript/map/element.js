@@ -392,7 +392,6 @@ const detailRecordElement = (index) => {
     		profileImgElement.attr('src', err ? profileImgSrc : src);
   		});
   		
-  		recordList[index].mediaName != '' ?
   		setTimeout(() => {
         	new Swiper(htmlElement.find('.mySwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
@@ -409,9 +408,8 @@ const detailRecordElement = (index) => {
             	},
         	});
         	
-        	        	videojs(videoId);
+        	recordList[index].mediaName != '' ? videojs(videoId) : '';
     	}, 0)
-    	: '';
     	
   		return htmlElement;
 }
