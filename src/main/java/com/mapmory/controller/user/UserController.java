@@ -348,12 +348,12 @@ public class UserController {
 	}
 	
 	@GetMapping("/getProfile")
-	public void getProfile(HttpServletRequest request, @RequestParam String userId, Model model) throws Exception {
+	public void getProfile(HttpServletRequest request, @RequestParam(required=false) String userId, Model model) throws Exception {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 
 		Profile profile;
-		if( userId.equals(myUserId) ) {
+		if( userId.equals(myUserId) || (userId == null) ) {
 			
 			profile = setProfileViewData(myUserId);
 			model.addAttribute("myProfile", true);
