@@ -2,10 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Mapmory 기록수정</title>
+	<title>Mapmory 기록 수정</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
+<link rel="stylesheet" href="/css/timeline/timeline.css">
 <style type="text/css">
 #map {
     position: fixed; /* 상단에 고정 */
@@ -35,23 +36,29 @@ form {
 }
 fieldset{
 	margin : 5px;
-}        
-.loading-container {
-    display: none;
-    text-align: center;
-    margin-top: 20px;
 }
 </style>
 </head>
 <body>
-	<div th:name="getKakaoMap" th:include="timeline/component/map::kakaoMap"></div>
+<div th:name="getKakaoMap" th:include="timeline/component/map::kakaoMap"></div>
+<!-- 로딩 스피너 -->
+<div id="loading-spinner" class="text-center">
+    <!-- 부트스트랩 5.3의 spinner-border 클래스를 사용한 로딩 스피너 -->
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <div>Loading...</div> <!-- 스피너 아래에 텍스트 추가 -->
+</div>
 
+<!-- 여기에 데이터를 표시할 실제 컨텐츠 -->
+<div id="content">
 	<form th:action="@{/timeline/updateTimeline}" th:object="${record}" method="post" enctype="multipart/form-data">
 	<input type="hidden" th:field="*{recordNo}" />
 	<input type="hidden" th:field="*{recordUserId}" />
 	<input type="hidden" th:field="*{latitude}" />
 	<input type="hidden" th:field="*{longitude}" />
-	<input type="hidden"th:field="*{tempType}" />
+	<input type="hidden" th:field="*{tempType}" />
+	<input type="hidden" th:field="*{sharedDate}" />
 	<input type="hidden" th:field="*{recordAddDate}" />
 	<input type="hidden" th:field="*{d_DayDate}" />
 	<input type="hidden" th:field="*{timecapsuleType}" />
@@ -99,8 +106,9 @@ fieldset{
 	      <label for="checkpointAddress" class="form-label mt-4" th:text="'체크포인트 주소'"></label>
 	      <input type="text" class="form-control" th:field="*{checkpointAddress}" readonly="readonly" autocomplete="off">
 	    </div>
+	    
 	    <div id=mediaAppend></div>
-	    <div th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
+	    <div class="mb-2" th:name="mediaName" th:if="${!(record.mediaName==null || record.mediaName.equals(''))}">
 			<video width="320" height="240" controls>
 	        	<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
 	    	</video>
@@ -113,14 +121,22 @@ fieldset{
 	      <input type="file" class="form-control" id="mediaFile" th:name="mediaFile" autocomplete="off">
 		<small id="mediaFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.mp4 .avi .mkv .mov], 영상 파일은 200MB까지 업로드 가능합니다.'"></small>
 	    </div>
-	    
-		<div th:each="image : *{imageName}">
-		<div th:name="${image.imageTagOrder}">
-			<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" style="height:100px;"/>
-			<input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
-			<button class="btn btn-primary btn-sm" type="button" th:name="imageX" 
-			th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>
-	    </div>
+    
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-4" th:each="i : ${#numbers.sequence(0, 2)}">
+				   <div th:each="image, iterStat : *{imageName}">
+				       <div th:if="${iterStat.index % 3==i}" th:name="${image.imageTagOrder}">
+			               <div class="image-container">
+			                   <img th:src="'data:image/png;base64,' + ${image.imageTagByte}" class="img-fluid mt-2" alt="Image" />
+			                   <button class="btn btn-primary btn-sm btn-position" type="button" th:name="imageX" 
+			                   th:data-imagetagorder="${image.imageTagOrder}" th:data-imagename="${image.imageTagText}" th:text="x"></button>
+			               </div>
+			               <input type="hidden" name="imageNameText" th:value="${image.imageTagText}" />
+				       </div>
+				   </div>
+	            </div>
+	        </div>
 	    </div>
 	    <div class="row">
 			<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
@@ -137,7 +153,7 @@ fieldset{
 			<div id="hashtagTextHelp3"></div>
 	    </div>
 	    
-	    <div class="row">
+	    <div class="row mb-3">
 	     	<label for="recordText" class="form-label mt-4" th:text="'텍스트'"></label>
 	     	<textarea class="form-control" th:field="*{recordText}" rows="3" autocomplete="off"></textarea>
 			<small id="recordTextHelp" class="form-text text-muted" th:text="'상품 이모지 사용 예시 : /안녕/'"></small>
@@ -150,12 +166,12 @@ fieldset{
 	    </div>
     
 	</fieldset>
-	<div th:id="buttonGroup" class="container text-left mb-3">
+	<div th:id="buttonGroup" class="container text-left">
 		<div class="row">
-		    <div class="col-12">
-				<button type="button" class="btn btn-primary" th:name="updateTimeline" th:text="'다시작성'"></button>
+		    <div class="col-12 d-flex mb-3">
+				<button type="button" class="btn btn-primary flex-grow-1 me-2" th:name="updateTimeline" th:text="'다시작성'"></button>
 				<!-- <button type="button" class="btn btn-primary" th:name="addVoiceToText" th:text="'녹음하기'"></button> -->
-				<button type="submit" class="btn btn-primary" th:text="'작성완료'"></button>
+				<button type="submit" class="btn btn-primary flex-grow-1" th:text="'작성완료'"></button>
 			</div>
 		</div>
 	</div>
@@ -168,22 +184,24 @@ fieldset{
 	
 	</form>
 	
+	<div class="zoomed-image">
+	    <img id="zoomed-image" src="" alt="Zoomed Image" />
+	</div>
+	
 	<div th:include="timeline/component/modal::defaultModal"></div>
-		
+</div>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="/javascript/timeline/timeline.js"></script>
 <script type="text/javascript">
-function updateLabel() {
-    const checkbox = document.getElementById('sharedDateType');
-    const label = document.querySelector('label[for="sharedDateType"]');
-
-    if (checkbox.checked) {
-        label.textContent = '공유됨';
-    } else {
-        label.textContent = '비공유';
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // 여기서 렌더링이 완료되었을 때 실행할 작업을 정의합니다.
+    console.log('DOM fully loaded and parsed');
+    // 화면을 보여주는 코드를 추가할 수 있습니다.
+    document.getElementById('loading-spinner').style.display = 'none'; // 예시: 로딩 스피너 숨기기
+    document.getElementById('content').style.display = 'block'; // 예시: 컨텐츠 보이기
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const checkbox = document.getElementById('sharedDateType');
@@ -335,11 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 });
 
-function handleButtonClick() {
-    document.getElementById('buttonGroup').style.display = 'none';
-    document.getElementById('loadingContainer').style.display = 'block';
-}
-
 function badWord(text, idName){
         //console.log('Space bar was pressed and released');
         $.ajax("/timeline/rest/checkBadWord",{
@@ -412,37 +425,46 @@ $(function() {
 	
 	$("button[name='mediaX']").click(function() {
 		let mediaName=$(this).data('medianame');
-			$.ajax("/timeline/rest/deleteMedia",{
-				method : "GET",
-				dataType : "json",
-				data : {
-					recordNo : recordNo,
-					mediaName : mediaName
-				},
-				success : function(response,status){
-	            	showModal('영상 업로드',response.text);
-					//alert(response.text);
-					console.log(JSON.stringify(response));
-					$('div[name="mediaName"]').remove();
-					$('input[name="mediaName"]').val(null);
-					
-					let text=
-						'<div class="row">'
-						+'<label for="mediaFile" class="form-label mt-4">영상 파일</label>'
-				      	+'<input type="file" class="form-control" id="mediaFile" name="mediaFile" autocomplete="off">'
-						+'<small id="mediaFileHelp" class="form-text text-muted">'
-						+'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.</small>'
-				    	+'</div>';
-				    document.getElementById('mediaAppend').innerHTML += text;
-				},
-                error: function(xhr, status, error) {
-                    alert('Error: ' + error);
-                }
+		$.ajax("/timeline/rest/deleteMedia",{
+			method : "GET",
+			dataType : "json",
+			data : {
+				recordNo : recordNo,
+				mediaName : mediaName
+			},
+			success : function(response,status){
+            	showModal('영상 업로드',response.text);
+				//alert(response.text);
+				console.log(JSON.stringify(response));
+				$('div[name="mediaName"]').remove();
+				$('input[name="mediaName"]').val(null);
 				
-			})
+				let text=
+					'<div class="row">'
+					+'<label for="mediaFile" class="form-label mt-4">영상 파일</label>'
+			      	+'<input type="file" class="form-control" id="mediaFile" name="mediaFile" autocomplete="off">'
+					+'<small id="mediaFileHelp" class="form-text text-muted">'
+					+'지원가능한 파일 형식 : [.mp4 .avi .mkv], 영상 파일은 200MB까지 업로드 가능합니다.</small>'
+			    	+'</div>';
+			    document.getElementById('mediaAppend').innerHTML += text;
+			},
+               error: function(xhr, status, error) {
+                   alert('Error: ' + error);
+            }
 		})
+	})
+		
+	$('div.image-container').on('click',function(){
+		zoomImage(this);
+	})
+	
+	$('div.zoomed-image').on('click',function(){
+		closeZoomedImage();
+	})
 	
 	$("button[name='imageX']").click(function() {
+        event.stopPropagation(); // 이벤트 버블링을 막음
+        
 		let imageNo=$(this).data('imagetagorder');
 		let imageName=$(this).data('imagename');
 		//console.log(imageNo);

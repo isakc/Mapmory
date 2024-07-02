@@ -13,6 +13,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<th:block th:replace="common/faviconLink :: link"></th:block>
+
 	<!-- 이미지 로딩 처리 -->
 	<script th:inline="javascript">
     /*<![CDATA[*/
@@ -151,6 +153,12 @@
 				$('.btn-success').prop('disabled', false);
 				return;
 			}
+			
+			if(replyText.length > 100) {
+				alert('댓글은 100자까지 입력 가능합니다');
+				$('.btn-success').prop('disabled', false);
+				return;
+			}
 
 			var recordNo = $('#recordNo').val();
 			console.log("2.기록번호 확인 : "+recordNo);
@@ -258,6 +266,7 @@
 				$('#replyText').val('');
 				$('#replyImageName').val('');
 				$('#imagePreview').attr('src', '#').css('display', 'none');
+				autoResize($('#replyText').get(0));
             }
 			
         });
@@ -360,6 +369,14 @@
 					$('.btn-success').prop('disabled', false);
 					return;
 				}
+				
+				if(updatedReplyText.length > 100) {
+					alert('댓글은 100자까지 입력이 가능합니다.');
+					$('.btn-success').prop('disabled', false);
+					return;
+				}
+				
+				
 				formData.append("recordNo", recordNo);
 				formData.append("userId", userId);
 
@@ -444,6 +461,7 @@
 			}
 			$('#replyText').val('');
 			$('#replyImageName').val('');
+			autoResize($('#replyText').get(0));
 		});	
 		
 		//댓글 신고
@@ -799,7 +817,7 @@
 	
 		.reply-list-container {
 		    overflow-y: auto;
-		    padding-bottom : 100px;
+		    padding-bottom : 10px;
 		}
 		
 		.footer {
@@ -813,7 +831,7 @@
 		
 		.replyForm {
 		    position: fixed;
-		    bottom: 83px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    bottom: 75px; /* footer의 높이만큼 떨어진 위치로 조정 */
 		    left: 50%; /* 왼쪽에서 50% 위치로 이동 */
 			transform: translateX(-50%); /* 자신의 너비의 절반만큼 왼쪽으로 이동 */
 		    width: 100%;
@@ -929,7 +947,8 @@
 		}			
 		
 		.replyText {
-			font-size : 22px;
+			font-size : 18px;
+			white-space: pre-wrap;
 		} 
 						
 		.replyImageName {

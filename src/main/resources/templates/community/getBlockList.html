@@ -13,6 +13,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<th:block th:replace="common/faviconLink :: link"></th:block>
+
 	<!-- 무한스크롤 -->
 	<script th:inline="javascript">
 		var currentPage = 2;
@@ -278,13 +280,16 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h6 class="modal-title">차단해제</h6>
+						<h6 class="modal-title"></h6>
 						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true"></span>
 						</button>
 					</div>
-					<div class="modal-body">	
-						<button type="button" id="deleteBlock" class="btn btn-danger">차단해제</button>
+					<br/>
+					<div class="modal-body">
+						<div class="d-grid gap-2">		
+							<button type="button" id="deleteBlock" class="btn btn-danger">차단해제</button>
+						</div>	
 					</div>
 				</div>
 			</div>

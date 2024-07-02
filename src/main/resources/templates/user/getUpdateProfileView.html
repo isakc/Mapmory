@@ -20,7 +20,7 @@
 	<script th:inline="javascript">
 	$( function() {
 		
-		$('#introLen').text($('#introduction').val().length);
+		let introLen = $('#introLen').text($('#introduction').val().length);
 		// console.log([[${profileImage}]])
 		
 		$('#back').on('click', function() {
@@ -37,7 +37,7 @@
 		
 		$('#introduction').on('input', function(){
 			
-			const introLen = $('#introduction').val().length;
+			introLen = $('#introduction').val().length;
 			$('#introLen').text(introLen);
 			
 			if(introLen > 100) {
@@ -50,6 +50,10 @@
 		$('#submitButton').on('click', function() {
 			
 				// $('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
+				
+				if(introLen > 100) {
+					return;
+				}
 				
 				const form = $('form').get(0);
 				

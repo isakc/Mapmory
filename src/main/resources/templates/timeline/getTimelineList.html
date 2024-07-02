@@ -275,9 +275,9 @@ input[type="hidden"] {
 			              		<svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#ffffff"><path d="M120-240v-66.67h720V-240H120Zm0-206.67v-66.66h720v66.66H120Zm0-206.66V-720h720v66.67H120Z"/></svg>
 			          		</button>
 			          		<div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-							<a class="dropdown-item text-primary" href="#" th:name="getTimecapsuleList" th:text="'타임캡슐 목록'"></a>
-		          			<a class="dropdown-item text-primary" href="#" th:name="getSummaryRecord" th:text="'요약된 기록 목록'"></a>
-		          			<a class="dropdown-item text-primary" href="#" th:name="getKeywordList" th:text="'내가 사용한 키워드'"></a>
+							<a class="dropdown-item text-primary" href="#" th:name="getTimecapsuleList" th:text="'타임캡슐'"></a>
+		          			<a class="dropdown-item text-primary" href="#" th:name="getSummaryRecord" th:text="'스토리'"></a>
+		          			<a class="dropdown-item text-primary" href="#" th:name="getKeywordList" th:text="'나의 키워드 빈도'"></a>
 		          			<a class="dropdown-item text-primary" th:href="@{/timeline/addTimelienForRecord}" th:name="addTimelienForRecord" th:text="'개발자 용 addTimeline'"></a>
 		      			</div>
 		          	</div>
@@ -356,6 +356,7 @@ input[type="hidden"] {
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="/javascript/timeline/timeline.js"></script>
 <script th:inline="javascript">
 $(function() {
 	let selectDay=$('input[name="getTimelineListSelect"]').val();
