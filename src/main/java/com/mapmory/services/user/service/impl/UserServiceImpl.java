@@ -244,9 +244,14 @@ public class UserServiceImpl implements UserService {
 		updatePassword(userId, userPassword);
 		*/
 	
-		String userId="user_145";
+		String userId="user_146";
 		String userPassword="password!23";
 		updatePassword(userId, userPassword);
+		
+		userId="user_147";
+		userPassword="password!23";
+		updatePassword(userId, userPassword);
+		
 
 		
 		/*
