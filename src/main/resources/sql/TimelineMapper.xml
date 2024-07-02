@@ -148,8 +148,17 @@
 </select> -->
 
 <insert id="insertTimeline" parameterType="record" useGeneratedKeys="true" keyProperty="recordNo">
-	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
-    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR}, #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
+	INSERT INTO record (record_user_id, record_title, latitude, longitude, checkpoint_address,checkpoint_date, media_name, category_no, record_text, temp_type, record_add_date, shared_date, update_count, d_day_date, timecapsule_type)
+    VALUES (#{recordUserId:VARCHAR}, #{recordTitle:VARCHAR}, #{latitude:DOUBLE}, #{longitude:DOUBLE}, #{checkpointAddress:VARCHAR},
+    <choose>
+        <when test="checkpointDate != null and !checkpointDate.equals('')">
+            #{checkpointDate}
+        </when>
+        <otherwise>
+            CURRENT_TIMESTAMP
+        </otherwise>
+    </choose>,
+    #{mediaName:VARCHAR}, #{categoryNo:NUMERIC}, #{recordText:VARCHAR}, #{tempType:TINYINT}, #{recordAddDate:TIMESTAMP}, #{sharedDate:TIMESTAMP}, #{updateCount:NUMERIC}, #{d_DayDate:DATE}, #{timecapsuleType:TINYINT})
 	 <!-- 자동 생성된 키 값을 조회 -->
     <!-- <selectKey keyProperty="recordNo" keyColumn="record_no" resultType="int" order="AFTER">
         SELECT LAST_INSERT_ID()

@@ -414,11 +414,14 @@ public class UserRestController {
 		int selectFollow = 1;
 		
 		List<FollowMap> followerList = null;
-		// if( keyword.equals("undefined"))
+		
+		followerList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+		/*
 		if( keyword.isEmpty() )
 			followerList = userService.getFollowList(myUserId, profileUserId, null, currentPage, pageSize, selectFollow);
 		else
 			followerList = userService.getFollowList(myUserId, profileUserId, keyword, currentPage, pageSize, selectFollow);
+		*/
 		
 		List<String> profileImageList = new ArrayList<>();
 		for(FollowMap user : followerList) {
@@ -518,8 +521,14 @@ public class UserRestController {
 		LocalDate birthday = user.getBirthday();
 		int sex = user.getSex();
 		String email = user.getEmail();
-		String phoneNumber = user.getPhoneNumber();
-		
+// 		String phoneNumber = user.getPhoneNumber();
+		String simplePhoneNumber = user.getPhoneNumber();
+		String part1 = simplePhoneNumber.substring(0, 3);
+        String part2 = simplePhoneNumber.substring(3, 7);
+        String part3 = simplePhoneNumber.substring(7);
+//        String phoneNumber = part1+"-"+part2+"-"+part3;
+        String phoneNumber = String.format("%s-%s-%s", part1, part2, part3);
+        
 		boolean result = userService.updateUserInfo(userId, userName, nickname, birthday, sex, email, phoneNumber);
 		
 		return ResponseEntity.ok(result);

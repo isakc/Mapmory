@@ -131,7 +131,7 @@ $(function() {
 	    if (!nicknameRegex.test(nickname)) {
 			
 			$('#nickname').removeClass('is-valid').addClass('is-invalid');
-	        $('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('닉네임은 최소 1자 최대 10자의 한글, 영어, 숫자만 사용 가능합니다. 첫 글자는 띄어쓰기가 불가능합니다.');
+	        $('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('닉네임은 최소 1자 최대 10자의 한글, 영어, 숫자만 사용 가능합니다.');
 	        $('#nicknameChecked').text('false');
 	        event.preventDefault();
 	        return;
@@ -204,7 +204,7 @@ $(function() {
 				
 			} else {
 				
-				$('#userId').removeClass('is-valid').addClass('is-invalid');
+				$('#nickname').removeClass('is-valid').addClass('is-invalid');
 				$('#nicknameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('중복되는 닉네임입니다.');
 				$('#nicknameChecked').text('false');
 			}
