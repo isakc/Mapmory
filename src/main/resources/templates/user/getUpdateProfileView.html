@@ -20,6 +20,7 @@
 	<script th:inline="javascript">
 	$( function() {
 		
+		$('#introLen').text($('#introduction').val().length);
 		// console.log([[${profileImage}]])
 		
 		$('#back').on('click', function() {
@@ -34,14 +35,20 @@
 		
 		$('input[type="file"]').on("change", (event) => updateImg(event) );
 		
+		$('#introduction').on('input', function(){
+			
+			const introLen = $('#introduction').val().length;
+			$('#introLen').text(introLen);
+			
+			if(introLen > 100) {
+				$('#introWarn').css('visibility', 'visible');
+			} else {
+				$('#introWarn').css('visibility', 'hidden');
+			}
+		});
 		
 		$('#submitButton').on('click', function() {
 			
-			const introLen = $('#introduction').val().length;
-			if(introLen > 100) {
-				$('#introWarn').css('display', 'block');
-			} else {
-				
 				// $('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
 				
 				const form = $('form').get(0);
@@ -82,7 +89,7 @@
 		                console.error('Error:', textStatus, errorThrown);
 		            }
 				});
-			}
+			
 				
 			
 		});
@@ -129,7 +136,10 @@
 		<div>
 			<label class="form-label " for="introduction">자기소개</label>
 			<textarea type="text" name="introduction" id="introduction" class="form-control" placeholder="자기소개 작성" th:text="${user.introduction}" rows="4"></textarea>
-			<p id="introWarn" class="text-warning mt-1" style="display:none; ">자기소개는 100자를 넘어설 수 없습니다...</p>
+			<div class="d-flex" style="justify-content: space-between;">
+				<p id="introWarn" class="text-warning mt-1" style="visibility:hidden; ">자기소개는 100자를 넘어설 수 없습니다...</p>
+				<div class="d-flex">( <p id="introLen"></p> / 100)</div>
+			</div>
 		</div>
 		</form>
 	</div>
