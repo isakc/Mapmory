@@ -58,9 +58,9 @@ const recordListSwipe = (index) => {
 	      			<div>
 	      				${recordList[index].categoryImoji != null ? 
 	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+	    				class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
-	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	    				<strong class="text-primary">${recordList[index].stringDistance}</strong>
 	      			</div><!-- 이모지 + 거리 -->
 	      			
 	          		<p class="card-text">
@@ -111,7 +111,7 @@ const recordListElement = (index) => {
 		
 			<!--<div class="profileImageContainer">
 				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
-	        	<span class="fs-5 ">${recordList[index].nickName}</span>
+	        	<span class="fs-3">${recordList[index].nickName}</span>
 	        	${recordList[index].subscribed ? `<img src="https://via.placeholder.com/150?text=Loading..." class="rounded-image subImage"/>` : ''}
 			</div> 프로필 상자 -->
 
@@ -124,9 +124,9 @@ const recordListElement = (index) => {
 	      			<div>    
 	      				${recordList[index].categoryImoji != null ? 
 	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+	    				class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
-	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
+	    				<strong class="text-primary">${recordList[index].stringDistance}</strong>
 	      			</div><!-- 이모지 + 거리 -->
 	      			
 	          		<p class="card-text">
@@ -191,38 +191,40 @@ const simpleRecordElement = (index) => {
 	        
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
-						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
-	        			<span class="fs-5 ">${recordList[index].nickName}</span>
+						<img id="profileImg-${index}" class="rounded-image me-2" src="/user/rest/profile/${recordList[index].profileImageName}" />
+	        			<span class="fs-5">${recordList[index].nickName}</span>
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
 					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
 
-					<div class="routeAdditionalButtons bg-primary">
-						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-						<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-						<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+					<div class="routeAdditionalButtons bg-primary rounded-pill">
+						<button class="btn btn-primary pedestrianRouteButton routeButton rounded-pill"><i class="fas fa-walking"></i></button>
+						<button class="btn btn-primary carRouteButton routeButton" style="border-left: 1px solid white; border-right: 1px solid white;"><i class="fas fa-car"></i></button>
+						<button class="btn btn-primary transitRouteButton routeButton rounded-pill"><i class="fas fa-bus"></i></button>
 					</div>
 
-					<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+					<button id="routeButton" class="btn btn-primary rounded-pill"><i class="fas fa-directions"></i></button>
 
 				</div>
 			</div><!-- row -->
 	        		
 				<div class="row g-0">
 	      			<div class="col-9 card-body p-1">
-	            		<div class="mb-4 border-bottom">
-	                		<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
+	            		<div class="mb-4 border-bottom d-flex align-items-center">
+	                		<h5 class="card-title fw-bold ellipsis fs-3 me-3">${recordList[index].recordTitle}</h5>
+	                		<span class="badge bg-primary rounded-pill"><i class="fas fa-arrow-right"></i></span>
 	            		</div><!-- 제목 -->
 	            		
 	      			<div class="border-0 border-bottom">    
 	      				<!--<img src="/user/rest/emoji/${recordList[index].categoryImoji}" alt="Category Imoji"-->
 	      				${recordList[index].categoryImoji != null ? 
 	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+	    				class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
-	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
-	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	    				<strong class="text-primary">${recordList[index].stringDistance}</strong>
+	    				${ recordList[index].markerType == 0 ? `<span class="badge bg-success">${recordList[index].markerTypeString}</span>` : (recordList[index].markerType == 1 
+	    				? `<span class="badge bg-primary">${recordList[index].markerTypeString}</span>` : `<span class="badge bg-info">${recordList[index].markerTypeString}</span>`)}
 	      			</div><!-- 이모지 + 거리 -->
 	      			
 	      			<p class="card-text">
@@ -272,7 +274,7 @@ const simpleRecordElement = (index) => {
     		profileImgElement.attr('src', err ? profileImgSrc : src);
   		});
   
-  return htmlElement;
+  	return htmlElement;
 }
 
 const detailRecordElement = (index) => {
@@ -290,20 +292,20 @@ const detailRecordElement = (index) => {
 
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
-						<img id="profileImg-${index}" class="rounded-image" src="/user/rest/profile/${recordList[index].profileImageName}" />
-	        			<span class="fs-5 ">${recordList[index].nickName}</span>
+						<img id="profileImg-${index}" class="rounded-image me-2" src="/user/rest/profile/${recordList[index].profileImageName}" />
+	        			<span class="fs-5">${recordList[index].nickName}</span>
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
 					<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
 
-						<div class="routeAdditionalButtons bg-primary">
-							<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-							<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-							<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
-						</div>
+					<div class="routeAdditionalButtons bg-primary rounded-pill">
+						<button class="btn btn-primary pedestrianRouteButton routeButton rounded-pill"><i class="fas fa-walking"></i></button>
+						<button class="btn btn-primary carRouteButton routeButton" style="border-left: 1px solid white; border-right: 1px solid white;"><i class="fas fa-car"></i></button>
+						<button class="btn btn-primary transitRouteButton routeButton rounded-pill"><i class="fas fa-bus"></i></button>
+					</div>
 
-						<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+					<button id="routeButton" class="btn btn-primary rounded-pill"><i class="fas fa-directions"></i></button>
 					</div>
 	        	</div><!-- row -->
 	        		
@@ -316,10 +318,11 @@ const detailRecordElement = (index) => {
 	      			<div class="border-0 border-bottom">    
 	      				${recordList[index].categoryImoji != null ? 
 	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji mr-3 rounded-image" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+	    				class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
 	    		
-	    				<span class="badge bg-primary">${recordList[index].stringDistance}</span>
-	    				<span class="badge bg-primary">${recordList[index].markerTypeString}</span>
+	    				<strong class="text-primary">${recordList[index].stringDistance}</strong>
+	    				${ recordList[index].markerType == 0 ? `<span class="badge bg-success">${recordList[index].markerTypeString}</span>` : (recordList[index].markerType == 1 
+	    				? `<span class="badge bg-primary">${recordList[index].markerTypeString}</span>` : `<span class="badge bg-info">${recordList[index].markerTypeString}</span>`)}
 	      			</div><!-- 이모지 + 거리 -->
 	      			
 	      			<p class="card-text">
@@ -332,7 +335,7 @@ const detailRecordElement = (index) => {
 	      			</div>
 	          		
 	          		<div class="mt-3">
-	          			<p class="card-text fs-5 border-0"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
+	          			<p class="card-text fs-5 border-0 border-bottom"><i class="fas fa-map-marker-alt"></i> ${recordList[index].checkpointAddress}</p><!-- 주소 -->
 	          		</div>
 	          		
 	      			</div><!-- 본문 중간부분 col-9 -->
@@ -469,13 +472,13 @@ const detailPlaceElement = (index) => {
 				<div class="col-6"></div>
 
 				<div class="routeButtonGroup col-6 p-0 d-flex justify-content-end">
-					<div class="routeAdditionalButtons bg-primary">
-						<button class="btn btn-primary pedestrianRouteButton routeButton"><i class="fas fa-walking"></i></button>
-						<button class="btn btn-primary carRouteButton routeButton"><i class="fas fa-car"></i></button>
-						<button class="btn btn-primary transitRouteButton routeButton"><i class="fas fa-bus"></i></button>
+					<div class="routeAdditionalButtons bg-primary rounded-pill">
+						<button class="btn btn-primary pedestrianRouteButton routeButton rounded-pill"><i class="fas fa-walking"></i></button>
+						<button class="btn btn-primary carRouteButton routeButton" style="border-left: 1px solid white; border-right: 1px solid white;"><i class="fas fa-car"></i></button>
+						<button class="btn btn-primary transitRouteButton routeButton rounded-pill"><i class="fas fa-bus"></i></button>
 					</div>
 
-					<button id="routeButton" class="btn btn-primary"><i class="fas fa-directions"></i></button>
+					<button id="routeButton" class="btn btn-primary rounded-pill"><i class="fas fa-directions"></i></button>
 				</div>
 			</div><!-- row -->
 
@@ -484,8 +487,9 @@ const detailPlaceElement = (index) => {
 					<h5 class="card-title fw-bold fs-3">${placeList[index].placeName}</h5>
 					<p class="card-text"><i class="fas fa-list"></i> ${placeList[index].categoryName}</p>
 					<p class="card-text"><i class="fas fa-map-marker-alt"></i> ${placeList[index].addressName}</p>
-					<p class="card-text"><i class="fas fa-phone"></i> ${placeList[index].phone} </p>
-					<p class="card-text"><a href=${placeList[index].placeUrl}>More Info</a></p>
+					${placeList[index].phone != "" ?
+					`<p class="card-text text-success"><i class="fas fa-phone"></i> ${placeList[index].phone} </p>`: ''}
+					<p class="card-text"><a href=${placeList[index].placeUrl}>More info</a></p>
 
 				</div>
 			</div>
@@ -558,7 +562,7 @@ const transitRouteListElement = (paths) => {
 	        	</div>
 	        	
 	        	<div class="ml-auto">
- 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-arrow-left fs-4"></i></button>
+ 					<button class="btn text-light" onClick="showDescription()" id="descriptionBtn"><i class="fas fa-times fs-4"></i></button>
  				</div>
 	        </div>
 		</div>

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.util.ObjectStorageUtil;
+import com.mapmory.common.util.TextToImage;
 import com.mapmory.services.map.domain.ResultRouter;
 import com.mapmory.services.map.domain.ResultTransitRouter;
 import com.mapmory.services.map.domain.SearchRouter;
@@ -51,6 +52,9 @@ public class MapRestController {
 	@Autowired
 	@Qualifier("subscriptionServiceImpl")
 	private SubscriptionService subscriptionService;
+	
+    @Autowired
+    private TextToImage textToImage;
 	
 	@Autowired
 	@Qualifier("objectStorageUtil")
@@ -122,6 +126,8 @@ public class MapRestController {
 			
 			record.setRecordAddDate(LocalDateTime.parse(record.getRecordAddDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+			
+			record.setRecordText(textToImage.processImageTags(record.getRecordText()));
 		}
 		
 		return mapRecordList;
