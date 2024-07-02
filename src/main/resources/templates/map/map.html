@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8" name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
-	<title>Mapmory - map</title>
+	<title>Mapmory</title>
 	<link rel="stylesheet" href="https://vjs.zencdn.net/8.10.0/video-js.css"/>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +40,7 @@
 		<div id="map">
 			<div id="bottomBox">
         		<button class="btn btn-primary mapButton" onClick="showResultDivs()" id="resultDivsBtn"><i class="fas fa-arrow-up"></i></button>
-        		<button class="btn btn-primary mapButton" id="listBtn">리스트로 보기</button>
+        		<button class="btn btn-primary mapButton" id="listBtn"><i class="fas fa-list"></i> 목록</button>
         		
         		<div id="resultDivs">
 					<div id="result" class="infoItem"></div>
@@ -60,19 +60,19 @@
     		<div id="searchBoxGroup">
     		
     			<div class="radius-links">
-  					<input type="radio" id="radius1" name="radius" value=3>
-  					<label for="radius1">3km</label>
+  					<input type="radio" id="radius3" name="radius" value=3>
+  					<label for="radius3">3km</label>
   
-  					<input type="radio" id="radius3" name="radius" value=5 checked>
-  					<label for="radius3">5km</label>
+  					<input type="radio" id="radius5" name="radius" value=5 checked>
+  					<label for="radius5">5km</label>
   
-  					<input type="radio" id="radius5" name="radius" value=10>
-  					<label for="radius5">10km</label>
+  					<input type="radio" id="radius10" name="radius" value=10>
+  					<label for="radius10">10km</label>
 				</div><!-- 반경 박스 -->
         		
         		<div class="searchKeywordBox">
-    				<i class="fas fa-search"></i>
     				<input type="text" name="searchKeyword" placeholder="검색어를 입력해주세요" th:value="${searchKeyword}"/>
+    				<i class="fas fa-search"></i>
     			</div><!-- 검색어 박스 -->
     			
 				<div id="suggestions"></div><!-- 추천 검색어 -->
@@ -90,6 +90,10 @@
 				<div class="justify-content-end d-flex">
 					<div class="btn btn-light rounded-circle"><i class="fas fa-sync"></i></div>
 				</div><!-- 새로고침 -->
+				
+				<div class="justify-content-end d-flex">
+					<div class="btn btn-light rounded-circle"><i class="fas fa-redo"></i></div>
+				</div><!-- 조건초기화 -->
 			</div>
     	</form><!-- form -->
 		
@@ -129,6 +133,7 @@
     const checkboxGroup = $("#checkboxGroup");
     const searchBoxGroup = $("#searchBoxGroup");
     const refreshButton = $(".fa-sync").parent();
+    const resetButton = $(".fa-redo").parent();
     const mapFilterButton = $('#mapFilterFloatingButton');
 	
 	let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
@@ -174,10 +179,8 @@
 					
 					bounds = new kakao.maps.LatLngBounds(); // 중심좌표 변경
 					
-					//if(response.mapRecordList.length != 0){
 					if(response.length != 0){
 						resultDivsBtn.removeClass('on');
-						//const coordinates = response.mapRecordList.map( (record,index) => {
 						const coordinates = response.map( (record,index) => {
 							const latLng = new kakao.maps.LatLng(record.latitude, record.longitude);
 							bounds.extend(latLng); // 바운드 재조정
@@ -188,15 +191,17 @@
 							
 							return record;
 						});
+						
 						$(".infoItem").removeClass("on");
-						$(".swiper-container").addClass("on");
-						$("#listBtn").addClass("on");
+						$(".swiper-container").addClass("on"); 
+						$("#listBtn").addClass("on"); //listButton에 클래스 on 추가
+						listBtn.removeClass('list');
+						listBtn.html("<i class='fas fa-list'></i> 목록");
+						
 						showResultDivs();
 						map.setBounds(bounds);
 						setMarkers(recordList);
 						navigateToMarkerOnSelect(0, recordList);
-						tempMarkers = markers;
-						tempRecordList = recordList;
 					}else{
 						console.log("없음");
 		                $('#loading').hide();
