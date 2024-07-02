@@ -476,7 +476,7 @@ public class UserController {
 	}
 
 	
-	
+	/*
 	@PostMapping("/updateProfile")  // @RequestParam(name="old-profile-name") String oldProfileName, 
 	public String postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
 		
@@ -485,9 +485,6 @@ public class UserController {
 		boolean result;
 		if( !file.isEmpty()) {
 			
-			if(contentFilterUtil.checkBadImage(file)) {
-				System.out.println("부적절한 이미지입니다.");
-			}
 			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
 			
 		} else {
@@ -497,19 +494,9 @@ public class UserController {
 			result = userService.updateProfile(userId, introduction);
 		}
 
-		System.out.println(result);
-		
-		/*
-		User user = userService.getDetailUser(userId);
-		
-		String cdnPath = objectStorageUtil.getImageUrl(user.getProfileImageName(), PROFILE_FOLDER_NAME);
-		
-		model.addAttribute("profileImage", cdnPath);
-		*/
-		
 		return "redirect:/user/getProfile?userId="+userId;
 	}
-
+*/
 
 	// for navigation
 	@PostMapping("/checkSecondaryKey")

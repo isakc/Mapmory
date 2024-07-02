@@ -37,7 +37,54 @@
 		
 		$('#submitButton').on('click', function() {
 			
-			$('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
+			const introLen = $('#introduction').val().length;
+			if(introLen > 100) {
+				$('#introWarn').css('display', 'block');
+			} else {
+				
+				// $('form').attr('method', 'post').attr('action', '/user/updateProfile').attr('enctype', 'multipart/form-data').submit();
+				
+				const form = $('form').get(0);
+				
+				const formData = new FormData(form);
+				
+				/*
+				const jsonObj = {};
+				
+				formData.forEach(function(value, key){
+					jsonObj[key] = value;
+				});
+				
+				const jsonStr = JSON.stringify(jsonObj);
+				console.log(jsonStr);
+				*/
+				
+				$.ajax({
+					
+					url: "/user/rest/updateProfile",
+					type: 'post',
+					data: formData,
+					contentType: false,
+					processData: false,
+					success: function(response) {
+						
+						// console.log(response);
+						if(response == true || response == 'true') {
+							
+							window.location.href="/user/getProfile";
+						} else {
+							
+							alert("프로필에 유해한 사진이 존재합니다. 다른 사진으로 교체해주시기 바랍니다.");
+						}
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+		                // 오류 시 실행할 코드
+		                console.error('Error:', textStatus, errorThrown);
+		            }
+				});
+			}
+				
+			
 		});
 	});
 	
@@ -82,7 +129,7 @@
 		<div>
 			<label class="form-label " for="introduction">자기소개</label>
 			<textarea type="text" name="introduction" id="introduction" class="form-control" placeholder="자기소개 작성" th:text="${user.introduction}" rows="4"></textarea>
-			<!-- <input type="text" name="introduction" id="introduction" class="form-control" placeholder="자기소개 작성" th:value="${user.introduction}" />  -->
+			<p id="introWarn" class="text-warning mt-1" style="display:none; ">자기소개는 100자를 넘어설 수 없습니다...</p>
 		</div>
 		</form>
 	</div>

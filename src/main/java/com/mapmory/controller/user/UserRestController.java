@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
@@ -691,6 +692,40 @@ public class UserRestController {
 		boolean result = userService.checkHideProfile(userId);
 		
 		return ResponseEntity.ok(result);
+	}
+	
+	@PostMapping("/checkBadProfile")
+	public ResponseEntity<Boolean> checkBadProfile(@RequestParam MultipartFile file) {
+		
+		boolean result = contentFilterUtil.checkBadImage(file);
+					
+		return ResponseEntity.ok(!result);
+	}
+	
+	@PostMapping("/updateProfile") 
+	public ResponseEntity<Boolean> postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		boolean result;
+		if( !file.isEmpty()) {
+			
+			boolean isBad = contentFilterUtil.checkBadImage(file);
+			if(isBad) {
+				
+				return ResponseEntity.ok(false);
+			}
+			
+			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
+			
+		} else {
+			
+			/// 자기소개만 변경하는 경우
+			result = userService.updateProfile(userId, introduction);
+		}
+
+		// return "redirect:/user/getProfile?userId="+userId;
+		return ResponseEntity.ok(true);
 	}
 	
 	@PostMapping(path="/checkBadWord")
