@@ -392,8 +392,9 @@ const detailRecordElement = (index) => {
     		profileImgElement.attr('src', err ? profileImgSrc : src);
   		});
   		
+  		recordList[index].imageName != '' ?  		
   		setTimeout(() => {
-        	new Swiper(htmlElement.find('.mySwiper')[0], {
+        	swiper = new Swiper(htmlElement.find('.mySwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
             	loop: true,
             	slidesPerView: 1, // 한 번에 1개 슬라이드만 보이도록 설정
@@ -409,7 +410,7 @@ const detailRecordElement = (index) => {
         	});
         	
         	recordList[index].mediaName != '' ? videojs(videoId) : '';
-    	}, 0)
+    	}, 0):'';
     	
   		return htmlElement;
 }
