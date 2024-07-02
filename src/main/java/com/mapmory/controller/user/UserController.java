@@ -353,7 +353,7 @@ public class UserController {
 		String myUserId = redisUtil.getSession(request).getUserId();
 
 		Profile profile;
-		if( userId.equals(myUserId) || (userId == null) ) {
+		if( (userId == null) || userId.equals(myUserId) ) {
 			
 			profile = setProfileViewData(myUserId);
 			model.addAttribute("myProfile", true);
