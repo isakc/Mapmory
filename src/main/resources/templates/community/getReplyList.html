@@ -779,23 +779,21 @@
 		body {
 			background-color : #E6F4F1;
 		}
-
-	    .fixed-nav-bar {
-	        position: fixed;
-	        top: 0;
-	        width: 100%;
-	        background-color: #fff; /* 원하는 배경색으로 변경 */
-	        z-index: 1000; /* 다른 요소들보다 위에 있도록 설정 */
-	        border-bottom: 1px solid #ccc; /* 선택 사항: 아래쪽에 테두리 추가 */
-	    }
-	    
-	    .fixed-nav-bar.nav {
-	        margin: 0;
-	        padding: 10px; /* 필요에 따라 패딩 조정 */
-	    }
+		
+	    .fixed-top {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    z-index: 1030; /* Bootstrap의 기본 z-index 값 */
+		    background-color: #E6F4F1; /* 필요에 따라 색상 변경 */
+		    padding: 0.5rem 1rem;
+		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 선택 사항: 부드러운 그림자 추가 */
+		    border-bottom: 1px solid #ddd; /* 선택 사항: 아래쪽 테두리 추가 */
+		}	
 		  
 	    #content-for-footer {
-	        padding-top: 40px; /* 고정 네비게이션바의 높이에 따라 조정 */
+	        padding-top: 65px; /* 고정 네비게이션바의 높이에 따라 조정 */
 	        padding-bottom: 100px; /* 고정 댓글 폼의 높이에 따라 조정 */
 	    }	    
 	
@@ -815,12 +813,15 @@
 		
 		.replyForm {
 		    position: fixed;
-		    bottom: 80px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    bottom: 83px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    left: 50%; /* 왼쪽에서 50% 위치로 이동 */
+			transform: translateX(-50%); /* 자신의 너비의 절반만큼 왼쪽으로 이동 */
 		    width: 100%;
 		    background-color: #E6F4F1;
 		    z-index: 1000; /* 댓글 작성 폼의 z-index를 더 크게 설정하여 footer 위로 올리기 */
 		    border-top: 1px solid #ccc;
-		    padding: 10px;
+		    padding: 15px; /* 내부 여백 추가 */
+			box-sizing: border-box; /* 패딩을 너비에 포함 */
 		}		
 		
 		.moreModal {
@@ -932,9 +933,14 @@
 		} 
 						
 		.replyImageName {
-		    height: 60%; 
-		    width: 100%; 
-		    margin-top : 10px;
+		    display : block;
+		    max-width: 70%; 
+		    max-height: 70%;
+		    margin-left : auto;
+		    margin-right : auto;
+		    margin-bottom : 10px;			
+		    height: auto; 
+		    width: auto; 
 		}		
 		
 		.replyDate {
@@ -1036,17 +1042,16 @@
 		}
 		.update .delete {
 		    flex-basis: 50%; /* flexbox 아이템의 기본 너비 설정 */
-		}		
+		}			
 		
 	</style>
 	
 </head>
 <body>
-	<div th:include="~{ 'common/floatingButton.html' }"></div>
 	<div id=content-for-footer>
 		<div class="container" id="container">
 			<div class="card">
-				<div class="fixed-nav-bar">
+				<div class="fixed-top">
 				<ul class="nav nav-pills flex-column">
 					<li class="nav-item">
 						<a class="nav-link active">
