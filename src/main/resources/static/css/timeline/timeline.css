@@ -1,0 +1,101 @@
+@charset "UTF-8";
+
+.loading-container {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+#loading-spinner {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* 다른 요소 위에 나타나도록 설정 */
+}
+#content {
+    display: none; /* 처음에는 숨김 */
+}
+.image-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    cursor: pointer;
+}
+.image-container img {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+.btn-position {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.zoomed-image {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    overflow: auto;
+    max-height: 70vh;
+    width: 95%;
+}
+.zoomed-image img {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#categorySpan{
+	background-color: #00C6E1;
+}
+.ellipsis {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: letf;
+}
+
+.full-text {
+    white-space: normal;
+    text-overflow: initial;
+}
+
+h4.card-badge span{
+	height:28px;
+}
+
+.responsive-video-container {
+    max-height: 50vh; /* 컨테이너 높이 설정 */
+    margin-bottom: 3px;
+}
+.responsive-video {
+    width: 100%;
+    max-height: 50vh;
+}
+
+.image-preview {
+	position: relative;
+	width: 100%;
+	padding-bottom: 100%; /* 1:1 Aspect Ratio */
+	background-color: #E3F0FF;
+	margin-bottom: 16px;
+	overflow: hidden;
+}
+
+.preview-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100%;
+    max-height: 100%;
+}
