@@ -33,6 +33,8 @@ import com.mapmory.common.util.RedisUtil;
 import com.mapmory.common.util.TextToImage;
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.community.service.CommunityService;
+import com.mapmory.services.recommend.domain.Recommend;
+import com.mapmory.services.recommend.service.RecommendService;
 import com.mapmory.services.timeline.domain.Category;
 import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.KeywordData;
@@ -79,8 +81,17 @@ public class TimelineController {
     @Value("${timeline.kakaomap.restKey}")
     private String restKey;
     
+
+    ///////추천 추가된 부분//////
+	// 맨 위에 추가할 것
+	@Autowired
+	@Qualifier("recommendServiceImpl")
+	private RecommendService recommendService;
+		
+
     @Value("${page.Size}")
     private int pageLimit;
+
     
     private int searchOption=2;
 	
@@ -269,7 +280,7 @@ public class TimelineController {
 	
 	@GetMapping("updateTimeline")
 	public String updateTimelineView(Model model,
-			@RequestParam(value="recordNo", required = true) int recordNo) throws Exception,IOException {
+			@RequestParam(name="recordNo", required = true) int recordNo) throws Exception,IOException {
 		Record record=timelineService.getDetailTimeline(recordNo);
 //		record=timelineUtil.imageNameToUrl(record);
 //		record=timelineUtil.mediaNameToUrl(record);
@@ -280,6 +291,19 @@ public class TimelineController {
 		model.addAttribute("apiKey", kakaoMapApiKey);
 		model.addAttribute("updateCountText", TimelineUtil.updateCountToText(record.getUpdateCount()));
 		model.addAttribute("record",record);
+		
+		
+		 // 추천 // 
+		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
+			recommendService.addSearchData(record); Recommend recommend =
+			recommendService.getRecordData(record, record.getRecordNo());
+			recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+			System.out.println("positive : "+recommend.getPositive());
+			recommendService.updateDataset(recommend);
+			recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		}
+		//
+				
 		return "timeline/updateTimeline";
 	}
 	
@@ -333,8 +357,21 @@ public class TimelineController {
 		
 		timelineService.updateTimeline(record);
 		
-		String param="?recordNo="+record.getRecordNo();
-		return "redirect:/timeline/getDetailTimeline"+param;
+
+		// 추천 //
+		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
+			recommendService.addSearchData(record); 
+			Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
+			recommend.setPositive(recommendService.getPositive(record.getRecordText()));
+			System.out.println("positive : "+recommend.getPositive());
+			recommendService.updateDataset(recommend);
+			recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+		}
+		//
+		
+		String uri="?recordNo="+record.getRecordNo();
+		return "redirect:/timeline/getDetailTimeline"+uri;
+
 	}
 
 	@GetMapping("deleteTimeline")
@@ -629,16 +666,16 @@ public class TimelineController {
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
 			HttpServletRequest request
 			) throws Exception,IOException {
-		record.setRecordTitle(record.getCheckpointAddress()+"_"
+				record.setRecordTitle(record.getCheckpointAddress()+"_"
 				+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
 				record.setUpdateCount(-1);
 				record.setTempType(0);
 				record.setTimecapsuleType(0);
 				record.setCategoryNo(0);
 				
-		int recordNo=timelineService.addTimeline(record);
-		String param="?recordNo="+recordNo;
-		return "redirect:/timeline/updateTimeline"+param;
+				int recordNo=timelineService.addTimeline(record);
+				String param="?recordNo="+recordNo;
+				return "redirect:/timeline/updateTimeline"+param;
 	}
 	
 	
