@@ -91,7 +91,7 @@ h4 input[type="text"]:focus {
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .zoomed-video-container video {
@@ -108,7 +108,6 @@ h4 input[type="text"]:focus {
     border: none;
     color: white;
     font-size: 24px;
-    z-index: 1001;
     cursor: pointer;
 }
 
@@ -132,6 +131,15 @@ h4 input[type="text"]:focus {
     object-fit: cover;
     cursor: pointer; /* Add cursor pointer to indicate it's clickable */
 }
+
+/* 기본 비디오 컨트롤 숨기기 */
+.preview-video {
+    object-fit: cover;
+}
+/* iOS에서 비디오 컨트롤 숨기기 */
+.preview-video::-webkit-media-controls {
+    display: none!important;
+}
 .preview-video, .preview-image {
 	position: absolute;
 	top: 0;
@@ -144,6 +152,16 @@ h4 input[type="text"]:focus {
 	position: absolute;
 	top: 8px;
 	left: 8px;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+	padding: 2px 4px;
+	border-radius: 3px;
+	font-size: 12px;
+}
+.video-text-help {
+	position: absolute;
+	top: 8px;
+	right: 8px;
 	color: white;
 	background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
 	padding: 2px 4px;
@@ -189,6 +207,7 @@ h4 input[type="text"]:focus {
 		                    <source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
 		                </video>
 		                <span class="date-text" th:text="${record.checkpointDate}"></span>
+		                <span class="video-text-help" th:text="'영상'"></span>
 		            </div>
 				    <!-- 이미지가 있으면 렌더링 -->
 				    <div class="image-container" th:if="${record.imageName}">
@@ -258,6 +277,10 @@ $(function() {
 	})
 
     $('video.preview-video').on('click touchend', function(event) {
+        // 현재 재생 중인 모든 비디오를 중지합니다.
+        $('video.preview-video').each(function() {
+            this.pause();
+        });
         zoomVideo(this);
     });
 

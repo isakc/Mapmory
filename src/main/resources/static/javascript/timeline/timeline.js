@@ -80,3 +80,7 @@ function updateLabel() {
         label.textContent = '비공유';
     }
 }
+function autoResize(textarea) {
+    textarea.style.height = 'auto'; // Reset textarea height
+    textarea.style.height = textarea.scrollHeight + 'px'; // Set new height based on content
+}
