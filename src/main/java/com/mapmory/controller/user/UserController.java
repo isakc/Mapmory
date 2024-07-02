@@ -348,12 +348,12 @@ public class UserController {
 	}
 	
 	@GetMapping("/getProfile")
-	public void getProfile(HttpServletRequest request, @RequestParam String userId, Model model) throws Exception {
+	public void getProfile(HttpServletRequest request, @RequestParam(required=false) String userId, Model model) throws Exception {
 		
 		String myUserId = redisUtil.getSession(request).getUserId();
 
 		Profile profile;
-		if( userId.equals(myUserId) ) {
+		if( (userId == null) || userId.equals(myUserId) ) {
 			
 			profile = setProfileViewData(myUserId);
 			model.addAttribute("myProfile", true);
@@ -435,11 +435,9 @@ public class UserController {
 		
 		User user = userService.getDetailUser(userId);
 		
-		/*
 		String[] temp = user.getPhoneNumber().split("-");
 		String phoneNumber = temp[0] + temp[1] + temp[2];
 		user.setPhoneNumber(phoneNumber);
-		*/
 		
 		model.addAttribute("user", user);
 		

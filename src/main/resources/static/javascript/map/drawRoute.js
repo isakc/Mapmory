@@ -73,11 +73,13 @@ const drawRoute = (type) => {
 			}, // success
 			error: function() {
 				alert("길찾기 실패!!")
+				map.setBounds(bounds);
 				console.error("에러!!");
 			} // error
 		}); // ajax
 	}).fail(function(error) {
 		alert("길찾기 실패!!")
+		map.setBounds(bounds);
 		console.log('Error getting location:', error);
 	});
 }; // 보행자, 자동차
@@ -155,6 +157,7 @@ const drawTransitRoute = () => {
 				}//if
 				else {
 					alert("해당 경로찾기가 없습니다!!");
+					map.setBounds(bounds);
 				}//else
 			} // success
 			, error(){

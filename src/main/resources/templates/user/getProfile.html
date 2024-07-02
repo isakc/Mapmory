@@ -59,11 +59,13 @@
 		let pageType = null;
 		
 		// console.log('profileUserId : ' + userId);
+		
+		const myProfile = /*[[${myProfile}]]*/ '';
+		const isFollow = /*[[${isFollow}]]*/ '';
 	
 		$(function(){
 				
-			const myProfile = /*[[${myProfile}]]*/ '';
-			const isFollow = /*[[${isFollow}]]*/ '';
+			
 			pageType = $('#pageType');
 			pageType.text('sharedList');
 			console.log(pageType.html());
@@ -71,6 +73,8 @@
 			
 			
 			console.log("내 프로필 : " + myProfile);
+			
+			console.log("펄로우 상태? " + (isFollow == true) || (isFollow == 'true'));
 			
 			if(myProfile == true || myProfile == "true") {
 				
@@ -431,7 +435,10 @@
 			// 사용자 차단하기
 			$('#blockUser').on('click', function(){
 				
-				// 정말 차단하시겠습니까?
+				const result = confirm("정말로 차단하시겠습니까? 차단한 사용자는 커뮤니티에서 조회되지 않습니다. 차단 사용자는 메뉴에서 해제가 가능합니다.");
+				
+				if(!result)
+					return;
 				
 				$.ajax({
 			      url: "/community/rest/addBlockUser",
@@ -443,8 +450,13 @@
 			      }),
 			      success: function(response) {
 			        
-			    	  const num = Number($("#follow-list").find('span:last').text());
-						$("#follow-list").find('span:last').text((num-1));
+			    	  const num = Number($("#follower-list").find('span:last').text());
+			    	  
+			    	  if( (isFollow == true) || (isFollow == 'true')) {
+							$("#follower-list").find('span:last').text((num-1));			    		  
+			    	  }
+
+			    	  
 			    	  alert("차단 완료");
 			    	  $('button.btn-close').click();
 			      },
@@ -453,7 +465,7 @@
 			        alert("네트워크 오류");
 			      }
 			    });
-				
+
 			});
 			
 		});
@@ -522,7 +534,7 @@
 		
 			</div>
 			
-			<p class="row mt-3 ms-1" th:text="${profile.user.introduction}"></p>
+			<p class="row mt-3 ms-1 me-1" th:text="${profile.user.introduction}"></p>
 	
 			<div id="myProfile" style="display:none;">
 				<div class="d-flex justify-content-evenly">

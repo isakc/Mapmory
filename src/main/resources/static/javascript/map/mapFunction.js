@@ -30,6 +30,7 @@ function setMarkers(contentList) {
 				}else{
 					clickContentMarker(index, contentList);
 				}
+				showResultDivs();
 			}
         });// 마커에 클릭이벤트를 등록
     });
@@ -69,7 +70,6 @@ function navigateToMarkerOnSelect(index, contentList, activeIndex){
     clickedMarker = markers[index]; // 현재 클릭된 마커를 업데이트
     
     swiper.slideTo(activeIndex);
-
 }
 
 
@@ -86,8 +86,6 @@ function clickContentMarker(index, contentList) {
 	}else{
 		description.append(simpleRecordElement(index) );
 	}
-	
-	//showResultDivs();
 } // 마커나 리스트에서 클릭했을 경우
 
 function clearPolylines() {
