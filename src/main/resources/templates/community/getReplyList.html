@@ -947,9 +947,9 @@
 		}					
 	
 		#replyText {
-			width : 90%;
+			width : 70%;
 			resize : vertical;
-			margin-left : 20px;
+			margin-left : -5px;
 			height : 40px;
 		}
 		
@@ -990,6 +990,25 @@
 			margin-left : 10px;
 		}
 		
+		.input-container {
+		    display: flex;
+		    align-items: center;
+		}
+		
+		.input-container .form-control {
+		    flex: 1;
+		}
+		
+		.input-container .form-label {
+		    margin-left: 5px;
+		    cursor: pointer;
+		}	
+
+		.bi.bi-image-fill {
+			font-size : 30px;
+			margin-right : 5px;
+		}		
+		
 		#imagePreview {
 			max-width: 50%;
 		}
@@ -998,9 +1017,27 @@
 			margin-left : 10px;
 		}
 		
+		.modal-title {
+			margin-left : 7px;
+		}		
+		
+		.modal-updateTitle {
+			margin-left : 12px;
+		}
+		
 		#updateReplyText {
 			height: 200px;
 		}					    
+		
+		.btn-group {
+			margin-top: 10px;
+		    display: flex;
+		    justify-content: space-between; /* 혹은 다른 공간 배분 방법 사용 */
+		}
+		.update .delete {
+		    flex-basis: 50%; /* flexbox 아이템의 기본 너비 설정 */
+		}		
+		
 	</style>
 	
 </head>
@@ -1070,19 +1107,19 @@
 			<div class= "form">
 				<form id="replyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 					<fieldset id="replyField">
-						<div>
+						<div class="input-container">
 							<label for="replyText" class="form-label mt-2"></label>
 							<textarea id="replyText" name="replyText" class="form-control" 
 								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
-						</div>
-						<div>
-							<label for="replyImageName" class="form-label mt-2"></label>
-							<input type="file" id="replyImageName" name="replyImageName" class="form-control" onchange="previewImage(this)" accept="image/jpg, image/jpeg, image/png, image/gif">
+							<label for="replyImageName" class="form-label mt-2">
+								<i class="bi bi-image-fill"></i>
+							</label>
+							<input type="file" id="replyImageName" name="replyImageName" class="form-control" onchange="previewImage(this)" accept="image/jpg, image/jpeg, image/png, image/gif" style=display:none;>
 							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
 						<div class="preview-container mt-2">
-							<img id="imagePreview" src="#" alt="Image Preview" style="display:none;">
+							<img id="imagePreview" alt="Image Preview" style="display:none;">
 						</div>		    			
 		    			<div class="d-grid gap-2">
 							<button type="submit" class="btn btn-success">댓글 작성</button>
@@ -1099,14 +1136,17 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title">더보기</h5>
+						<br/>
 						<button type="button" id="closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true"></span>
 						</button>
 					</div>
-					<div class="modal-body">	
-						<button type="button" id="update" class="btn btn-primary">수정</button>
-						<button type="button" id="delete" class="btn btn-warning">삭제</button>
-						<button type="button" id="addReport" class="btn btn-danger">댓글 신고하기</button>
+					<div class="modal-body">
+						<div class="btn-group" role="group">
+							<button type="button" id="update" class="btn btn-primary update">수정</button>
+							<button type="button" id="delete" class="btn btn-warning delete">삭제</button>
+							<button type="button" id="addReport" class="btn btn-danger">댓글 신고하기</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1117,7 +1157,7 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content update">
 					<div class="modal-header">
-						<h5 class="modal-title">댓글수정</h5>
+						<h5 class="modal-updateTitle">댓글수정</h5>
 						<button type="button" id="closeUpdateModal" class="btn-close update" data-bs-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true"></span>
 						</button>
@@ -1125,22 +1165,22 @@
 					<div class="modal-body">	
 						<form id="updateReplyForm"th:action="@{/community/rest/addReply}" method="post" enctype="multipart/form-data">
 							<fieldset id="updateReplyField">
-								<div class="row">
-									<label for="updateReplyText" class="form-label mt-2">댓글 내용</label>
+								<div class="input-container update">
+									<label for="updateReplyText" class="form-label mt-2"></label>
 									<textarea id="updateReplyText" name="updateReplyText" class="form-control"
 												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
-								</div>
-								<div>
-									<label for="updateReplyImageName" class="form-label mt-2"></label>
-									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control" accept="image/jpg, image/jpeg, image/png, image/gif">
+									<label for="updateReplyImageName" class="form-label mt-2">
+										<i class="bi bi-image-fill update"></i>
+									</label>
+									<input type="file" id="updateReplyImageName" name="updateReplyImageName" class="form-control" accept="image/jpg, image/jpeg, image/png, image/gif" style=display:none;>
 									<input type="hidden" id="currentReplyImageName" name="currentReplyImageName"> 
 									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 									<input type="hidden" id="userId" th:value="${userId}">
 				    			</div>
-								
-		    						<div class="d-grid gap-2">																			
-										<button type="submit" class="btn btn-success">댓글 수정</button>
-									</div>
+								<br/>
+	    						<div class="d-grid gap-2">																			
+									<button type="submit" class="btn btn-success">댓글 수정</button>
+								</div>
 							
 				  			</fieldset>
 						</form>
