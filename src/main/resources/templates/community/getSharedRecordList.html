@@ -233,47 +233,42 @@
 				                            (sharedDate[2].toString().padStart(2, '0')) +
 				                            ' (' + dayOfWeek + ')';
 						
-			            var recordHtml = '';
-			            recordHtml += '<div class="sharedRecord" id="list" data-record-no="' + sharedRecord.recordNo + '">';
-			            recordHtml += '<div class="card-body">';
-			            recordHtml += '<h4>';
-			            recordHtml += '<img alt="" class="profileImage" data-record-userid="' + sharedRecord.recordUserId +'" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
-			            recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
-			            if (sharedRecord.subscriptionEndDate == 1) {
-			                recordHtml += '<span>'
-			                            + '<img alt="" class="sub" src="/user/rest/profile/sub.png" style="width:50px; height:50px;">'
-			                            + '</span>';
-			            }
-			            recordHtml += '</h4>';
-			            recordHtml += '</div>';
-			            if (sharedRecord.imageTagType == 1) {
-			                recordHtml += '<div>';
-			                recordHtml += '<img alt="" class="recordImage" src="/timeline/rest/image/'+sharedRecord.imageTagText+'">';
-			                recordHtml += '</div>';
-			            }
-			            recordHtml += '<div class="card-body">';
-			            recordHtml += '<span class="card-title">';
-			            recordHtml += '<span class="title" data-recordno="'+sharedRecord.recordNo+'">'+sharedRecord.recordTitle +'</span>';
-			            recordHtml += '<span>';
-			            if (sharedRecord.categoryImoji != null) {
-			                recordHtml += '<span>';
-			                recordHtml += '<img alt="" class="category" data-categoryno="'+sharedRecord.categoryNo+'" src="/timeline/rest/imoji/' + sharedRecord.categoryImoji + '">';
-			                recordHtml += '</span>';
-			            }			            
-			            recordHtml += '</h3>';
-			            recordHtml += '</div>';
-			            recordHtml += '<div class="card-body">';
-			            recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
-			            recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
-			            recordHtml += '</div>';     
-			            recordHtml += '<div class="card-footer text-muted">';
-			            recordHtml += '<span class="list-footer">' + formattedDate + '</span>';
-			            recordHtml += '<span class="list-footer viewCount">조회수 : ' + sharedRecord.logsCount + '</span>';
-			            if (sharedRecord.updateCount > 1) {
-			                recordHtml += '<span class="list-footer updateCount" th:text="' + sharedRecord.updateCount + ' + \'회 수정됨\'"></span>';
-			            }
-			            recordHtml += '</div>';
-			            recordHtml += '</div>';
+				        var recordHtml = '';
+				        recordHtml += '<div class="sharedRecord" id="list" data-record-no="' + sharedRecord.recordNo + '">';
+				        recordHtml += '<div class="card-body profilePart">';
+				        recordHtml += '<h4>';
+				        recordHtml += '<img alt="" class="profileImage" data-record-userid="' + sharedRecord.recordUserId +'" src="/user/rest/profile/' + sharedRecord.profileImageName + '">';
+				        recordHtml += '<span class="profile" data-record-userid="' + sharedRecord.recordUserId + '">' + sharedRecord.nickname + '</span>';
+				        if (sharedRecord.subscriptionEndDate == 1) {
+				            recordHtml += '<span><img alt="" class="sub" src="/user/rest/profile/sub.png"></span>';
+				        }
+				        recordHtml += '</h4>';
+				        recordHtml += '</div>';
+				        recordHtml += '<div class="card-body contentPart">';
+				        if (sharedRecord.imageTagType == '1') {
+				            recordHtml += '<p><img alt="" class="recordImage" src="/timeline/rest/image/' + sharedRecord.imageTagText + '"></p>';
+				        }
+				        recordHtml += '<span class="card-title">';
+				        recordHtml += '<span class="title text-secondary-emphasis" data-recordno="' + sharedRecord.recordNo + '">' + sharedRecord.recordTitle + '</span>';
+				        recordHtml += '</span>';
+				        recordHtml += '</div>';
+				        recordHtml += '<div>';
+				        if (sharedRecord.categoryImoji != null) {
+				            recordHtml += '<span><img alt="" class="category" data-categoryno="' + sharedRecord.categoryNo + '" src="/timeline/rest/imoji/' + sharedRecord.categoryImoji + '"></span>';
+				        }
+				        recordHtml += '</div>';
+				        recordHtml += '<div class="card-body replyPart">';
+				        recordHtml += '<i class="bi bi-chat-square-text-fill"></i>';
+				        recordHtml += '<span class="reply-count">' + sharedRecord.replyCount + '</span>';
+				        recordHtml += '</div>';
+				        recordHtml += '<div class="card-footer text-muted">';
+				        recordHtml += '<span class="list-footer sharedDate">' + formattedDate + '</span>';
+				        if (sharedRecord.updateCount > 1) {
+				            recordHtml += '<span class="list-footer updateCount">' + sharedRecord.updateCount + '회 수정됨</span>';
+				        }
+				        recordHtml += '<span class="list-footer viewCount">조회수 : ' + sharedRecord.logsCount + '</span>';
+				        recordHtml += '</div>';
+				        recordHtml += '</div>';
 
 					addrecordHtml += recordHtml;
 					});	
@@ -365,7 +360,7 @@
 		}
 
 		.title {
-			font-size : 24px;
+			font-size : 20px;
 			font-weight : solid-bold; 
 			display :inline-block;
 			vertical-align : middle;
@@ -472,6 +467,8 @@
 						<span class="card-title">
 							<span th:text="${sharedRecord.recordTitle}" class="title text-secondary-emphasis" th:data-recordno="${sharedRecord.recordNo}"></span>
 						</span>
+					</div>
+					<div>	
 						<span th:if="${sharedRecord.categoryImoji != null}">
 							<img alt="" class="category" th:data-categoryno="${sharedRecord.categoryNo}" th:src="@{/timeline/rest/imoji/{uuid}(uuid=${sharedRecord.categoryImoji})}">
 						</span>
