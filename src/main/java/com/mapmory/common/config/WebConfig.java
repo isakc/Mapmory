@@ -32,7 +32,6 @@ public class WebConfig implements WebMvcConfigurer{
                 .allowedMethods("GET", "POST", "PUT", "DELETE");  // 허용할 HTTP 메서드 지정
     }
     
-    /// 로그인 유지 과정에서 유지 안정성 보장을 못한다.
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		 // TODO Auto-generated method stub
@@ -40,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer{
 		registry.addInterceptor(loginInterceptor())
 				.order(1)
 				.addPathPatterns("/**")
-				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**")
+				.excludePathPatterns("/css/**", "/*.ico", "/error", "/javascript/**", "/image/*")
 				.excludePathPatterns("/", "/user/rest/login", "/user/getIdView", "/user/getPasswordView", "/user/rest/checkFindPassword/*", 
 						"/user/rest/checkAuthNum", "/user/rest/sendEmailAuthNum", "/user/rest/sendPhoneNumberAuthNum",
 						"/user/rest/verify", "/user/rest/image", "/user/rest/nkey", "/user/rest/checkDuplication",
