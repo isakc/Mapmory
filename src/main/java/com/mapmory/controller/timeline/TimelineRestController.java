@@ -106,8 +106,8 @@ public class TimelineRestController {
 		int recordNo=timelineService.addTimeline(record);
 		record=timelineService.getDetailTimeline(recordNo);
 		if(recordNo!=0) {
-			text+="<span>체크포인트가 저장 완료 : "+record.getLatitude()+"/"+record.getLongitude()+"/"
-					+record.getCheckpointAddress()+"/"+record.getCheckpointDate()+"</span>";
+			text += "<span>체크포인트가 저장 완료, 주소 :"/* +record.getLatitude()+"/"+record.getLongitude()+"/" */
+					+record.getCheckpointAddress()+"/일시 :"+record.getCheckpointDate()+"</span>";
 			if(countAddressDto!=null && (countAddressDto.getCheckpointCount()>0) ) {
 				text+="<br/><br/><span>현재 위치에 "+ (countAddressDto.getCheckpointCount()+1) + " 회, 재방문하였습니다. 최근 방문 일시는 " 
 						+ countAddressDto.getCheckpointDate()+ " 입니다.</span>";
