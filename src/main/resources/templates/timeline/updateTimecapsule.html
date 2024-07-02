@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Mapmory 타임캡슐 기록 수정</title>
+	<th:block th:replace="common/faviconLink :: link"></th:block>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
@@ -476,15 +477,16 @@ $(function() {
 		})
 	})
 	
-	/* $('textarea[name="recordText"]').on('keyup',function(event){
+	 $('textarea[name="recordText"]').on('keyup',function(event){
 		let text=$('textarea[name="recordText"]').val();
 		let idName='recordTextHelp3';
-		if (event.keyCode === 32 || event.keyCode === 8) {
+		autoResize(this);
+		/* if (event.keyCode === 32 || event.keyCode === 8) {
 			badWord(text,idName);
-		}
+		} */
 	})
 	
-	$('input[name="recordTitle"]').on('keyup',function(event){
+	/* $('input[name="recordTitle"]').on('keyup',function(event){
 		let text=$('input[name="recordTitle"]').val();
 		let idName='recordTitleHelp3';
 		if (event.keyCode === 32 || event.keyCode === 8) {
