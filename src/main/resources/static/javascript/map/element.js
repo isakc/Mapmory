@@ -111,7 +111,7 @@ const recordListElement = (index) => {
 		
 			<!--<div class="profileImageContainer">
 				<img id="profileImg-${index}" class="rounded-image" src="https://via.placeholder.com/150?text=Loading..." />
-	        	<span class="fs-5 ">${recordList[index].nickName}</span>
+	        	<span class="fs-3">${recordList[index].nickName}</span>
 	        	${recordList[index].subscribed ? `<img src="https://via.placeholder.com/150?text=Loading..." class="rounded-image subImage"/>` : ''}
 			</div> 프로필 상자 -->
 
@@ -192,7 +192,7 @@ const simpleRecordElement = (index) => {
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
 						<img id="profileImg-${index}" class="rounded-image me-2" src="/user/rest/profile/${recordList[index].profileImageName}" />
-	        			<span class="fs-3 me-2">${recordList[index].nickName}</span>
+	        			<span class="fs-5">${recordList[index].nickName}</span>
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
@@ -293,7 +293,7 @@ const detailRecordElement = (index) => {
 	        	<div class="row">
 	        		<div class="profileImageContainer col-6">
 						<img id="profileImg-${index}" class="rounded-image me-2" src="/user/rest/profile/${recordList[index].profileImageName}" />
-	        			<span class="fs-3 me-2">${recordList[index].nickName}</span>
+	        			<span class="fs-5">${recordList[index].nickName}</span>
 	        			${recordList[index].subscribed ? `<img src="/user/rest/profile/sub.png" class="rounded-image subImage"/>` : ''}
 					</div><!-- 프로필 상자 -->
 					
