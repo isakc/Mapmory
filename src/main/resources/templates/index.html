@@ -39,16 +39,9 @@
 	<script src="/javascript/user/naveridlogin_js_sdk_2.0.2.js"></script>
     
     <script th:inline="javascript">
-    
-    const temp = /*[[${userId}]]*/ '';
-    
+
  		$(function() {
- 			
- 			if(temp != null) {
- 				
- 				$('#loginDiv').css('display', 'none');
- 				$('.userDiv').css('display', 'block');
- 			}
+
  			
 			$('#login').on('click', function() {
         		
@@ -88,8 +81,11 @@
                     	if(response == "secondAuth") {
                     		
                     		console.log("2단계 인증을 진행합니다...,");
+                    		
+                    		const userId = $("#username").val();
+                    		const keep = $('input[name="keepLogin"]').prop('checked');
                     		// window.location.href="/user/getSecondaryAuthView?userId="+$("#username").val();
-                    		window.location.href="/user/getSecondaryAuthView";
+                    		window.location.href=`/user/getSecondaryAuthView?userId=${userId}&keep=${keep}`;
                     		return;
                     	}
                     	
