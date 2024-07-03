@@ -189,8 +189,8 @@ public class UserController {
 	
 	// @GetMapping("/getSignUpView")  // get 방식으로 접근할 수 없게 막는다.
 	@PostMapping("/getSignUpView")
-	public void getSignUpView(Model model, @RequestParam String[] checked,
-			HttpServletRequest request) {  // HttpServletResponse resposne
+	public String getSignUpView(Model model, @RequestParam String[] checked,
+			HttpServletRequest request, HttpServletResponse response) {  // HttpServletResponse response
 		
 		// refactoring 필요... -> 무엇이 check되었는지를 파악해야 함
 		System.out.println("checked : "+ Arrays.asList(checked));
@@ -202,6 +202,14 @@ public class UserController {
 			SocialUserInfo socialUserInfo = userService.getSocialInfo(request);
 			System.out.println("getSignUpview : : :: : : : : : : : : : : :" +socialUserInfo);
 			model.addAttribute("socialUserInfo", socialUserInfo);
+			
+			Cookie emailCookie = new Cookie("EMAILAUTHKEY", null);
+			emailCookie.setMaxAge(0);
+			response.addCookie(emailCookie);
+			
+			Cookie phoneCookie = new Cookie("PHONEAUTHKEY", null);
+			phoneCookie.setMaxAge(0);
+			response.addCookie(phoneCookie);
 		} else {
 	         SocialUserInfo socialUserInfo = new SocialUserInfo();
 	         socialUserInfo.setGender("U");
@@ -210,15 +218,9 @@ public class UserController {
 				
 		model.addAttribute("user", User.builder().build());
 		
-		/*
-		Cookie emailCookie = new Cookie("EMAILAUTHKEY", null);
-		emailCookie.setMaxAge(0);
-		response.addCookie(emailCookie);
+		System.out.println("controller finished");
 		
-		Cookie phoneCookie = new Cookie("PHONEAUTHKEY", null);
-		phoneCookie.setMaxAge(0);
-		response.addCookie(phoneCookie);
-		*/
+		return "/user/getSignUpView";
 	}	
 
 	

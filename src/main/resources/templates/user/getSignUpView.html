@@ -18,7 +18,13 @@
 		    }
 		});
 
-	
+		
+		window.addEventListener('beforeunload', function (e) {
+		    e.preventDefault(); // Cancel the event
+		    e.returnValue = ''; // Chrome requires returnValue to be set
+		});
+		
+		
 		$(document).ready(function() {
 			
 			const today = new Date().toISOString().split('T')[0];
