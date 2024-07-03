@@ -495,14 +495,19 @@ $(function() {
 	}) */
 	
 	$('input[name="hashtagText"]').on('keyup',function(event){
-		
-		if (event.keyCode !== 32 || event.keyCode !== 8) {
    			if(processHashtags()){
     			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
     		}else{
     			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
     		}
-		}
+		
+		/* if (event.keyCode !== 32 || event.keyCode !== 8) {
+   			if(processHashtags()){
+    			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
+    		}else{
+    			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
+    		}
+		} */
 		
 		/* let text=$('input[name="hashtagText"]').val();
 		let idName='hashtagTextHelp3';

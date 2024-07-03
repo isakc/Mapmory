@@ -275,8 +275,8 @@ FROM
 	<include refid="selectTimelineListUnit" />
 	) inner_table
 <if test="!(limit==0)">
-ORDER BY d_day_date ASC,
-checkpoint_date IS NULL DESC
+ORDER BY d_day_date DESC,
+d_day_date IS NULL DESC
 LIMIT #{limit} OFFSET #{offset}
 </if>
 </select>

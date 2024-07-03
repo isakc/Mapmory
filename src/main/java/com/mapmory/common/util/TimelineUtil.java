@@ -52,6 +52,9 @@ public class TimelineUtil {
 	@Value("${timeline.coolsms.fromphonenumber}")
 	private String FROM_PHONE_NUMBER;
 	
+	@Value("${timeline.coolsms.tophonenumber}")
+	private String TO_PHONE_NUMBER;
+	
 	@Autowired
 	private ContentFilterUtil contentFilterUtil;
 	
@@ -560,12 +563,13 @@ public class TimelineUtil {
 			return imojiUrl;
 		}
 		
-		public Record uploadImageFile(Record record,List<MultipartFile> imageFile) throws Exception {
+		public Map<String,Object> uploadImageFile(Record record,List<MultipartFile> imageFile) throws Exception {
 			List<ImageTag> imageName=new ArrayList<ImageTag>();
+			Map<String,Object> map=new HashMap<String, Object>();
+			int badImageCount=0;
 			if( imageFile!=null && !imageFile.isEmpty() ) {
 				
 			System.out.println("List<MultipartFile> imageFile : "+imageFile);
-			
 			for (MultipartFile image : imageFile) {
 				if (image==null
 						|| image.isEmpty() 
@@ -574,20 +578,33 @@ public class TimelineUtil {
 	            System.out.println("Invalid file name: " + image.getOriginalFilename());
 	            continue;
 				}
-				if (contentFilterUtil.checkBadImage(image) == false) {
-					System.out.println("이미지 검사 통과");
+				if(record.getTimecapsuleType()==0) {
+					if ( contentFilterUtil.checkBadImage(image) == false) {
+						System.out.println("이미지 검사 통과");
+						String uuid = ImageFileUtil.getImageUUIDFileName(image.getOriginalFilename());
+						objectStorageUtil.uploadFileToS3(image, uuid, imageFileFolder);
+						imageName.add(
+								ImageTag.builder().recordNo(record.getRecordNo())
+								.imageTagType(1).imageTagText(uuid).build());
+					} else {
+						badImageCount++;
+						System.out.println(image.getOriginalFilename() + " 유해 이미지, 차단");
+					}
+				}else {
 					String uuid = ImageFileUtil.getImageUUIDFileName(image.getOriginalFilename());
 					objectStorageUtil.uploadFileToS3(image, uuid, imageFileFolder);
 					imageName.add(
-							ImageTag.builder().recordNo(record.getRecordNo()).imageTagType(1).imageTagText(uuid).build());
-				} else {
-					System.out.println(image.getOriginalFilename() + " 유해 이미지, 차단");
+							ImageTag.builder().recordNo(record.getRecordNo())
+							.imageTagType(1).imageTagText(uuid).build());
 				}
+				
 			}
 		}
 			record.setImageName(imageName);
+			map.put("record", record);
+			map.put("badImageCount",badImageCount);
 			
-			return record;
+			return map;
 			
 		}
 		
@@ -647,7 +664,8 @@ public class TimelineUtil {
 	        Message message = new Message();
 	        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
 	        message.setFrom(FROM_PHONE_NUMBER);
-	        message.setTo(toPhoneNumber.replace("-", ""));
+	        //message.setTo(toPhoneNumber.replace("-", ""));
+	        message.setTo(TO_PHONE_NUMBER);
 	        message.setText(text);
 
 	        SingleMessageSentResponse response = messageService.sendOne(new SingleMessageSendingRequest(message));
