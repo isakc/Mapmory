@@ -324,8 +324,9 @@ public class TimelineController {
 			) throws Exception,IOException {
 		
 //		record.setMediaName( timelineUtil.mediaUrlToName(record.getMediaName()) );
-		record = (Record)timelineUtil.uploadImageFile(record, imageFile).get("record");
-		int badImageCount=(int)timelineUtil.uploadImageFile(record, imageFile).get("badImageCount");
+		Map <String,Object> uploadImageMap=timelineUtil.uploadImageFile(record, imageFile);
+		record = (Record)uploadImageMap.get("record");
+		int badImageCount=(int)uploadImageMap.get("badImageCount");
 		record = timelineUtil.uploadMediaFile(record, mediaFile);
 		
 		record.setHashtag(TimelineUtil.hashtagTextToList(hashtagText, record.getRecordNo()));
