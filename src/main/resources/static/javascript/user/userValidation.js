@@ -212,8 +212,16 @@ $(function() {
 		
 	});
 	
-	$('#email').on('input', function() {
-		if (event.keyCode === 32) {
+	$('#email').on('keydown', function() {
+
+		if (event.keyCode === 32 || event.key === " ") {
+	    	event.preventDefault(); // 기본 동작 취소
+    	}
+  	});
+  	
+  	$('#phoneNumber').on('keydown', function() {
+
+		if (event.keyCode === 32 || event.key === " ") {
 	    	event.preventDefault(); // 기본 동작 취소
     	}
   	});
