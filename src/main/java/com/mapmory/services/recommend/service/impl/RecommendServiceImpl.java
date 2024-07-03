@@ -270,9 +270,15 @@ public class RecommendServiceImpl implements RecommendService {
 		String positive = String.valueOf(recommend.getPositive());
 		String timeStamp = String.valueOf(recommend.getTimeStamp());
 		
-		String userDataSetId =  "/api/v1/services/siq3vlubqhb/datasets/i2u8qte5hn6";
-		String itemDataSetId = "/api/v1/services/siq3vlubqhb/datasets/m6yz1ig2475";
-		String interactionDataSetId = "/api/v1/services/siq3vlubqhb/datasets/92ivcomdz3w";
+		/*
+		 * String userDataSetId = "/api/v1/services/siq3vlubqhb/datasets/i2u8qte5hn6";
+		 * String itemDataSetId = "/api/v1/services/siq3vlubqhb/datasets/m6yz1ig2475";
+		 * String interactionDataSetId =
+		 * "/api/v1/services/siq3vlubqhb/datasets/92ivcomdz3w";
+		 */
+		String userDataSetId =  "/api/v1/services/qz98xfu6n8y/datasets/i2u8qte5hn6";
+		String itemDataSetId = "/api/v1/services/qz98xfu6n8y/datasets/m6yz1ig2475";
+		String interactionDataSetId = "/api/v1/services/qz98xfu6n8y/datasets/92ivcomdz3w";
 		String timestamp = String.valueOf(System.currentTimeMillis());
 		System.out.println(timestamp);
 //		String uri= "/api/v1/services/siq3vlubqhb/datasets/m6yz1ig2475";
@@ -393,7 +399,8 @@ public class RecommendServiceImpl implements RecommendService {
 	//  추천데이터 받아오기
 	@Override
 	public List<String> getRecommendData(String userId) throws Exception {
-		String uri= "/api/v1/services/siq3vlubqhb/infers/lookup?type=personalRecommend&targetId="+userId;
+		String uri= "/api/v1/services/qz98xfu6n8y/infers/lookup?type=personalRecommend&targetId="+userId;
+//		String uri= "/api/v1/services/siq3vlubqhb/infers/lookup?type=personalRecommend&targetId="+userId;
 //		String url = "https://aitems.apigw.ntruss.com/api/v1/services/{r0g5crs583y}/datasets/{m6yz1ig2475}";
 		String url = "https://aitems.apigw.ntruss.com"+uri;
 		String timestamp = String.valueOf(System.currentTimeMillis());
