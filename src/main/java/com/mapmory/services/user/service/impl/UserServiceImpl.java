@@ -324,6 +324,11 @@ public class UserServiceImpl implements UserService {
 			
 		// LocalDateTime startSuspensionDate = LocalDateTime.now();
 		
+		if(count > 4) {
+			
+			throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
+		}
+		
 		// 한국 시간대 설정
         ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
         
@@ -331,13 +336,14 @@ public class UserServiceImpl implements UserService {
         ZonedDateTime koreaTime = ZonedDateTime.now(koreaZoneId);
         
 		LocalDateTime startSuspensionDate = koreaTime.toLocalDateTime();
-		// System.out.println("정지 시작 일 : " + startSuspensionDate);
+		System.out.println("정지 시작 일 : " + startSuspensionDate);
+		
+		/*
 		switch(count) {
 		
 			case 0:
 				startSuspensionDate = startSuspensionDate.plusDays(1);
 				// startSuspensionDate = startSuspensionDate.plusMinutes(30);
-				// System.out.println("정지 종료 일 : " + startSuspensionDate);
 				break;
 			case 1:
 				startSuspensionDate = startSuspensionDate.plusDays(7);
@@ -351,6 +357,9 @@ public class UserServiceImpl implements UserService {
 			default :
 				throw new MaxCapacityExceededException("현재 해당 사용자의 정지 횟수가 정책 최대 개수보다 더 많이 존재합니다.");
 		}
+		
+		System.out.println("정지 종료 일 : " + startSuspensionDate);
+		*/
 		
 		SuspensionDetail detail = new SuspensionDetail(startSuspensionDate, reason);
 		
