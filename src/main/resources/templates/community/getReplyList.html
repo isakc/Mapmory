@@ -13,6 +13,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">	
 
+	<th:block th:replace="common/faviconLink :: link"></th:block>
+
 	<!-- 이미지 로딩 처리 -->
 	<script th:inline="javascript">
     /*<![CDATA[*/
@@ -151,6 +153,12 @@
 				$('.btn-success').prop('disabled', false);
 				return;
 			}
+			
+			if(replyText.length > 100) {
+				alert('댓글은 100자까지 입력 가능합니다');
+				$('.btn-success').prop('disabled', false);
+				return;
+			}
 
 			var recordNo = $('#recordNo').val();
 			console.log("2.기록번호 확인 : "+recordNo);
@@ -258,6 +266,7 @@
 				$('#replyText').val('');
 				$('#replyImageName').val('');
 				$('#imagePreview').attr('src', '#').css('display', 'none');
+				autoResize($('#replyText').get(0));
             }
 			
         });
@@ -336,8 +345,6 @@
 				
 				var replyNo = currentRow.find('.replyNo').text();
 				console.log("13.replyNo :", replyNo);
-				
-
 			}
 			closeModal();
 			openUpdateModal();
@@ -360,6 +367,14 @@
 					$('.btn-success').prop('disabled', false);
 					return;
 				}
+				
+				if(updatedReplyText.length > 100) {
+					alert('댓글은 100자까지 입력이 가능합니다.');
+					$('.btn-success').prop('disabled', false);
+					return;
+				}
+				
+				
 				formData.append("recordNo", recordNo);
 				formData.append("userId", userId);
 
@@ -444,6 +459,7 @@
 			}
 			$('#replyText').val('');
 			$('#replyImageName').val('');
+			autoResize($('#replyText').get(0));
 		});	
 		
 		//댓글 신고
@@ -597,10 +613,22 @@
 
 	<!-- 댓글 작성칸 동적 처리 -->
 	<script>
-    function autoResize(textarea) {
-        textarea.style.height = 'auto'; // Reset textarea height
-        textarea.style.height = textarea.scrollHeight + 'px'; // Set new height based on content
+	function updateCharCount(textarea) {
+		const maxLength = textarea.getAttribute('maxlength');
+		const currentLength = textarea.value.length;
+		const counterId = textarea.id === 'updateReplyText' ? 'updateCharCount' : 'charCount';
+		document.getElementById(counterId).textContent = `${currentLength} / ${maxLength}`;
+	}
+
+	function autoResize(textarea) {
+		textarea.style.height = 'auto'; // Reset textarea height
+		textarea.style.height = textarea.scrollHeight + 'px'; // Set new height based on content
     }
+	
+	function handleTextareaInput(textarea) {
+	    autoResize(textarea);
+	    updateCharCount(textarea);
+	}
 	</script>
 	
 	<!-- 업로드 이미지 미리보기 -->
@@ -619,6 +647,7 @@
 	    }
 	</script>
 
+	<!-- 상단 댓글 수 동적처리 -->
 	<script>
 	function updateReplyCount(change) {
 	    const replyCountElement = document.getElementById('replyCount');
@@ -787,19 +816,18 @@
 		    width: 100%;
 		    z-index: 1030; /* Bootstrap의 기본 z-index 값 */
 		    background-color: #E6F4F1; /* 필요에 따라 색상 변경 */
-		    padding: 0.5rem 1rem;
 		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 선택 사항: 부드러운 그림자 추가 */
 		    border-bottom: 1px solid #ddd; /* 선택 사항: 아래쪽 테두리 추가 */
 		}	
 		  
 	    #content-for-footer {
-	        padding-top: 65px; /* 고정 네비게이션바의 높이에 따라 조정 */
-	        padding-bottom: 100px; /* 고정 댓글 폼의 높이에 따라 조정 */
+	        padding-top: 45px; /* 고정 네비게이션바의 높이에 따라 조정 */
+	        padding-bottom: 95px; /* 고정 댓글 폼의 높이에 따라 조정 */
 	    }	    
 	
 		.reply-list-container {
 		    overflow-y: auto;
-		    padding-bottom : 100px;
+		    padding-bottom : 10px;
 		}
 		
 		.footer {
@@ -813,14 +841,14 @@
 		
 		.replyForm {
 		    position: fixed;
-		    bottom: 83px; /* footer의 높이만큼 떨어진 위치로 조정 */
+		    bottom: 70px; /* footer의 높이만큼 떨어진 위치로 조정 */
 		    left: 50%; /* 왼쪽에서 50% 위치로 이동 */
 			transform: translateX(-50%); /* 자신의 너비의 절반만큼 왼쪽으로 이동 */
 		    width: 100%;
 		    background-color: #E6F4F1;
 		    z-index: 1000; /* 댓글 작성 폼의 z-index를 더 크게 설정하여 footer 위로 올리기 */
 		    border-top: 1px solid #ccc;
-		    padding: 15px; /* 내부 여백 추가 */
+			margin-bottom : 7px;
 			box-sizing: border-box; /* 패딩을 너비에 포함 */
 		}		
 		
@@ -907,8 +935,8 @@
 		
 		.profileImage {
 			border-radius: 50%;
-			width : 50px;
-			height : 50px;
+			width : 45px;
+			height : 45px;
 			margin-right : 3px;
 		}
 		
@@ -929,22 +957,23 @@
 		}			
 		
 		.replyText {
-			font-size : 22px;
+			font-size : 18px;
+			white-space: pre-wrap;
 		} 
 						
 		.replyImageName {
 		    display : block;
-		    max-width: 70%; 
-		    max-height: 70%;
+		    max-width: 45%; 
+		    max-height: 45%;
 		    margin-left : auto;
 		    margin-right : auto;
-		    margin-bottom : 10px;			
+		    margin-bottom : 8px;			
 		    height: auto; 
 		    width: auto; 
 		}		
 		
 		.replyDate {
-			font-size : 20px;
+			font-size : 18px;
 		}		
 		
 		.separator {
@@ -956,13 +985,12 @@
 			width : 70%;
 			resize : vertical;
 			margin-left : -5px;
-			height : 40px;
+			height : 50px;
 		}
 		
         .card-body {
             border: 2px solid; 
             padding: 10px; 
-            margin-bottom: 10px; 
         }			
         
         .form {
@@ -999,6 +1027,7 @@
 		.input-container {
 		    display: flex;
 		    align-items: center;
+		    margin-top : -2px;
 		}
 		
 		.input-container .form-control {
@@ -1009,6 +1038,22 @@
 		    margin-left: 5px;
 		    cursor: pointer;
 		}	
+
+		.text-muted.small {
+			text-align : right;
+			margin-top : -3px;
+			margin-right : 15px;
+			margin-bottom : -10px;
+			font-size : 15px;
+			font-weight : bold;
+		}
+		
+		.text-muted.small.update {
+			text-align : right;
+			margin-right : 15px;
+			font-size : 16px;
+			font-weight : bold;
+		}		
 
 		.bi.bi-image-fill {
 			font-size : 30px;
@@ -1114,8 +1159,8 @@
 					<fieldset id="replyField">
 						<div class="input-container">
 							<label for="replyText" class="form-label mt-2"></label>
-							<textarea id="replyText" name="replyText" class="form-control" 
-								oninput="autoResize(this)"  placeholder="댓글을 입력해주세요."></textarea>
+							<textarea id="replyText" name="replyText" class="form-control" oninput="autoResize(this); updateCharCount(this);"
+							placeholder="댓글을 입력해주세요." maxlength="100"></textarea>
 							<label for="replyImageName" class="form-label mt-2">
 								<i class="bi bi-image-fill"></i>
 							</label>
@@ -1123,6 +1168,7 @@
 							<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 							<input type="hidden" id="userId" th:value="${userId}">
 		    			</div>
+		    				<div id="charCount" class="text-muted small update">0 / 100</div>
 						<div class="preview-container mt-2">
 							<img id="imagePreview" alt="Image Preview" style="display:none;">
 						</div>		    			
@@ -1173,7 +1219,7 @@
 								<div class="input-container update">
 									<label for="updateReplyText" class="form-label mt-2"></label>
 									<textarea id="updateReplyText" name="updateReplyText" class="form-control"
-												oninput="autoResize(this)" placeholder="댓글을 입력해주세요."></textarea>
+												oninput="handleTextareaInput(this);" placeholder="댓글을 입력해주세요."  maxlength="100"></textarea>
 									<label for="updateReplyImageName" class="form-label mt-2">
 										<i class="bi bi-image-fill update"></i>
 									</label>
@@ -1182,11 +1228,12 @@
 									<input type="hidden" id="recordNo" name="recordNo" th:value="${recordNo}">
 									<input type="hidden" id="userId" th:value="${userId}">
 				    			</div>
+				    			<br/>
+				    				<div id="updateCharCount" class="text-muted small update">0 / 100</div>
 								<br/>
 	    						<div class="d-grid gap-2">																			
 									<button type="submit" class="btn btn-success">댓글 수정</button>
 								</div>
-							
 				  			</fieldset>
 						</form>
 					</div>

@@ -327,7 +327,7 @@ public class TimelineUtil {
 	        		+" "+record.getRecordText();
 
 	        // 텍스트 분석
-	        KomoranResult result = komoran.analyze(text);
+	        KomoranResult result = komoran.analyze(text.replace("!", ""));
 
 	        // 명사만 추출
 	        List<String> nouns = result.getNouns();

@@ -339,14 +339,16 @@ public class TimelineController {
 		}else {
 			record.setTempType(0);
 		}
-		
+		System.out.println("record.getSharedDate() :"+record.getSharedDate());
 		if(sharedDateType!=null&&sharedDateType==1) {
 			if(ContentFilterUtil.checkBadWord(record.getRecordText()) 
 					|| ContentFilterUtil.checkBadWord(record.getRecordTitle())
 					|| ContentFilterUtil.checkBadWord(hashtagText) ) {
 				record.setSharedDate(null);
 			}else {
-				record.setSharedDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
+				if(record.getSharedDate()==null || record.getSharedDate().trim().equals("")) {
+					record.setSharedDate(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
+				}
 			}
 		}else {
 			record.setSharedDate(null);

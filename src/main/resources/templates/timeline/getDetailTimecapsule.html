@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>Mapmory 타임캡슐 기록 상세보기</title>
+	<th:block th:replace="common/faviconLink :: link"></th:block>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
+<link rel="stylesheet" href="/css/timeline/timeline.css">
+<link rel="stylesheet" href="/css/timeline/getDetailTimecapsule.css">
 <style type="text/css">
-#categorySpan{
-	background-color: #00C6E1;
-}
 #map {
     position: fixed; /* 상단에 고정 */
     top: 0; /* 화면의 맨 위에 배치 */
@@ -44,46 +44,6 @@
     height: 63dvh;
     overflow-y: auto; /* 세로 스크롤 추가 */
 }
-
-.image-preview {
-	position: relative;
-	width: 100%;
-	padding-bottom: 100%; /* 1:1 Aspect Ratio */
-	background-color: #f8f8f8;
-	margin-bottom: 16px;
-	overflow: hidden;
-}
-
-.preview-image {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.ellipsis {
-    display: inline-block;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: letf;
-}
-
-.full-text {
-    white-space: normal;
-    text-overflow: initial;
-}
-
-h4.card-badge span{
-	height:28px;
-}
-
-button{
-	margin-bottom: 10px;
-}
 </style>
 </head>
 <body>
@@ -92,7 +52,7 @@ button{
 	<div class="card border-primary" th:id="getDetailTimecapsule" th:name="getDetailTimecapsule">
   		<div class="card-body">
     		<h4 class="card-title">
- 				<span id="recordTitle" th:text="${record.recordTitle}" class="ellipsis"></span><br/>
+ 				<span id="recordTitle" th:text="${record.recordTitle}" class="ellipsis" style="white-space: pre-wrap;"></span><br/>
  			</h4>
 			<div style="text-align: right;">
 	    		<h4 class="card-badge">
@@ -109,27 +69,54 @@ button{
  				<span th:text="${record.d_DayDate}"></span><br/>
     			<span class="badge bg-primary" th:text="'주소'"></span>
  				<span th:text="${record.checkpointAddress}"></span><br/><br/>
- 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
-	 				<video width="320" height="240" controls>
-	        			<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
-	    			</video><br/>
+ 				
+ 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}" class="responsive-video-container">
+				    <video class="responsive-video" controls>
+				        <source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
+				    </video><br/>
 				</div>
-				<div class="image-preview" th:each="image : ${record.imageName}">
-					<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" class="preview-image"/><br/>
+				
+				 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+					<div class="carousel-inner">
+					  <div th:each="image, iterStat : ${record.imageName}">
+					    <div th:class="'carousel-item ' + (${iterStat.index == 0} ? 'active' : '') + ' image-preview'">
+					      <img th:src="'data:image/png;base64,' + ${image.imageTagByte}" class="preview-image" alt="Image"/>
+					    </div>
+					  </div>
+					</div>
+					<button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+					  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+					  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Next</span>
+					 </button>
+				</div>
+ 				
+ 				<div th:if="${record.hashtag!=null && !record.hashtag.isEmpty()}">
+	    			<span class="badge bg-primary" th:text="'해시태그'"></span>
+	 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
+    			</div>
+ 				<div th:if="${record.recordText!=null && !record.recordText.equals('')}">
+	    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
+	 				<span th:utext="${record.recordText}" style="white-space: pre-wrap;"></span>
  				</div>
-    			<span class="badge bg-primary" th:text="'해시태그'"></span>
- 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
-    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
- 				<span th:utext="${record.recordText}"></span>
  			</div>
 		</div>
-		<div class="container text-left">
-			<div class="row">
+		<div th:id="buttonGroup" class="container text-left">
+			<div class="row d-flex mb-3">
 			    <div class="col-12">
-					<button type="button" class="btn btn-primary btn-lg" th:name="deleteTimecapsule" th:text=" '삭제' "></button>
+					<button type="button" class="btn btn-primary btn-lg mb-2" th:name="deleteTimecapsule" th:text=" '삭제' "></button>
 				</div>
 			</div>
 		</div>
+		<div id="loadingContainer" class="loading-container">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>요청을 처리중 입니다.</p>
+        </div>
 	</div>
 </div>
 <div th:replace="common/footer::defaultFooter"></div>
@@ -139,12 +126,15 @@ button{
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="/javascript/timeline/timeline.js"></script>
 <script type="text/javascript">
 $(function() {
 	
 	/* $("div[name='getKakaoMap']").click(function() {
 		self.location.replace("/timeline/getTimecapsuleList");
 	}) */
+	let tempType=[[${record.tempType}]];
+	let param='?tempType='+tempType;
 	
 	$(document).on('click', '#getKakaoMap', function() {
 	    if ($('#map').hasClass('visible')) {
@@ -154,25 +144,26 @@ $(function() {
 	        $('#map').removeClass('visible');
 	        $('#recordTitle').removeClass('full-text');
 	    } else {
-			self.location.replace("/timeline/getTimecapsuleList");
+			self.location.replace("/timeline/getTimecapsuleList"+param);
 	    }
 	});
 	
 	$(document).on('click', '#getKakaoMap.returnList', function() {
-		self.location.replace("/timeline/getTimecapsuleList");
+		self.location.replace("/timeline/getTimecapsuleList"+param);
 	});
 	
 	$("button[name='deleteTimecapsule']").click(function() {
+		handleButtonClick();
 		let recordNo=$('input[name="recordNo"]').val();
-		uri="?recordNo="+recordNo;
-		self.location="/timeline/deleteTimecapsule"+uri;
+		param="?recordNo="+recordNo;
+		self.location="/timeline/deleteTimecapsule"+param;
 	})
 	
 	$("span[name='hash']").click(function() {
 		let hash=$(this).text().trim();
 		let encodeHash=encodeURIComponent(hash)
-		uri="?searchKeyword="+encodeHash;
-		self.location="/map"+uri;
+		param="?searchKeyword="+encodeHash;
+		self.location="/map"+param;
 	})
 	
 	$('#getDetailTimecapsule').on('click',function(){

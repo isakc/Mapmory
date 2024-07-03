@@ -2,14 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
 	<meta charset="UTF-8">
-	<title>Insert title here</title>
+	<title>Mapmory 기록 상세 조회</title>
+	<th:block th:replace="common/faviconLink :: link"></th:block>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="stylesheet" href="/css/5/cosmo/bootstrap.css">
 <link rel="stylesheet" href="/css/common/footer.css">
+<link rel="stylesheet" href="/css/timeline/timeline.css">
 <style type="text/css">
-#categorySpan{
-	background-color: #00C6E1;
-}
 #map {
     position: fixed; /* 상단에 고정 */
     top: 0; /* 화면의 맨 위에 배치 */
@@ -44,51 +43,6 @@
     height: 63dvh;
     overflow-y: auto; /* 세로 스크롤 추가 */
 }
-
-.image-preview {
-	position: relative;
-	width: 100%;
-	padding-bottom: 100%; /* 1:1 Aspect Ratio */
-	background-color: #f8f8f8;
-	margin-bottom: 16px;
-	overflow: hidden;
-}
-
-.preview-image {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.ellipsis {
-    display: inline-block;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: letf;
-}
-
-.full-text {
-    white-space: normal;
-    text-overflow: initial;
-}
-
-h4.card-badge span{
-	height:28px;
-}
-
-button{
-	margin-bottom: 10px;
-}        
-.loading-container {
-    display: none;
-    text-align: center;
-    margin-top: 20px;
-}
 </style>
 </head>
 <body>
@@ -98,7 +52,7 @@ button{
  		<!-- <div class="card-header"></div> -->
   		<div class="card-body">
     		<h4 class="card-title">
- 				<span id="recordTitle" th:text="${record.recordTitle}" class="ellipsis"></span><br/>
+ 				<span id="recordTitle" th:text="${record.recordTitle}" class="ellipsis" style="white-space: pre-wrap;"></span><br/>
  			</h4>
 				<div style="text-align: right;">
 	    		<h4 class="card-badge">
@@ -115,27 +69,46 @@ button{
  				<span th:text="${record.checkpointDate}"></span><br/>
     			<span class="badge bg-primary" th:text="'주소'"></span>
  				<span th:text="${record.checkpointAddress}"></span><br/><br/>
- 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}">
- 				<video width="320" height="240" controls>
-        			<source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
-    			</video><br/>
-				<!-- <span th:text="${record.mediaName}"></span><br/> -->
+ 				
+ 				<div th:if="${!( record.mediaName==null || record.mediaName.equals('') )}" class="responsive-video-container">
+				    <video class="responsive-video" controls>
+				        <source th:src="'data:video/mp4;base64,' + ${record.mediaByte}" type="video/mp4">
+				    </video><br/>
 				</div>
-				<div class="image-preview" th:each="image : ${record.imageName}">
-					<img th:src="'data:image/png;base64,' + ${image.imageTagByte}" class="preview-image"/><br/>
- 					<!-- <span th:text="${image.imageTagText}"></span> -->
+				
+				 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+					<div class="carousel-inner">
+					  <div th:each="image, iterStat : ${record.imageName}">
+					    <div th:class="'carousel-item ' + (${iterStat.index == 0} ? 'active' : '') + ' image-preview'">
+					      <img th:src="'data:image/png;base64,' + ${image.imageTagByte}" class="preview-image" alt="Image"/>
+					    </div>
+					  </div>
+					</div>
+					<button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+					  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+					  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+					  <span class="visually-hidden">Next</span>
+					 </button>
+				</div>
+ 				
+ 				<div th:if="${record.hashtag!=null && !record.hashtag.isEmpty()}">
+	    			<span class="badge bg-primary" th:text="'해시태그'"></span>
+	 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
+    			</div>
+ 				<div th:if="${record.recordText!=null && !record.recordText.equals('')}">
+	    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
+	 				<span th:utext="${record.recordText}" style="white-space: pre-wrap;"></span>
  				</div>
-    			<span class="badge bg-primary" th:text="'해시태그'"></span>
- 				<span class="text-primary" th:name="hash" th:each="hash : ${record.hashtag}" th:text="${hash.imageTagText}+'&nbsp'"></span><br/>
-    			<span class="badge bg-primary" th:text="'내용'"></span><br/>
- 				<span th:utext="${record.recordText}"></span>
  			</div>
- 		</div>
-		<div th:id="buttonGroup" class="container text-left mb-3">
+		</div>
+		<div th:id="buttonGroup" class="container text-left">
 			<div class="row">
-			    <div class="col-12">
-					<button type="button" class="btn btn-primary btn-lg" th:name="updateTimeline" th:text=" '수정' "></button>
-					<button type="button" class="btn btn-primary btn-lg" th:name="deleteTimeline" th:text=" '삭제' "></button>
+			    <div class="col-12 d-flex mb-3">
+					<button type="button" class="btn btn-primary btn-lg flex-grow-1 mb-2 me-2" th:name="updateTimeline" th:text=" '수정' "></button>
+					<button type="button" class="btn btn-primary btn-lg mb-2" th:name="deleteTimeline" th:text=" '삭제' "></button>
 				</div>
 			</div>
 		</div>
@@ -155,12 +128,8 @@ button{
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js" integrity="sha256-J8ay84czFazJ9wcTuSDLpPmwpMXOm573OUtZHPQqpEU=" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="/javascript/timeline/timeline.js"></script>
 <script type="text/javascript">
-function handleButtonClick() {
-    document.getElementById('buttonGroup').style.display = 'none';
-    document.getElementById('loadingContainer').style.display = 'block';
-}
-
 $(function() {
 	
 	let recordNo=$('input[name="recordNo"]').val();
