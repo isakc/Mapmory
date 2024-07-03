@@ -680,15 +680,15 @@ public class TimelineController {
 				+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
 				record.setUpdateCount(-1);
 				record.setCategoryNo(0);
+				if(record.getD_DayDate()==null || record.getD_DayDate().trim().equals("")) record.setD_DayDate(null);
+				if(record.getCheckpointDate()==null || record.getCheckpointDate().trim().equals("")) record.setCheckpointDate(null);
 				
 				int recordNo=timelineService.addTimeline(record);
+				String param="?recordNo="+recordNo;
 
 				if(record.getTimecapsuleType()==0) {
-					String param="?recordNo="+recordNo;
 					return "redirect:/timeline/updateTimeline"+param;
 				}else {
-
-					String param="?recordNo="+recordNo;
 					return "redirect:/timeline/updateTimecapsule"+param;
 				}
 	}
