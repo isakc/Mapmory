@@ -86,9 +86,9 @@
 <div th:include="timeline/component/modal::defaultModal"></div>
 <div th:include="timeline/component/modal::checkpointModal"></div>
 <input type="hidden" th:name="recordUserIdOfFooter" th:value="${userId}"/>
-<input type="hidden" th:name="latitudeOfFooter" th:value="'37.4923615'"/>
-<input type="hidden" th:name="longitudeOfFooter" th:value="'127.0292881'"/>
-<input type="hidden" th:name="checkpointAddressOfFooter" th:value="'서울시 강남구'"/>
+<input type="hidden" th:name="latitudeOfFooter" th:value="'37.5000000'"/>
+<input type="hidden" th:name="longitudeOfFooter" th:value="'127.0000000'"/>
+<input type="hidden" th:name="checkpointAddressOfFooter" th:value="'오류 주소'"/>
 
 	
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>	
@@ -113,8 +113,8 @@ $(function() {
 		    	var lonFooter = position.coords.longitude; // 경도
 		        console.log(latFooter);
 		        console.log(lonFooter);
-		    	$('input[name="latitudeOfFooter"]').val(latFooter).trigger('change');
 		        $('input[name="longitudeOfFooter"]').val(lonFooter);
+		    	$('input[name="latitudeOfFooter"]').val(latFooter).trigger('change');
 		      });
 		    
 		} else { // HTML5의 GeoLocation을 사용할 수 없을때 마커 표시 위치와 인포윈도우 내용을 설정합니다
