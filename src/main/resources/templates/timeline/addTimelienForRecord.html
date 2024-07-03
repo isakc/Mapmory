@@ -64,11 +64,13 @@ $(function() {
 	$('button:contains("기록저장")').on('click',function(){
 		$('input[name="timecapsuleType"]').val(0);
 		$('input[name="tempType"]').val(1);
+		$('input[name="d_DayDate"]').val(null);
 		$('form').submit();
 	})
 	$('button:contains("타임캡슐 임시저장")').on('click',function(){
 		$('input[name="timecapsuleType"]').val(1);
 		$('input[name="tempType"]').val(0);
+		$('input[name="checkpointAddress"]').val(null);
 		$('form').submit();
 	})
 	$('button:contains("주소검색"), input[name="checkpointAddress"]').on('click',function(){
