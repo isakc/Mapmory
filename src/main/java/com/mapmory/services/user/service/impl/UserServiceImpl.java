@@ -19,6 +19,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -320,11 +322,22 @@ public class UserServiceImpl implements UserService {
 		else
 			count = tempResult.getSuspensionDetailList().size();
 			
-		LocalDateTime startSuspensionDate = LocalDateTime.now(); 
+		// LocalDateTime startSuspensionDate = LocalDateTime.now();
+		
+		// 한국 시간대 설정
+        ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+        
+        // 현재 한국 시간
+        ZonedDateTime koreaTime = ZonedDateTime.now(koreaZoneId);
+        
+		LocalDateTime startSuspensionDate = koreaTime.toLocalDateTime();
+		// System.out.println("정지 시작 일 : " + startSuspensionDate);
 		switch(count) {
 		
 			case 0:
 				startSuspensionDate = startSuspensionDate.plusDays(1);
+				// startSuspensionDate = startSuspensionDate.plusMinutes(30);
+				// System.out.println("정지 종료 일 : " + startSuspensionDate);
 				break;
 			case 1:
 				startSuspensionDate = startSuspensionDate.plusDays(7);
@@ -976,8 +989,19 @@ public class UserServiceImpl implements UserService {
 			System.out.println("suspensionDetailList : " + list);
 			int count = list.size();
 			map.put("suspentionCount", String.valueOf(count));
+			
+			// 한국 시간대 설정
+	        ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+	        
+	        // 현재 한국 시간
+	        ZonedDateTime koreaTime = ZonedDateTime.now(koreaZoneId);
+	        
 			LocalDateTime lastSuspensionDate = list.get(count-1).getStartSuspensionDate();
-			LocalDateTime now = LocalDateTime.now();
+			// LocalDateTime now = LocalDateTime.now();
+			LocalDateTime now = koreaTime.toLocalDateTime();
+			
+			System.out.println("DB로부터 꺼내온 정지 시작 일 : " + lastSuspensionDate);
+			System.out.println("현재 한국 일시 : " + now);
 			switch(count) {
 			
 				case 1:
@@ -1323,7 +1347,7 @@ public class UserServiceImpl implements UserService {
             sb.append("&client_id="+kakaoCilent );  //본인이 발급받은 key
 
             sb.append("&redirect_uri=https://mapmory.co.kr/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
-            /// sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
+            // sb.append("&redirect_uri=http://localhost:8000/user/kakaoCallback&response_type=code");     // 본인이 설정해 놓은 경로
 
             sb.append("&code=" + authorizeCode);
             System.out.println("authorize_code : " + authorizeCode);
