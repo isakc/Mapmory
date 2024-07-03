@@ -226,7 +226,7 @@ document.getElementById('recordTitle').addEventListener('input', function () {
 
 document.getElementById('recordText').addEventListener('input', function () {
     var inputField = this;
-    let textInt=50;
+    let textInt=1000;
     if (inputField.value.length > textInt) {
         inputField.value = inputField.value.substring(0, textInt);
     	showModal('내용 오류', "기록 내용은 "+textInt+"자를 넘길 수 없습니다.");
