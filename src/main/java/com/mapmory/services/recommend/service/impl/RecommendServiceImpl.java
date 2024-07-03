@@ -636,7 +636,7 @@ public class RecommendServiceImpl implements RecommendService {
 				
 				url.append("https://dapi.kakao.com/v2/local/search/keyword?")
 				.append("query=").append(record.getCheckpointAddress())
-				.append("&page=").append( (int) (Math.random() * 3) + 1 ) //3페이지 중 랜덤
+				//.append("&page=").append( (int) (Math.random() * 3) + 1 ) //3페이지 중 랜덤
 				.append("&category_group_code=");
 				
 				for(int i=0 ; i<categoryCodeGroup.length; i++) {
@@ -653,8 +653,8 @@ public class RecommendServiceImpl implements RecommendService {
 				
 				if(totalCount != 0) {
 				    documents = rootNode.path("documents");
-//				    JsonNode item = documents.get(0); //1페이지 첫번째꺼 가져오기
-				    JsonNode item = documents.get((int) (Math.random() * documents.size() )); //그 페이지 중 랜덤 가져오기
+				    JsonNode item = documents.get(0); //1페이지 첫번째꺼 가져오기
+				    //JsonNode item = documents.get((int) (Math.random() * documents.size() )); //그 페이지 중 랜덤 가져오기
 				    
 					RecommendPlaceDTO recommendPlaceDTO = RecommendPlaceDTO.builder()
 							.placeName(item.path("place_name").asText())
