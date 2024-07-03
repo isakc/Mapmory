@@ -509,8 +509,6 @@ const detailPlaceElement = (index) => {
 	
 	
 const routeListElement = (response) => {
-	console.log(response);
-	
 	return `
 		<div class="btn-secondary-custom">
 			<div class="text-center text-light fs-4">

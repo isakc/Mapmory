@@ -38,8 +38,6 @@ const drawRoute = (type) => {
 			data: JSON.stringify(requestData),
 
 			success: async function(response) {
-				console.log(response);
-				
 				const geocoder = new kakao.maps.services.Geocoder();
             	const startEndCoord = [
                 	new kakao.maps.LatLng(location.coords.latitude, location.coords.longitude), 
@@ -108,8 +106,6 @@ const drawTransitRoute = () => {
 			data: JSON.stringify(requestData),
 
 			success: async function(response) {
-				console.log(response);
-
 				if (response.length != 0) {
 					const geocoder = new kakao.maps.services.Geocoder();
             		const startEndCoord = [
