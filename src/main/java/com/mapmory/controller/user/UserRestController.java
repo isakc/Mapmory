@@ -534,6 +534,39 @@ public class UserRestController {
 		
 		return ResponseEntity.ok(result);
 	}
+	
+	@PostMapping("/updateProfile") 
+	public ResponseEntity<Boolean> updateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		boolean result;
+		
+		boolean isBadWord = contentFilterUtil.checkBadWord(introduction);
+		if(isBadWord) {
+			
+			return ResponseEntity.ok(false);
+		}
+		
+		if( !file.isEmpty()) {
+			
+			boolean isBadImg = contentFilterUtil.checkBadImage(file);
+			if(isBadImg) {
+				
+				return ResponseEntity.ok(false);
+			}
+			
+			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
+			
+		} else {
+			
+			/// 자기소개만 변경하는 경우
+			result = userService.updateProfile(userId, introduction);
+		}
+
+		// return "redirect:/user/getProfile?userId="+userId;
+		return ResponseEntity.ok(true);
+	}
 
 	@PostMapping("/updateFollowState")
 	public ResponseEntity<Boolean> updateFollowState() {
@@ -702,31 +735,7 @@ public class UserRestController {
 		return ResponseEntity.ok(!result);
 	}
 	
-	@PostMapping("/updateProfile") 
-	public ResponseEntity<Boolean> postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
-		
-		String userId = redisUtil.getSession(request).getUserId();
-		
-		boolean result;
-		if( !file.isEmpty()) {
-			
-			boolean isBad = contentFilterUtil.checkBadImage(file);
-			if(isBad) {
-				
-				return ResponseEntity.ok(false);
-			}
-			
-			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
-			
-		} else {
-			
-			/// 자기소개만 변경하는 경우
-			result = userService.updateProfile(userId, introduction);
-		}
 
-		// return "redirect:/user/getProfile?userId="+userId;
-		return ResponseEntity.ok(true);
-	}
 	
 	@PostMapping(path="/checkBadWord")
 	public ResponseEntity<Boolean> checkBadWord(@RequestBody Map<String, String> value) {
