@@ -188,7 +188,7 @@ public class TimelineController {
 		model.addAttribute("timelineCount",timelineList.size());
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("tMapApiKey",tMapApiKey);
+		//model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
@@ -676,19 +676,34 @@ public class TimelineController {
 			@RequestParam(name="imageFile",required = false) List<MultipartFile> imageFile,
 			HttpServletRequest request
 			) throws Exception,IOException {
-				record.setRecordTitle(record.getCheckpointAddress()+"_"
-				+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T"," ").split("\\.")[0]);
+				if(record.getRecordTitle()==null || record.getRecordTitle().trim().equals("")) {
+					if(record.getTimecapsuleType()==0) {
+						record.setRecordTitle(record.getCheckpointAddress()+"_"+record.getCheckpointDate());
+					}else {
+						if(!(record.getCheckpointAddress()==null || record.getCheckpointAddress().trim().equals("")) 
+								&& !(record.getD_DayDate()==null || record.getD_DayDate().trim().equals(""))) {
+							record.setRecordTitle(record.getCheckpointAddress()+"_"+record.getD_DayDate());
+						}else {
+							if(record.getRecordTitle()==null ||record.getRecordTitle().trim().equals("")){
+								 record.setRecordTitle("임시저장된 타임캡슐_"
+								+LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " ").split("\\.")[0]);
+							}
+						}
+					}
+				}
+				
+				
 				record.setUpdateCount(-1);
 				record.setCategoryNo(0);
+				if(record.getD_DayDate()==null || record.getD_DayDate().trim().equals("")) record.setD_DayDate(null);
+				if(record.getCheckpointDate()==null || record.getCheckpointDate().trim().equals("")) record.setCheckpointDate(null);
 				
 				int recordNo=timelineService.addTimeline(record);
+				String param="?recordNo="+recordNo;
 
 				if(record.getTimecapsuleType()==0) {
-					String param="?recordNo="+recordNo;
 					return "redirect:/timeline/updateTimeline"+param;
 				}else {
-
-					String param="?recordNo="+recordNo;
 					return "redirect:/timeline/updateTimecapsule"+param;
 				}
 	}
