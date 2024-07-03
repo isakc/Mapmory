@@ -143,6 +143,7 @@ fieldset{
 			<label for="imageFile" class="form-label mt-4" th:text="'사진 파일'"></label>
 			<input type="file" multiple class="form-control" id="imageFile" th:name="imageFile" autocomplete="off">
 			<small id="imageFileHelp" class="form-text text-muted" th:text="'지원가능한 파일 형식 : [.jpg, .jpeg, .png, .gif, .bmp], 사진 파일 당 10MB 이하, 최대 9장까지 업로드 됩니다.'"></small>
+			<small id="imageFileHelp2" class="form-text text-muted" th:text="'유해한 사진은 업로드 되지 않습니다.'"></small>
 	    </div>
 	    
 	    <div class="row">
@@ -495,34 +496,39 @@ $(function() {
 		
 		autoResize(this);
 		
-		if (event.keyCode === 32 || event.keyCode === 8) {
+		badWord(text,idName);
+
+		/* if (event.keyCode === 32 || event.keyCode === 8
+				|| event.key === ' ' || event.key === 'Backspace') {
 			badWord(text,idName);
-		}
+		} */
 	})
 	
 	$('input[name="recordTitle"]').on('keyup',function(event){
 		let text=$('input[name="recordTitle"]').val();
 		let idName='recordTitleHelp3';
-		if (event.keyCode === 32 || event.keyCode === 8) {
-			badWord(text,idName);
-		}
+		badWord(text,idName);
 	})
 	
 	$('input[name="hashtagText"]').on('keyup',function(event){
 		
-		if (event.keyCode !== 32 || event.keyCode !== 8) {
+		if(processHashtags()){
+			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
+		}else{
+			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
+		}
+		
+		/* if (event.keyCode !== 32 || event.keyCode !== 8) {
    			if(processHashtags()){
     			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
     		}else{
     			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
     		}
-		}
+		} */
 		
 		let text=$('input[name="hashtagText"]').val();
 		let idName='hashtagTextHelp3';
-		if (event.keyCode === 32 || event.keyCode === 8) {
-			badWord(text,idName);
-		}
+		badWord(text,idName);
 	})
 	
 })

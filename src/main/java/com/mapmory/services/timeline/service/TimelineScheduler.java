@@ -1,8 +1,5 @@
 package com.mapmory.services.timeline.service;
 
-import java.time.LocalTime;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,14 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.mapmory.common.util.TimelineUtil;
 import com.mapmory.services.timeline.dao.TimelineDao;
-import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
-
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 
 @Component
 public class TimelineScheduler {
@@ -52,7 +42,7 @@ public class TimelineScheduler {
 //			0 15 10 ? * 6L : 매월 마지막 금요일 오전 10:15에
 //			0 15 10 ? * 6#3 : 매월 3째주 금요일 오전 10:15에
 	//스케줄러
-	@Scheduled(cron="0 43 10 * * *")
+	@Scheduled(cron="0 10 13 * * *")
 	public void Scheduler() throws Exception {
 		String text="";
 		
@@ -60,9 +50,10 @@ public class TimelineScheduler {
 		System.out.println(timelineDao.selectNotifyTimecapsule());
 		for(NotifyTimecapsuleDto n:timelineDao.selectNotifyTimecapsule()) {
 			text="";
-			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsuleCount()+" 건의 타임캡슐 기록이 존재합니다. Phone-Number :"+n.getUserPhoneNumber();
+			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsuleCount()+" 건의 타임캡슐 기록이 존재합니다.";
+//			+ "Phone-Number :"+n.getUserPhoneNumber();
 			
-			//timelineUtil.sendOne(n.getUserPhoneNumber(), text);
+			timelineUtil.sendOne(n.getUserPhoneNumber(), text);
 			System.out.println("타임캡슐 기록 : "+text);
 		}
 		//cool sms api 문자보내기
