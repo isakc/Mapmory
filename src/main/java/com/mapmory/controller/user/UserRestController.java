@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
@@ -693,6 +694,40 @@ public class UserRestController {
 		return ResponseEntity.ok(result);
 	}
 	
+	@PostMapping("/checkBadProfile")
+	public ResponseEntity<Boolean> checkBadProfile(@RequestParam MultipartFile file) {
+		
+		boolean result = contentFilterUtil.checkBadImage(file);
+					
+		return ResponseEntity.ok(!result);
+	}
+	
+	@PostMapping("/updateProfile") 
+	public ResponseEntity<Boolean> postUpdateProfile(@RequestParam(name = "profile", required=false) MultipartFile file, @RequestParam String introduction, Model model, HttpServletRequest request) throws Exception {
+		
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		boolean result;
+		if( !file.isEmpty()) {
+			
+			boolean isBad = contentFilterUtil.checkBadImage(file);
+			if(isBad) {
+				
+				return ResponseEntity.ok(false);
+			}
+			
+			result = userService.updateProfile(file, userId, file.getOriginalFilename(), introduction);
+			
+		} else {
+			
+			/// 자기소개만 변경하는 경우
+			result = userService.updateProfile(userId, introduction);
+		}
+
+		// return "redirect:/user/getProfile?userId="+userId;
+		return ResponseEntity.ok(true);
+	}
+	
 	@PostMapping(path="/checkBadWord")
 	public ResponseEntity<Boolean> checkBadWord(@RequestBody Map<String, String> value) {
 		
@@ -704,43 +739,34 @@ public class UserRestController {
 	@PostMapping("/checkSecondaryKey")
 	public ResponseEntity<Map<String, String>> checkSecondaryKey(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		Cookie cookie = CookieUtil.findCookie("SECONDAUTH", request);
-		// 5분안에 인증 못하면 세션 날라가서 keyname 날라감. 다시 로그인해서 발급받게 만들어서 보안 강화.
-		Map<String, String> tempMap = redisUtilMap.select(cookie.getValue(), Map.class);  
-		String userId = tempMap.get("userId");
-		byte role = Byte.valueOf(tempMap.get("role"));
-		boolean keep = Boolean.valueOf(tempMap.get("keepLogin"));
-		
 		int userCode = Integer.parseInt(map.get("userCode"));
-		// String encodedKey = map.get("encodedKey");
-		
-		// String encodedKey=  redisUtilString.select(keyName, String.class);
+		String userId = map.get("userId");
+		String encodedKeyName = "SECONDAUTH-"+userId;
+		String encodedKey = redisUtilString.select(encodedKeyName, String.class);
 		
 		GoogleUserOtpCheck dto = new GoogleUserOtpCheck();
 		dto.setUserCode(userCode);
-		
-		// Cookie cookie1 = CookieUtil.findCookie("SECONDAUTHKEY", request);
-		
-		String encodedKeyName = "SECONDAUTH-"+userId;
-		String encodedKey = redisUtilString.select(encodedKeyName, String.class);
 		dto.setEncodedKey(encodedKey);
-		System.out.println(encodedKey);
-		
+		System.out.println(dto);
 		boolean result = userService.checkSecondAuthKey(dto);
 		
+		Map<String, String> tempMap = new HashMap<>();
 		if(result) {
+
+			User user = userService.getDetailUser(userId);
+			byte role = user.getRole();
+			tempMap.put("result", String.valueOf(result));
+			tempMap.put("role", String.valueOf(role));
 			
-			// String keyName = "SECONDAUTH-"+userId;
-			// redisUtilString.insert(keyName, encodedKey, 60*24*90L);
+			boolean keep = Boolean.getBoolean(map.get("keep")); 
 			loginService.acceptLogin(userId, role, response, keep);
 			userService.addLoginLog(userId);
-
-			response.addCookie(CookieUtil.createCookie("SECONDAUTH", "", 0, "/user"));
-			// response.addCookie(CookieUtil.createCookie("SECONDAUTHKEY", "", 0, "/"));
+			return ResponseEntity.ok(tempMap);
+		} else {
+			
+			tempMap.put("result", String.valueOf(result));
+			return ResponseEntity.ok(tempMap);
 		}
-		
-		tempMap.put("result", String.valueOf(result));
-		return ResponseEntity.ok(tempMap);
 	}
 	
 	
@@ -848,8 +874,21 @@ public class UserRestController {
 		String setFrom = emailId; //2단계 인증 x, 메일 설정에서 POP/IMAP 사용 설정에서 POP/SMTP 사용함으로 설정o
 		String toMail = email;
 		String title = "회원가입 인증 이메일";
-		String content = "인증 코드 : " + codeValue;
+		// String content = "인증 코드 : " + codeValue;
+		
+		StringBuilder sb = new StringBuilder();
 
+		sb.append("안녕하세요,<br><br>")
+        .append("저희 Mapmory 서비스에 가입해 주셔서 감사합니다! 회원가입을 완료하려면 이메일 주소를 인증해야 합니다. 아래의 단계를 따라 주세요:<br><br>")
+        .append("이메일 주소 확인하기: 등록하신 이메일 주소를 확인해 주세요.<br><br>")
+        .append("인증 번호확인: 아래 인증번호를 확인한 후 회원가입 페이지 인증번호 란에 작성 해 주신 후 이메일 주소를 인증해 주세요.<br><br>")
+        .append("["+codeValue+"]<br><br>")
+        .append("인증 완료: 인증번호를 기입하면 이메일 인증 절차가 완료됩니다!<br><br>")
+        .append("중요 사항: 인증 링크는 발송 후 3분 이내에 인증 완료를 해주셔야 합니다. 그렇지 않을 경우, 인증 절차를 다시 시작해야 할 수 있습니다.<br><br>")
+        .append("문제가 있거나 질문이 있으시면 언제든지 저희에게 연락해 주세요. 감사합니다!");
+
+        String content = sb.toString();
+		
 		try {
 			MimeMessage message = mailSender.createMimeMessage(); //Spring에서 제공하는 mail API
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

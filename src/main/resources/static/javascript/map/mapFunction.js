@@ -25,11 +25,7 @@ function setMarkers(contentList) {
 
         kakao.maps.event.addListener(marker, 'click', function() {
 			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
-				if(result.hasClass('on') || $(".swiper-container").hasClass('on')){
-            		navigateToMarkerOnSelect(index, contentList, index);
-				}else{
-					clickContentMarker(index, contentList);
-				}
+				clickContentMarker(index, contentList);
 				showResultDivs();
 			}
         });// 마커에 클릭이벤트를 등록

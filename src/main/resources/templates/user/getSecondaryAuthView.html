@@ -15,6 +15,14 @@
 	
 		$(document).on('click', '#checkKey', function() {
 			
+			if($('input[name="userCode"]').val().length != 6) {
+				
+				alert("6자리의 인증번호를 입력해주세요.");
+				return;
+			}
+				
+			
+			
 			$.ajax({
 				
 				url : "/user/rest/checkSecondaryKey",
@@ -25,24 +33,25 @@
 					"Content-Type" : "application/json"
 				},
 				data : JSON.stringify({ 
-					// encodedKey : $('#encodedKey').text(),
-					// userId : userId,
+					userId : userId,
 					userCode : $('input[name="userCode"]').val()
-					// encodedKey : encodedKey
 				}),
 				success : function(responseBody, httpStatus){
 
 					console.log(responseBody);
 					
 					const isValid = responseBody.result;
-					const role = responseBody.role;
 					
 					if(isValid == true || isValid == 'true') {
 					
+						const role = responseBody.role;
 						if(role == 0)
 							window.location.href="/user/admin/getAdminMain";
 						else
 							window.location.href="/map";
+					} else {
+						
+						alert("2단계 인증 값이 잘못되었습니다.");
 					}
 				},
 				error: function(xhr, status, error) {
