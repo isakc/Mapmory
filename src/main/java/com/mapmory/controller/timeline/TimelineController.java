@@ -298,12 +298,15 @@ public class TimelineController {
 		
 		 // 추천 // 
 		if(record.getRecordText()!=null && !record.getRecordText().trim().equals("")) {
-			recommendService.addSearchData(record); Recommend recommend =
-			recommendService.getRecordData(record, record.getRecordNo());
+			Recommend recommend = recommendService.getRecordData(record, record.getRecordNo());
 			recommend.setPositive(recommendService.getPositive(record.getRecordText()));
-			System.out.println("positive : "+recommend.getPositive());
-			recommendService.updateDataset(recommend);
-			recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+			if(recommend.getPositive() > 0) {
+				recommendService.addSearchData(record); 
+				System.out.println("positive : "+recommend.getPositive());
+				recommendService.updateDataset(recommend);
+				recommendService.saveDatasetToCSV(recommend, "aitems-8982956307867"); // 추천
+			}
+			
 		}
 		//
 				

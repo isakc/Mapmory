@@ -25,10 +25,15 @@ function setMarkers(contentList) {
 
         kakao.maps.event.addListener(marker, 'click', function() {
 			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
-				clickContentMarker(index, contentList);
+				content.markerType === 3 ? navigateToMarkerOnSelect(index, contentList, 'recommend') : navigateToMarkerOnSelect(index, contentList);
+				
+				if(description.hasClass('on')){
+					clickContentMarker(index, contentList);
+				}
 				showResultDivs();
 			}
         });// 마커에 클릭이벤트를 등록
+        
     });
 }
 	
@@ -48,29 +53,51 @@ function createMarkerImage(location) {
 	return marker;
 }// 이미지 있는 마커 생성
 
-function navigateToMarkerOnSelect(index, contentList, activeIndex){
+function navigateToMarkerOnSelect(index, contentList, recommend) {
     selectLatitude = contentList[index].latitude;
     selectLongitude = contentList[index].longitude;
     map.setCenter(new kakao.maps.LatLng(selectLatitude, selectLongitude));
-    
+
     if (clickedMarker) {
         clickedMarker.setImage(new kakao.maps.MarkerImage(markerImages[beforeMarkerType], new kakao.maps.Size(40, 45))); // 이전 클릭된 마커를 원래 이미지로 되돌림
-        clickedMarker.setZIndex(4);// ZIndex 수정
+        clickedMarker.setZIndex(4); // ZIndex 수정
     }
-    
+
     beforeMarkerType = contentList[index].markerType;
-    
+
     markers[index].setZIndex(5);
     markers[index].setImage(clickedMarkerImage); // 새로 클릭된 마커를 클릭된 이미지로 변경
-    
+
     clickedMarker = markers[index]; // 현재 클릭된 마커를 업데이트
+
+    // 슬라이드로 이동하기 전에 visibleIndex를 계산
+    let visibleIndex = 0;
     
-    swiper.slideTo(activeIndex);
+    if(recommend){
+		$("#swiper-wrapper .placeListItem").each(function(i) {
+        if ($(this).is(":visible")) {
+            if (i === index) {
+                swiper.slideTo(visibleIndex);
+                return false; // 루프 종료
+            }
+            visibleIndex++;
+        }
+    });
+	}else{ $("#swiper-wrapper .resultListItem").each(function(i) {
+        if ($(this).is(":visible")) {
+            if (i === index) {
+                swiper.slideTo(visibleIndex);
+                return false; // 루프 종료
+            }
+            visibleIndex++;
+        }
+    });
+	}
+    
 }
 
-
 function clickContentMarker(index, contentList) {
-	navigateToMarkerOnSelect(index, contentList, index);
+	//navigateToMarkerOnSelect(index, contentList);
 	
 	$(".mapButton").removeClass('on'); // 기록에 들어갈 때 리스트로 보기 버튼 감추기
     $(".infoItem").removeClass("on");//infoItem에 있는 on 지우기

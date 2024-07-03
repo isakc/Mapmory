@@ -205,7 +205,7 @@
 						setMarkers(recordList);
 						navigateToMarkerOnSelect(0, recordList);
 					}else{
-						console.log("없음");
+						console.log("기록이 없습니다");
 		                $('#loading').hide();
 					}
 					
@@ -253,7 +253,6 @@
 				method: 'GET',
 				success: function(response) {
 					deleteSwiperWrapper();
-					console.log(response);
 
 					if(response.length != 0){
 						const coordinates = response.map( (place, index) => {

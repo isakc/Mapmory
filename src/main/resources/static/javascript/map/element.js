@@ -10,11 +10,11 @@ const preloadImage = (src, callback) => {
 };
 
 const recordListSwipe = (index) => {
-	if (swiper) {
+    if (swiper) {
         swiper.destroy(true, true);
     }
-    
-	swiper = new Swiper('.swiper-container', {
+
+    swiper = new Swiper('.swiper-container', {
         slidesPerView: 1,
         spaceBetween: 10,
         pagination: {
@@ -25,79 +25,80 @@ const recordListSwipe = (index) => {
         observeParents: true,
         watchOverflow: true,
         on: {
-			slideChange: function () {
-				let visibleIndex = this.activeIndex;
-				let realIndex = 0;
-				
-				$("#swiper-wrapper .resultListItem").each(function(i) {
-					if ($(this).is(":visible")) {
-						if (realIndex === visibleIndex) {
-							navigateToMarkerOnSelect(i, recordList, visibleIndex);
-							return false; // 루프 종료
-						}
-						realIndex++;
-					}
-				});
-			}
-		}
+            slideChange: function() {
+                let visibleIndex = this.activeIndex;
+                let realIndex = 0;
+
+                $("#swiper-wrapper .resultListItem").each(function(i) {
+                    if ($(this).is(":visible")) {
+                        if (realIndex === visibleIndex) {
+                            navigateToMarkerOnSelect(i, recordList);
+                            return false; // 루프 종료
+                        }
+                        realIndex++;
+                    }
+                });
+            }
+        }
     });
-    
-	const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
-	const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ? 
-		`/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` : 
-		'';
-	const htmlString = `
-		<div class="swiper-slide card border-0 container resultListItem" data-marker-type=${recordList[index].markerType}>
 
-	    	<div class="row g-0">
-	      		<div class="col-9 card-body p-1">
-	            	<div class="mb-2">
-	                	<h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
-	            	</div><!-- 제목 -->
-	            
-	      			<div>
-	      				${recordList[index].categoryImoji != null ? 
-	      				`<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
-	    				class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
-	    		
-	    				<strong class="text-primary">${recordList[index].stringDistance}</strong>
-	      			</div><!-- 이모지 + 거리 -->
-	      			
-	          		<p class="card-text">
-        				${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
-         				<a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
-    				</p><!-- 해시태그 -->
-	      	
-	          		<p class="card-text text-muted mt-3"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
-	          		
-	      		</div><!-- 본문 중간부분 col-9 -->
-	      
-	      	<div class="col-3">
-	      		<div class="recordImageContainer">
-	      		
-	      			${recordList[index].imageName && recordList[index].imageName.length > 0 ?
-	      			`<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>`:
-					''}
-	      		</div>
-	      	</div><!-- 사진 부분 col-3 -->
-	     </div><!--row-->
-	  </div><!-- card -->
-	`;
-	
-	const htmlElement = $(htmlString);
-	
-	preloadImage(categoryImgSrc, (err, src) => {
-		const categoryImgElement = htmlElement.find(`#category-img-${index}`);
-		categoryImgElement.attr('src', err ? categoryImgSrc : src);
-  	});
+    const categoryImgSrc = recordList[index].categoryImoji != null ? `/user/rest/emoji/${recordList[index].categoryImoji}` : '';
+    const recordImgSrc = recordList[index].imageName && recordList[index].imageName.length > 0 ?
+        `/user/rest/thumbnail/${recordList[index].imageName[0].imageTagText}` :
+        '';
+    const htmlString = `
+        <div class="swiper-slide card border-0 container resultListItem" data-marker-type=${recordList[index].markerType}>
 
-	preloadImage(recordImgSrc, (err, src) => {
-    	const recordImgElement = htmlElement.find(`#record-img-${index}`);
-    	recordImgElement.attr('src', err ? recordImgSrc : src);
-  	});
-  
-	swiper.appendSlide(htmlElement);
+            <div class="row g-0">
+                <div class="col-9 card-body p-1">
+                    <div class="mb-2">
+                        <h5 class="card-title fw-bold ellipsis fs-3">${recordList[index].recordTitle}</h5>
+                    </div><!-- 제목 -->
+
+                    <div>
+                        ${recordList[index].categoryImoji != null ?
+                        `<img id="category-img-${index}" src="https://via.placeholder.com/150?text=Loading..." alt="Category Imoji"
+                        class="recordEmoji rounded-image me-2" data-categoryNo ="${recordList[index].categoryNo}"/>` : ''}
+
+                        <strong class="text-primary">${recordList[index].stringDistance}</strong>
+                    </div><!-- 이모지 + 거리 -->
+
+                    <p class="card-text">
+                        ${recordList[index].hashtag && recordList[index].hashtag.length > 0 ? recordList[index].hashtag.map(tag => `
+                        <a href="#"> <small class="text-primary hashTag">${tag.imageTagText}</small></a>`).join('') : ''}
+                    </p><!-- 해시태그 -->
+
+                    <p class="card-text text-muted mt-3"><i class="fas fa-calendar"></i> ${recordList[index].recordAddDate}</p><!-- 날짜 -->
+
+                </div><!-- 본문 중간부분 col-9 -->
+
+            <div class="col-3">
+                <div class="recordImageContainer">
+
+                    ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
+                    `<img id="record-img-${index}" src="https://via.placeholder.com/150?text=Loading..." class="img-fluid rounded-start" alt="기록 사진"/>`:
+                    ''}
+                </div>
+            </div><!-- 사진 부분 col-3 -->
+        </div><!--row-->
+    </div><!-- card -->
+    `;
+
+    const htmlElement = $(htmlString);
+
+    preloadImage(categoryImgSrc, (err, src) => {
+        const categoryImgElement = htmlElement.find(`#category-img-${index}`);
+        categoryImgElement.attr('src', err ? categoryImgSrc : src);
+    });
+
+    preloadImage(recordImgSrc, (err, src) => {
+        const recordImgElement = htmlElement.find(`#record-img-${index}`);
+        recordImgElement.attr('src', err ? recordImgSrc : src);
+    });
+
+    swiper.appendSlide(htmlElement);
 };
+
 
 const recordListElement = (index) => {
 	const profileImgSrc = `/user/rest/profile/${recordList[index].profileImageName}`;
@@ -417,41 +418,50 @@ const detailRecordElement = (index) => {
 }
 
 const placeListSwipe = (index) => {
-	if (swiper) {
-		swiper.destroy(true, true);
-	}
+    if (swiper) {
+        swiper.destroy(true, true);
+    }
 
-	swiper = new Swiper('.swiper-container', {
-		slidesPerView: 1,
-		spaceBetween: 10,
-		pagination: {
-			el: '.swiper-pagination',
-			clickable: true,
-		},
-		watchOverflow: true,
-		on: {
-			slideChange: function() {
-				let index = this.activeIndex;
+    swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        watchOverflow: true,
+        on: {
+            slideChange: function() {
+                let visibleIndex = this.activeIndex;
+                let realIndex = 0;
 
-				navigateToMarkerOnSelect(index, placeList, index);
-			}
-		}
-	});
+                $("#swiper-wrapper .placeListItem").each(function(i) {
+                    if ($(this).is(":visible")) {
+                        if (realIndex === visibleIndex) {
+                            navigateToMarkerOnSelect(i, placeList);
+                            return false; // 루프 종료
+                        }
+                        realIndex++;
+                    }
+                });
+            }
+        }
+    });
 
-	const slideHtml = `
-		<div class="swiper-slide card border-0 mb-3 place placeListItem">
-			<h2 class="card-title fw-bold ellipsis fs-3">${placeList[index].placeName} </h2>
-			<p class="card-text">${placeList[index].categoryName} </p>
-			<p class="card-text fs-5">${placeList[index].addressName} </p>
-		</div>
-	`;
+    const slideHtml = `
+        <div class="swiper-slide card border-0 mb-3 place placeListItem">
+            <h2 class="card-title fw-bold ellipsis fs-3">${placeList[index].placeName} </h2>
+            <p class="card-text">${placeList[index].categoryName} </p>
+            <p class="card-text fs-5">${placeList[index].addressName} </p>
+        </div>
+    `;
 
-	swiper.appendSlide(slideHtml);
+    swiper.appendSlide(slideHtml);
 };
 
 
-const
-	recommendListElement = (index) => {
+
+const recommendListElement = (index) => {
 		return `<div class="card border-0 border-bottom mb-3 place placeListItem">
 					<h2 class="card-title fw-bold ellipsis fs-3">${placeList[index].placeName}</h2>
 					<p class="card-text">${placeList[index].categoryName} </p>
@@ -499,8 +509,6 @@ const detailPlaceElement = (index) => {
 	
 	
 const routeListElement = (response) => {
-	console.log(response);
-	
 	return `
 		<div class="btn-secondary-custom">
 			<div class="text-center text-light fs-4">

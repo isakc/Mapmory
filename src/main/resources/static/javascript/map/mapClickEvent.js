@@ -136,6 +136,7 @@ $(document).on("click", ".routeButton", function(event) {
 
 $(document).on("click", ".simpleRecordBackButton", function() {
 	showResult();
+	navigateToMarkerOnSelect($(this).parent().next().data('index'), recordList);
 }); // 간단보기에서 뒤로 눌렀을 때 result보이기
 
 $(document).on("click", ".simpleRecord .row", function() {
