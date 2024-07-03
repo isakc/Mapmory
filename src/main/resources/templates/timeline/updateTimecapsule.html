@@ -198,43 +198,45 @@ document.getElementById('recordText').addEventListener('input', function () {
 
 //입력된 해시태그를 처리하는 함수
 function processHashtags() {
-    // 입력된 해시태그 텍스트 가져오기
-    var hashtagText = document.getElementById('hashtagText').value.trim();
+  // 입력된 해시태그 텍스트 가져오기
+  var hashtagText = document.getElementById('hashtagText').value.trim();
 
-    // 첫 번째 문자가 #이 아닌 경우 처리
-    if (!hashtagText.startsWith('#')) {
-    	showModal('해시태그 오류', "해시태그는 '#'로 시작해야 합니다.");
-        //alert("해시태그는 '#'로 시작해야 합니다.");
-        $('#hashtagText').val('#'+$('#hashtagText').val());
-        return false;
-    }
+  // 첫 번째 문자가 #이 아닌 경우 처리
+  if (!hashtagText.startsWith('#')) {
+      document.getElementById('hashtagText').value = '#' + hashtagText;
+      showModal('해시태그 오류', "해시태그는 '#'로 시작해야 합니다.");
+      return false;
+  }
 
-    // 해시태그를 # 기준으로 분리하여 배열로 만듭니다
-    var hashtags = hashtagText.split('#').filter(Boolean); // Boolean을 사용하여 빈 문자열을 제거합니다
+  // 해시태그를 # 기준으로 분리하여 배열로 만듭니다
+  var hashtags = hashtagText.split('#').filter(Boolean); // Boolean을 사용하여 빈 문자열을 제거합니다
+	let hashtagCount=20;
+  // 최대 입력 가능한 해시태그 개수는 20개입니다
+  if (hashtags.length > hashtagCount) {
+      hashtags = hashtags.slice(0, hashtagCount); // 최대 20개까지만 유지
+      document.getElementById('hashtagText').value = '#' + hashtags.join('#');
+      showModal('해시태그 오류', "최대 20개의 해시태그까지 입력할 수 있습니다.");
+      return false;
+  }
 
-    // 최대 입력 가능한 해시태그 개수는 20개입니다
-    if (hashtags.length > 20) {
-    	showModal('해시태그 오류', "최대 20개의 해시태그까지 입력할 수 있습니다.");
-        //alert("최대 20개의 해시태그까지 입력할 수 있습니다.");
-        return false;
-    }
+	let hashtagNumber=20;
+  // 각 해시태그의 길이가 20자 이하인지 검사합니다
+  for (var i = 0; i < hashtags.length; i++) {
+      var hashtag = hashtags[i];
+      if (hashtag.length > hashtagNumber) {
+          hashtags[i] = hashtag.substring(0, hashtagNumber); // 20자까지만 유지
+          document.getElementById('hashtagText').value = '#' + hashtags.join('#');
+          showModal('해시태그 오류', "각 해시태그는 최대 20자까지 입력할 수 있습니다.");
+          return false;
+      }
+  }
 
-    // 각 해시태그의 길이가 20자 이하인지 검사합니다
-    for (var i = 0; i < hashtags.length; i++) {
-        var hashtag = hashtags[i];
-        if (hashtag.length > 20) {
-        	showModal('해시태그 오류', "각 해시태그는 최대 20자까지 입력할 수 있습니다.");
-            //alert("각 해시태그는 최대 20자까지 입력할 수 있습니다.");
-            return false;
-        }
-    }
+  // 해시태그를 배열 형태로 처리하거나 필요한 로직을 추가할 수 있습니다
+  //console.log("처리된 해시태그 배열:", hashtags);
 
-    // 해시태그를 배열 형태로 처리하거나 필요한 로직을 추가할 수 있습니다
-    //console.log("처리된 해시태그 배열:", hashtags);
+  // 여기서 추가적으로 필요한 로직을 수행하거나 서버에 전송할 수 있습니다
 
-    // 여기서 추가적으로 필요한 로직을 수행하거나 서버에 전송할 수 있습니다
-
-    return true; // 유효성 검사를 모두 통과했을 경우 true 반환
+  return true; // 유효성 검사를 모두 통과했을 경우 true 반환
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -495,11 +497,11 @@ $(function() {
 	}) */
 	
 	$('input[name="hashtagText"]').on('keyup',function(event){
-   			if(processHashtags()){
-    			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.');
-    		}else{
-    			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도');
-    		}
+			if(processHashtags()){
+	   			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.').removeClass('text-danger').addClass('text-muted');
+	   		}else{
+	   			$('#hashtagTextHelp').text('해시태그 형식이 맞지 않습니다. 예시 : #해시태그 #추가 #지도').addClass('text-danger').removeClass('text-muted');
+	   		}
 		
 		/* if (event.keyCode !== 32 || event.keyCode !== 8) {
    			if(processHashtags()){
