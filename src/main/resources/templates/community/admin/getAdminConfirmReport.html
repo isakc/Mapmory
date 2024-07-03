@@ -172,7 +172,7 @@
 			<div id="recordField" th:if="${report.recordNo!=null}">
 				<label for="recordNo">기록내용</label>
 				<div class="d-grid gap-2">
-			        <button type="button" class="btn btn-info" id="toRecord" th:attr="data-url=@{'/community/getDetailSharedRecord/' + ${report.recordNo}}">기록보기</button>
+			        <button type="button" class="btn btn-outline-info" id="toRecord" th:attr="data-url=@{'/community/getDetailSharedRecord/' + ${report.recordNo}}">기록보기</button>
 				</div>
 			</div>
 			<div id="replyField" th:if="${report.replyNo!=null}">
