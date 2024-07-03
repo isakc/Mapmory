@@ -121,6 +121,7 @@
 	</div>
 </div>
 <div th:replace="common/footer::defaultFooter"></div>
+<div th:include="timeline/component/modal::defaultModal"></div>
 
 <input type="hidden" th:name="recordNo" th:value="${record.recordNo}"/>
 	
@@ -135,6 +136,11 @@ $(function() {
 	let recordNo=$('input[name="recordNo"]').val();
     let selectDay='[[${selectDay}]]';//'[[${selectDay}]]' String형, [[${selectDay}]] int형(백엔드에서 int형으로 보내면)
 	let uri;
+    let badImageCount=[[${badImageCount}]];
+    
+    if(badImageCount!=0){
+    	showModal('사진 유해성 검사','총 '+badImageCount+' 개의 사진이 유해성 검사 통과 실패하였습니다.')
+    }
 	
 	$(document).on('click', '#getKakaoMap', function() {
 	    if ($('#map').hasClass('visible')) {
