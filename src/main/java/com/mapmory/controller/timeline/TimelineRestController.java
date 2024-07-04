@@ -239,9 +239,9 @@ public class TimelineRestController {
 		return timelineUtil.getFile(type, name);
 	}
 	
-	@GetMapping("checkBadWord")
+	@PostMapping("checkBadWord")
 	public ResponseEntity<Map<String, Object>> checkBadWord(
-			@RequestParam(name = "text", required = true) String text,
+			@RequestBody String text,
 			Map<String, Object> map) throws Exception, IOException {
 		map = new HashMap<String, Object>();
 		map.put("badWord", ContentFilterUtil.checkBadWord(text) );

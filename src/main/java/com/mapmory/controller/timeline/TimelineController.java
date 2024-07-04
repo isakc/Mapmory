@@ -344,7 +344,7 @@ public class TimelineController {
 		}else {
 			record.setTempType(0);
 		}
-		System.out.println("record.getSharedDate() :"+record.getSharedDate());
+		//System.out.println("record.getSharedDate() :"+record.getSharedDate());
 		if(sharedDateType!=null&&sharedDateType==1) {
 			if(ContentFilterUtil.checkBadWord(record.getRecordText()) 
 					|| ContentFilterUtil.checkBadWord(record.getRecordTitle())

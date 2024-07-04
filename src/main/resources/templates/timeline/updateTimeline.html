@@ -360,10 +360,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function badWord(text, idName){
         //console.log('Space bar was pressed and released');
         $.ajax("/timeline/rest/checkBadWord",{
-			method : "GET",
+			method : "POST",
 			dataType : "json",
-			data : {
-				text : text
+			data : JSON.stringify({
+				text: text 
+				}),
+			headers :{
+				'Content-Type':'application/json; charset=UTF-8',
+				'Accept':'application/json; charset=UTF-8'
 			},
 			success : function(response,status){
 				let text=
@@ -510,6 +514,13 @@ $(function() {
 		let text=$('input[name="recordTitle"]').val();
 		let idName='recordTitleHelp3';
 		badWord(text,idName);
+	})
+	
+	$('input[name="hashtagText"]').on('click',function(event){
+		let hashtag=$('input[name="hashtagText"]').val();
+		if(hashtag.trim()===""){
+			$('input[name="hashtagText"]').val('#');
+		}
 	})
 	
 	$('input[name="hashtagText"]').on('keyup',function(event){
