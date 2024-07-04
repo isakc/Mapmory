@@ -64,13 +64,14 @@
                     		return;
                     	}
                     		
-                    	
-                    	if(response == "wrong password") {
+                    	/*
+                    	if(response == "wrong") {
                     		
                     		alert("아이디 또는 비밀번호가 틀렸습니다.");
                     		return;
                     		
                     	}
+                    	*/
                     	
                     	if(response == "leaveUser") {
                     		
@@ -89,7 +90,7 @@
                     		return;
                     	}
                     	
-                    	if(response == "passwordExceeded") {
+                    	if(response.includes("passwordExceeded")) {
                     		
                     		const result = confirm("비밀번호 변경 권장 기한을 넘어섰습니다. 비밀번호를 변경하시겠습니까?");
                         	if(result) {
@@ -98,7 +99,19 @@
                         		window.location.href="/user/getUpdatePasswordView";
                         		return;
                         		
-                        	} 
+                        	} else {
+                        		
+                        		console.log("flag");
+                        		
+                        		const role = response.split(" ")[1];
+                        		
+                        		if(role == 1)
+                        			window.location.href="/map";
+                        		else 
+                        			window.location.href="/user/admin/getAdminMain";
+                        		
+                        		return;
+                        	}
                         	
                     	} 
 						
@@ -124,6 +137,13 @@
                     	}
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
+                    	
+						if(jqXHR.status == 401) {
+                    		
+                    		alert("아이디 또는 비밀번호가 틀렸습니다.");
+                    		return;
+                    		
+                    	}
                     	
                     	if(jqXHR.status === 0 && jqXHR.statusText === 'error')
                     		alert('현재 서버가 작동하지 않고 있습니다...');

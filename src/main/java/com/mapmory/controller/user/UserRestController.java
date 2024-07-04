@@ -182,7 +182,7 @@ public class UserRestController {
 		
 		if( !isValid) {
 
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("wrong password");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("wrong");
 			
 		} else {
 			
@@ -1055,7 +1055,7 @@ public class UserRestController {
 		if(!needToChangePassword) {
 		
 			// 비밀번호 변경 후, 반드시 기존 쿠키와 세션을 제거할 것.
-			return ResponseEntity.ok("passwordExceeded");  // 비밀번호 변경을 권장하기 위한 표시
+			return ResponseEntity.ok("passwordExceeded "+role);  // 비밀번호 변경을 권장하기 위한 표시
 			
 		} else {
 
