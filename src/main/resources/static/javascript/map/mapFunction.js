@@ -25,12 +25,12 @@ function setMarkers(contentList) {
 
         kakao.maps.event.addListener(marker, 'click', function() {
 			if(content.markerType === 0 || content.markerType === 1 || content.markerType === 2 || content.markerType === 3){
-				content.markerType === 3 ? navigateToMarkerOnSelect(index, contentList, 'recommend') : navigateToMarkerOnSelect(index, contentList);
 				
 				if(description.hasClass('on')){
 					clickContentMarker(index, contentList);
 				}
 				showResultDivs();
+				content.markerType === 3 ? navigateToMarkerOnSelect(index, contentList, 'recommend') : navigateToMarkerOnSelect(index, contentList);
 			}
         });// 마커에 클릭이벤트를 등록
         
@@ -97,7 +97,7 @@ function navigateToMarkerOnSelect(index, contentList, recommend) {
 }
 
 function clickContentMarker(index, contentList) {
-	//navigateToMarkerOnSelect(index, contentList);
+	navigateToMarkerOnSelect(index, contentList);
 	
 	$(".mapButton").removeClass('on'); // 기록에 들어갈 때 리스트로 보기 버튼 감추기
     $(".infoItem").removeClass("on");//infoItem에 있는 on 지우기

@@ -23,6 +23,7 @@
       </div>
       <div class="modal-body">
         <p id="modalText">Modal text</p>
+        <input id="modalTempInput" type="hidden"/>
       </div>
       <div class="modal-footer">
         <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
@@ -41,6 +42,18 @@ function showModal(title, text) {
   document.getElementById('modalText').textContent = text;
   defaultModal.show();
   $('#modalClose').focus();
+
+  // 모달이 닫힐 때 백드롭 제거
+  $('#defaultModal').on('hide.bs.modal', function () {
+      $('.modal-backdrop').remove();
+  });
+}
+// 커서를 텍스트의 끝으로 이동시키는 함수
+function setCursorToEnd(id) {
+    var element = document.getElementById(id);
+    element.focus();
+    var length = element.value.length;
+    element.setSelectionRange(length, length);
 }
 </script>
 </div>

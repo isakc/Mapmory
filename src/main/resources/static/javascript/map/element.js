@@ -351,7 +351,7 @@ const detailRecordElement = (index) => {
                 
                 ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
                 `
-                <div class="swiper mySwiper mt-3">
+                <div class="swiper myImageSwiper mt-3">
                 	<div class="swiper-wrapper">
                 		${recordList[index].imageName.map(image => 
                 		` <div class="swiper-slide">
@@ -396,7 +396,7 @@ const detailRecordElement = (index) => {
   		recordList[index].imageName != '' ?  		
   		setTimeout(() => {
     	
-        	swiper = new Swiper(htmlElement.find('.mySwiper')[0], {
+    	const Imageswiper = new Swiper(htmlElement.find('.myImageSwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
             	loop: true,
             	slidesPerView: 1, // 한 번에 1개 슬라이드만 보이도록 설정
@@ -473,7 +473,7 @@ const recommendListElement = (index) => {
 const detailPlaceElement = (index) => {
 	return `
 		<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
-			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
+			<i class="fas fa-arrow-left fs-3 simplePlaceBackButton" style="position: absolute; left: 0;"></i>
 			<i class="fas fa-minus fs-3"></i>
 		</div>
 
