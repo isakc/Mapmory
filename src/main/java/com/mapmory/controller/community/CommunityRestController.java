@@ -329,43 +329,7 @@ public class CommunityRestController {
 		
 		return ResponseEntity.ok(communityLogs);
 	}
-	
-//	//좋아요 싫어요 상태 반환
-//	@PostMapping("/rest/getReactionStatus")
-//	public ResponseEntity<?> getReactionStatus(@RequestBody CommunityLogs communityLogs,  @RequestParam(value = "replyNo", required = false) Integer replyNo, 
-//							String userId, HttpServletRequest request) throws Exception {
-//		
-//		userId = redisUtil.getSession(request).getUserId();
-//		communityLogs.setUserId(userId);
-//		
-//		boolean alreadyReaction = communityService.getReactionStatusList(communityLogs);
-//	
-//		if(!alreadyReaction) {
-//			
-//			try {
-//				return ResponseEntity.ok().build();
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
-//			}	
-//			} else {
-//				return ResponseEntity.badRequest().body("이미 감정 표현했습니다");
-//			}
-//	}
-
-	
-//	//커뮤니티 로그 추가
-//	@PostMapping("/rest/addCommunityLogs")
-//	public ResponseEntity<CommunityLogs> addCommunityLogs(@RequestBody CommunityLogs communityLogs, String userId, HttpServletRequest request) throws Exception {
-//		
-//		userId = redisUtil.getSession(request).getUserId();
-//		
-//		communityLogs.setUserId(userId);
-//		
-//		communityService.addCommunityLogs(communityLogs);
-//		return ResponseEntity.ok(communityLogs);
-//	}
-	
+		
 	//즐겨찾기 취소
 	@DeleteMapping("/rest/deleteBookmark/{userId}/{recordNo}")
 	public String deleteCommunityLogs(@PathVariable String userId, @PathVariable int recordNo, HttpServletRequest request) throws Exception {
@@ -508,7 +472,7 @@ public class CommunityRestController {
 	
 	//차단 해제
 	@DeleteMapping("/rest/deleteBlock/{userId}/{targetId}")
-	public String deleteReply(@PathVariable String userId, @PathVariable String targetId, HttpServletRequest request) throws Exception {
+	public String deleteBlockUser(@PathVariable String userId, @PathVariable String targetId, HttpServletRequest request) throws Exception {
 		
 		userId = redisUtil.getSession(request).getUserId();
 		communityService.deleteBlockedUser(userId, targetId);
