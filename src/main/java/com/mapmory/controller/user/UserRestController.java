@@ -182,7 +182,7 @@ public class UserRestController {
 		
 		if( !isValid) {
 
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("wrong password");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("wrong");
 			
 		} else {
 			
