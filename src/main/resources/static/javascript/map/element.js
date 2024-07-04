@@ -351,7 +351,7 @@ const detailRecordElement = (index) => {
                 
                 ${recordList[index].imageName && recordList[index].imageName.length > 0 ?
                 `
-                <div class="swiper mySwiper mt-3">
+                <div class="swiper myImageSwiper mt-3">
                 	<div class="swiper-wrapper">
                 		${recordList[index].imageName.map(image => 
                 		` <div class="swiper-slide">
@@ -396,7 +396,7 @@ const detailRecordElement = (index) => {
   		recordList[index].imageName != '' ?  		
   		setTimeout(() => {
     	
-        	swiper = new Swiper(htmlElement.find('.mySwiper')[0], {
+    	const Imageswiper = new Swiper(htmlElement.find('.myImageSwiper')[0], {
             	direction: 'horizontal', // 가로 방향 슬라이드
             	loop: true,
             	slidesPerView: 1, // 한 번에 1개 슬라이드만 보이도록 설정
