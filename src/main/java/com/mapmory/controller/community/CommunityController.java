@@ -246,7 +246,7 @@ public class CommunityController {
 	
 	//사용자 신고 목록 조회	
 	@GetMapping("/getUserReportList/{userId}")
-	public String getUserReportListt(Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
+	public String getUserReportList(Search search, @PathVariable("userId") String userId, Model model, HttpServletRequest request) throws Exception {
     
 		userId = redisUtil.getSession(request).getUserId();
 
@@ -327,20 +327,4 @@ public class CommunityController {
 		model.addAttribute("totalCount", blockList.get("totalCount"));		
 		return "community/getBlockList";
 	}
-	
-	
-	
-//	@PostMapping("/deleteReplyByRecord/{recordNo}")
-//	public void deleteReplyByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-//		communityService.deleteReplyByRecord(recordNo);
-//		return;
-//	}
-//
-//	@PostMapping("/deleteCommunityLogsByRecord/{recordNo}")
-//	public void deleteCommunityLogsByRecord(@PathVariable("recordNo") int recordNo) throws Exception {
-//		communityService.deleteCommunityLogsByRecord(recordNo);
-//		return;
-//	}	
-	
-	
 }

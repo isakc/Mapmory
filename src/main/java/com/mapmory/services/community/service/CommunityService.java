@@ -92,11 +92,5 @@ public interface CommunityService {
 	
 	//커뮤니티 좋아요 싫어요 전환
 	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception;
-	
-//	//기록 삭제 시 댓글 삭제
-//	public void deleteReplyByRecord(int recordNo) throws Exception;
-//	
-//	//기록 삭제 시 커뮤니티 활동 삭제
-//	public void deleteCommunityLogsByRecord(int recordNo) throws Exception;
-		
+			
 }
