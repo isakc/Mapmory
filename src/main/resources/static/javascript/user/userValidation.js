@@ -114,7 +114,7 @@ $(function() {
 	    if ( !nameRegex.test(name)) {
 
 			$('#userName').removeClass('is-valid').addClass('is-invalid');
-	        $('#userNameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.');
+	        $('#userNameMsg').removeClass('valid-feedback').addClass('invalid-feedback').text('이름은 최소 2자 최대 18자의 한글 및 영문 사용만 가능합니다.').show();
 	        $('#userNameChecked').text('false');
 	        event.preventDefault();
 	        return;
