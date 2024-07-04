@@ -42,13 +42,13 @@ html, body {
 			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 카테고리 생성을 할 수 없습니다.'"></small>
     	</div>
     </div>
-    
-	<div th:include="timeline/component/modal::defaultModal"></div>
 	
 	<button type="button" class="btn btn-primary btn-lg" th:name="addCategory" th:text="'다시작성'"></button>
 	<button type="button" class="btn btn-primary btn-lg" th:text="'작성완료'"></button>
 	
 	</form>
+    
+	<div th:include="timeline/component/modal::defaultModal"></div>
 		
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
