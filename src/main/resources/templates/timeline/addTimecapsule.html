@@ -376,6 +376,13 @@ $(function() {
 		}
 	}) */
 	
+	$('input[name="hashtagText"]').on('click',function(event){
+		let hashtag=$('input[name="hashtagText"]').val();
+		if(hashtag.trim()===""){
+			$('input[name="hashtagText"]').val('#');
+		}
+	})
+	
 	$('input[name="hashtagText"]').on('keyup',function(event){
 		if(processHashtags()){
    			$('#hashtagTextHelp').text('#해시태그 형식으로 작성해주세요, 해시태그 당 20자까지 입력되며, 최대 20개의 해시태그 입력이 가능합니다.').removeClass('text-danger').addClass('text-muted');

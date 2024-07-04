@@ -258,12 +258,14 @@ public class TimelineUtil {
 			for(int i=1;i<hashtagArr.length;i++) {
 				if(i<=20) {
 					if(hashtagArr[i].length()<=20) {
-					hashtagList.add(ImageTag
-						.builder()
-						.imageTagText("#"+hashtagArr[i])
-						.imageTagType(0)
-						.recordNo(recordNo)
-						.build());
+						if(!hashtagArr[i].trim().equals("")) {
+						hashtagList.add(ImageTag
+							.builder()
+							.imageTagText("#"+hashtagArr[i])
+							.imageTagType(0)
+							.recordNo(recordNo)
+							.build());
+						}
 					}
 				}
 			}
