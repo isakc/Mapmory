@@ -139,6 +139,11 @@ $(document).on("click", ".simpleRecordBackButton", function() {
 	navigateToMarkerOnSelect($(this).parent().next().data('index'), recordList);
 }); // 간단보기에서 뒤로 눌렀을 때 result보이기
 
+$(document).on("click", ".simplePlaceBackButton", function() {
+	showResult();
+	navigateToMarkerOnSelect($(this).parent().next().data('index'), placeList, 'recommend');
+}); // 간단보기에서 뒤로 눌렀을 때 result보이기
+
 $(document).on("click", ".simpleRecord .row", function() {
 	$(".infoItem").removeClass('on');
 	description.addClass('on');

@@ -473,7 +473,7 @@ const recommendListElement = (index) => {
 const detailPlaceElement = (index) => {
 	return `
 		<div class="d-flex justify-content-center align-items-center" style="position: relative; width: 100%;">
-			<i class="fas fa-arrow-left fs-3 simpleRecordBackButton" style="position: absolute; left: 0;"></i>
+			<i class="fas fa-arrow-left fs-3 simplePlaceBackButton" style="position: absolute; left: 0;"></i>
 			<i class="fas fa-minus fs-3"></i>
 		</div>
 
