@@ -64,13 +64,14 @@
                     		return;
                     	}
                     		
-                    	
-                    	if(response == "wrong password") {
+                    	/*
+                    	if(response == "wrong") {
                     		
                     		alert("아이디 또는 비밀번호가 틀렸습니다.");
                     		return;
                     		
                     	}
+                    	*/
                     	
                     	if(response == "leaveUser") {
                     		
@@ -124,6 +125,13 @@
                     	}
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
+                    	
+						if(jqXHR.status == 401) {
+                    		
+                    		alert("아이디 또는 비밀번호가 틀렸습니다.");
+                    		return;
+                    		
+                    	}
                     	
                     	if(jqXHR.status === 0 && jqXHR.statusText === 'error')
                     		alert('현재 서버가 작동하지 않고 있습니다...');
