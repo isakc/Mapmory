@@ -1320,7 +1320,7 @@ public class UserServiceImpl implements UserService {
 		StringBuilder sb = new StringBuilder();
 
         sb.append("휴대폰 인증 안내:\n")
-          .append("Mapmory에 오신 것을 환영합니다. 회원가입을 완료하려면 휴대폰 인증이 필요합니다.\n")
+          .append("Mapmory 서비스를 이용해주셔서 감사합니다. 요청하신 인증번호를 제공해드립니다.\n")
           .append("다음의 인증번호를 입력해주세요.\n")
           .append("["+codeValue+"]\n");
         
