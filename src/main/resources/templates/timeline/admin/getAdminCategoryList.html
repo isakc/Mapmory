@@ -42,7 +42,7 @@
 		<span th:each="category : ${categoryList}">
 			<span th:name="${category.categoryNo}">
 				<span th:id="categorySpan" th:name="categorySpan" th:data-categoryno="${category.categoryNo}" class="btn">
-					<img th:src="${category.categoryImoji}" style="height:24px;"/>
+					<img th:src="'data:image/png;base64,' + ${category.categoryImojiByte}" style="height:24px;"/>
 					<span th:text="${category.categoryName}"></span>
 				</span>
 	    		<button class="btn btn-primary btn-sm" type="button" th:name="categoryX" 

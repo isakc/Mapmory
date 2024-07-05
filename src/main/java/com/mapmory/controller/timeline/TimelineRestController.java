@@ -68,14 +68,11 @@ public class TimelineRestController {
 	private TimelineService timelineService;
 	
 	@Autowired
-	// @Qualifier("userService")
+	//@Qualifier("userService")
 	private UserService userService;
 	
 	@Autowired
 	private TimelineUtil timelineUtil;
-	
-	@Autowired
-	private ObjectStorageUtil objectStorageUtil;
 	
 	@Value("${speech.folderName}")
 	private String speechFolderName;
@@ -91,7 +88,7 @@ public class TimelineRestController {
 	}
 	
 	@PostMapping("addTimeline")
-	public ResponseEntity<Map<String,Object>> addTimelineView(
+	public ResponseEntity<Map<String, Object>> addTimeline(
 			@RequestBody Record record,
 			Map<String,Object> map) throws Exception,IOException {
 		map=new HashMap<String, Object>();
@@ -121,7 +118,7 @@ public class TimelineRestController {
 	}
 	
 	@GetMapping("deleteImage")
-	public ResponseEntity<Map<String,Object>> deleteImage(
+	public ResponseEntity<Map<String, Object>> deleteImage(
 			@RequestParam(name = "imageNo", required = true) int imageNo,
 			@RequestParam(name = "imageName", required = true) String imageName,
 			Map<String,Object> map) throws Exception,IOException {
@@ -161,7 +158,7 @@ public class TimelineRestController {
 			@RequestParam(name = "userId", required = true) String userId,
 			@RequestParam(name = "currentPage", required = true) int currentPage,
 			@RequestParam(name="tempType", required = true) int tempType,
-			Map<String, Object> response
+			Map<String, Object> map
 			) throws Exception,IOException{
 		
 		Search search = Search.builder()
@@ -171,9 +168,9 @@ public class TimelineRestController {
 				.limit(pageLimit)
 				.currentPage(currentPage).build();
 		List<Record> recordList = timelineService.getTimelineList(search);
-		response = new HashMap<>();
-        response.put("records", recordList);
-		return ResponseEntity.ok(response);
+		map = new HashMap<>();
+        map.put("records", recordList);
+		return ResponseEntity.ok(map);
 	}
 	
 	//getTimecapsuleList에 하나로 합쳤음
@@ -215,7 +212,7 @@ public class TimelineRestController {
 			) throws Exception,IOException {
 		//System.out.println("category : "+category);
 		map = new HashMap<String, Object>();
-		category.setCategoryImoji( timelineUtil.imojiUrlToName(category.getCategoryImoji()) );
+		//category.setCategoryImoji( timelineUtil.imojiUrlToName(category.getCategoryImoji()) );
 		category = timelineUtil.uploadImojiFile(category, categoryImojiFile) ;
 		boolean success=timelineService.updateCategory(category)!=0 ? true:false;
 		map.put("success", success);

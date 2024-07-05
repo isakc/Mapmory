@@ -53,9 +53,9 @@ public interface TimelineService {
 	
 	public List<NotifyTimecapsuleDto> getNotifyTimecapsule() throws Exception;
 	
-	public List<KeywordData> getKeywordList(String userId) throws Exception;
-	
 	public int addKeyword(KeywordData keywordData) throws Exception;
+	
+	public List<KeywordData> getKeywordList(String userId) throws Exception;
 	
 	public SharedRecord getDetailSharedRecord(int recordNo, String userId) throws Exception;
 	

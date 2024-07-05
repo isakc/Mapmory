@@ -44,7 +44,6 @@ public class Record {
 	private String d_DayDate;
 	private int timecapsuleType;
 	
-	private Double distance;
 	private String mediaByte;
 	private String categoryImojiByte;
 	
