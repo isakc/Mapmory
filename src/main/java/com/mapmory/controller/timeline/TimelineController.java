@@ -71,12 +71,6 @@ public class TimelineController {
 	
 	@Value("${default.time}")
 	private String defaultTime;
-	
-	@Value("${object.timeline.image}")
-	private String imageFileFolder;
-	
-	@Value("${object.timeline.media}")
-	private String mediaFileFolder;
     
     @Value("${timeline.kakaomap.restKey}")
     private String restKey;
@@ -92,16 +86,11 @@ public class TimelineController {
     @Value("${page.Size}")
     private int pageLimit;
 
-    
+    //Tmap 다중경유지 30 경로 옵션 선택
     private int searchOption=2;
 	
 	public TimelineController(){
 		System.out.println("TimelineController default Contrctor call : " + this.getClass());
-	}
-
-	
-	@GetMapping({"/*"})
-	public void getTimelineKey(Model model) {
 	}
 	
 	@GetMapping("getTimelineList")
@@ -194,48 +183,6 @@ public class TimelineController {
 		model.addAttribute("timelineList", timelineList);
 		model.addAttribute("selectDay",selectDay);
 		return "timeline/getTimelineList";
-	}
-	
-	@GetMapping("getSummaryRecord")
-	public String getSummaryRecord(Model model,
-			@RequestParam(name="searchCondition", required = true) int searchCondition,
-			@RequestParam(name="selectDate", required = false) String selectDate,
-			HttpServletRequest request) throws Exception,IOException{
-		String userId = redisUtil.getSession(request).getUserId();
-		
-		if(selectDate==null) {
-			selectDate=LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
-		}else {
-			selectDate+="T"+LocalTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
-		}
-		
-		Search search = Search.builder()
-				.userId(userId)
-				.searchCondition(searchCondition)
-				.searchKeyword(selectDate)
-				.build();
-		
-		String searchDate = timelineService.getSummaryDate(search);
-		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
-		if(searchDate!=null) {
-			searchDate=searchDate.substring(0, 10);
-			search.setSelectDate(Date.valueOf(searchDate));
-			
-			recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
-			
-			List<String> dateList=timelineService.getSummaryDateList(userId);
-			
-			model.addAttribute("dateList",dateList);
-			model.addAttribute("startDay", dateList.get(0));
-			model.addAttribute("endDay", dateList.get(dateList.size()-1) );
-			model.addAttribute("selectDate", searchDate);
-		}
-		
-		System.out.println("recordList : " + recordList);
-		model.addAttribute("apiKey", kakaoMapApiKey);
-		model.addAttribute("restKey",restKey);
-		model.addAttribute("recordList", recordList);
-		return "timeline/getSummaryRecord";
 	}
 	
 	//getDetailTimeline에서 처리 완료
@@ -601,6 +548,48 @@ public class TimelineController {
 		return "redirect:/timeline/getTimecapsuleList"+param;
 	}
 	
+	@GetMapping("getSummaryRecord")
+	public String getSummaryRecord(Model model,
+			@RequestParam(name="searchCondition", required = true) int searchCondition,
+			@RequestParam(name="selectDate", required = false) String selectDate,
+			HttpServletRequest request) throws Exception,IOException{
+		String userId = redisUtil.getSession(request).getUserId();
+		
+		if(selectDate==null) {
+			selectDate=LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
+		}else {
+			selectDate+="T"+LocalTime.now(ZoneId.of("Asia/Seoul")).toString().split("\\.")[0];
+		}
+		
+		Search search = Search.builder()
+				.userId(userId)
+				.searchCondition(searchCondition)
+				.searchKeyword(selectDate)
+				.build();
+		
+		String searchDate = timelineService.getSummaryDate(search);
+		List<SummaryRecordDto> recordList=new ArrayList<SummaryRecordDto>();
+		if(searchDate!=null) {
+			searchDate=searchDate.substring(0, 10);
+			search.setSelectDate(Date.valueOf(searchDate));
+			
+			recordList = timelineUtil.summaryFileNameToByte(timelineService.getSummaryRecord(search));
+			
+			List<String> dateList=timelineService.getSummaryDateList(userId);
+			
+			model.addAttribute("dateList",dateList);
+			model.addAttribute("startDay", dateList.get(0));
+			model.addAttribute("endDay", dateList.get(dateList.size()-1) );
+			model.addAttribute("selectDate", searchDate);
+		}
+		
+		System.out.println("recordList : " + recordList);
+		model.addAttribute("apiKey", kakaoMapApiKey);
+		model.addAttribute("restKey",restKey);
+		model.addAttribute("recordList", recordList);
+		return "timeline/getSummaryRecord";
+	}
+	
 	@GetMapping("getKeywordList")
 	public String getKeywordList(Model model,
 			HttpServletRequest request
@@ -621,10 +610,6 @@ public class TimelineController {
 		model.addAttribute("keywordList",keywordJSONString);
 		return "timeline/getKeywordList";
 	}
-	@GetMapping("addVoiceToText")
-	public String addVoiceToText() throws Exception,IOException {
-		return "timeline/addVoiceToText";
-	}
 	
 	@GetMapping("getUserCategoryList")
 	public String getUserCategoryList(Model model) throws Exception,IOException{
@@ -635,7 +620,8 @@ public class TimelineController {
 	
 	@GetMapping("getAdminCategoryList")
 	public String getAdminCategoryList(Model model) throws Exception,IOException{
-		List<Category> categoryList = timelineUtil.categoryImojiListToUrl(timelineService.getCategoryList());
+		List<Category> categoryList = timelineUtil.categoryImojiListToByte(
+				timelineService.getCategoryList());
 		System.out.println(categoryList);
 		model.addAttribute("categoryList", categoryList);
 		return "timeline/admin/getAdminCategoryList";
@@ -648,13 +634,8 @@ public class TimelineController {
 	
 	@GetMapping("updateCategory")
 	public String updateCategoryView(Model model,@RequestParam(name="categoryNo",required = true) int categoryNo) throws Exception,IOException {
-		model.addAttribute("category",timelineUtil.categoryImojiNameToUrl(timelineService.getCategory(categoryNo)));
+		model.addAttribute("category",timelineUtil.categoryImojiNameToByte(timelineService.getCategory(categoryNo)));
 		return "timeline/admin/updateCategory";
-	}
-	
-	@GetMapping("footer")
-	public String footer() throws Exception,IOException {
-		return "common/footer";
 	}
 	
 	@GetMapping("addTimelienForRecord")
@@ -707,6 +688,11 @@ public class TimelineController {
 					return "redirect:/timeline/updateTimecapsule"+param;
 				}
 	}
+	
+//	@GetMapping("addVoiceToText")
+//	public String addVoiceToText() throws Exception,IOException {
+//		return "timeline/addVoiceToText";
+//	}
 	
 	
 	@GetMapping({"getDetailTimeline3"})

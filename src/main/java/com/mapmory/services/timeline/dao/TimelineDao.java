@@ -1,6 +1,5 @@
 package com.mapmory.services.timeline.dao;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +11,6 @@ import com.mapmory.services.timeline.domain.ImageTag;
 import com.mapmory.services.timeline.domain.KeywordData;
 import com.mapmory.services.timeline.domain.Record;
 import com.mapmory.services.timeline.dto.CountAddressDto;
-import com.mapmory.services.timeline.dto.ImageTagDto;
 import com.mapmory.services.timeline.dto.NotifyTimecapsuleDto;
 import com.mapmory.services.timeline.dto.SearchDto;
 import com.mapmory.services.timeline.dto.SharedRecordDto;
@@ -30,7 +28,7 @@ public interface TimelineDao {
 	
 	public List<Record> selectTimelineList(Search search) throws Exception;
 	
-	public int selectTimelineCount(Search search) throws Exception;
+	//public int selectTimelineCount(Search search) throws Exception;
 	
 	public void updateTimeline(Record record) throws Exception;
 	
@@ -67,15 +65,15 @@ public interface TimelineDao {
 	
 	public List<KeywordData> selectKeywordList(String userId) throws Exception;
 	
-	public KeywordData selectKeyword(KeywordData keywordData) throws Exception;
-	
 	public int insertKeyword(KeywordData keywordData) throws Exception;
+	
+	public KeywordData selectKeyword(KeywordData keywordData) throws Exception;
 	
 	public int updateKeyword(KeywordData keywordData) throws Exception;
 	
 	public int deleteKeyword(int keywordNo) throws Exception;
 	
-	public int deleteKeywordToId(String userId) throws Exception;
+	//public int deleteKeywordToId(String userId) throws Exception;//정책상 user 삭제가 없음
 	
 	public Map<String, Object> selectDetailSharedRecord(int recordNo, String userId) throws Exception;
 	
@@ -83,13 +81,13 @@ public interface TimelineDao {
 	
 	public List<Map<String, Object>> selectMapRecordList(SearchDto searchDto) throws Exception;
 	
-	public Record selectDetailTimeline2(int recordNo) throws Exception;
-	
 	public List<Map<String, Object>> selectProfileTimelineList(Search search) throws Exception;
 	
 	public Integer selectProfileTimelineCount(Search search) throws Exception;
 	
 	//아래 미사용
+	
+	//public Record selectDetailTimeline2(int recordNo) throws Exception;
 //	//record insert시 Imagefile insert
 //	public void insertImageName(Map<String,Object> map) throws Exception;
 //	//record insert시 Hashtag insert
