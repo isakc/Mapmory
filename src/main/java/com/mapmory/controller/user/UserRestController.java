@@ -475,42 +475,6 @@ public class UserRestController {
 		return ResponseEntity.ok(userId);
 	}
 	
-	@PostMapping("/getDailyStatistics")
-	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
-		
-		LocalDate day = map.get("selectDate");
-		
-		System.out.println("which day ? " + day);
-		
-		LoginSearch search = LoginSearch.builder()
-				.selectLoginDate(day)
-				.build();
-		
-		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
-		
-		return ResponseEntity.ok(result);
-
-	}
-	
-
-	@PostMapping("/getMonthlyStatistics")
-	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, String> map) {
-		
-		String year = map.get("year");
-		String month = map.get("month");
-		
-		// System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
-		System.out.println("YYYY-MM : " + year + "-" + month);
-		
-		LoginSearch search = LoginSearch.builder()
-				.year(year)
-				.month(month)
-				.build();
-		
-		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
-		
-		return ResponseEntity.ok(result);
-	}
 	
 	@PostMapping("/updateUserInfo")
 	public ResponseEntity<Boolean> updateUserInfo(HttpServletRequest request, @RequestBody User user) throws Exception {
@@ -800,24 +764,42 @@ public class UserRestController {
 			return ResponseEntity.internalServerError().body(false);
 	}
 	
-	@PostMapping("/admin/getDailyLoginStatistics")
-	public ResponseEntity<List<LoginDailyLog>> getDailyLoginStatistics() {
+
+	@PostMapping("/admin/getDailyStatistics")
+	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
 		
-		LoginSearch search = null;
+		LocalDate day = map.get("selectDate");
 		
-		List<LoginDailyLog> temp = userService.getUserLoginDailyList(search);
+		System.out.println("which day ? " + day);
 		
-		return ResponseEntity.ok(temp);
+		LoginSearch search = LoginSearch.builder()
+				.selectLoginDate(day)
+				.build();
+		
+		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
+		
+		return ResponseEntity.ok(result);
+
 	}
 	
-	@PostMapping("/admin/getMonthlyLoginStatistics")
-	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyLoginStatistics() {
+
+	@PostMapping("/admin/getMonthlyStatistics")
+	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, String> map) {
 		
-		LoginSearch search = null;
+		String year = map.get("year");
+		String month = map.get("month");
 		
-		List<LoginMonthlyLog> temp = userService.getUserLoginMonthlyList(search);
+		// System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		System.out.println("YYYY-MM : " + year + "-" + month);
 		
-		return ResponseEntity.ok(temp);
+		LoginSearch search = LoginSearch.builder()
+				.year(year)
+				.month(month)
+				.build();
+		
+		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
+		
+		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/admin/deleteSuspendUser")
