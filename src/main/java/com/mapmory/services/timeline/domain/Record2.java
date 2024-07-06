@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Builder(toBuilder = true)
-public class Record2 {
+public class Record2 {//안씀
 	private int recordNo;
 	private String recordUserId;
 	private String recordTitle;

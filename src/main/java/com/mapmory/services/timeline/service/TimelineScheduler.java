@@ -53,7 +53,7 @@ public class TimelineScheduler {
 			text+= n.getUserId()+" 님, 오늘 "+n.getTimecapsuleCount()+" 건의 타임캡슐 기록이 존재합니다.";
 //			+ "Phone-Number :"+n.getUserPhoneNumber();
 			
-			timelineUtil.sendOne(n.getUserPhoneNumber(), text);
+			//timelineUtil.sendOne(n.getUserPhoneNumber(), text);
 			System.out.println("타임캡슐 기록 : "+text);
 		}
 		//cool sms api 문자보내기

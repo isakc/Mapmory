@@ -77,7 +77,7 @@ public class TimelineUtil {
     
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
-	//map을 record로 묶어주는 기능
+	//map을 record로 묶어주는 기능, 객체로 받아 사용해서 이제 안씀
 //		public static Record mapToRecord(Map<String, Object> map) {
 //			List<Map<String,Object>> imageTagList =(List<Map<String,Object>>)map.get("imageTagList");
 //			System.out.println("(Date)map.get(\"d_DayDate\")==null ? null:((Date)map.get(\"d_DayDate\")).toString()"+((Date)map.get("d_DayDate")==null ? null:((Date)map.get("d_DayDate")).toString()));
@@ -409,49 +409,49 @@ public class TimelineUtil {
 			return bytes;
 	    }
 		
-		public Record imageNameToUrl(Record record) {
-			if (!(record.getImageName() == null)) {
-				List<ImageTag> imageName = new ArrayList<ImageTag>();
-				for (ImageTag image : record.getImageName()) {
-					image.setImageTagText(objectStorageUtil.getImageUrl(image.getImageTagText(), imageFileFolder));
-					imageName.add(image);
-				}
-				record.setImageName(imageName);
-			}
-			return record;
-		}
-
-		public Record imojiNameToUrl(Record record) {
-			if (!(record.getCategoryImoji() == null || record.getCategoryImoji().equals(""))) {
-				record.setCategoryImoji(objectStorageUtil.getImageUrl(record.getCategoryImoji(), imojiFileFolder));
-			}
-			return record;
-		}
-
-		public Record mediaNameToUrl(Record record) {
-			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
-				record.setMediaName(objectStorageUtil.getImageUrl(record.getMediaName(), mediaFileFolder));
-			}
-			return record;
-		}
-		
-		public List<Category> categoryImojiListToUrl(List<Category> categoryList) {
-				List<Category> tempList = new ArrayList<Category>();
-				for (Category category : categoryList) {
-					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
-						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
-					}
-					tempList.add(category);
-				}
-			return tempList;
-		}
-		
-		public Category categoryImojiNameToUrl(Category category) {
-					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
-						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
-					}
-			return category;
-		}
+//		public Record imageNameToUrl(Record record) {
+//			if (!(record.getImageName() == null)) {
+//				List<ImageTag> imageName = new ArrayList<ImageTag>();
+//				for (ImageTag image : record.getImageName()) {
+//					image.setImageTagText(objectStorageUtil.getImageUrl(image.getImageTagText(), imageFileFolder));
+//					imageName.add(image);
+//				}
+//				record.setImageName(imageName);
+//			}
+//			return record;
+//		}
+//
+//		public Record imojiNameToUrl(Record record) {
+//			if (!(record.getCategoryImoji() == null || record.getCategoryImoji().equals(""))) {
+//				record.setCategoryImoji(objectStorageUtil.getImageUrl(record.getCategoryImoji(), imojiFileFolder));
+//			}
+//			return record;
+//		}
+//
+//		public Record mediaNameToUrl(Record record) {
+//			if (!(record.getMediaName() == null || record.getMediaName().equals(""))) {
+//				record.setMediaName(objectStorageUtil.getImageUrl(record.getMediaName(), mediaFileFolder));
+//			}
+//			return record;
+//		}
+//		
+//		public List<Category> categoryImojiListToUrl(List<Category> categoryList) {
+//				List<Category> tempList = new ArrayList<Category>();
+//				for (Category category : categoryList) {
+//					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
+//						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+//					}
+//					tempList.add(category);
+//				}
+//			return tempList;
+//		}
+//		
+//		public Category categoryImojiNameToUrl(Category category) {
+//					if(!(category.getCategoryImoji()==null ||category.getCategoryImoji().isEmpty())) {
+//						category.setCategoryImoji(objectStorageUtil.getImageUrl(category.getCategoryImoji(), imojiFileFolder));
+//					}
+//			return category;
+//		}
 		
 		public Record imageNameToByte(Record record) throws Exception {
 			if (!(record.getImageName() == null)) {
@@ -545,25 +545,25 @@ public class TimelineUtil {
 			return category;
 		}
 
-		public String imageUrlToName(String imageUrl) {
-			if (!(imageUrl == null || imageUrl.equals(""))) {
-				imageUrl = imageUrl.replace(cdnUrl+imageFileFolder+"/","");
-			}
-			return imageUrl;
-		}
-
-		public String mediaUrlToName(String mediaUrl) {
-			if (!(mediaUrl == null || mediaUrl.equals(""))) {
-				mediaUrl = mediaUrl.replace(cdnUrl+mediaFileFolder+"/","");
-			}
-			return mediaUrl;
-		}
-		public String imojiUrlToName(String imojiUrl) {
-			if (!(imojiUrl == null || imojiUrl.equals(""))) {
-				imojiUrl = imojiUrl.replace(cdnUrl+imojiFileFolder+"/","");
-			}
-			return imojiUrl;
-		}
+//		public String imageUrlToName(String imageUrl) {
+//			if (!(imageUrl == null || imageUrl.equals(""))) {
+//				imageUrl = imageUrl.replace(cdnUrl+imageFileFolder+"/","");
+//			}
+//			return imageUrl;
+//		}
+//
+//		public String mediaUrlToName(String mediaUrl) {
+//			if (!(mediaUrl == null || mediaUrl.equals(""))) {
+//				mediaUrl = mediaUrl.replace(cdnUrl+mediaFileFolder+"/","");
+//			}
+//			return mediaUrl;
+//		}
+//		public String imojiUrlToName(String imojiUrl) {
+//			if (!(imojiUrl == null || imojiUrl.equals(""))) {
+//				imojiUrl = imojiUrl.replace(cdnUrl+imojiFileFolder+"/","");
+//			}
+//			return imojiUrl;
+//		}
 		
 		public Map<String,Object> uploadImageFile(Record record,List<MultipartFile> imageFile) throws Exception {
 			List<ImageTag> imageName=new ArrayList<ImageTag>();

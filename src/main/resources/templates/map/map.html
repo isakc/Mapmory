@@ -236,17 +236,6 @@
         $('#loading').show();
 		
 		getCurrentLocation().done(function(location) {
-
-			const requestData = { latitude: location.coords.latitude, 
-						  longitude: location.coords.longitude, 
-						  radius: $('input[name="radius"]:checked').val(), 
-						  sharedType:  $('#public').is(':checked') ? 1 : 0, 
-						  followType: $('#follow').is(':checked') ? 1 : 0, 
-						  privateType: $('#private').is(':checked') ? 1 : 0, 
-						  categoryNo: 0,
-						  userId: userId,
-						  searchKeyword: $('input[name="searchKeyword"]').val() };
-
 			$.ajax({
 				url: "/recommend/rest/recommend?userId="+userId, // 요청을 보낼 URL을 입력
 				contentType: 'application/json', // Content-Type을 JSON으로 설정

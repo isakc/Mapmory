@@ -26,7 +26,7 @@ html, body {
 	
 	<label for="categoryImoji" class="form-label mt-4" th:text="'원래 카테고리 이미지'"></label>
 	<br/>
-	<img th:src="*{categoryImoji}" style="height:40px;"/>
+	<img th:src="'data:image/png;base64,' + *{categoryImojiByte}" style="height:40px;"/>
 	<!-- <span th:text="${image.imageTagText}"></span> -->
 	<input type="hidden" th:field="*{categoryImoji}" />
 	
@@ -44,7 +44,7 @@ html, body {
 		<small id="categoryNameHelp" class="form-text text-muted" 
 		th:text="'최소 2자 이상, 최대 6자 이하로 작성해주세요.'"></small>
 		<div id="categoryNameHelp3" class="d-none">
-			<small class="form-text text-muted" 
+			<small class="form-text text-danger" 
 			th:text="'비속어가 포함되어 있습니다. 비속어 및 욕설이 존재할 시, 카테고리 생성을 할 수 없습니다.'"></small>
     	</div>
     </div>
@@ -100,10 +100,14 @@ document.addEventListener("DOMContentLoaded", function() {
 function badWord(text, idName){
         //console.log('Space bar was pressed and released');
         $.ajax("/timeline/rest/checkBadWord",{
-			method : "GET",
+			method : "POST",
 			dataType : "json",
-			data : {
+			data : JSON.stringify({
 				text : text
+			}),
+			headers :{
+				'Content-Type':'application/json; charset=UTF-8',
+				'Accept':'application/json; charset=UTF-8'
 			},
 			success : function(response,status){
 				if (response.badWord) {
@@ -171,10 +175,14 @@ $(function(){
         } 
         
         $.ajax("/timeline/rest/checkBadWord",{
-			method : "GET",
+			method : "POST",
 			dataType : "json",
-			data : {
+			data : JSON.stringify({
 				text : text
+			}),
+			headers :{
+				'Content-Type':'application/json; charset=UTF-8',
+				'Accept':'application/json; charset=UTF-8'
 			},
 			success : function(response,status){
 				if (response.badWord) {
