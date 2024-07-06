@@ -127,24 +127,24 @@ public class CommunityServiceTest {
 	}
 	
 	//@Test
-	public void TestGetCommunityLogs() throws Exception {
-		
-		CommunityLogs communityLogs = communityService.getCommunityLogs(14);
-		
-		System.out.println("커뮤니티 로그 출력 확인 : "+communityLogs);		
-	}
-	
-	//@Test
-	public void TestUpdateCommunityLogs() throws Exception {
-		
-		CommunityLogs communityLogs = communityService.getCommunityLogs(19);
-		
-		communityLogs.setLogsType(2);
-		
-		communityService.updateCommunityLogs(communityLogs);
-		
-		System.out.println("커뮤니티 활동 수정 : "+communityLogs);		
-	}	
+//	public void TestGetCommunityLogs() throws Exception {
+//		
+//		CommunityLogs communityLogs = communityService.getCommunityLogs(14);
+//		
+//		System.out.println("커뮤니티 로그 출력 확인 : "+communityLogs);		
+//	}
+//	
+//	//@Test
+//	public void TestUpdateCommunityLogs() throws Exception {
+//		
+//		CommunityLogs communityLogs = communityService.getCommunityLogs(19);
+//		
+//		communityLogs.setLogsType(2);
+//		
+//		communityService.updateCommunityLogs(communityLogs);
+//		
+//		System.out.println("커뮤니티 활동 수정 : "+communityLogs);		
+//	}	
 	
 	//@Test
 	public void TestDeleteCommunityLogs() throws Exception {
@@ -155,32 +155,32 @@ public class CommunityServiceTest {
 	}	
 	
 	//@Test
-	public void TestGetCommunityLogsList() throws Exception {
-		Search search = new Search();
-		search.setLimit(1);
-		search.setOffset(0);
-		CommunityLogs communityLogs = null;
-		Map<String, Object> map = communityService.getCommunityLogsList(search, communityLogs);
-		
-		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
-		
-		System.out.println("커뮤니티 활동 list 테스트 : "+list);	
-	}
+//	public void TestGetCommunityLogsList() throws Exception {
+//		Search search = new Search();
+//		search.setLimit(1);
+//		search.setOffset(0);
+//		CommunityLogs communityLogs = null;
+//		Map<String, Object> map = communityService.getCommunityLogsList(search, communityLogs);
+//		
+//		List<CommunityLogs> list = (List<CommunityLogs>)map.get("list");
+//		
+//		System.out.println("커뮤니티 활동 list 테스트 : "+list);	
+//	}
 	
 	//@Test
-	public void TestAddReport() throws Exception {
-
-		Report report = Report.builder()
-				.reportNo(0)
-				.userId("user4")
-				.targetUserId("user7")
-				.recordNo(null)
-				.replyNo(null)
-				.chatroomNo(null)
-				.build();
-				
-		communityService.addReport(report);
-	}
+//	public void TestAddReport() throws Exception {
+//
+//		Report report = Report.builder()
+//				.reportNo(0)
+//				.userId("user4")
+//				.targetUserId("user7")
+//				.recordNo(null)
+//				.replyNo(null)
+//				.chatroomNo(null)
+//				.build();
+//				
+//		communityService.addReport(report);
+//	}
 	
 	//@Test
 	public void TestDoReport() throws Exception {
@@ -285,12 +285,12 @@ public class CommunityServiceTest {
 	}
 	
 	//@Test
-	public void TestGetBlockedUser() throws Exception {
-		
-		FollowBlock followBlock = communityService.getBlockedUser("user4", "user7");
-		
-		System.out.println("차단 유저 조회 테스트 : "+followBlock);	
-	}
+//	public void TestGetBlockedUser() throws Exception {
+//		
+//		FollowBlock followBlock = communityService.getBlockedUser("user4", "user7");
+//		
+//		System.out.println("차단 유저 조회 테스트 : "+followBlock);	
+//	}
 	
 	//@Test
 	public void TestDeleteBlockedUser() throws Exception {

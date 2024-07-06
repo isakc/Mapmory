@@ -140,32 +140,8 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 	
 	@Override
-	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception {
-		return communityDao.getCommunityLogs(commmunityLogsNo);
-	}	
-	
-	@Override
-	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception {
-		communityDao.updateCommunityLogs(communityLogs);
-	}	
-	
-	@Override
 	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception {
 		communityDao.deleteCommunityLogs(communityLogs);
-	}
-
-	@Override
-	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception {
-		List<Object> list = communityDao.getCommunityLogsList(search, communityLogs);
-		
-		Map<String, Object> map = new HashMap<>();
-		map.put("list", list);
-		return map;
-	}
-
-	@Override
-	public void addReport(Report report) throws Exception {
-		communityDao.addReport(report);
 	}
 
 	@Override
@@ -255,11 +231,6 @@ public class CommunityServiceImpl implements CommunityService {
 	public void updateBlockUser(FollowBlock followBlock) throws Exception {
 		communityDao.updateBlockUser(followBlock);
 	}	
-
-	@Override
-	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception {
-		return communityDao.getBlockedUser(userId, targetId);
-	}	
 	
 	@Override
 	public void deleteBlockedUser(String userId, String targetId) throws Exception {
@@ -279,10 +250,4 @@ public class CommunityServiceImpl implements CommunityService {
 	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception {
 		return communityDao.getUsersLogs(userId, recordNo);
 	}
-
-	@Override
-	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception {
-		communityDao.deleteCommunityLogs(communityLogs);
-	}
-
 }
