@@ -456,6 +456,12 @@
 		WHERE user_id=#{userId}
 	</update>
 	
+	<update id="updatePasswordDate" parameterType="string">
+		UPDATE users
+		SET update_password_date = NOW()
+		WHERE user_id=#{userId}
+	</update>
+	
 	<update id="updateFollowToBlock" parameterType="followBlock" >
 	
 		UPDATE follow_block

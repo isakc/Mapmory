@@ -1,6 +1,7 @@
 package com.mapmory.controller.user;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -136,17 +137,6 @@ public class UserRestController {
 	
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
-	
-	/*
-	@Value("${object.profile.folderName}")
-	private String PROFILE_FOLDER_NAME;
-	
-	@Value("${object.timeline.image}")
-	private String TIMELINE_THUMBNAIL;
-	
-	@Value("${object.timeline.imoji}")
-	private String TIMELINE_EMOJI;
-	*/
 	
 	@Value("${kakao.client.Id}")
     private String kakaoClientId;
@@ -531,15 +521,9 @@ public class UserRestController {
 		// return "redirect:/user/getProfile?userId="+userId;
 		return ResponseEntity.ok(true);
 	}
-
-	@PostMapping("/updateFollowState")
-	public ResponseEntity<Boolean> updateFollowState() {
-		
-		return ResponseEntity.ok(true);
-	}
 	
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response, @RequestBody Map<String, String> map) {
+	public ResponseEntity<Boolean> updatePassword(HttpServletRequest request, HttpServletResponse response, @RequestBody Map<String, String> map) throws IOException {
 		
 		String userId = map.get("userId");
 		String password = map.get("userPassword");
@@ -554,6 +538,23 @@ public class UserRestController {
 		else
 			return ResponseEntity.ok(false);
 			*/
+		
+		// loginService.logout(request, response);
+		
+		// 긴급 땜빵
+		Cookie[] cookies = request.getCookies();
+		for(Cookie cookie : cookies ) {
+			
+			if(cookie.getName().equals("JSESSIONID")) {
+				
+				redisUtil.delete(cookie.getValue());
+
+				cookie.setMaxAge(0);
+				cookie.setPath("/");
+				response.addCookie(cookie);
+			}
+		}
+		
 		return ResponseEntity.ok(result);
 	}
 	

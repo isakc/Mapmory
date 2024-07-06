@@ -1,24 +1,20 @@
 package com.mapmory.services.user.service;
 
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.mapmory.common.domain.Search;
 import com.mapmory.services.user.domain.FollowMap;
-import com.mapmory.services.user.domain.Login;
 import com.mapmory.services.user.domain.LoginDailyLog;
 import com.mapmory.services.user.domain.LoginMonthlyLog;
 import com.mapmory.services.user.domain.LoginSearch;
@@ -27,11 +23,8 @@ import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.SuspensionLogList;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
-import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
-import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
-import com.mapmory.services.user.domain.auth.naver.NaverProfile;
 
 public interface UserService {
 
@@ -39,14 +32,14 @@ public interface UserService {
 	
 	/**
 	 * 
-	 * @param userId  : 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능
+	 * @param userId  : 5~20자의 영문 소문자, 숫자와 특수기호(_),(-)만 사용 가능. 중복 불가.
 	 * @param userPassword  : 8~16자의 영문 대/소문자, 숫자, 특수문자만 사용 가능
 	 * @param userName  : 최소 2자 최대 18자의 한글 및 영문 사용만 가능
-	 * @param nickname  : 최소 1자 최대 10자의 영어, 숫자, 띄어쓰기만 사용 가능하다. 첫 글자는 띄어쓰기가 불가능
+	 * @param nickname  : 최소 1자 최대 10자의 영어, 숫자만 가능. 중복 불가.
 	 * @param birthday
 	 * @param sex  : 0:비공개, 1:남자, 2:여성
 	 * @param email  : test@test.com
-	 * @param phoneNumber  : 010-1234-1234
+	 * @param phoneNumber  : 01012341234
 	 * @return
 	 * @throws Exception
 	 */
