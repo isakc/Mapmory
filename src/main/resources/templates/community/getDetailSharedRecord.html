@@ -891,7 +891,9 @@
 					</div>
 					<div class="card-body">
 						<span class="replyText" th:if="${iterStat.index < 5}" th:text="${reply.replyText}" th:data-recordno="${reply.recordNo}" th:data-replyno="${reply.replyNo}"></span><br/>
+						<span th:if="${reply.replyImageName != null and reply.replyImageName != '' and reply.replyImageName != 'null'}">
 						<img alt="" class="replyImageName" th:src="@{/community/rest/replyImage/{uuid}(uuid=${reply.replyImageName})}">
+						</span>
 						<span class="replyDate" th:if="${iterStat.index < 5}" th:text="${reply.replyDate == reply.replyUpdateDate ? reply.replyDate : reply.replyUpdateDate + '(수정됨)'}"></span>
 						<span th:if="${iterStat.index < 5}" th:text="${reply.dislikeCount}" class="replyDislikeCount"></span>
 			            <span>

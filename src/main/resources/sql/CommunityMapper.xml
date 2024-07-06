@@ -148,13 +148,6 @@
 		VALUES(#{userId}, #{recordNo}, #{replyNo}, #{logsType})
 	</insert>		
 		
-	<!--  커뮤니티 활동 로그 선택 -->
-	<select id="getCommunityLogs" parameterType="int" resultMap="communityLogsSelectMap">
-		SELECT *
-		FROM community_logs
-		WHERE community_logs_no = #{communityLogsNo}
-	</select>
-	
 	<!--  커뮤니티 활동 로그 전체 선택 -->
 	<select id="getAllCommunityLogs" parameterType="int" resultMap="communityLogsSelectMap">
 		SELECT *
@@ -210,20 +203,6 @@
 		WHERE record_no = #{recordNo} AND logs_type = 0
 	</select>
 	
-	<!--  커뮤니티 활동 수정 -->
-	<update id="updateCommunityLogs" parameterType="CommunityLogs">
-        UPDATE community_logs
-        SET logs_type =
-            CASE 
-                WHEN logs_type = 2 THEN 3 
-                WHEN logs_type = 3 THEN 2 
-            END
-        WHERE user_id = #{userId}
-            AND record_no = #{recordNo}
-            AND (reply_no = #{replyNo} OR (reply_no IS NULL AND #{replyNo} IS NULL))
-            AND logs_type IN (2, 3)
-	</update>
-
 	<!-- 커뮤니티 활동 삭제 -->
 	<delete id="deleteCommunityLogs" parameterType="communityLogs">
 		DELETE FROM community_logs
@@ -239,15 +218,6 @@
 		WHERE record_no = #{recordNo} 
 	</delete>
 
-	<!-- 커뮤니티 활동 목록 조회 -->
-	<select id="getCommunityLogsList" parameterType="search" resultMap="communityLogsSelectMap">
-		SELECT *
-		FROM community_logs
-		WHERE user_id = #{userId} 
-			AND logs_type IN (1, 2)
-		LIMIT #{search.pageSize} OFFSET #{search.offset}
-	</select>
-	
 	<!-- 사용자 커뮤니티 로그 -->
 	<select id="getUsersLogs" resultMap="communityLogsSelectMap">
 		SELECT *
@@ -273,15 +243,6 @@
 			AND logs_type = 3  
 	</select>	
 		
-	<!-- 신고 정보 가져오기 -->
-	<select id="addReport" parameterType="report" resultType="map">
-		SELECT user_id, target_user_id, record_no, reply_no, chatroom_no,
-			(CASE WHEN record_no IS NOT NULL THEN (SELECT r2.record_text FROM record r2 WHERE r2.record_no = r1.record_no) ELSE NULL END),
-			(CASE WHEN reply_no IS NOT NULL THEN (SELECT r3.reply_text FROM reply r3 WHERE r3.reply_no = r1.reply_no) ELSE NULL END)
-		FROM report r1
-		WHERE r1.report_no = #{reportNo}	
-	</select>		
-
 	<!-- 신고하기 -->
 	<insert id="doReport" parameterType="report">
 		INSERT INTO report (user_id, target_user_id, record_no, reply_no, chatroom_no, report_title, report_text)
@@ -381,14 +342,7 @@
 		SELECT COUNT(*) FROM follow_block
 		WHERE user_id = #{userId} AND fb_type = 1
 	</select>
-	
-	<!-- 차단 상세 조회 -->			
-	<select id="getBlockedUser" parameterType="java.lang.String" resultMap="followBlockSelectMap">
-		SELECT user_id, target_id, fb_type 
-		FROM follow_block
-		WHERE user_id = #{userId} AND target_id = #{targetId} AND fb_type = 1
-	</select>
-	
+		
 	<!-- 차단 해제 -->			
 	<delete id="deleteBlockedUser" parameterType="followBlock">
 		DELETE FROM follow_block

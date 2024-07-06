@@ -33,26 +33,14 @@ public interface CommunityService {
 	//커뮤니티 활동 추가
 	public void addCommunityLogs(CommunityLogs communityLogs) throws Exception;
 		
-	//커뮤니티 활동 로그 선택
-	public CommunityLogs getCommunityLogs(int commmunityLogsNo) throws Exception;
-		
-	//커뮤니티 활동 수정
-	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
-
 	//커뮤니티 활동 삭제
 	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception;
-	
-	//커뮤니티 로그 목록 조회
-	public Map<String, Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;	
-	
+		
 	//사용자 로그 기록
 	public List<CommunityLogs> getUsersLogs(String userId, int recordNo) throws Exception;
 	
 	//커뮤니티 로그 중복 체크
 	public void checkLog(CommunityLogs communityLogs) throws Exception;
-	
-	//신고 정보 가져가지
-	public void addReport(Report report) throws Exception;
 	
 	//신고하기 제출
 	public void doReport(Report report) throws Exception;
@@ -80,17 +68,11 @@ public interface CommunityService {
 	
 	//차단한 사용자 목록 조회
 	public Map<String, Object> getBlockedList(Search search, String userId) throws Exception;
-	
-	//차단 사용자 선택
-	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception;
-	
+		
 	//사용자 차단해제
 	public void deleteBlockedUser(String userId, String targetId) throws Exception;
 	
 	//좋아요한 댓글 목록
 	public Map<String, Object> getReplyLikeList(Search search, String userId) throws Exception;
 	
-	//커뮤니티 좋아요 싫어요 전환
-	public void toggleCommunityLogs(CommunityLogs communityLogs) throws Exception;
-			
 }
