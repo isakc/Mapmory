@@ -806,6 +806,10 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.updatePassword(login);
 		
+		if(result == 1) {
+			result = userDao.updatePasswordDate(userId);
+		}
+		
 		return intToBool(result);
 	}
 

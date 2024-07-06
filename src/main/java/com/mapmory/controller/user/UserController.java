@@ -1,17 +1,10 @@
 package com.mapmory.controller.user;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,34 +13,24 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mapmory.common.domain.Page;
 import com.mapmory.common.domain.Search;
 import com.mapmory.common.domain.SessionData;
-import com.mapmory.common.util.ContentFilterUtil;
 import com.mapmory.common.util.CookieUtil;
 import com.mapmory.common.util.ObjectStorageUtil;
 import com.mapmory.common.util.RedisUtil;
@@ -61,23 +44,14 @@ import com.mapmory.services.user.domain.SocialUserInfo;
 import com.mapmory.services.user.domain.TermsAndConditions;
 import com.mapmory.services.user.domain.User;
 import com.mapmory.services.user.domain.auth.google.GoogleAuthenticatorKey;
-import com.mapmory.services.user.domain.auth.google.GoogleJwtPayload;
-import com.mapmory.services.user.domain.auth.google.GoogleToken;
 import com.mapmory.services.user.domain.auth.google.GoogleUserOtpCheck;
 import com.mapmory.services.user.domain.auth.naver.NaverAuthToken;
-import com.mapmory.services.user.domain.auth.naver.NaverProfile;
-import com.mapmory.services.user.domain.auth.naver.NaverProfileResponse;
-import com.mapmory.services.user.dto.CheckDuplicationDto;
 import com.mapmory.services.user.service.LoginService;
 import com.mapmory.services.user.service.UserService;
-import com.mapmory.services.user.service.UserServiceJM;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
-	
-	@Autowired
-	private UserServiceJM userServiceJm;
 	
 	@Autowired
 	@Qualifier("userServiceImpl")
@@ -93,15 +67,7 @@ public class UserController {
 	private RedisUtil<SessionData> redisUtil;
 	
 	@Autowired
-	private RedisUtil<Map<String, Object>> redisUtilMap;
-	
-	@Autowired
 	private RedisUtil<String> redisUtilString;
-
-	/*
-	@Autowired
-	private RedisUtil<SocialUserInfo> redisUtilSocialUserInfo;
-	*/
 	
 	@Autowired
 	private SubscriptionService subscriptionService;
@@ -109,9 +75,6 @@ public class UserController {
 	@Autowired
 	@Qualifier("objectStorageUtil")
 	private ObjectStorageUtil objectStorageUtil;
-	
-	@Autowired
-	private ContentFilterUtil contentFilterUtil;
 	
 	@Value("${object.profile.folderName}")
 	private String PROFILE_FOLDER_NAME;
@@ -151,20 +114,6 @@ public class UserController {
 	
 	@Value("${directory.path.tac}")
 	private String tacPath;
-	
-	/*
-	@Value("${google.client.id}")
-	private String clientId;
-	
-	@Value("${google.client.secret}")
-	private String clientSecret;
-	
-	@Value("${google.redirect.uri}")
-	private String redirectUri;
-
-	@Value("${google.redirect.uri}")
-	private String googleTokenRequestUrl;
-	*/
 	
 	////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////
@@ -252,7 +201,7 @@ public class UserController {
 	}
 	
 	
-	
+	/*
 	@GetMapping("/getPersonalSecurityMenu")
 	public void getPersonalSecurityMenu(HttpServletRequest request, Model model) {
 		
@@ -261,6 +210,7 @@ public class UserController {
 		model.addAttribute("userId", userId);
 		
 	}
+	*/
 	
 	@GetMapping("/getIdView")
 	public void getIdView() {
