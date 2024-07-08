@@ -1,6 +1,7 @@
 package com.mapmory.controller.user;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -136,17 +137,6 @@ public class UserRestController {
 	
 	@Value("${object.timeline.imoji}")
 	private String TIMELINE_EMOJI;
-	
-	/*
-	@Value("${object.profile.folderName}")
-	private String PROFILE_FOLDER_NAME;
-	
-	@Value("${object.timeline.image}")
-	private String TIMELINE_THUMBNAIL;
-	
-	@Value("${object.timeline.imoji}")
-	private String TIMELINE_EMOJI;
-	*/
 	
 	@Value("${kakao.client.Id}")
     private String kakaoClientId;
@@ -475,42 +465,6 @@ public class UserRestController {
 		return ResponseEntity.ok(userId);
 	}
 	
-	@PostMapping("/getDailyStatistics")
-	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
-		
-		LocalDate day = map.get("selectDate");
-		
-		System.out.println("which day ? " + day);
-		
-		LoginSearch search = LoginSearch.builder()
-				.selectLoginDate(day)
-				.build();
-		
-		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
-		
-		return ResponseEntity.ok(result);
-
-	}
-	
-
-	@PostMapping("/getMonthlyStatistics")
-	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, String> map) {
-		
-		String year = map.get("year");
-		String month = map.get("month");
-		
-		// System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
-		System.out.println("YYYY-MM : " + year + "-" + month);
-		
-		LoginSearch search = LoginSearch.builder()
-				.year(year)
-				.month(month)
-				.build();
-		
-		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
-		
-		return ResponseEntity.ok(result);
-	}
 	
 	@PostMapping("/updateUserInfo")
 	public ResponseEntity<Boolean> updateUserInfo(HttpServletRequest request, @RequestBody User user) throws Exception {
@@ -567,15 +521,9 @@ public class UserRestController {
 		// return "redirect:/user/getProfile?userId="+userId;
 		return ResponseEntity.ok(true);
 	}
-
-	@PostMapping("/updateFollowState")
-	public ResponseEntity<Boolean> updateFollowState() {
-		
-		return ResponseEntity.ok(true);
-	}
 	
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Boolean> updatePassword(HttpServletResponse response, @RequestBody Map<String, String> map) {
+	public ResponseEntity<Boolean> updatePassword(HttpServletRequest request, HttpServletResponse response, @RequestBody Map<String, String> map) throws IOException {
 		
 		String userId = map.get("userId");
 		String password = map.get("userPassword");
@@ -590,6 +538,23 @@ public class UserRestController {
 		else
 			return ResponseEntity.ok(false);
 			*/
+		
+		// loginService.logout(request, response);
+		
+		// 긴급 땜빵
+		Cookie[] cookies = request.getCookies();
+		for(Cookie cookie : cookies ) {
+			
+			if(cookie.getName().equals("JSESSIONID")) {
+				
+				redisUtil.delete(cookie.getValue());
+
+				cookie.setMaxAge(0);
+				cookie.setPath("/");
+				response.addCookie(cookie);
+			}
+		}
+		
 		return ResponseEntity.ok(result);
 	}
 	
@@ -800,24 +765,42 @@ public class UserRestController {
 			return ResponseEntity.internalServerError().body(false);
 	}
 	
-	@PostMapping("/admin/getDailyLoginStatistics")
-	public ResponseEntity<List<LoginDailyLog>> getDailyLoginStatistics() {
+
+	@PostMapping("/admin/getDailyStatistics")
+	public ResponseEntity<List<LoginDailyLog>> getDailyStatistics(@RequestBody Map<String, LocalDate> map) {
 		
-		LoginSearch search = null;
+		LocalDate day = map.get("selectDate");
 		
-		List<LoginDailyLog> temp = userService.getUserLoginDailyList(search);
+		System.out.println("which day ? " + day);
 		
-		return ResponseEntity.ok(temp);
+		LoginSearch search = LoginSearch.builder()
+				.selectLoginDate(day)
+				.build();
+		
+		List<LoginDailyLog> result = userService.getUserLoginDailyList(search);
+		
+		return ResponseEntity.ok(result);
+
 	}
 	
-	@PostMapping("/admin/getMonthlyLoginStatistics")
-	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyLoginStatistics() {
+
+	@PostMapping("/admin/getMonthlyStatistics")
+	public ResponseEntity<List<LoginMonthlyLog>> getMonthlyStatistics(@RequestBody Map<String, String> map) {
 		
-		LoginSearch search = null;
+		String year = map.get("year");
+		String month = map.get("month");
 		
-		List<LoginMonthlyLog> temp = userService.getUserLoginMonthlyList(search);
+		// System.out.println("YYYY-MM : " + String.valueOf(year) + "-" + String.valueOf(month));
+		System.out.println("YYYY-MM : " + year + "-" + month);
 		
-		return ResponseEntity.ok(temp);
+		LoginSearch search = LoginSearch.builder()
+				.year(year)
+				.month(month)
+				.build();
+		
+		List<LoginMonthlyLog> result = userService.getUserLoginMonthlyList(search);
+		
+		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/admin/deleteSuspendUser")

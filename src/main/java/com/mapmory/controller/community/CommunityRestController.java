@@ -241,20 +241,6 @@ public class CommunityRestController {
 		return ResponseEntity.ok(replyLikeList);
 	}
 	
-	//사용자별 커뮤니티 로그 기록
-	@GetMapping("/rest/getCommunityLogsList/{userId}")
-	public ResponseEntity<Map<String, Object>> getCommunityLogsList(Search search, @PathVariable String userId, HttpServletRequest request) throws Exception {
-	
-		userId = redisUtil.getSession(request).getUserId();
-		
-		CommunityLogs communityLogs = new CommunityLogs();
-		communityLogs.setUserId(userId);
-		
-		Map<String, Object> result = communityService.getCommunityLogsList(search, communityLogs);
-		
-		return ResponseEntity.ok(result);
-	}
-	
 	//댓글 수정
 	@PostMapping("/rest/updateReply/{replyNo}")
 	public ResponseEntity<Reply> updateReply(@PathVariable("replyNo") int replyNo, @RequestParam("userId") String userId, 
@@ -329,16 +315,7 @@ public class CommunityRestController {
 		
 		return ResponseEntity.ok(communityLogs);
 	}
-		
-	//즐겨찾기 취소
-	@DeleteMapping("/rest/deleteBookmark/{userId}/{recordNo}")
-	public String deleteCommunityLogs(@PathVariable String userId, @PathVariable int recordNo, HttpServletRequest request) throws Exception {
-
-		userId = redisUtil.getSession(request).getUserId();
-		
-		return "redirect: community/getDetailSharedRecord/"+recordNo;
-	}
-	
+			
 	//조회수
 	@PostMapping("/rest/getSharedRecordViewCount/{recordNo}")
 	public ResponseEntity<Integer> getSharedRecordViewCount(Search search, @PathVariable int recordNo) throws Exception {
@@ -360,14 +337,7 @@ public class CommunityRestController {
 		return ResponseEntity.ok(dislikeCount);
 	}	
 	
-	//즐겨찾기 확인
-	@PostMapping("/rest/getBookmark")
-	public ResponseEntity<Integer> getBookmark(Search search, @RequestBody CommunityLogs communityLogs, @RequestParam(required = false) Integer replyNo) throws Exception {
-	
-		int bookmark = communityDao.checkDuplicateLogs(communityLogs.getUserId(), communityLogs.getRecordNo(), communityLogs.getReplyNo(), communityLogs.getLogsType());
-		return ResponseEntity.ok(bookmark);
-	}
-	
+
 	//신고하기
 	@PostMapping("/rest/doReport")
 	public ResponseEntity<Report> doReport(@RequestBody Report report) throws Exception {

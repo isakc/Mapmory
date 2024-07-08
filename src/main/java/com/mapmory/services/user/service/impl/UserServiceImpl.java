@@ -806,6 +806,10 @@ public class UserServiceImpl implements UserService {
 		
 		int result = userDao.updatePassword(login);
 		
+		if(result == 1) {
+			result = userDao.updatePasswordDate(userId);
+		}
+		
 		return intToBool(result);
 	}
 
@@ -1427,20 +1431,27 @@ public class UserServiceImpl implements UserService {
 
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);
+            
 
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
             
-            String kakaoName = kakao_account.getAsJsonObject().get("name").getAsString();
-            String kakaoEmail = kakao_account.getAsJsonObject().get("email").getAsString();
-            String kakaoAfterPhone = kakao_account.getAsJsonObject().get("phone_number").getAsString();
-            String kakaoPhone = kakaoAfterPhone.replace("+82 ", "0").replace("-", "").replace(" ", "");
-            String kakaoGender = kakao_account.getAsJsonObject().get("gender").getAsString();
-            String kakaoDate = kakao_account.getAsJsonObject().get("birthday").getAsString();
-            String kakaoBirthYear = kakao_account.getAsJsonObject().get("birthyear").getAsString();
-            String kakaoBirthDays = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date kakaoBirthDay = dateFormat.parse(kakaoBirthDays);
+            String kakaoName = kakao_account != null && kakao_account.has("name") ? kakao_account.get("name").getAsString() : null;
+            String kakaoEmail = kakao_account != null && kakao_account.has("email") ? kakao_account.get("email").getAsString() : null;
+            String kakaoAfterPhone = kakao_account != null && kakao_account.has("phone_number") ? kakao_account.get("phone_number").getAsString() : null;
+            String kakaoPhone = (kakaoAfterPhone != null) ? kakaoAfterPhone.replace("+82 ", "0").replace("-", "").replace(" ", "") : null;
+            String kakaoGender = kakao_account != null && kakao_account.has("gender") ? kakao_account.get("gender").getAsString() : null;
+            String kakaoDate = kakao_account != null && kakao_account.has("birthday") ? kakao_account.get("birthday").getAsString() : null;
+            String kakaoBirthYear = kakao_account != null && kakao_account.has("birthyear") ? kakao_account.get("birthyear").getAsString() : null;
+
+            String kakaoBirthDays = null;
+            Date kakaoBirthDay = null;
+
+            if (kakaoBirthYear != null && kakaoDate != null && kakaoDate.length() == 4) {
+                kakaoBirthDays = kakaoBirthYear + "-" + kakaoDate.substring(0, 2) + "-" + kakaoDate.substring(2, 4);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                kakaoBirthDay = dateFormat.parse(kakaoBirthDays);
+            }
             
             String genderFormat;
             if (kakaoGender != null) {
@@ -1461,7 +1472,7 @@ public class UserServiceImpl implements UserService {
             		+ "카카오 생일 : : :: : : :" + kakaoDate + "카카오 생년 : : :: : : :" + kakaoBirthYear + ""
             		+ "카카오 생일생년 합친거 : : :: : :" + kakaoBirthYear + "데이트타입으로 만든거 !!!! : : : :" + kakaoBirthDay);
             
-            kakaoId = element.getAsJsonObject().get("id").getAsString();
+            kakaoId = element.getAsJsonObject().has("id") ? element.getAsJsonObject().get("id").getAsString() : null;
             System.out.println("kakaoId : " + kakaoId);
 
             

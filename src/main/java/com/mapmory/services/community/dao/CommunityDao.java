@@ -55,9 +55,6 @@ public interface CommunityDao {
 	//사용자 로그
 	public List<CommunityLogs> getUsersLogs(@Param("userId") String userId, @Param("recordNo") int recordNo) throws Exception; 
 	
-	//커뮤니티 활동 수정
-	public void updateCommunityLogs(CommunityLogs communityLogs) throws Exception;
-	
 	//커뮤니티 활동 삭제
 	public void deleteCommunityLogs(CommunityLogs communityLogs) throws Exception;	
 	
@@ -69,13 +66,7 @@ public interface CommunityDao {
 	
 	//감정표현 상태 확인 리스트
 	public List<CommunityLogs> getReactionStatusList(CommunityLogs communityLogs) throws Exception;
-	
-	//커뮤니티 로그 목록 조회
-	public List<Object> getCommunityLogsList(Search search, CommunityLogs communityLogs) throws Exception;		
-	
-	//신고 정보 가져오기
-	public void addReport(Report report) throws Exception;
-	
+		
 	//신고하기 제출
 	public void doReport(Report report) throws Exception;
 	
@@ -102,10 +93,7 @@ public interface CommunityDao {
 	
 	//차단한 사용자 목록 조회
 	public List<Object> getBlockedList(Search search, String userId) throws Exception;
-	
-	//차단 사용자 선택
-	public FollowBlock getBlockedUser(String userId, String targetId) throws Exception;
-	
+		
 	//사용자 차단해제
 	public void deleteBlockedUser(String userId, String targetId) throws Exception;
 		

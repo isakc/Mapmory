@@ -99,6 +99,8 @@ public interface UserDao {
 	
 	public int updatePassword(Login login);
 	
+	public int updatePasswordDate(String userId);
+	
 	public int updateFollowToBlock(FollowBlock block);
 	
 	public int deleteFollow(FollowBlock follow);
