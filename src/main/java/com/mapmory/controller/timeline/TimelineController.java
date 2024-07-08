@@ -177,7 +177,7 @@ public class TimelineController {
 		model.addAttribute("timelineCount",timelineList.size());
 		
 		model.addAttribute("apiKey", kakaoMapApiKey);
-		//model.addAttribute("tMapApiKey",tMapApiKey);
+		model.addAttribute("tMapApiKey",tMapApiKey);
 		model.addAttribute("restKey",restKey);
 		model.addAttribute("userId",userId);
 		model.addAttribute("timelineList", timelineList);
