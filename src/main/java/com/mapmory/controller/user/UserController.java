@@ -631,8 +631,10 @@ public class UserController {
         try {
         	
             String accessToken = userService.getKakaoAccessToken(code);
+            System.out.println("카카오로그인 디버깅 1번째 ::::::::::::::::::: " + accessToken);
 
             SocialUserInfo socialUserInfo = userService.getKakaoUserInfo(accessToken);
+            System.out.println("카카오로그인 디버깅 2번째 ::::::::::::::::::: " + socialUserInfo);
 
             
             /*
@@ -642,7 +644,9 @@ public class UserController {
             */
             
             String kakaoId = (String) socialUserInfo.getId();
+            System.out.println("카카오로그인 디버깅 3번째 ::::::::::::::::::::: " + kakaoId);
             String userId = userService.getUserIdBySocialId(kakaoId);
+            System.out.println("카카오로그인 디버깅 4번째 :::::::::::::::::::::::::::::: " + userId);
             
             // 소셜 로그인 연동 정보가 없는 경우
             if (userId == null) {
