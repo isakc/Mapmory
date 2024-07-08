@@ -49,12 +49,12 @@ function showModal(title, text) {
   });
 }
 // 커서를 텍스트의 끝으로 이동시키는 함수
-function setCursorToEnd(id) {
+/* function setCursorToEnd(id) {
     var element = document.getElementById(id);
     element.focus();
     var length = element.value.length;
     element.setSelectionRange(length, length);
-}
+} */
 </script>
 </div>
 
@@ -89,6 +89,11 @@ function checkpointShowModal(title, text) {
   document.getElementById('checkpointModalText').innerHTML = text;
   checkpointModal.show();
   $('#checkpointModalClose').focus();
+
+  // 모달이 닫힐 때 백드롭 제거
+  $('#defaultModal').on('hide.bs.modal', function () {
+      $('.modal-backdrop').remove();
+  });
 }
 </script>
 </div>
