@@ -406,7 +406,9 @@
 			$(document).on('click', '.record', function() {
 				
 				const recordNo = $(this).attr('id');
-				window.location.href=`/timeline/getDetailTimeline?recordNo=${recordNo}`;
+
+				// window.location.href=`/timeline/getDetailTimeline?recordNo=${recordNo}`;				
+				window.location.href=`/community/getDetailSharedRecord/${recordNo}`;
 			});
 
 			$(document).on('click', '.reply', function() {
