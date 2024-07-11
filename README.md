@@ -12,10 +12,11 @@
 <br>
 
 # 팀원 구성
-## Team
-| <img src="https://avatars.githubusercontent.com/u/110080440?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/113580842?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/160820741?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/148694558?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/29245033?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/63056336?v=4" width="135" height="135"/> |
-| :-----------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
-|김대민<br/>[@ooortcloud](https://github.com/ooortcloud)|남광형<br/>[@KaRo-o](https://github.com/KaRo-o)|성재민<br/>[@globalstone](https://github.com/globalstone)|이형묵<br/>[@dlgudanr12](https://github.com/dlgudanr12)|최성문<br/>  [@isakc](https://github.com/isakc)|한재용<br/>[@JaeYong93](https://github.com/JaeYong93)|
+| <img src="https://avatars.githubusercontent.com/u/110080440?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/113580842?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/160820741?v=4" width="135" height="135"/> |
+|:---:|:---:|:---:|
+| 김대민<br/>[@ooortcloud](https://github.com/ooortcloud) | 남광형<br/>[@KaRo-o](https://github.com/KaRo-o) | 성재민<br/>[@globalstone](https://github.com/globalstone) |
+| <img src="https://avatars.githubusercontent.com/u/148694558?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/29245033?v=4" width="135" height="135"/> | <img src="https://avatars.githubusercontent.com/u/63056336?v=4" width="135" height="135"/> |
+| 이형묵<br/>[@dlgudanr12](https://github.com/dlgudanr12) | 최성문<br/>[@isakc](https://github.com/isakc) | 한재용<br/>[@JaeYong93](https://github.com/JaeYong93) |
 
 <br>
 
