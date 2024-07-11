@@ -210,7 +210,75 @@
 # 3. 프로젝트 구조 및 웹 어플리케이션 아키텍쳐
 
 ### - 프로젝트 구조
-
+```
+📦 mapmory-project
+ ┣ 📂.github
+ ┃ ┣ 📜ISSUE_TEMPLATE.md
+ ┃ ┗ 📜PULL_REQUEST_TEMPLATE.md
+ ┣ 📂src
+ ┃ ┣ 📂main
+ ┃ ┃ ┣ 📂java
+ ┃ ┃ ┃ ┗ 📂com
+ ┃ ┃ ┃   ┗ 📂mapmory
+ ┃ ┃ ┃     ┣ 📂common
+ ┃ ┃ ┃     ┣ 📂controller
+ ┃ ┃ ┃     ┃ ┣ 📂chatbot
+ ┃ ┃ ┃     ┃ ┣ 📂community
+ ┃ ┃ ┃     ┃ ┣ 📂map
+ ┃ ┃ ┃     ┃ ┣ 📂notice
+ ┃ ┃ ┃     ┃ ┣ 📂product
+ ┃ ┃ ┃     ┃ ┣ 📂purchase
+ ┃ ┃ ┃     ┃ ┣ 📂recommend
+ ┃ ┃ ┃     ┃ ┣ 📂timeline
+ ┃ ┃ ┃     ┃ ┗ 📂user
+ ┃ ┃ ┃     ┣ 📂exception
+ ┃ ┃ ┃     ┣ 📂services
+ ┃ ┃ ┃     ┃ ┣ 📂community
+ ┃ ┃ ┃     ┃ ┣ 📂map
+ ┃ ┃ ┃     ┃ ┣ 📂notice
+ ┃ ┃ ┃     ┃ ┣ 📂product
+ ┃ ┃ ┃     ┃ ┣ 📂purchase
+ ┃ ┃ ┃     ┃ ┣ 📂recommend
+ ┃ ┃ ┃     ┃ ┣ 📂timeline
+ ┃ ┃ ┃     ┃ ┗ 📂user
+ ┃ ┃ ┃     ┣ 📜MapmoryApplication.java
+ ┃ ┃ ┃     ┗ 📜ServletInitializer.java
+ ┃ ┃ ┗ 📂resources
+ ┃ ┃   ┣ 📂config
+ ┃ ┃   ┣ 📂sql
+ ┃ ┃   ┣ 📂static
+ ┃ ┃   ┣ 📂templates
+ ┃ ┃   ┃ ┣ 📂community
+ ┃ ┃   ┃ ┣ 📂map
+ ┃ ┃   ┃ ┣ 📂notice
+ ┃ ┃   ┃ ┣ 📂product
+ ┃ ┃   ┃ ┣ 📂purchase
+ ┃ ┃   ┃ ┣ 📂recommend
+ ┃ ┃   ┃ ┣ 📂timeline
+ ┃ ┃   ┃ ┗ 📂user
+ ┃ ┃   ┗ 📜application.properties
+ ┃ ┗ 📂test
+ ┃   ┗ 📂java
+ ┃     ┗ 📂com
+ ┃       ┗ 📂mapmory
+ ┃         ┣ 📂unit
+ ┃         ┃ ┣ 📂community
+ ┃         ┃ ┣ 📂map
+ ┃         ┃ ┣ 📂notice
+ ┃         ┃ ┣ 📂product
+ ┃         ┃ ┣ 📂purchase
+ ┃         ┃ ┣ 📂recommend
+ ┃         ┃ ┣ 📂timeline
+ ┃         ┃ ┗ 📂user
+ ┃         ┗ 📜MapmoryApplicationTests.java
+ ┣ 📜.gitignore
+ ┣ 📜Dockerfile
+ ┣ 📜LICENSE
+ ┣ 📜README.md
+ ┣ 📜mvnw
+ ┣ 📜mvnw.cmd
+ ┗ 📜pom.xml
+```
 
 ### - 웹 어플리케이션 아키텍쳐 구조
 
