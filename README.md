@@ -211,15 +211,6 @@
 
 ### - 프로젝트 구조
 
-![폴더구조1](https://github.com/isakc/Mapmory/assets/29245033/3f240a36-c15f-450f-ac30-d1c43bb9a5fe)
-
-![폴더구조2](https://github.com/isakc/Mapmory/assets/29245033/cfe90186-0454-42c5-ab4c-2f4c6c89dd9a)
-
-![폴더구조3](https://github.com/isakc/Mapmory/assets/29245033/cc3da342-ee07-4c86-ab9a-2e5b9560191d)
-
-![폴더구조4](https://github.com/isakc/Mapmory/assets/29245033/05947d01-042b-4a73-a8a4-cd3529302217)
-
-![폴더구조5](https://github.com/isakc/Mapmory/assets/29245033/134ebf0d-8619-4cef-a0f4-86680da6f023)
 
 ### - 웹 어플리케이션 아키텍쳐 구조
 
