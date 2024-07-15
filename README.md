@@ -341,14 +341,14 @@
 
 ### 타임스탬프
 
-- **유저**: [00:00 - 02:57](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=0s)
-- **챗봇**: [02:58 - 03:07](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=178s)
-- **타임라인**: [03:08 - 06:05](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=188s)
-- **지도**: [06:06 - 07:19](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=366s)
-- **추천**: [07:20 - 07:30](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=440s)
-- **커뮤니티**: [07:31 - 08:45](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=451s) / [09:06 - 09:34](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=546s)
-- **채팅**: [08:46 - 09:05](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=526s)
-- **상품 & 결제**: [09:35 - 10:38](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=575s)
+- **유저**: [00:00](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=0s)
+- **챗봇**: [02:58](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=178s)
+- **타임라인**: [03:08](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=188s)
+- **지도**: [06:06](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=366s)
+- **추천**: [07:20](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=440s)
+- **커뮤니티**: [07:31](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=451s) / [09:06](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=546s)
+- **채팅**: [08:46](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=526s)
+- **상품 & 결제**: [09:35](https://www.youtube.com/watch?v=jAOE5lEVCP8&t=575s)
 
 ### PPT
 [Mapmory_PPT](https://prezi.com/view/RNQ1eKjVkB6amer4k4c3/)
