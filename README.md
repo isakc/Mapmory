@@ -6,19 +6,37 @@
 
 <br>
 
-# 프로젝트 소개
+# 1. 프로젝트 소개
 일기 작성은 감정 정리와 자기 성찰에 도움이 됩니다. 전통적인 종이 일기 방식의 불편함을 해소하기 위해, 스마트폰과 웹 기술을 활용한 리마인드 앱 'Mapmory'를 고안하였습니다. 이 앱에서는 텍스트 뿐만 아니라 사진, 영상, 위치 정보를 기록할 수 있으며, 내부 SNS 서비스를 통해 다른 사람들과 자신의 생각과 감정 및 관련 정보를 공유할 수 있습니다. 일기의 개념을 확장하고 새로운 커뮤니케이션을 촉진하는 WEB 2.0 기반 플랫폼을 체험해보세요!
 
 <br>
 
-# 팀원 구성
+# 2. 팀원 구성
 | <img src="https://avatars.githubusercontent.com/u/110080440?v=4" width="110" height="110"/> | <img src="https://avatars.githubusercontent.com/u/113580842?v=4" width="110" height="110"/> | <img src="https://avatars.githubusercontent.com/u/160820741?v=4" width="110" height="110"/> | <img src="https://avatars.githubusercontent.com/u/148694558?v=4" width="110" height="110"/> | <img src="https://avatars.githubusercontent.com/u/29245033?v=4" width="110" height="110"/> | <img src="https://avatars.githubusercontent.com/u/63056336?v=4" width="110" height="110"/> |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | 김대민<br/>[@ooortcloud](https://github.com/ooortcloud) | 남광형<br/>[@KaRo-o](https://github.com/KaRo-o) | 성재민<br/>[@globalstone](https://github.com/globalstone) | 이형묵<br/>[@dlgudanr12](https://github.com/dlgudanr12) | 최성문<br/>[@isakc](https://github.com/isakc) | 한재용<br/>[@JaeYong93](https://github.com/JaeYong93) |
 
+### 김대민(조장)
+- 회원 시스템
+
+### 남광형(DB 관리자)
+- 채팅 시스템, 추천 시스템
+
+### 성재민(DevOps 관리자)
+- 고객센터 시스템, 상 시스템
+
+### 이형묵(DB 관리자)
+- 타임라인 시스템
+
+### 최성문(Git 관리자)
+- 지도 시스템, 결제 시스템
+
+### 한재용(Doc 관리자)
+- 커뮤니티 시스템
+
 <br>
 
-# 1. 개발환경
+# 3. 개발환경
 ##  ⚙️ Back End Development
 
 ![Java OpenJDK](https://img.shields.io/badge/Java%20OpenJDK-007396?style=for-the-badge&logo=openjdk&logoColor=white)
@@ -126,7 +144,7 @@
 
 <br/>
 
-# 2. 서브 시스템 및 UseCase 유형 정의
+# 4. 서브 시스템 및 UseCase 유형 정의
 
 ## 1) 회원 시스템
 - 사용자 로그인 / 간편 로그인 / 소셜 로그인 연동 / 로그아웃
@@ -207,7 +225,7 @@
 
 <br/>
 
-# 3. 프로젝트 구조 및 웹 애플리케이션 아키텍쳐
+# 5. 프로젝트 구조 및 웹 애플리케이션 아키텍쳐
 
 ### - 프로젝트 구조
 ```
@@ -293,7 +311,7 @@
 
 <br/>
 
-# 4. 개발 기간 및 작업 관리
+# 6. 개발 기간 및 작업 관리
 총 개발 기간 : 2024.05.07 ~ 2024.07.15
 
 분석 설계 : 2024.05.07 ~ 2024.05.31
@@ -313,27 +331,7 @@
 
 <br/>
 
-# 5. 개발 팀원 및 역할분담
-
-### 김대민(조장)
-- 회원 시스템
-
-### 남광형(DB 관리자)
-- 채팅 시스템, 추천 시스템
-
-### 성재민(DevOps 관리자)
-- 고객센터 시스템, 상품 시스템
-
-### 이형묵(DB 관리자)
-- 타임라인 시스템
-
-### 최성문(Git 관리자)
-- 지도 시스템, 결제 시스템
-
-### 한재용(Doc 관리자)
-- 커뮤니티 시스템
-
- # 6. 페이지별 구현 & PPT
+ # 7. 페이지별 구현 & PPT
 
 ## [구현 영상]
 
@@ -354,18 +352,3 @@
 ### [PPT]
 
 [Mapmory_PPT](https://prezi.com/view/RNQ1eKjVkB6amer4k4c3/)
-
-
-# 7. 후기 
-
-### 김대민
-
-### 남광형
-
-### 성재민
-
-### 이형묵
-
-### 최성문
-
-### 한재용 
